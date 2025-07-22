@@ -17,8 +17,8 @@ We are committed to fostering a welcoming and inclusive community. Please read a
 ### Prerequisites
 - Node.js 18 or higher
 - Git
-- React Native development environment set up
-- Familiarity with TypeScript and React Native
+- Basic understanding of Next.js and React
+- Familiarity with TypeScript and Tailwind CSS
 
 ### Development Setup
 
@@ -39,10 +39,10 @@ We are committed to fostering a welcoming and inclusive community. Please read a
    # Fill in your development environment variables
    ```
 
-4. **Run the app**
+4. **Run the development server**
    ```bash
-   npm start
-   npm run ios # or npm run android
+   npm run dev
+   # Open http://localhost:3000 in your browser
    ```
 
 ## Development Guidelines
@@ -103,9 +103,10 @@ export const Component: React.FC<ComponentProps> = ({
 
 ### File Naming Conventions
 - Components: `PascalCase.tsx` (e.g., `PromptCard.tsx`)
+- Pages: `page.tsx` in app directory (Next.js 13+ convention)
+- API Routes: `route.ts` in app/api directories
 - Hooks: `camelCase.ts` starting with "use" (e.g., `usePrompts.ts`)
 - Utils: `camelCase.ts` (e.g., `dateHelpers.ts`)
-- Constants: `camelCase.ts` (e.g., `promptCategories.ts`)
 - Types: `camelCase.ts` ending with "Types" (e.g., `promptTypes.ts`)
 
 ## Testing
@@ -115,12 +116,13 @@ We maintain high test coverage to ensure code quality:
 ### Unit Tests
 - Write tests for all business logic
 - Test custom hooks thoroughly
-- Use React Native Testing Library for component tests
+- Use React Testing Library for component tests
+- Test API routes with Jest
 - Aim for 80%+ coverage
 
 ```bash
 # Run tests
-npm test
+npm run test
 
 # Run tests with coverage
 npm run test:coverage
@@ -143,9 +145,9 @@ describe('ComponentName', () => {
 ```
 
 ### E2E Tests
-- Use Detox for end-to-end testing
+- Use Playwright or Cypress for end-to-end testing
 - Focus on critical user journeys
-- Test on both iOS and Android
+- Test on multiple browsers and screen sizes
 
 ## Commit Message Format
 
@@ -190,9 +192,10 @@ test(hooks): add tests for usePrompts hook
 
 3. **Test your changes**
    ```bash
-   npm test
+   npm run test
    npm run lint
    npm run type-check
+   npm run build
    ```
 
 4. **Commit your changes**
@@ -261,38 +264,42 @@ When reporting bugs or requesting features:
 - Documentation updates
 - Test coverage improvements
 - Bug fixes with clear reproduction steps
+- Tailwind CSS styling improvements
 
 ### Intermediate Contributions
-- New prompt categories
+- New prompt categories and management
 - Performance optimizations
 - Accessibility improvements
-- Integration with external services
+- Database schema enhancements
+- API route improvements
 
 ### Advanced Contributions
 - Architecture improvements
-- Backend API development
-- DevOps and deployment
+- Next.js performance optimizations
+- Vercel deployment optimizations
 - Security enhancements
+- Database optimization and scaling
 
 ## Development Tips
 
 ### Local Development
-- Use the iOS simulator for faster development
-- Enable hot reloading for quick iterations
-- Use React DevTools for debugging
-- Test on real devices regularly
+- Use browser developer tools for debugging
+- Enable hot reloading for quick iterations (automatic in Next.js)
+- Use React DevTools browser extension
+- Test on multiple screen sizes and browsers
 
 ### Performance
 - Use React.memo for expensive components
-- Implement proper image caching
-- Monitor bundle size and loading times
-- Profile with React Native Performance Monitor
+- Implement proper image optimization with Next.js Image
+- Monitor bundle size with Next.js bundle analyzer
+- Use Next.js built-in performance monitoring
 
 ### Accessibility
-- Add proper accessibility labels
+- Add proper ARIA labels and semantic HTML
 - Test with screen readers
-- Ensure good color contrast
+- Ensure good color contrast ratios
 - Support keyboard navigation
+- Use proper heading hierarchy
 
 ## Community
 

@@ -44,8 +44,8 @@ src/
 
 ### Testing Approach
 - Jest for unit tests
-- React Native Testing Library for component tests
-- Detox for E2E testing
+- React Testing Library for component tests
+- Playwright or Cypress for E2E testing
 - Aim for 80%+ test coverage on business logic
 
 ## Important Commands
@@ -129,8 +129,9 @@ src/
 6. User profile management
 
 ### Phase 3: Mobile App
-1. React Native app development
+1. React Native app using existing backend API
 2. Native push notifications
-3. Enhanced mobile user experience
-4. App store deployment
+3. Mobile-optimized user experience
+4. App store deployment (iOS and Android)
 5. Feature parity with web version
+6. Mobile-specific features (camera integration, offline support)

@@ -37,7 +37,7 @@ Glimpse addresses social media fatigue by:
 ### Prerequisites
 - Node.js 18+ 
 - Git
-- PostgreSQL (or start with SQLite)
+- PostgreSQL (for production) or SQLite (for development)
 
 ### Installation
 
@@ -75,31 +75,31 @@ Glimpse addresses social media fatigue by:
    http://localhost:3000
    ```
 
-## 📱 Tech Stack
+## 🌐 Tech Stack
 
 - **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
-- **Backend**: Next.js API routes
-- **Database**: PostgreSQL with Prisma ORM
+- **Backend**: Next.js API routes (same repo)
+- **Database**: PostgreSQL with Prisma ORM (SQLite for development)
 - **Authentication**: NextAuth.js
-- **Storage**: Vercel Blob or AWS S3
+- **File Storage**: Vercel Blob
 - **Deployment**: Vercel
-- **Future**: React Native mobile app
+- **Future**: React Native mobile app using same backend
 
 ## 🗂️ Project Structure
 
 ```
 src/
-├── app/                # Next.js app directory (pages and layouts)
-│   ├── (auth)/        # Authentication pages
-│   ├── gallery/       # Gallery page and components
-│   ├── submit/        # Submit page and components
-│   └── api/           # API routes
-├── components/        # Reusable UI components
-├── lib/              # Database, auth, and utility functions
-├── hooks/            # Custom React hooks
-├── types/            # TypeScript type definitions
-├── constants/        # App constants and prompt categories
-└── public/           # Static assets
+├── app/                 # Next.js app directory (pages and layouts)
+│   ├── (auth)/          # Authentication pages
+│   ├── gallery/         # Gallery page and components
+│   ├── submit/          # Submit page and components
+│   └── api/             # API routes
+├── components/          # Reusable UI components
+├── lib/                # Database, auth, and utility functions
+├── hooks/              # Custom React hooks
+├── types/              # TypeScript type definitions
+├── constants/          # App constants and configuration
+└── public/             # Static assets
 ```
 
 ## 🎨 Key Features
@@ -121,10 +121,10 @@ Glimpse is intentionally simple:
 5. **Gallery**: Browse everyone's responses when they're published together
 
 ### Technical Features
-- **Responsive Design**: Works great on desktop and mobile browsers
-- **PWA Ready**: Install as an app on mobile devices
-- **Auto Cleanup**: Photos automatically deleted to keep storage minimal
-- **Countdown Timer**: Always know when the next cycle begins
+- **Responsive Design**: Mobile-first design that works great on all screen sizes
+- **PWA Ready**: Install as an app on mobile devices (Phase 2)
+- **Auto Cleanup**: Photos automatically deleted after each cycle
+- **Real-time Updates**: Countdown timer and status updates
 
 ## 🔧 Configuration
 
@@ -167,11 +167,12 @@ BLOB_READ_WRITE_TOKEN="your-vercel-blob-token"
 - [ ] User authentication with NextAuth.js
 - [ ] Database schema and Prisma setup
 - [ ] Basic onboarding flow
-- [ ] Weekly prompt system with countdown
-- [ ] Photo upload and submission with confirmation
+- [ ] Weekly prompt system with countdown timer
+- [ ] Photo upload and caption submission
 - [ ] Friend system (search and add by username)
 - [ ] Gallery page for viewing responses
-- [ ] Automatic photo cleanup after cycles
+- [ ] Submit page with confirmation step
+- [ ] Automatic photo cleanup after each cycle
 
 ### Phase 2: Enhanced Web Experience
 - [ ] PWA configuration for mobile-like experience

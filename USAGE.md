@@ -120,203 +120,176 @@ DATABASE_URL="your-production-database-url"
 1. Enter email and password
 2. Optional: Use biometric authentication
 
-### Receiving and Responding to Prompts
+### Weekly Prompt System
 
-**Weekly Prompt System:**
-- Prompts are sent randomly between Tuesday-Thursday each week
-- You have until Sunday to respond
-- Push notifications remind you to respond
+**How It Works:**
+- New prompts release every Saturday at 12:00 PM Pacific Time
+- You have exactly 7 days to submit your response
+- All responses are published simultaneously when the window closes
+- Next prompt becomes available immediately after publication
 
 **Responding to a Prompt:**
-1. Open the app when you receive a notification
-2. Read the prompt carefully
-3. Select a photo from your gallery or take a new one
-4. Write a meaningful caption
-5. Choose visibility (all friends, close friends, private)
-6. Submit your response
+1. Visit the Submit page to see the current prompt
+2. Upload a photo from your device
+3. Write a meaningful caption (required)
+4. Review your submission in the confirmation dialog
+5. Submit your response (cannot be edited after submission)
+6. See "waiting for others" status until the cycle ends
 
-### Managing Friends
+### Friend System
 
 **Adding Friends:**
-```
-Profile → Friends → Add Friend → Search by username/email
-```
+- Search for friends by their unique username
+- Send friend requests that must be accepted
+- Only friends can see your responses
 
-**Friend Categories:**
-- **All Friends**: See all your responses
-- **Close Friends**: See responses marked for close friends only
-- **Best Friends**: Special category with enhanced visibility
+**Friend Management:**
+- View your friends list
+- Remove friends if needed
+- All responses are friends-only (no public sharing)
 
-**Privacy Controls:**
-- Set default visibility for responses
-- Block or unfollow users
-- Report inappropriate content
+**Username Requirements:**
+- 3-30 characters long
+- Letters, numbers, underscores, and hyphens only
+- Must start with a letter or number
+- Globally unique across all users
 
-### Viewing the Feed
+### Gallery Page
 
-**Feed Features:**
-- Chronological display of friend responses
-- Filter by prompt category
-- Save favorite responses to collections
-- React with emoji responses
-- Leave thoughtful comments
+**Viewing Responses:**
+- See all friends' responses from the previous week
+- Responses are displayed in random order
+- Each response shows the username, photo, and caption
+- No interaction features (likes/comments) in initial version
 
-**Navigation:**
-- Swipe to navigate between responses
-- Tap profile photos to view user profiles
-- Long press to access additional options
+**Gallery Features:**
+- Scroll through all submitted responses
+- View full-size photos by clicking
+- See which prompt the responses were for
+- Clean, distraction-free viewing experience
 
 ## Development Features
 
-### Debug Mode
+### Development Mode
 
-Enable debug mode in development:
-```typescript
-// In your .env file
-DEBUG_MODE=true
-
-// Access debug menu in app
-// iOS: Shake device or Cmd+D in simulator
-// Android: Shake device or Cmd+M in simulator
-```
-
-**Debug Features:**
-- Network request logging
-- State inspection
-- Performance metrics
-- Push notification testing
-- Mock data generation
-
-### Hot Reloading
-
-Hot reloading is enabled by default in development:
-- Changes to components automatically refresh
-- State is preserved during updates
-- Styles update instantly
-
-### Testing Different Scenarios
-
-**Mock Data Generation:**
+Next.js development features:
 ```bash
-# Generate sample prompts and responses
-npm run dev:generate-mock-data
+# Start development server with hot reloading
+npm run dev
 
-# Reset app state
-npm run dev:reset-state
-
-# Test push notifications
-npm run dev:test-notifications
+# Access at http://localhost:3000
 ```
+
+**Development Features:**
+- Hot reloading for instant updates
+- TypeScript error checking
+- Automatic code formatting
+- Development-only debug logs
+
+### Database Development
+
+**Working with Prisma:**
+```bash
+# View your database in browser
+npx prisma studio
+
+# Reset database and apply all migrations
+npx prisma db reset
+
+# Generate new migration after schema changes
+npx prisma migrate dev --name your-migration-name
+```
+
+### Testing the App
+
+**Manual Testing:**
+- Use database seeding to create test users and prompts
+- Test the weekly cycle by adjusting system time
+- Upload test images to verify file storage
+- Test friend requests and user interactions
 
 ## Advanced Configuration
 
-### Custom Prompt Categories
+### Configuration
 
-Edit `src/constants/promptCategories.ts`:
+**Environment Variables:**
+Customize your development setup in `.env.local`:
 
-```typescript
-export const customCategories = [
-  {
-    id: 'vacation',
-    title: 'Travel Memories',
-    description: 'Share your favorite vacation photo',
-    icon: '✈️',
-    frequency: 'monthly'
-  },
-  // Add more categories...
-];
+```bash
+# Database (SQLite for development)
+DATABASE_URL="file:./dev.db"
+
+# NextAuth configuration
+NEXTAUTH_SECRET="your-development-secret"
+NEXTAUTH_URL="http://localhost:3000"
+
+# File storage (Vercel Blob)
+BLOB_READ_WRITE_TOKEN="your-development-token"
 ```
 
-### Notification Scheduling
+**Customizing Prompts:**
+Add new prompts by seeding the database or using the admin interface:
 
-Configure in `src/services/notifications.ts`:
-
-```typescript
-export const notificationConfig = {
-  promptDelivery: {
-    dayOfWeek: [2, 3, 4], // Tuesday-Thursday
-    timeRange: [10, 18], // 10 AM - 6 PM
-    timezone: 'local'
-  },
-  reminders: {
-    enabled: true,
-    intervals: [24, 48, 72] // Hours before deadline
-  }
-};
+```bash
+# Run database seed script
+npx prisma db seed
 ```
 
-### Theme Customization
-
-Modify `src/constants/theme.ts`:
-
-```typescript
-export const theme = {
-  colors: {
-    primary: '#6366f1',
-    secondary: '#f59e0b',
-    background: '#ffffff',
-    surface: '#f8fafc',
-    text: '#1f2937'
-  },
-  fonts: {
-    regular: 'Inter-Regular',
-    medium: 'Inter-Medium',
-    bold: 'Inter-Bold'
-  },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32
-  }
-};
-```
+**Styling and Theme:**
+- Tailwind CSS configuration in `tailwind.config.js`
+- Global styles in `src/app/globals.css`
+- Component-specific styles using Tailwind classes
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Metro bundler issues:**
+**Next.js build errors:**
 ```bash
-npm run reset-cache
-npm start -- --reset-cache
+# Clear Next.js cache
+rm -rf .next
+npm run build
 ```
 
-**iOS build errors:**
+**Database connection issues:**
 ```bash
-cd ios && pod install && cd ..
-npm run ios
-```
+# Reset database
+npx prisma db reset
 
-**Android build errors:**
-```bash
-cd android && ./gradlew clean && cd ..
-npm run android
+# Regenerate Prisma client
+npx prisma generate
 ```
 
 **Authentication issues:**
 ```bash
-# Check Firebase configuration
-# Verify API keys in .env file
-# Clear app data and try again
+# Check environment variables
+# Verify NEXTAUTH_SECRET is set
+# Clear browser cookies and try again
+```
+
+**File upload issues:**
+```bash
+# Verify BLOB_READ_WRITE_TOKEN is correct
+# Check file size limits
+# Ensure proper file permissions
 ```
 
 ### Performance Optimization
 
 **Image optimization:**
-- Use WebP format when possible
-- Implement lazy loading for feeds
-- Cache images locally
-- Compress uploads before sending
+- Next.js Image component with automatic optimization
+- Vercel Blob automatic image processing
+- Lazy loading for gallery images
+- Responsive image sizes
 
-**Bundle size optimization:**
+**Web performance:**
 ```bash
 # Analyze bundle size
-npm run analyze
+npx @next/bundle-analyzer
 
-# Enable Hermes (Android)
-# Set hermes: true in android/app/build.gradle
+# Build for production and test
+npm run build
+npm start
 ```
 
 ### Monitoring and Analytics
@@ -331,33 +304,26 @@ npm run analyze
 - Monitor user engagement
 - A/B test new features
 
-## API Documentation
+## API Routes
 
-### Authentication Endpoints
+### Authentication (NextAuth.js)
 ```
-POST /auth/register
-POST /auth/login
-POST /auth/refresh
-DELETE /auth/logout
+GET/POST /api/auth/* - NextAuth.js endpoints
 ```
 
-### Prompt Endpoints
+### Core Endpoints
 ```
-GET /prompts/weekly
-GET /prompts/history
-POST /prompts/respond
-PUT /prompts/response/:id
-```
-
-### Social Endpoints
-```
-GET /feed
-POST /friends/add
-GET /friends/list
-POST /responses/:id/react
+GET /api/prompts/current - Get current week's prompt
+GET /api/responses - Get gallery responses
+POST /api/responses - Submit response
+GET /api/friends - Get friends list
+POST /api/friends - Add friend
 ```
 
-For complete API documentation, see `docs/api.md`.
+### File Upload
+```
+POST /api/upload - Upload photos to Vercel Blob
+```
 
 ## Support and Help
 
