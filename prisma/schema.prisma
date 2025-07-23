@@ -62,13 +62,20 @@ model Prompt {
   text        String
   weekStart   DateTime  // Saturday 12 PM PT when this prompt becomes active
   weekEnd     DateTime  // Next Saturday 12 PM PT when submissions close
-  isActive    Boolean   @default(false)
+  status      PromptStatus @default(SCHEDULED) // SCHEDULED -> ACTIVE -> COMPLETED
+  queueOrder  Int       // Order in the queue (lower numbers = sooner)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   responses Response[]
 
   @@map("prompts")
+}
+
+enum PromptStatus {
+  SCHEDULED  // Future prompt waiting in queue
+  ACTIVE     // Currently accepting submissions
+  COMPLETED  // Past prompt, submissions closed and published
 }
 
 model Response {

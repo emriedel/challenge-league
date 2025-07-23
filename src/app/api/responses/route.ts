@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     const prompt = await db.prompt.findFirst({
       where: {
         id: promptId,
-        isActive: true,
+        status: 'ACTIVE',
       },
     });
 

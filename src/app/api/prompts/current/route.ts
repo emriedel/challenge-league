@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { getWeeklyPromptDates } from '@/lib/weeklyPrompts';
+import { processPromptQueue } from '@/lib/promptQueue';
 
 export async function GET() {
   try {
@@ -12,10 +12,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Process the prompt queue to handle any transitions
+    await processPromptQueue();
+
     // Get current active prompt
     const activePrompt = await db.prompt.findFirst({
       where: {
-        isActive: true,
+        status: 'ACTIVE',
       },
       include: {
         responses: {

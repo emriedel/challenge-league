@@ -20,6 +20,12 @@ const samplePrompts = [
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  // Clear existing data
+  await prisma.response.deleteMany();
+  await prisma.friendship.deleteMany();
+  await prisma.prompt.deleteMany();
+  await prisma.user.deleteMany();
+
   // Create test users
   const users = [];
   for (let i = 1; i <= 5; i++) {
@@ -62,7 +68,8 @@ async function main() {
       text: samplePrompts[0],
       weekStart,
       weekEnd,
-      isActive: true,
+      status: 'ACTIVE',
+      queueOrder: 1,
     },
   });
   console.log(`📝 Created current prompt: "${currentPrompt.text}"`);
@@ -81,11 +88,31 @@ async function main() {
         text: samplePrompts[i],
         weekStart: pastWeekStart,
         weekEnd: pastWeekEnd,
-        isActive: false,
+        status: 'COMPLETED',
+        queueOrder: i - 3, // Negative numbers for past prompts
       },
     });
     pastPrompts.push(pastPrompt);
     console.log(`📝 Created past prompt: "${pastPrompt.text}"`);
+  }
+
+  // Create future scheduled prompts
+  for (let i = 4; i <= 7; i++) {
+    const futureWeekStart = new Date(weekStart);
+    futureWeekStart.setDate(weekStart.getDate() + (7 * (i - 3)));
+    const futureWeekEnd = new Date(weekEnd);
+    futureWeekEnd.setDate(weekEnd.getDate() + (7 * (i - 3)));
+
+    await prisma.prompt.create({
+      data: {
+        text: samplePrompts[i],
+        weekStart: futureWeekStart,
+        weekEnd: futureWeekEnd,
+        status: 'SCHEDULED',
+        queueOrder: i + 1,
+      },
+    });
+    console.log(`📅 Created scheduled prompt: "${samplePrompts[i]}"`);
   }
 
   // Create some published responses for past prompts
