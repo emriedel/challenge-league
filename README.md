@@ -75,6 +75,20 @@ Glimpse addresses social media fatigue by:
    http://localhost:3000
    ```
 
+## 🔐 Test Accounts
+
+The database seed creates test users for development:
+
+- **Email**: `user1@example.com` | **Password**: `password123`
+- **Email**: `user2@example.com` | **Password**: `password123`  
+- **Email**: `user3@example.com` | **Password**: `password123`
+- **Email**: `user4@example.com` | **Password**: `password123`
+- **Email**: `user5@example.com` | **Password**: `password123`
+
+**Admin Access**: `testuser1` has admin privileges for managing prompts at `/admin`
+
+All test accounts are already connected as friends, so you can see content across accounts.
+
 ## 🌐 Tech Stack
 
 - **Frontend**: Next.js 14 with TypeScript and Tailwind CSS

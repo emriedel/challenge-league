@@ -116,8 +116,8 @@ DATABASE_URL=your-neon-postgresql-connection-string
 NEXTAUTH_SECRET=your-super-secret-key-here-make-it-long-and-random
 NEXTAUTH_URL=https://your-app-name.vercel.app
 
-# Optional: Vercel Blob (for file uploads later)
-# BLOB_READ_WRITE_TOKEN=your-vercel-blob-token
+# Vercel Blob (required for photo uploads)
+BLOB_READ_WRITE_TOKEN=your-vercel-blob-token
 ```
 
 **Important Notes:**
@@ -236,11 +236,47 @@ Buy a domain from any registrar (Namecheap, GoDaddy, etc.)
 - Consider exporting data periodically for extra safety
 - Document your environment variables securely
 
+## Step 6: Set Up Vercel Blob Storage (Required for Photo Uploads)
+
+### 6.1 Create Blob Store
+
+1. Go to your Vercel dashboard
+2. Navigate to "Storage" tab
+3. Click "Create Database" → "Blob"
+4. Name it "glimpse-uploads" (or similar)
+5. Click "Create"
+
+### 6.2 Get Access Token
+
+1. After creating the Blob store, click on it
+2. Go to the "Settings" tab
+3. Find the "Access Tokens" section
+4. Copy the `BLOB_READ_WRITE_TOKEN`
+
+### 6.3 Add to Environment Variables
+
+1. Go to your Vercel project settings
+2. Navigate to "Environment Variables"
+3. Add or update:
+   ```
+   BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
+   ```
+4. Redeploy your application
+
+### 6.4 For Local Development
+
+Add the same token to your local `.env` file:
+```bash
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
+```
+
+**Note**: The app includes a fallback for development that stores files locally in `public/uploads/` when the Vercel Blob token is not configured.
+
 ## Next Steps
 
 After successful deployment:
 
-1. **Test thoroughly** - Create multiple accounts, test all flows
+1. **Test thoroughly** - Create multiple accounts, test all flows including photo uploads
 2. **Set up monitoring** - Configure error tracking and uptime monitoring  
 3. **Plan updates** - Set up a development/staging environment for testing changes
 4. **Scale considerations** - Monitor usage and upgrade database/hosting as needed

@@ -172,3 +172,6 @@ workbox-*.js.map
 # Local development
 *.local
 /generated/prisma
+
+# Development uploads
+/public/uploads/

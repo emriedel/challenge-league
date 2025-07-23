@@ -2,14 +2,17 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePrompt } from '@/hooks/usePrompt';
 import PromptCard from '@/components/PromptCard';
+import SubmissionForm from '@/components/SubmissionForm';
 
 export default function Submit() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: promptData, isLoading, error } = usePrompt();
+  const { data: promptData, isLoading, error, refetch } = usePrompt();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -18,9 +21,54 @@ export default function Submit() {
     }
   }, [session, status, router]);
 
-  const handleSubmitClick = () => {
-    // TODO: Open submission modal/form
-    console.log('Submit clicked - will implement submission form');
+  const handleSubmission = async (data: { photo: File; caption: string }) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // First upload the photo
+      const formData = new FormData();
+      formData.append('file', data.photo);
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const uploadError = await uploadResponse.json();
+        throw new Error(uploadError.error || 'Failed to upload photo');
+      }
+
+      const { url: photoUrl } = await uploadResponse.json();
+
+      // Then submit the response
+      const submitResponse = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          promptId: promptData?.prompt.id,
+          photoUrl,
+          caption: data.caption,
+        }),
+      });
+
+      if (!submitResponse.ok) {
+        const submitError = await submitResponse.json();
+        throw new Error(submitError.error || 'Failed to submit response');
+      }
+
+      // Success! Refresh the prompt data to show the submitted state
+      await refetch();
+      
+    } catch (error) {
+      console.error('Submission error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'An error occurred while submitting');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (status === 'loading' || isLoading) {
@@ -73,27 +121,39 @@ export default function Submit() {
         <PromptCard 
           prompt={promptData.prompt}
           userResponse={promptData.userResponse}
-          showSubmitButton={!promptData.userResponse}
-          onSubmitClick={handleSubmitClick}
+          showSubmitButton={false}
+          onSubmitClick={() => {}}
         />
       </div>
       
-      {!promptData.userResponse && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="text-center">
-            <div className="text-gray-400 mb-4">
-              <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Submit Your Response</h3>
-            <p className="text-gray-500 mb-4">
-              Upload a photo and add your caption to respond to this week&apos;s prompt.
-            </p>
-            <p className="text-sm text-gray-400">
-              Note: Photo upload functionality will be implemented in the next step.
-            </p>
+      {submitError && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {submitError}
+        </div>
+      )}
+      
+      {promptData.userResponse ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+          <div className="text-green-400 mb-4">
+            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
+          <h3 className="text-lg font-medium text-green-900 mb-2">Response Submitted!</h3>
+          <p className="text-green-700 mb-4">
+            Your photo and caption have been submitted successfully.
+          </p>
+          <p className="text-sm text-green-600">
+            Your response will be published with everyone else&apos;s when the submission window closes.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <SubmissionForm
+            prompt={promptData.prompt}
+            onSubmit={handleSubmission}
+            isSubmitting={isSubmitting}
+          />
         </div>
       )}
     </div>
