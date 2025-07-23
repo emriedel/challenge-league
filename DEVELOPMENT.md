@@ -38,10 +38,11 @@ npm run dev
 
 ### 3. Testing the Complete Flow
 1. Sign in with `user1@example.com` / `password123`
-2. Go to `/submit` to upload a photo and add a caption
-3. Submit the response (it won't be published until the prompt ends)
-4. Sign in as `user2@example.com` to test from another user's perspective
-5. Check `/admin` as `user1@example.com` to manage prompts
+2. Go to **Gallery** (`/`) to view published responses from past prompts
+3. Go to `/submit` to upload a photo and add a caption
+4. Submit the response (it won't be published until the prompt ends)
+5. Sign in as `user2@example.com` to test from another user's perspective
+6. Check `/admin` as `user1@example.com` to manage prompts
 
 ### 4. Database Management
 ```bash
@@ -76,6 +77,12 @@ BLOB_READ_WRITE_TOKEN="your-vercel-blob-token-here" # Optional for development
 - Add future prompts to the queue
 - Reorder prompts with drag and drop
 - Edit or delete scheduled prompts
+
+#### Gallery System
+- Displays published responses from completed prompts only
+- Shows responses from friends (all test users are pre-connected)
+- Random feed ordering implemented
+- Responsive grid layout (1 column mobile, 2 columns desktop)
 
 #### Friend System
 - Users are pre-connected for testing
