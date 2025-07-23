@@ -50,8 +50,64 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  responses Response[]
+  sentFriendships Friendship[] @relation("FriendshipSender")
+  receivedFriendships Friendship[] @relation("FriendshipReceiver")
 
   @@map("users")
+}
+
+model Prompt {
+  id          String    @id @default(cuid())
+  text        String
+  weekStart   DateTime  // Saturday 12 PM PT when this prompt becomes active
+  weekEnd     DateTime  // Next Saturday 12 PM PT when submissions close
+  isActive    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  responses Response[]
+
+  @@map("prompts")
+}
+
+model Response {
+  id          String    @id @default(cuid())
+  caption     String
+  imageUrl    String
+  submittedAt DateTime  @default(now())
+  isPublished Boolean   @default(false) // Published when submission window closes
+  publishedAt DateTime?
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promptId String
+  prompt   Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, promptId]) // One response per user per prompt
+  @@map("responses")
+}
+
+model Friendship {
+  id         String   @id @default(cuid())
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  senderId   String
+  sender     User @relation("FriendshipSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String  
+  receiver   User @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("friendships")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
 }
 
 model VerificationToken {
