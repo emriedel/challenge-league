@@ -1,10 +1,75 @@
 import { db } from './db';
 import { getWeeklyPromptDates } from './weeklyPrompts';
+import { del } from '@vercel/blob';
+import { unlink } from 'node:fs/promises';
+import { join } from 'node:path';
+
+async function cleanupOldPhotos() {
+  try {
+    // Find prompts that were completed more than 1 week ago (past cleanup threshold)
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7); // 1 week ago
+
+    const oldPrompts = await db.prompt.findMany({
+      where: {
+        status: 'COMPLETED',
+        weekEnd: { lt: cutoffDate },
+      },
+      include: {
+        responses: true,
+      },
+    });
+
+    let cleanedCount = 0;
+
+    for (const prompt of oldPrompts) {
+      for (const response of prompt.responses) {
+        try {
+          if (response.imageUrl.startsWith('/uploads/')) {
+            // Local development file
+            const filename = response.imageUrl.replace('/uploads/', '');
+            const filepath = join(process.cwd(), 'public', 'uploads', filename);
+            
+            try {
+              await unlink(filepath);
+              console.log(`🗑️ Deleted local file: ${filename}`);
+            } catch (err) {
+              // File might already be deleted, continue
+              console.log(`⚠️ Could not delete local file: ${filename}`);
+            }
+          } else if (response.imageUrl.includes('blob.vercel-storage.com')) {
+            // Vercel Blob file
+            try {
+              await del(response.imageUrl);
+              console.log(`🗑️ Deleted blob file: ${response.imageUrl}`);
+            } catch (err) {
+              console.log(`⚠️ Could not delete blob file: ${response.imageUrl}`);
+            }
+          }
+          cleanedCount++;
+        } catch (error) {
+          console.error(`❌ Error cleaning photo for response ${response.id}:`, error);
+        }
+      }
+    }
+
+    if (cleanedCount > 0) {
+      console.log(`🧹 Cleaned up ${cleanedCount} old photos`);
+    }
+
+    return { success: true, cleanedCount };
+  } catch (error) {
+    console.error('❌ Error during photo cleanup:', error);
+    return { success: false, error };
+  }
+}
 
 export async function processPromptQueue() {
   const now = new Date();
   
   try {
+    console.log('🔄 Processing prompt queue...');
+
     // Complete any active prompts that have ended
     const activePrompts = await db.prompt.findMany({
       where: {
@@ -15,7 +80,7 @@ export async function processPromptQueue() {
 
     for (const prompt of activePrompts) {
       // Mark responses as published
-      await db.response.updateMany({
+      const publishedCount = await db.response.updateMany({
         where: { promptId: prompt.id },
         data: { 
           isPublished: true,
@@ -29,7 +94,7 @@ export async function processPromptQueue() {
         data: { status: 'COMPLETED' },
       });
 
-      console.log(`✅ Completed prompt: "${prompt.text}"`);
+      console.log(`✅ Completed prompt: "${prompt.text}" (${publishedCount.count} responses published)`);
     }
 
     // Check if we need to activate the next prompt
@@ -59,10 +124,14 @@ export async function processPromptQueue() {
         });
 
         console.log(`🚀 Activated next prompt: "${nextPrompt.text}"`);
+        console.log(`   Submission window: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`);
       } else {
         console.log('⚠️ No scheduled prompts available');
       }
     }
+
+    // Run photo cleanup periodically
+    await cleanupOldPhotos();
 
     return { success: true };
   } catch (error) {

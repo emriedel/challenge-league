@@ -355,6 +355,48 @@ export default function Admin() {
         </div>
       )}
 
+      {/* Queue Processing */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-blue-900 mb-4">
+          🔄 Queue Processing
+        </h2>
+        <p className="text-blue-700 mb-4">
+          Manually trigger the automatic prompt cycle processing. This will:
+        </p>
+        <ul className="text-sm text-blue-600 mb-4 space-y-1">
+          <li>• Complete expired prompts and publish responses</li>
+          <li>• Activate the next scheduled prompt</li>
+          <li>• Clean up old photos from completed prompts</li>
+        </ul>
+        <button
+          onClick={async () => {
+            setIsLoading(true);
+            try {
+              const response = await fetch('/api/admin/process-queue', {
+                method: 'POST',
+              });
+              const result = await response.json();
+              
+              if (result.success) {
+                alert('Queue processed successfully! Check the console for details.');
+                fetchQueue(); // Refresh the queue display
+              } else {
+                alert(`Error: ${result.error}`);
+              }
+            } catch (error) {
+              alert('Failed to process queue');
+              console.error('Queue processing error:', error);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          disabled={isLoading}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+        >
+          {isLoading ? 'Processing...' : 'Process Queue Now'}
+        </button>
+      </div>
+
       <div className="mt-8 text-sm text-gray-500">
         <p><strong>How it works:</strong> Prompts automatically activate in queue order every Saturday at 12 PM PT. The next prompt will become active when the current one ends.</p>
       </div>
