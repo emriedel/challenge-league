@@ -1,6 +1,6 @@
-# Deployment Guide - Glimpse
+# Deployment Guide - Glimpse Competition Platform
 
-This guide will walk you through deploying Glimpse for the first time, including setting up a PostgreSQL database.
+This guide will walk you through deploying Glimpse's creative competition platform for the first time, including setting up PostgreSQL database, automated cycle management, and cron jobs.
 
 ## Prerequisites
 
@@ -118,12 +118,16 @@ NEXTAUTH_URL=https://your-app-name.vercel.app
 
 # Vercel Blob (required for photo uploads)
 BLOB_READ_WRITE_TOKEN=your-vercel-blob-token
+
+# Cron Security (required for automated competition cycles)
+CRON_SECRET=your-random-cron-secret-here
 ```
 
 **Important Notes:**
 - `NEXTAUTH_SECRET`: Generate a random string at least 32 characters long
 - `NEXTAUTH_URL`: Will be your actual Vercel URL (you can update this after first deploy)
 - `DATABASE_URL`: The PostgreSQL connection string from Neon
+- `CRON_SECRET`: Generate a random secret for cron job security (competition cycle automation)
 
 ### 3.3 Deploy
 
@@ -150,9 +154,10 @@ vercel login
 # Link your project
 vercel link
 
-# Run migrations on production
+# Run migrations and seed competition data on production
 vercel env pull .env.production
 npx dotenv -e .env.production -- npx prisma db push
+npx dotenv -e .env.production -- npx prisma db seed
 ```
 
 **Option B: Add Migration to Build Process**
@@ -178,13 +183,16 @@ Then redeploy.
 ### 4.2 Test Your Deployment
 
 1. Visit your deployed app
-2. Test registration:
-   - Create a new account
-   - Verify you can sign in/out
+2. Test competition features:
+   - Create a new account or use test credentials (player1@example.com / password123)
+   - Verify auto-assignment to Main League
+   - Check league dashboard with tabs (Overview, Voting, Results, Leaderboard)
+   - Test photo submission to active challenges
+   - Test voting interface (if in voting phase)
 3. Check the database:
    - Go to Neon dashboard
-   - Use the SQL Editor to run: `SELECT * FROM users;`
-   - You should see your test user
+   - Use the SQL Editor to run: `SELECT * FROM users;` and `SELECT * FROM leagues;`
+   - You should see test users and the Main League
 
 ## Step 5: Set Up Custom Domain (Optional)
 
@@ -272,21 +280,60 @@ BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
 
 **Note**: The app includes a fallback for development that stores files locally in `public/uploads/` when the Vercel Blob token is not configured.
 
+## Step 7: Set Up Automated Competition Cycles
+
+### 7.1 Configure Cron Jobs
+
+Vercel will automatically set up the cron job based on your `vercel.json` configuration:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/prompt-cycle",
+      "schedule": "0 */12 * * *"
+    }
+  ]
+}
+```
+
+This runs every 12 hours to check and transition competition phases.
+
+### 7.2 Verify Cron Functionality
+
+1. In Vercel dashboard, go to "Functions" tab
+2. Check "Cron Functions" section
+3. Verify the `/api/cron/prompt-cycle` function is listed
+4. Monitor the function logs for successful executions
+
+### 7.3 Manual Cycle Testing
+
+You can manually trigger cycle processing:
+
+1. Sign in as admin (player1@example.com)
+2. Go to `/admin`
+3. Use "Process Queue Now" button to test transitions
+4. Check console logs for detailed processing information
+
 ## Next Steps
 
 After successful deployment:
 
-1. **Test thoroughly** - Create multiple accounts, test all flows including photo uploads
-2. **Set up monitoring** - Configure error tracking and uptime monitoring  
-3. **Plan updates** - Set up a development/staging environment for testing changes
-4. **Scale considerations** - Monitor usage and upgrade database/hosting as needed
+1. **Test thoroughly** - Create multiple accounts, test competition flows, voting, and leaderboards
+2. **Monitor competition cycles** - Verify automated phase transitions work correctly
+3. **Set up monitoring** - Configure error tracking and uptime monitoring for cron jobs
+4. **Plan updates** - Set up a development/staging environment for testing changes
+5. **Scale considerations** - Monitor usage and upgrade database/hosting as needed
+6. **Admin management** - Use admin panel to create diverse creative challenges
 
 ## Environment Summary
 
 You'll now have:
-- **Local Development**: SQLite database (`dev.db`)
-- **Production**: PostgreSQL on Neon + Next.js app on Vercel
+- **Local Development**: SQLite database (`dev.db`) with seeded competition data
+- **Production**: PostgreSQL on Neon + Next.js app on Vercel with automated cycles
 - **Version Control**: Code on GitHub
 - **Domain**: Custom domain (optional) or Vercel subdomain
+- **Automation**: Cron jobs managing competition phase transitions
+- **Admin Interface**: Challenge management at `/admin`
 
-Congratulations! Your Glimpse app is now deployed and ready for users! 🚀
+Congratulations! Your Glimpse competition platform is now deployed and ready for creative challenges! 🏆

@@ -1,6 +1,6 @@
 # Contributing to Glimpse
 
-Thank you for your interest in contributing to Glimpse! We're excited to have you help us build a more meaningful social media experience.
+Thank you for your interest in contributing to Glimpse! We're excited to have you help us build a better creative competition platform inspired by Taskmaster.
 
 ## Code of Conduct
 
@@ -172,10 +172,10 @@ type(scope): description
 
 **Examples:**
 ```
-feat(auth): add user authentication system
-fix(prompt): resolve notification timing issue
-docs(readme): update installation instructions
-test(hooks): add tests for usePrompts hook
+feat(voting): add ranked voting system for competitions
+fix(leaderboard): resolve ranking calculation issue
+docs(readme): update competition flow instructions
+test(hooks): add tests for useLeague and useVoting hooks
 ```
 
 ## Pull Request Process
@@ -260,46 +260,57 @@ When reporting bugs or requesting features:
 ## Project Areas for Contribution
 
 ### Good First Issues
-- UI component improvements
+- UI component improvements for league dashboard
 - Documentation updates
-- Test coverage improvements
+- Test coverage improvements for voting system
 - Bug fixes with clear reproduction steps
-- Tailwind CSS styling improvements
+- Tailwind CSS styling improvements for competition interface
 
 ### Intermediate Contributions
-- New prompt categories and management
-- Performance optimizations
-- Accessibility improvements
-- Database schema enhancements
-- API route improvements
+- New creative challenge categories and management
+- Voting interface enhancements
+- Performance optimizations for leaderboards
+- Accessibility improvements for competition features
+- Database schema enhancements for voting and scoring
+- API route improvements for league management
 
 ### Advanced Contributions
-- Architecture improvements
-- Next.js performance optimizations
-- Vercel deployment optimizations
-- Security enhancements
-- Database optimization and scaling
+- Multiple league system architecture
+- Achievement and badge system implementation
+- Next.js performance optimizations for real-time updates
+- Vercel deployment optimizations for automated cycles
+- Security enhancements for voting integrity
+- Database optimization and scaling for competition data
 
 ## Development Tips
 
 ### Local Development
-- Use browser developer tools for debugging
+- Use browser developer tools for debugging competition flows
 - Enable hot reloading for quick iterations (automatic in Next.js)
 - Use React DevTools browser extension
+- Test with multiple player accounts for voting scenarios
 - Test on multiple screen sizes and browsers
 
 ### Performance
-- Use React.memo for expensive components
-- Implement proper image optimization with Next.js Image
+- Use React.memo for expensive leaderboard components
+- Implement proper image optimization with Next.js Image for submissions
 - Monitor bundle size with Next.js bundle analyzer
 - Use Next.js built-in performance monitoring
+- Optimize vote calculation algorithms
 
 ### Accessibility
-- Add proper ARIA labels and semantic HTML
-- Test with screen readers
-- Ensure good color contrast ratios
-- Support keyboard navigation
-- Use proper heading hierarchy
+- Add proper ARIA labels for voting interfaces
+- Test screen reader compatibility with competition status
+- Ensure good color contrast ratios for rankings
+- Support keyboard navigation in voting interface
+- Use proper heading hierarchy for dashboard tabs
+
+### Competition Testing
+- Test multi-user voting scenarios with different browser sessions
+- Verify automated cycle transitions work correctly
+- Test vote integrity and anti-gaming measures
+- Validate leaderboard calculations and rankings
+- Test admin challenge management features
 
 ## Community
 
