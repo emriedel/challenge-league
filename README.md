@@ -1,49 +1,39 @@
-# Glimpse 📸
+# 🏆 Glimpse - Creative Competition League
 
-> A web application that encourages meaningful sharing through weekly photo prompts
+> A Taskmaster-inspired creative competition platform where players compete in weekly challenges, submit photo responses, and vote on each other's creativity.
 
-Glimpse transforms how we share memories by giving you exactly one week to respond to a thoughtful prompt. Every Saturday at noon PT, all responses are published simultaneously and the next prompt becomes available. No endless scrolling, no daily pressure—just intentional sharing with friends.
+## ✨ What is Glimpse?
 
-## ✨ How It Works
+Glimpse transforms the social media experience into an engaging creative competition. Instead of endless scrolling, players participate in structured weekly challenges that encourage creativity, skill-building, and friendly competition.
 
-**The Weekly Cycle:**
-1. **Saturday 12 PM PT**: New prompt releases, previous responses published
-2. **Submission Window**: You have exactly 7 days to submit your photo and caption  
-3. **Waiting Period**: After submitting, see "waiting for others" until window closes
-4. **Gallery Moment**: Everyone's responses appear at once when the cycle resets
+### 🎯 How it Works
 
-**Two Simple Pages:**
-- **Gallery**: Scroll through your friends' responses from last week
-- **Submit**: See the current prompt, upload your photo, write your caption
+1. **Weekly Challenges** - Creative tasks like "Submit a photo of a beautiful dinner you made" or "Create something artistic with household items"
+2. **Submit & Compete** - Players have 7 days to complete the challenge and submit their photo response
+3. **Vote & Rank** - After submissions close, players vote for their top 3 favorites (3pts, 2pts, 1pt)
+4. **Winners & Glory** - Results are revealed with full rankings and leaderboard updates
 
-## 🎯 The Philosophy
+### 🏅 Key Features
 
-Glimpse addresses social media fatigue by:
-- **Synchronized sharing**: Everyone responds to the same prompt, published together
-- **Time boundaries**: Exactly one week to submit, no editing after
-- **Friends only**: Intimate sharing without public pressure  
-- **Ephemeral content**: Photos are deleted after each cycle
-- **Quality over quantity**: One meaningful post per week
-
-### Example Prompts
-- "Share your favorite vacation photo and tell us why it was special"
-- "Post the oldest photo of yourself on your phone"
-- "What's the best activity you did this week?"
-- "Share a photo of something that made you smile recently"
-- "Post a picture of your favorite comfort food"
+- **League System**: Join the Main League and compete with everyone
+- **Creative Categories**: Cooking, Photography, Art, Adventure, DIY, and more
+- **Difficulty Levels**: Easy ⭐, Medium ⭐⭐, Hard ⭐⭐⭐ challenges
+- **Fair Voting**: Anonymous 3-choice ranked voting system
+- **Comprehensive Stats**: Track wins, podium finishes, and total points
+- **Automatic Cycles**: Seamless progression from submission → voting → results
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+ 
+- npm or yarn
 - Git
-- PostgreSQL (for production) or SQLite (for development)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/glimpse.git
+   git clone <repository-url>
    cd glimpse
    ```
 
@@ -54,14 +44,13 @@ Glimpse addresses social media fatigue by:
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your configuration
+   cp .env.example .env
+   # Edit .env with your configuration
    ```
 
 4. **Set up the database**
    ```bash
    npx prisma migrate dev
-   npx prisma generate
    npx prisma db seed
    ```
 
@@ -71,166 +60,172 @@ Glimpse addresses social media fatigue by:
    ```
 
 6. **Open your browser**
-   ```
-   http://localhost:3000
-   ```
+   Navigate to `http://localhost:3000`
 
-## 🔐 Test Accounts
+## 🧪 Test Accounts
 
-The database seed creates test users for development:
+The seeded database includes test players for immediate exploration:
 
-- **Email**: `user1@example.com` | **Password**: `password123`
-- **Email**: `user2@example.com` | **Password**: `password123`  
-- **Email**: `user3@example.com` | **Password**: `password123`
-- **Email**: `user4@example.com` | **Password**: `password123`
-- **Email**: `user5@example.com` | **Password**: `password123`
+| Email | Password | Role |
+|-------|----------|------|
+| player1@example.com | password123 | Player |
+| player2@example.com | password123 | Player |
+| player3@example.com | password123 | Player |
+| player4@example.com | password123 | Player |
+| player5@example.com | password123 | Player |
+| player6@example.com | password123 | Player |
 
-**Admin Access**: `testuser1` has admin privileges for managing prompts at `/admin`
+**Admin Access**: Use `player1@example.com` to access admin features at `/admin`
 
-All test accounts are already connected as friends, so you can see content across accounts.
+## 🎮 Using the App
 
-## 🌐 Tech Stack
+### For Players
 
-- **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
-- **Backend**: Next.js API routes (same repo)
-- **Database**: PostgreSQL with Prisma ORM (SQLite for development)
-- **Authentication**: NextAuth.js
-- **File Storage**: Vercel Blob
-- **Deployment**: Vercel
-- **Future**: React Native mobile app using same backend
+1. **Sign up or log in** - Create your account and automatically join the Main League
+2. **Check the dashboard** - See current challenges, your stats, and the leaderboard
+3. **Submit responses** - Upload photos and captions for active challenges
+4. **Vote on submissions** - Rank your top 3 favorite responses when voting opens
+5. **View results** - See rankings and celebrate winners
+6. **Track progress** - Monitor your league position and performance stats
 
-## 🗂️ Project Structure
+### For Admins
+
+1. **Access admin panel** - Go to `/admin` (requires admin permissions)
+2. **Create challenges** - Add new tasks with categories and difficulty levels
+3. **Manage queue** - Reorder upcoming challenges
+4. **Monitor system** - Check prompt status and manually trigger cycles if needed
+
+## 🏗️ Technical Architecture
+
+### Tech Stack
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API routes, NextAuth.js
+- **Database**: SQLite (dev) / PostgreSQL (prod) with Prisma ORM
+- **Storage**: Vercel Blob for photo uploads
+- **Deployment**: Vercel with automatic deployments
+
+### Key Components
+
+- **3-Phase Cycle System**: Automated progression through submission → voting → results phases
+- **League Management**: Comprehensive player rankings and statistics
+- **Voting Engine**: Weighted scoring system with automatic rank calculation
+- **Admin Interface**: Full challenge management and system monitoring
+- **Real-time Updates**: Live status tracking and countdown timers
+
+### Database Schema Highlights
+
+```
+Users → League Memberships → Leagues
+Users → Responses → Prompts
+Users → Votes → Responses
+```
+
+The voting system prevents self-voting and ensures fair ranked scoring (3pts for 1st choice, 2pts for 2nd, 1pt for 3rd).
+
+## 🛠️ Development
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript checks
+```
+
+### Database Commands
+
+```bash
+npx prisma studio       # Open database browser
+npx prisma migrate dev  # Create and apply migrations
+npx prisma generate     # Regenerate Prisma client
+npx prisma db seed      # Reseed with test data
+```
+
+### Project Structure
 
 ```
 src/
-├── app/                 # Next.js app directory (pages and layouts)
-│   ├── (auth)/          # Authentication pages
-│   ├── gallery/         # Gallery page and components
-│   ├── submit/          # Submit page and components
-│   └── api/             # API routes
-├── components/          # Reusable UI components
-├── lib/                # Database, auth, and utility functions
+├── app/                 # Next.js app router pages
+│   ├── api/            # API endpoints
+│   ├── auth/           # Authentication pages
+│   ├── admin/          # Admin interface
+│   └── submit/         # Challenge submission
+├── components/         # Reusable UI components
 ├── hooks/              # Custom React hooks
-├── types/              # TypeScript type definitions
-├── constants/          # App constants and configuration
-└── public/             # Static assets
+├── lib/                # Utilities and database
+└── types/              # TypeScript definitions
 ```
 
-## 🎨 Key Features
+## 🚀 Deployment
 
-Glimpse is intentionally simple:
+### Vercel (Recommended)
 
-### Core Experience
-- **Synchronized Cycles**: Every Saturday 12 PM PT, new prompt + previous responses
-- **Two-Page App**: Gallery (view responses) and Submit (respond to prompt)
-- **Friends Only**: Add friends by username, all content is private
-- **No Permanence**: Photos deleted after each cycle, no history to browse
-- **No Editing**: Submit once with confirmation, can't change afterwards
-
-### User Flow
-1. **Onboarding**: Simple explanation of how the app works
-2. **Add Friends**: Search by username to build your network
-3. **Submit**: Upload photo, write caption, confirm submission
-4. **Wait**: See "waiting for others" until submission window closes
-5. **Gallery**: Browse everyone's responses when they're published together
-
-### Technical Features
-- **Responsive Design**: Mobile-first design that works great on all screen sizes
-- **PWA Ready**: Install as an app on mobile devices (Phase 2)
-- **Auto Cleanup**: Photos automatically deleted after each cycle
-- **Real-time Updates**: Countdown timer and status updates
-
-## 🔧 Configuration
+1. **Connect repository** to Vercel
+2. **Set environment variables** in Vercel dashboard
+3. **Deploy** - Automatic deployments on push to main
 
 ### Environment Variables
-Create a `.env.local` file with:
-```
+
+```bash
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/glimpse"
+DATABASE_URL="your-database-url"
 
 # NextAuth
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
 
-# Email (for authentication)
-EMAIL_SERVER_HOST="smtp.gmail.com"
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER="your-email@gmail.com"  
-EMAIL_SERVER_PASSWORD="your-app-password"
-EMAIL_FROM="noreply@glimpse.com"
-
 # File Storage
 BLOB_READ_WRITE_TOKEN="your-vercel-blob-token"
-# OR for AWS S3:
-# AWS_ACCESS_KEY_ID="your-aws-key"
-# AWS_SECRET_ACCESS_KEY="your-aws-secret"
-# AWS_S3_BUCKET="glimpse-photos"
-# AWS_REGION="us-east-1"
+
+# Cron Security
+CRON_SECRET="your-cron-secret"
 ```
 
-### Customization
-- **Prompt Categories**: Edit `src/constants/promptCategories.ts`
-- **App Theme**: Modify `src/constants/theme.ts`
-- **Notification Settings**: Configure in `src/services/notifications.ts`
+## 🎨 Customization
 
-## 📊 Development Roadmap
+### Adding New Challenge Categories
 
-### Phase 1: Web MVP ✨
-- [x] Project setup and documentation
-- [ ] Next.js app with TypeScript and Tailwind
-- [ ] User authentication with NextAuth.js
-- [ ] Database schema and Prisma setup
-- [ ] Basic onboarding flow
-- [ ] Weekly prompt system with countdown timer
-- [ ] Photo upload and caption submission
-- [ ] Friend system (search and add by username)
-- [ ] Gallery page for viewing responses
-- [ ] Submit page with confirmation step
-- [ ] Automatic photo cleanup after each cycle
+1. Update the categories list in `/src/app/admin/page.tsx`
+2. Add corresponding icons/colors in the UI components
+3. Update seed data with new category examples
 
-### Phase 2: Enhanced Web Experience
-- [ ] PWA configuration for mobile-like experience
-- [ ] Web push notifications for new prompts
-- [ ] Enhanced UI/UX polish and animations
-- [ ] Performance optimizations and caching
-- [ ] Advanced prompt categories and variety
-- [ ] User profile management and settings
-- [ ] Error handling and edge case management
+### Modifying Competition Rules
 
-### Phase 3: Mobile App
-- [ ] React Native app development
-- [ ] Native push notifications
-- [ ] Enhanced mobile user experience
-- [ ] App store preparation and deployment
-- [ ] Feature parity with web version
-- [ ] Platform-specific optimizations
+- **Voting Duration**: Update `voteEnd` calculation in prompt queue system
+- **Point Values**: Modify vote point assignments in voting API
+- **Cycle Timing**: Adjust cron schedule in `vercel.json`
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
-- Code of conduct
-- Development process
-- Coding standards
-- Pull request guidelines
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
+## 🎯 Roadmap
 
-- [Project Documentation](docs/)
-- [API Documentation](docs/api.md)
-- [Design System](docs/design-system.md)
-- [Deployment Guide](docs/deployment.md)
+### Phase 2: Enhanced Features
+- [ ] Multiple league support
+- [ ] Achievement system and badges
+- [ ] PWA capabilities with push notifications
+- [ ] Advanced photo editing tools
+- [ ] Social sharing features
 
-## 🙏 Acknowledgments
-
-- Inspired by the BeReal app's authenticity approach
-- Thanks to all beta testers and early contributors
-- Special thanks to the React Native community
+### Phase 3: Mobile App
+- [ ] React Native mobile app
+- [ ] Native camera integration
+- [ ] Offline submission drafts
+- [ ] Enhanced mobile voting interface
 
 ---
 
-**Ready to start sharing meaningful memories?** 
-Join the Glimpse community and rediscover the joy of intentional social sharing.
+**Made with ❤️ for creative competition and friendly rivalry**
+
+Transform your creative energy into engaging competition with Glimpse! 🏆

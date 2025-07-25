@@ -1,9 +1,9 @@
-# Glimpse - Claude's Project Memory
+# Glimpse - Creative Competition League
 
 ## Project Overview
-Glimpse is a social media web application that encourages meaningful sharing through weekly photo prompts. Users get one prompt per week and have exactly one week to submit a photo and caption. All responses are published simultaneously when the submission window closes, creating a shared moment of discovery.
+Glimpse is a creative competition web application inspired by Taskmaster, where players join leagues to compete in weekly creative challenges. Players submit photo responses to specific tasks, then vote on each other's submissions to determine winners and rankings.
 
-**Purpose:** Create a more intentional social media experience that values quality over quantity
+**Purpose:** Foster creativity and friendly competition through engaging weekly challenges
 **Development Strategy:** Web-first with PWA features, mobile app to follow later
 **Core Technology Stack:**
 - Frontend: Next.js 14 with TypeScript and Tailwind CSS
@@ -70,29 +70,58 @@ src/
 
 ## Core App Specifications
 
-### Weekly Cycle
-- **Reset Time**: Every Saturday at 12:00 PM Pacific Time
-- **Submission Window**: 7 days to submit response to current prompt
-- **Publication**: All responses published simultaneously when window closes
-- **Next Prompt**: Immediately available after previous responses are published
+### 3-Phase Competition Cycle
+- **Submission Phase**: 7 days to submit creative responses (Saturday 12 PM PT to next Saturday 12 PM PT)
+- **Voting Phase**: 2 days to vote on submissions (Saturday 12 PM PT to Monday 12 PM PT)
+- **Results Phase**: Winners announced, next challenge begins (Monday 12 PM PT to Saturday 12 PM PT)
 
-### Main App Pages
-1. **Gallery Page**: View last week's responses from friends (feed-style scroll)
-2. **Submit Page**: Current prompt, photo upload, caption input, countdown timer
+### Main App Features
+1. **League Dashboard**: Overview of competition status, personal stats, and leaderboard
+2. **Task Submission**: Current challenge with creative prompts, photo upload, caption input
+3. **Voting Interface**: Vote for top 3 submissions (3pts, 2pts, 1pt scoring system)
+4. **Results Gallery**: View ranked results from completed challenges
+5. **Leaderboard**: League standings based on total points earned
 
-### User Experience Rules
+### Competition Rules
+- Players automatically join the "Main League" upon registration
 - No editing responses after submission
-- Users see "waiting for others" state after submitting
+- Players see "waiting for voting" state after submitting
 - Confirmation step required before submitting
+- Players cannot vote for their own submissions
+- Each player gets exactly 3 votes (1st, 2nd, 3rd place)
 - Photos automatically deleted after each cycle (no permanent history)
-- Random feed ordering
-- Username displayed prominently with each response
-- No grace period for submission deadline
+- Rankings based on weighted vote points
+- No grace period for submission or voting deadlines
 
-### Friend System
-- Username-based friend discovery and adding
-- Friends-only visibility for all responses
-- No interaction features (likes/comments) initially
+### Creative Challenge System
+- **Categories**: Cooking, Creativity, Photography, Adventure, Design, Fitness, Art, DIY
+- **Difficulty Levels**: 
+  - Easy ⭐ (Quick and simple tasks)
+  - Medium ⭐⭐ (Moderate effort required)  
+  - Hard ⭐⭐⭐ (Challenging and creative)
+- **Sample Tasks**:
+  - "Submit a photo of a beautiful dinner you made this week"
+  - "Create something artistic with household items and share the result"
+  - "Capture an interesting shadow or reflection in your daily life"
+  - "Visit somewhere you've never been before and document it"
+
+### League System
+- Single "Main League" for all players initially
+- League-wide visibility for all submissions and results
+- Comprehensive leaderboard tracking:
+  - Total points across all challenges
+  - Number of wins (1st place finishes)
+  - Podium finishes (top 3 placements)
+  - Total challenges participated in
+  - Average ranking
+
+### Voting System
+- Anonymous voting with public results
+- Weighted scoring: 1st choice = 3pts, 2nd = 2pts, 3rd = 1pt
+- Players must use all 3 votes
+- Cannot vote for own submission
+- Voting window: 48 hours after submissions close
+- Automatic ranking calculation based on total points
 
 ### Username Requirements
 - 3-30 characters length
@@ -104,34 +133,100 @@ src/
 
 ### Authentication
 - Email and password based account creation
-- Basic onboarding flow explaining the app
+- Basic onboarding flow explaining the competition
+- Auto-assignment to Main League
 - No offline functionality required
 
 ## Development Phases
 
-### Phase 1: Web MVP
+### Phase 1: Competition MVP ✅ COMPLETED
 1. Next.js app setup with TypeScript and Tailwind
 2. User authentication with NextAuth.js
-3. Basic onboarding flow
-4. Weekly prompt system with countdown timer
-5. Photo upload and caption submission
-6. Friend system (search and add by username)
-7. Gallery page for viewing responses
-8. Submit page with confirmation step
-9. Automatic photo cleanup after each cycle
+3. League system with auto-assignment
+4. 3-phase competition cycle (submit → vote → results)
+5. Creative task system with categories and difficulty
+6. Photo upload and caption submission
+7. Voting interface with 3-choice ranking
+8. League dashboard with multiple tabs
+9. Leaderboard with comprehensive stats
+10. Automatic cycle management and vote calculation
 
-### Phase 2: Enhanced Web Features
+### Phase 2: Enhanced Competition Features
 1. PWA configuration for mobile-like experience
-2. Web push notifications for prompt availability
-3. Enhanced UI/UX polish
+2. Web push notifications for phase transitions
+3. Enhanced UI/UX polish with animations
 4. Performance optimizations
-5. Advanced prompt categories
-6. User profile management
+5. Multiple league support
+6. Advanced task categories and challenges
+7. Achievement system and badges
+8. User profile management
+9. Photo editing tools
+10. Social sharing features
 
 ### Phase 3: Mobile App
 1. React Native app using existing backend API
-2. Native push notifications
-3. Mobile-optimized user experience
-4. App store deployment (iOS and Android)
-5. Feature parity with web version
-6. Mobile-specific features (camera integration, offline support)
+2. Native push notifications for voting reminders
+3. Enhanced mobile photo capture and editing
+4. Mobile-optimized voting interface
+5. App store deployment (iOS and Android)
+6. Feature parity with web version
+7. Offline draft submissions
+8. Native camera integration
+
+## Database Schema (Key Models)
+
+### User
+- Standard authentication fields
+- Username (unique identifier)
+- League memberships (many-to-many)
+- Responses and votes
+
+### League
+- Name and description
+- Active status
+- Member count
+- Auto-assignment for new users
+
+### Prompt (Challenge)
+- Text description and category
+- Difficulty level (1-3)
+- 3-phase timing (submit, vote, results)
+- Status: SCHEDULED → ACTIVE → VOTING → COMPLETED
+- Queue order for automatic progression
+
+### Response (Submission)
+- Photo URL and caption
+- Vote tracking (total votes, points, final rank)
+- Publication status
+- User and prompt relationships
+
+### Vote
+- Ranked voting (1st, 2nd, 3rd place)
+- Point values (3, 2, 1)
+- Voter and response relationships
+- Prevents self-voting and duplicate ranks
+
+## Automated Systems
+
+### Cron Jobs
+- Runs every 12 hours to check phase transitions
+- Automatically moves ACTIVE prompts to VOTING when submission deadline passes
+- Calculates vote results and moves VOTING prompts to COMPLETED
+- Activates next scheduled prompt when no active prompt exists
+- Cleans up old photos from completed challenges
+
+### Admin Interface
+- Creative task management with categories and difficulty
+- Queue reordering and editing
+- Manual cycle processing for testing
+- Comprehensive prompt status overview
+- Real-time queue processing controls
+
+## Test Data
+- 6 test players (player1-player6@example.com)
+- Main League with sample challenges
+- Pre-populated voting data and rankings
+- Multiple challenge categories represented
+- Complete competition cycle examples
+
+This transformed Glimpse into a engaging creative competition platform that encourages regular participation, creativity, and friendly competition among players!

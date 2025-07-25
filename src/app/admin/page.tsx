@@ -7,15 +7,20 @@ import { useState, useEffect } from 'react';
 interface Prompt {
   id: string;
   text: string;
+  category: string | null;
+  difficulty: number;
   weekStart: string;
   weekEnd: string;
-  status: 'SCHEDULED' | 'ACTIVE' | 'COMPLETED';
+  voteStart: string;
+  voteEnd: string;
+  status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
   queueOrder: number;
   createdAt: string;
 }
 
 interface PromptQueue {
   active: Prompt[];
+  voting: Prompt[];
   scheduled: Prompt[];
   completed: Prompt[];
 }
@@ -23,12 +28,23 @@ interface PromptQueue {
 export default function Admin() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [queue, setQueue] = useState<PromptQueue>({ active: [], scheduled: [], completed: [] });
+  const [queue, setQueue] = useState<PromptQueue>({ active: [], voting: [], scheduled: [], completed: [] });
   const [newPromptText, setNewPromptText] = useState('');
+  const [newPromptCategory, setNewPromptCategory] = useState('Creativity');
+  const [newPromptDifficulty, setNewPromptDifficulty] = useState(2);
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editDifficulty, setEditDifficulty] = useState(2);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const categories = ['Cooking', 'Creativity', 'Photography', 'Adventure', 'Design', 'Fitness', 'Art', 'DIY'];
+  const difficulties = [
+    { level: 1, label: 'Easy ⭐', description: 'Quick and simple tasks' },
+    { level: 2, label: 'Medium ⭐⭐', description: 'Moderate effort required' },
+    { level: 3, label: 'Hard ⭐⭐⭐', description: 'Challenging and creative' },
+  ];
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -38,7 +54,7 @@ export default function Admin() {
     }
     
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       router.push('/');
       return;
     }
@@ -73,11 +89,15 @@ export default function Admin() {
         },
         body: JSON.stringify({
           text: newPromptText.trim(),
+          category: newPromptCategory,
+          difficulty: newPromptDifficulty,
         }),
       });
 
       if (response.ok) {
         setNewPromptText('');
+        setNewPromptCategory('Creativity');
+        setNewPromptDifficulty(2);
         fetchQueue();
       } else {
         const data = await response.json();
@@ -186,7 +206,7 @@ export default function Admin() {
     );
   }
 
-  if (!session || session.user.username !== 'testuser1') {
+  if (!session || session.user.username !== 'player1') {
     return null;
   }
 

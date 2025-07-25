@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

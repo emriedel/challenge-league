@@ -15,7 +15,7 @@ export async function DELETE(
     }
 
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -56,7 +56,7 @@ export async function PATCH(
     }
 
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

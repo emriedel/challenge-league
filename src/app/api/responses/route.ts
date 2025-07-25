@@ -12,30 +12,30 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's friends
-    const friendships = await db.friendship.findMany({
+    // Get user's league memberships
+    const userLeagues = await db.leagueMembership.findMany({
       where: {
-        OR: [
-          { senderId: session.user.id, status: 'ACCEPTED' },
-          { receiverId: session.user.id, status: 'ACCEPTED' }
-        ]
+        userId: session.user.id,
+        isActive: true
       },
       include: {
-        sender: { select: { id: true, username: true } },
-        receiver: { select: { id: true, username: true } }
+        league: {
+          include: {
+            memberships: {
+              where: { isActive: true },
+              select: { userId: true }
+            }
+          }
+        }
       }
     });
 
-    const friendIds = friendships.map((friendship: any) => 
-      friendship.senderId === session.user.id 
-        ? friendship.receiverId 
-        : friendship.senderId
+    // Get all league member IDs (including current user)
+    const leagueMemberIds = userLeagues.flatMap(membership => 
+      membership.league.memberships.map(m => m.userId)
     );
 
-    // Add current user to see their own responses
-    friendIds.push(session.user.id);
-
-    // Get published responses from friends for the most recent completed prompt
+    // Get published responses from league members for the most recent completed prompt
     const latestCompletedPrompt = await db.prompt.findFirst({
       where: { status: 'COMPLETED' },
       orderBy: { weekEnd: 'desc' }
@@ -51,7 +51,7 @@ export async function GET() {
     const responses = await db.response.findMany({
       where: {
         promptId: latestCompletedPrompt.id,
-        userId: { in: friendIds },
+        userId: { in: leagueMemberIds },
         isPublished: true
       },
       include: {
@@ -59,18 +59,26 @@ export async function GET() {
           select: {
             username: true
           }
+        },
+        votes: {
+          include: {
+            voter: {
+              select: {
+                username: true
+              }
+            }
+          }
         }
       },
-      orderBy: {
-        submittedAt: 'desc'
-      }
+      orderBy: [
+        { finalRank: 'asc' }, // Show ranked results first
+        { totalPoints: 'desc' },
+        { submittedAt: 'desc' }
+      ]
     });
 
-    // Shuffle responses for random feed order
-    const shuffledResponses = responses.sort(() => Math.random() - 0.5);
-
     return NextResponse.json({
-      responses: shuffledResponses,
+      responses: responses,
       prompt: latestCompletedPrompt
     });
 

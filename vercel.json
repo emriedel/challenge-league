@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/prompt-cycle",
-      "schedule": "0 19 * * 6"
+      "schedule": "0 */12 * * *"
     }
   ]
 }

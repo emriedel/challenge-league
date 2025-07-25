@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Simple admin check - in production you'd have proper role-based auth
-    if (session.user.username !== 'testuser1') {
+    if (session.user.username !== 'player1') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { text } = await request.json();
+    const { text, category, difficulty } = await request.json();
 
     if (!text) {
       return NextResponse.json({ error: 'Prompt text is required' }, { status: 400 });
@@ -53,11 +53,16 @@ export async function POST(request: NextRequest) {
     const nextQueueOrder = lastScheduledPrompt ? lastScheduledPrompt.queueOrder + 1 : 2;
 
     // Create the scheduled prompt (dates will be set when it becomes active)
+    const placeholder = new Date();
     const prompt = await db.prompt.create({
       data: {
         text,
-        weekStart: new Date(), // Placeholder - will be updated when activated
-        weekEnd: new Date(),   // Placeholder - will be updated when activated
+        category: category || 'Creativity',
+        difficulty: difficulty || 2,
+        weekStart: placeholder, // Placeholder - will be updated when activated
+        weekEnd: placeholder,   // Placeholder - will be updated when activated
+        voteStart: placeholder, // Placeholder - will be updated when activated
+        voteEnd: placeholder,   // Placeholder - will be updated when activated
         status: 'SCHEDULED',
         queueOrder: nextQueueOrder,
       },

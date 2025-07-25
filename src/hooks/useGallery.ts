@@ -8,9 +8,20 @@ interface GalleryResponse {
   imageUrl: string;
   submittedAt: string;
   publishedAt: string | null;
+  totalVotes: number;
+  totalPoints: number;
+  finalRank: number | null;
   user: {
     username: string;
   };
+  votes?: {
+    id: string;
+    rank: number;
+    points: number;
+    voter: {
+      username: string;
+    };
+  }[];
 }
 
 interface GalleryData {
