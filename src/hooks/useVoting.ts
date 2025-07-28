@@ -41,20 +41,26 @@ interface UseVotingReturn {
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
-  submitVotes: (votes: { responseId: string; rank: number }[]) => Promise<{ success: boolean; error?: string }>;
+  submitVotes: (votes: { [responseId: string]: number }) => Promise<{ success: boolean; error?: string }>;
 }
 
-export function useVoting(): UseVotingReturn {
+export function useVoting(leagueSlug?: string): UseVotingReturn {
   const [data, setData] = useState<VotingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchVoting = async () => {
+    if (!leagueSlug) {
+      setError('League slug is required');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/votes');
+      const response = await fetch(`/api/votes?slug=${encodeURIComponent(leagueSlug)}`);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -74,14 +80,18 @@ export function useVoting(): UseVotingReturn {
     }
   };
 
-  const submitVotes = async (votes: { responseId: string; rank: number }[]) => {
+  const submitVotes = async (votes: { [responseId: string]: number }) => {
+    if (!leagueSlug) {
+      return { success: false, error: 'League slug is required' };
+    }
+
     try {
       const response = await fetch('/api/votes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ votes }),
+        body: JSON.stringify({ votes, leagueSlug }),
       });
 
       const result = await response.json();
@@ -100,8 +110,10 @@ export function useVoting(): UseVotingReturn {
   };
 
   useEffect(() => {
-    fetchVoting();
-  }, []);
+    if (leagueSlug) {
+      fetchVoting();
+    }
+  }, [leagueSlug]);
 
   return {
     data,

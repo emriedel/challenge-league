@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -11,9 +11,48 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get current voting prompt
+    // Get league slug from query params
+    const { searchParams } = new URL(request.url);
+    const leagueSlug = searchParams.get('slug');
+
+    if (!leagueSlug) {
+      return NextResponse.json({ 
+        error: 'League slug is required' 
+      }, { status: 400 });
+    }
+
+    // Find the league and verify membership
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug }
+    });
+
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    const userMembership = await db.leagueMembership.findUnique({
+      where: {
+        userId_leagueId: {
+          userId: session.user.id,
+          leagueId: league.id
+        }
+      }
+    });
+
+    if (!userMembership || !userMembership.isActive) {
+      return NextResponse.json({ 
+        error: 'You are not a member of this league' 
+      }, { status: 403 });
+    }
+
+    // Get current voting prompt for this league
     const votingPrompt = await db.prompt.findFirst({
-      where: { status: 'VOTING' },
+      where: { 
+        status: 'VOTING',
+        leagueId: league.id
+      },
       include: {
         responses: {
           where: { isPublished: true },
@@ -98,27 +137,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { votes } = await request.json();
+    const { votes, leagueSlug } = await request.json();
 
-    if (!votes || !Array.isArray(votes) || votes.length !== 3) {
+    if (!leagueSlug) {
       return NextResponse.json({ 
-        error: 'Must provide exactly 3 votes with ranks 1, 2, and 3' 
+        error: 'League slug is required' 
       }, { status: 400 });
     }
 
-    // Validate vote structure
-    const requiredRanks = [1, 2, 3];
-    const providedRanks = votes.map(v => v.rank).sort();
-    
-    if (JSON.stringify(providedRanks) !== JSON.stringify(requiredRanks)) {
+    // Find the league and verify membership
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug }
+    });
+
+    if (!league) {
       return NextResponse.json({ 
-        error: 'Votes must have ranks 1, 2, and 3' 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    const userMembership = await db.leagueMembership.findUnique({
+      where: {
+        userId_leagueId: {
+          userId: session.user.id,
+          leagueId: league.id
+        }
+      }
+    });
+
+    if (!userMembership || !userMembership.isActive) {
+      return NextResponse.json({ 
+        error: 'You are not a member of this league' 
+      }, { status: 403 });
+    }
+
+    if (!votes || typeof votes !== 'object') {
+      return NextResponse.json({ 
+        error: 'Invalid votes format' 
       }, { status: 400 });
     }
 
-    // Get current voting prompt
+    // Calculate total votes - should be exactly 3
+    const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
+    if (totalVotes !== 3) {
+      return NextResponse.json({ 
+        error: 'Must use exactly 3 votes' 
+      }, { status: 400 });
+    }
+
+    // Get current voting prompt for this league
     const votingPrompt = await db.prompt.findFirst({
-      where: { status: 'VOTING' },
+      where: { 
+        status: 'VOTING',
+        leagueId: league.id
+      },
       include: {
         responses: {
           where: { isPublished: true }
@@ -146,14 +218,14 @@ export async function POST(request: NextRequest) {
       .filter(r => r.userId === session.user.id)
       .map(r => r.id);
 
-    for (const vote of votes) {
-      if (!responseIds.includes(vote.responseId)) {
+    for (const responseId of Object.keys(votes)) {
+      if (!responseIds.includes(responseId)) {
         return NextResponse.json({ 
           error: 'Invalid response ID' 
         }, { status: 400 });
       }
       
-      if (userResponseIds.includes(vote.responseId)) {
+      if (userResponseIds.includes(responseId)) {
         return NextResponse.json({ 
           error: 'Cannot vote for your own submission' 
         }, { status: 400 });
@@ -170,19 +242,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create new votes
-    const createdVotes = await Promise.all(
-      votes.map(vote => 
-        db.vote.create({
-          data: {
-            voterId: session.user.id,
-            responseId: vote.responseId,
-            rank: vote.rank,
-            points: 4 - vote.rank // 1st = 3pts, 2nd = 2pts, 3rd = 1pt
-          }
-        })
-      )
-    );
+    // Create new votes - each vote is worth 1 point
+    const createdVotes = [];
+    for (const [responseId, count] of Object.entries(votes)) {
+      const voteCount = count as number;
+      if (voteCount > 0) {
+        for (let i = 0; i < voteCount; i++) {
+          const vote = await db.vote.create({
+            data: {
+              voterId: session.user.id,
+              responseId: responseId,
+              rank: 1, // All votes have equal rank
+              points: 1 // Each vote worth 1 point
+            }
+          });
+          createdVotes.push(vote);
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,

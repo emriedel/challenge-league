@@ -41,17 +41,23 @@ interface UseGalleryReturn {
   refetch: () => Promise<void>;
 }
 
-export function useGallery(): UseGalleryReturn {
+export function useGallery(leagueSlug?: string): UseGalleryReturn {
   const [data, setData] = useState<GalleryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchGallery = async () => {
+    if (!leagueSlug) {
+      setError('League slug is required');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/responses');
+      const response = await fetch(`/api/responses?slug=${encodeURIComponent(leagueSlug)}`);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -72,8 +78,10 @@ export function useGallery(): UseGalleryReturn {
   };
 
   useEffect(() => {
-    fetchGallery();
-  }, []);
+    if (leagueSlug) {
+      fetchGallery();
+    }
+  }, [leagueSlug]);
 
   return {
     data,

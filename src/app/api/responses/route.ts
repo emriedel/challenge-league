@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { processPromptQueue } from '@/lib/promptQueue';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -12,32 +12,57 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's league memberships
-    const userLeagues = await db.leagueMembership.findMany({
-      where: {
-        userId: session.user.id,
-        isActive: true
-      },
+    // Get league slug from query params
+    const { searchParams } = new URL(request.url);
+    const leagueSlug = searchParams.get('slug');
+
+    if (!leagueSlug) {
+      return NextResponse.json({ 
+        error: 'League slug is required' 
+      }, { status: 400 });
+    }
+
+    // Find the league and verify membership
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug },
       include: {
-        league: {
-          include: {
-            memberships: {
-              where: { isActive: true },
-              select: { userId: true }
-            }
-          }
+        memberships: {
+          where: { isActive: true },
+          select: { userId: true }
         }
       }
     });
 
-    // Get all league member IDs (including current user)
-    const leagueMemberIds = userLeagues.flatMap(membership => 
-      membership.league.memberships.map(m => m.userId)
-    );
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
 
-    // Get published responses from league members for the most recent completed prompt
+    const userMembership = await db.leagueMembership.findUnique({
+      where: {
+        userId_leagueId: {
+          userId: session.user.id,
+          leagueId: league.id
+        }
+      }
+    });
+
+    if (!userMembership || !userMembership.isActive) {
+      return NextResponse.json({ 
+        error: 'You are not a member of this league' 
+      }, { status: 403 });
+    }
+
+    // Get all league member IDs
+    const leagueMemberIds = league.memberships.map(m => m.userId);
+
+    // Get published responses from league members for the most recent completed prompt in this league
     const latestCompletedPrompt = await db.prompt.findFirst({
-      where: { status: 'COMPLETED' },
+      where: { 
+        status: 'COMPLETED',
+        leagueId: league.id
+      },
       orderBy: { weekEnd: 'desc' }
     });
 
@@ -101,7 +126,7 @@ export async function POST(request: NextRequest) {
     // Process prompt queue to ensure current state is correct
     await processPromptQueue();
 
-    const { promptId, photoUrl, caption } = await request.json();
+    const { promptId, photoUrl, caption, leagueSlug } = await request.json();
 
     if (!promptId || !photoUrl || !caption?.trim()) {
       return NextResponse.json({ 
@@ -109,13 +134,51 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Verify prompt exists and is active
+    if (!leagueSlug) {
+      return NextResponse.json({ 
+        error: 'League slug is required' 
+      }, { status: 400 });
+    }
+
+    // Find the league and verify membership
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug }
+    });
+
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    const userMembership = await db.leagueMembership.findUnique({
+      where: {
+        userId_leagueId: {
+          userId: session.user.id,
+          leagueId: league.id
+        }
+      }
+    });
+
+    if (!userMembership || !userMembership.isActive) {
+      return NextResponse.json({ 
+        error: 'You are not a member of this league' 
+      }, { status: 403 });
+    }
+
+    // Verify prompt exists, is active, and belongs to this league
     const prompt = await db.prompt.findUnique({
       where: { id: promptId }
     });
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt not found' }, { status: 404 });
+    }
+
+    if (prompt.leagueId !== league.id) {
+      return NextResponse.json({ 
+        error: 'This prompt does not belong to the specified league' 
+      }, { status: 400 });
     }
 
     if (prompt.status !== 'ACTIVE') {

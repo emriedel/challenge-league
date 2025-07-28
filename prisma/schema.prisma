@@ -53,6 +53,7 @@ model User {
   responses Response[]
   votes Vote[]
   leagueMemberships LeagueMembership[]
+  ownedLeagues League[] @relation("LeagueOwner")
 
   @@map("users")
 }
@@ -60,8 +61,6 @@ model User {
 model Prompt {
   id          String       @id @default(cuid())
   text        String
-  category    String?      // e.g., "Cooking", "Creativity", "Photography"
-  difficulty  Int          @default(1) // 1-3 difficulty level
   weekStart   DateTime     // Saturday 12 PM PT when this prompt becomes active
   weekEnd     DateTime     // Next Saturday 12 PM PT when submissions close
   voteStart   DateTime     // Saturday 12 PM PT when voting opens
@@ -71,7 +70,9 @@ model Prompt {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  responses Response[]
+  leagueId    String
+  league      League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  responses   Response[]
 
   @@map("prompts")
 }
@@ -107,12 +108,18 @@ model Response {
 model League {
   id          String    @id @default(cuid())
   name        String    @unique
+  slug        String    @unique // URL-friendly identifier
   description String
+  inviteCode  String    @unique // Code for users to join
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  ownerId     String
+  owner       User      @relation("LeagueOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
   memberships LeagueMembership[]
+  prompts     Prompt[]
 
   @@map("leagues")
 }

@@ -27,7 +27,7 @@ interface LeaderboardPageProps {
 export default function LeaderboardPage({ params }: LeaderboardPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague();
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
 
   useEffect(() => {
     if (status === 'loading') return;

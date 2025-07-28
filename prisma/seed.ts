@@ -4,47 +4,33 @@ import { getWeeklyPromptDates } from '../src/lib/weeklyPrompts';
 
 const prisma = new PrismaClient();
 
+// Generate a random invite code
+function generateInviteCode(): string {
+  const chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'; // Exclude O and 0 for clarity
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Generate a URL-safe slug from a name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 const competitionTasks = [
-  {
-    text: "Submit a photo of a beautiful dinner you made this week",
-    category: "Cooking",
-    difficulty: 2,
-  },
-  {
-    text: "Create something artistic with household items and share the result",
-    category: "Creativity", 
-    difficulty: 3,
-  },
-  {
-    text: "Capture an interesting shadow or reflection in your daily life",
-    category: "Photography",
-    difficulty: 2,
-  },
-  {
-    text: "Visit somewhere you've never been before and document it",
-    category: "Adventure",
-    difficulty: 3,
-  },
-  {
-    text: "Make your workspace/room look as cozy as possible",
-    category: "Design",
-    difficulty: 1,
-  },
-  {
-    text: "Create the most impressive snack or drink presentation",
-    category: "Cooking",
-    difficulty: 1,
-  },
-  {
-    text: "Find and photograph the most interesting texture around you",
-    category: "Photography",
-    difficulty: 2,
-  },
-  {
-    text: "Build something functional using only items from your junk drawer",
-    category: "Creativity",
-    difficulty: 3,
-  },
+  "Submit a photo of a beautiful dinner you made this week",
+  "Create something artistic with household items and share the result",
+  "Capture an interesting shadow or reflection in your daily life",
+  "Visit somewhere you've never been before and document it",
+  "Make your workspace/room look as cozy as possible",
+  "Create the most impressive snack or drink presentation",
+  "Find and photograph the most interesting texture around you",
+  "Build something functional using only items from your junk drawer",
 ];
 
 async function main() {
@@ -54,21 +40,11 @@ async function main() {
   await prisma.vote.deleteMany();
   await prisma.response.deleteMany();
   await prisma.leagueMembership.deleteMany();
-  await prisma.league.deleteMany();
   await prisma.prompt.deleteMany();
+  await prisma.league.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create main league
-  const mainLeague = await prisma.league.create({
-    data: {
-      name: "Main League",
-      description: "The primary competition league where all players compete in creative challenges!",
-      isActive: true,
-    },
-  });
-  console.log(`🏆 Created league: ${mainLeague.name}`);
-
-  // Create test users and auto-assign to main league
+  // Create test users first (need user ID for league owner)
   const users = [];
   for (let i = 1; i <= 6; i++) {
     const hashedPassword = await bcrypt.hash('password123', 12);
@@ -79,8 +55,25 @@ async function main() {
         password: hashedPassword,
       },
     });
-    
-    // Add user to main league
+    users.push(user);
+    console.log(`✅ Created player: ${user.username}`);
+  }
+
+  // Create main league with player1 as owner
+  const mainLeague = await prisma.league.create({
+    data: {
+      name: "Main League",
+      slug: "main",
+      description: "The primary competition league where all players compete in creative challenges!",
+      inviteCode: generateInviteCode(),
+      isActive: true,
+      ownerId: users[0].id, // player1 is the owner
+    },
+  });
+  console.log(`🏆 Created league: ${mainLeague.name} (owner: ${users[0].username}, invite: ${mainLeague.inviteCode})`);
+
+  // Add all users to main league
+  for (const user of users) {
     await prisma.leagueMembership.create({
       data: {
         userId: user.id,
@@ -88,9 +81,7 @@ async function main() {
         isActive: true,
       },
     });
-    
-    users.push(user);
-    console.log(`✅ Created player: ${user.username} (joined Main League)`);
+    console.log(`👥 Added ${user.username} to Main League`);
   }
 
   // Calculate dates for 3-phase cycle
@@ -102,19 +93,17 @@ async function main() {
   // Create current active task
   const currentTask = await prisma.prompt.create({
     data: {
-      text: competitionTasks[0].text,
-      category: competitionTasks[0].category,
-      difficulty: competitionTasks[0].difficulty,
+      text: competitionTasks[0],
       weekStart,
       weekEnd,
       voteStart,
       voteEnd,
       status: 'ACTIVE',
       queueOrder: 1,
+      leagueId: mainLeague.id,
     },
   });
   console.log(`📝 Created current task: "${currentTask.text}"`);
-  console.log(`   Category: ${currentTask.category} | Difficulty: ${currentTask.difficulty}/3`);
   console.log(`   Submit: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`);
   console.log(`   Vote: ${voteStart.toLocaleDateString()} - ${voteEnd.toLocaleDateString()}`);
 
@@ -129,15 +118,14 @@ async function main() {
 
   const completedTask = await prisma.prompt.create({
     data: {
-      text: competitionTasks[1].text,
-      category: competitionTasks[1].category,
-      difficulty: competitionTasks[1].difficulty,
+      text: competitionTasks[1],
       weekStart: pastTaskStart,
       weekEnd: pastTaskEnd,
       voteStart: pastVoteStart,
       voteEnd: pastVoteEnd,
       status: 'COMPLETED',
       queueOrder: 0,
+      leagueId: mainLeague.id,
     },
   });
   console.log(`📝 Created completed task: "${completedTask.text}"`);
@@ -251,18 +239,17 @@ async function main() {
 
     await prisma.prompt.create({
       data: {
-        text: competitionTasks[i].text,
-        category: competitionTasks[i].category,
-        difficulty: competitionTasks[i].difficulty,
+        text: competitionTasks[i],
         weekStart: futureStart,
         weekEnd: futureEnd,
         voteStart: futureVoteStart,
         voteEnd: futureVoteEnd,
         status: 'SCHEDULED',
         queueOrder: i + 1,
+        leagueId: mainLeague.id,
       },
     });
-    console.log(`📅 Scheduled future task: "${competitionTasks[i].text}"`);
+    console.log(`📅 Scheduled future task: "${competitionTasks[i]}"`);
   }
 
   // Create some current task submissions (not published yet)

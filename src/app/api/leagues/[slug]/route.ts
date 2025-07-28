@@ -3,7 +3,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
-export async function GET(request: NextRequest) {
+interface RouteParams {
+  params: { slug: string };
+}
+
+// GET /api/leagues/[slug] - Get specific league data
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -11,20 +16,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get league slug from query params
-    const { searchParams } = new URL(request.url);
-    const leagueSlug = searchParams.get('slug');
-
-    if (!leagueSlug) {
-      return NextResponse.json({ 
-        error: 'League slug is required' 
-      }, { status: 400 });
-    }
+    const { slug } = params;
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug: leagueSlug },
+      where: { slug },
       include: {
+        owner: {
+          select: {
+            id: true,
+            username: true
+          }
+        },
         memberships: {
           where: { isActive: true },
           include: {
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest) {
       }, { status: 403 });
     }
 
-    // Get league standings - calculate total points across all completed prompts
+    // Get league standings - calculate total points across all completed prompts in this league
     const leaderboard = await Promise.all(
       league.memberships.map(async (membership) => {
         const userResponses = await db.response.findMany({
@@ -70,7 +73,7 @@ export async function GET(request: NextRequest) {
             isPublished: true,
             prompt: {
               status: 'COMPLETED',
-              leagueId: league.id
+              leagueId: league.id // Only prompts from this league
             }
           },
           select: {
@@ -149,7 +152,10 @@ export async function GET(request: NextRequest) {
         name: league.name,
         slug: league.slug,
         description: league.description,
-        memberCount: league.memberships.length
+        inviteCode: league.ownerId === session.user.id ? league.inviteCode : undefined, // Only show to owner
+        memberCount: league.memberships.length,
+        isOwner: league.ownerId === session.user.id,
+        owner: league.owner
       },
       leaderboard,
       recentActivity: recentPrompts
@@ -159,6 +165,55 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching league data:', error);
     return NextResponse.json({ 
       error: 'Failed to fetch league data' 
+    }, { status: 500 });
+  }
+}
+
+// PUT /api/leagues/[slug] - Update league (owner only)
+export async function PUT(request: NextRequest, { params }: RouteParams) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { slug } = params;
+    const { name, description } = await request.json();
+
+    // Find the league
+    const league = await db.league.findUnique({
+      where: { slug }
+    });
+
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    // Check if user is the owner
+    if (league.ownerId !== session.user.id) {
+      return NextResponse.json({ 
+        error: 'Only the league owner can update league settings' 
+      }, { status: 403 });
+    }
+
+    // Update the league
+    const updatedLeague = await db.league.update({
+      where: { id: league.id },
+      data: {
+        name: name || league.name,
+        description: description || league.description,
+      }
+    });
+
+    return NextResponse.json({ league: updatedLeague });
+
+  } catch (error) {
+    console.error('Error updating league:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update league' 
     }, { status: 500 });
   }
 }

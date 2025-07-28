@@ -28,8 +28,8 @@ interface ResultsPageProps {
 export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading } = useLeague();
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery();
+  const { data: leagueData, isLoading: leagueLoading } = useLeague(params.leagueId);
+  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery(params.leagueId);
 
   useEffect(() => {
     if (status === 'loading') return;

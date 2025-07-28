@@ -31,9 +31,9 @@ interface LeagueHomePageProps {
 export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague();
-  const { data: votingData, isLoading: votingLoading, error: votingError, submitVotes } = useVoting();
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery();
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
+  const { data: votingData, isLoading: votingLoading, error: votingError, submitVotes } = useVoting(params.leagueId);
+  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery(params.leagueId);
   const [selectedVotes, setSelectedVotes] = useState<{ [responseId: string]: number }>({});
   const [isSubmittingVotes, setIsSubmittingVotes] = useState(false);
 
@@ -72,12 +72,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       return;
     }
 
-    const votes = Object.entries(selectedVotes).flatMap(([responseId, voteCount]) => 
-      Array(voteCount).fill({ responseId, rank: 1 }) // All votes have equal rank/value
-    );
-
     setIsSubmittingVotes(true);
-    const result = await submitVotes(votes);
+    const result = await submitVotes(selectedVotes);
     setIsSubmittingVotes(false);
 
     if (result.success) {

@@ -5,11 +5,21 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 
+interface League {
+  id: string;
+  name: string;
+  slug: string;
+  memberCount: number;
+  isOwner: boolean;
+}
+
 export default function Navigation() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isLeaguesOpen, setIsLeaguesOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [leagues, setLeagues] = useState<League[]>([]);
+  const [loadingLeagues, setLoadingLeagues] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -17,6 +27,26 @@ export default function Navigation() {
   if (pathname?.startsWith('/auth/')) {
     return null;
   }
+
+  // Fetch user's leagues when authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      setLoadingLeagues(true);
+      fetch('/api/leagues')
+        .then(res => res.json())
+        .then(data => {
+          if (data.leagues) {
+            setLeagues(data.leagues);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching leagues:', error);
+        })
+        .finally(() => {
+          setLoadingLeagues(false);
+        });
+    }
+  }, [status, session]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -64,15 +94,70 @@ export default function Navigation() {
                     </button>
                     
                     {isLeaguesOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                         <div className="py-1">
-                          <Link
-                            href="/league/main"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            Main League
-                          </Link>
+                          {loadingLeagues ? (
+                            <div className="px-4 py-2 text-sm text-gray-500">
+                              Loading leagues...
+                            </div>
+                          ) : leagues.length > 0 ? (
+                            <>
+                              {leagues.map((league) => (
+                                <Link
+                                  key={league.id}
+                                  href={`/league/${league.slug}`}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  onClick={() => setIsLeaguesOpen(false)}
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span>{league.name}</span>
+                                    {league.isOwner && (
+                                      <span className="text-xs text-blue-500">Owner</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                                  </div>
+                                </Link>
+                              ))}
+                              <hr className="my-1" />
+                              <Link
+                                href="/leagues/new"
+                                className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                                onClick={() => setIsLeaguesOpen(false)}
+                              >
+                                + Create New League
+                              </Link>
+                              <Link
+                                href="/leagues/join"
+                                className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                                onClick={() => setIsLeaguesOpen(false)}
+                              >
+                                + Join League
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              <div className="px-4 py-2 text-sm text-gray-500">
+                                No leagues found
+                              </div>
+                              <hr className="my-1" />
+                              <Link
+                                href="/leagues/new"
+                                className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                                onClick={() => setIsLeaguesOpen(false)}
+                              >
+                                + Create New League
+                              </Link>
+                              <Link
+                                href="/leagues/join"
+                                className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                                onClick={() => setIsLeaguesOpen(false)}
+                              >
+                                + Join League
+                              </Link>
+                            </>
+                          )}
                         </div>
                       </div>
                     )}

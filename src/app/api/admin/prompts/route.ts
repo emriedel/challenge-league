@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { getPromptQueue } from '@/lib/promptQueue';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -17,7 +16,39 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const queue = await getPromptQueue();
+    // Get league slug from query params
+    const { searchParams } = new URL(request.url);
+    const leagueSlug = searchParams.get('slug');
+
+    if (!leagueSlug) {
+      return NextResponse.json({ 
+        error: 'League slug is required' 
+      }, { status: 400 });
+    }
+
+    // Find the league
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug }
+    });
+
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    // Get prompts for this league ordered by queue order
+    const queue = await db.prompt.findMany({
+      where: { leagueId: league.id },
+      orderBy: { queueOrder: 'asc' },
+      include: {
+        responses: {
+          where: { isPublished: true },
+          select: { id: true }
+        }
+      }
+    });
+
     return NextResponse.json({ queue });
   } catch (error) {
     console.error('Get prompts error:', error);
@@ -38,15 +69,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { text } = await request.json();
+    const { text, leagueSlug } = await request.json();
 
     if (!text) {
       return NextResponse.json({ error: 'Prompt text is required' }, { status: 400 });
     }
 
-    // Get the next available queue order
+    if (!leagueSlug) {
+      return NextResponse.json({ error: 'League slug is required' }, { status: 400 });
+    }
+
+    // Find the league
+    const league = await db.league.findUnique({
+      where: { slug: leagueSlug }
+    });
+
+    if (!league) {
+      return NextResponse.json({ 
+        error: 'League not found' 
+      }, { status: 404 });
+    }
+
+    // Get the next available queue order for this league
     const lastScheduledPrompt = await db.prompt.findFirst({
-      where: { status: 'SCHEDULED' },
+      where: { 
+        status: 'SCHEDULED',
+        leagueId: league.id
+      },
       orderBy: { queueOrder: 'desc' },
     });
 
@@ -57,6 +106,7 @@ export async function POST(request: NextRequest) {
     const prompt = await db.prompt.create({
       data: {
         text,
+        leagueId: league.id,
         weekStart: placeholder, // Placeholder - will be updated when activated
         weekEnd: placeholder,   // Placeholder - will be updated when activated
         voteStart: placeholder, // Placeholder - will be updated when activated
