@@ -1,7 +1,7 @@
-# Glimpse - Creative Competition League
+# Challenge League - Creative Competition Platform
 
 ## Project Overview
-Glimpse is a creative competition web application inspired by Taskmaster, where players join leagues to compete in weekly creative challenges. Players submit photo responses to specific tasks, then vote on each other's submissions to determine winners and rankings.
+Challenge League is a creative competition web application inspired by Taskmaster, where players join leagues to compete in weekly creative challenges. Players submit photo responses to specific tasks, then vote on each other's submissions to determine winners and rankings.
 
 **Purpose:** Foster creativity and friendly competition through engaging weekly challenges
 **Development Strategy:** Web-first with PWA features, mobile app to follow later
@@ -229,4 +229,4 @@ src/
 - Multiple challenge categories represented
 - Complete competition cycle examples
 
-This transformed Glimpse into a engaging creative competition platform that encourages regular participation, creativity, and friendly competition among players!
+This transformed Challenge League into a engaging creative competition platform that encourages regular participation, creativity, and friendly competition among players!

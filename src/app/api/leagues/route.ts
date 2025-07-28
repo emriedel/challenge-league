@@ -93,9 +93,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Debug logging
-    console.log('Session user:', JSON.stringify(session.user, null, 2));
-
     const { name, description } = await request.json();
 
     if (!name || !description) {
@@ -105,7 +102,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!session.user.id) {
-      console.error('Session user ID is undefined:', session.user);
       return NextResponse.json({ 
         error: 'Invalid session - user ID missing' 
       }, { status: 401 });

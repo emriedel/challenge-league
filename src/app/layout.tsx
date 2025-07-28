@@ -7,8 +7,8 @@ import Navigation from '@/components/Navigation';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Glimpse',
-  description: 'Meaningful sharing through weekly photo prompts',
+  title: 'Challenge League',
+  description: 'Creative competition leagues for friends and communities',
 };
 
 export default function RootLayout({
