@@ -415,10 +415,39 @@ export default function Admin() {
         >
           {isLoading ? 'Processing...' : 'Process Queue Now'}
         </button>
+        
+        <button
+          onClick={async () => {
+            setIsLoading(true);
+            try {
+              const response = await fetch('/api/admin/force-voting', {
+                method: 'POST',
+              });
+              const result = await response.json();
+              
+              if (result.success) {
+                alert(`Success! Moved prompt to voting mode: ${result.message}`);
+                fetchQueue(); // Refresh the queue display
+              } else {
+                alert(`Error: ${result.error}`);
+              }
+            } catch (error) {
+              alert('Failed to force voting mode');
+              console.error('Force voting error:', error);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          disabled={isLoading}
+          className="ml-4 bg-purple-600 text-white px-6 py-2 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
+        >
+          {isLoading ? 'Processing...' : 'Force Voting Mode'}
+        </button>
       </div>
 
       <div className="mt-8 text-sm text-gray-500">
         <p><strong>How it works:</strong> Prompts automatically activate in queue order every Saturday at 12 PM PT. The next prompt will become active when the current one ends.</p>
+        <p className="mt-2"><strong>Force Voting Mode:</strong> Immediately moves the active prompt to voting phase (for testing). Requires existing submissions.</p>
       </div>
     </div>
   );
