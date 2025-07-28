@@ -48,36 +48,37 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     }
   }, [session, status, router]);
 
-  const handleVoteSelection = (responseId: string, rank: number) => {
+  const handleVoteSelection = (responseId: string, increment: boolean) => {
     const newVotes = { ...selectedVotes };
+    const currentVotes = newVotes[responseId] || 0;
     
-    // Remove this rank from any other response
-    Object.keys(newVotes).forEach(id => {
-      if (newVotes[id] === rank && id !== responseId) {
-        delete newVotes[id];
+    if (increment && getTotalVotes() < 3) {
+      newVotes[responseId] = currentVotes + 1;
+    } else if (!increment && currentVotes > 0) {
+      if (currentVotes === 1) {
+        delete newVotes[responseId];
+      } else {
+        newVotes[responseId] = currentVotes - 1;
       }
-    });
-    
-    // Set or toggle this vote
-    if (newVotes[responseId] === rank) {
-      delete newVotes[responseId];
-    } else {
-      newVotes[responseId] = rank;
     }
     
     setSelectedVotes(newVotes);
   };
 
-  const handleSubmitVotes = async () => {
-    const votes = Object.entries(selectedVotes).map(([responseId, rank]) => ({
-      responseId,
-      rank,
-    }));
+  const getTotalVotes = () => {
+    return Object.values(selectedVotes).reduce((sum, votes) => sum + votes, 0);
+  };
 
-    if (votes.length !== 3) {
-      alert('Please select your top 3 choices (1st, 2nd, and 3rd place)');
+  const handleSubmitVotes = async () => {
+    const totalVotes = getTotalVotes();
+    if (totalVotes !== 3) {
+      alert('Please use all 3 of your votes');
       return;
     }
+
+    const votes = Object.entries(selectedVotes).flatMap(([responseId, voteCount]) => 
+      Array(voteCount).fill({ responseId, rank: 1 }) // All votes have equal rank/value
+    );
 
     setIsSubmittingVotes(true);
     const result = await submitVotes(votes);
@@ -174,7 +175,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 </p>
               </div>
               <div className="mt-4 space-y-1 text-sm text-blue-600">
-                <p>• Select your 1st, 2nd, and 3rd place choices</p>
+                <p>• You have 3 votes to distribute among submissions (each vote = 1 point)</p>
+                <p>• You can give multiple votes to the same submission</p>
                 <p>• You cannot vote for your own submission</p>
                 <p>• Voting ends: {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleString() : 'TBD'}</p>
               </div>
@@ -183,12 +185,12 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             {/* Voting Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {votingData.responses.map((response) => {
-                const selectedRank = selectedVotes[response.id];
+                const voteCount = selectedVotes[response.id] || 0;
                 return (
                   <div
                     key={response.id}
                     className={`border-2 rounded-lg overflow-hidden transition-all ${
-                      selectedRank 
+                      voteCount > 0
                         ? 'border-blue-500 shadow-lg' 
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
@@ -202,21 +204,28 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                       <p className="text-sm text-gray-600 mb-2">@{response.user.username}</p>
                       <p className="text-gray-800 text-sm mb-4">{response.caption}</p>
                       
-                      {/* Vote Buttons */}
-                      <div className="flex gap-2">
-                        {[1, 2, 3].map((rank) => (
+                      {/* Vote Controls */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
                           <button
-                            key={rank}
-                            onClick={() => handleVoteSelection(response.id, rank)}
-                            className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
-                              selectedRank === rank
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                            onClick={() => handleVoteSelection(response.id, false)}
+                            disabled={voteCount === 0}
+                            className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg font-bold"
                           >
-                            {rank === 1 ? '🥇 1st' : rank === 2 ? '🥈 2nd' : '🥉 3rd'}
+                            −
                           </button>
-                        ))}
+                          <span className="text-lg font-semibold w-8 text-center">{voteCount}</span>
+                          <button
+                            onClick={() => handleVoteSelection(response.id, true)}
+                            disabled={getTotalVotes() >= 3}
+                            className="w-8 h-8 rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {voteCount === 1 ? '1 vote' : `${voteCount} votes`}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -226,12 +235,17 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
             {/* Submit Votes */}
             <div className="text-center">
+              <div className="mb-4">
+                <span className="text-lg font-medium">
+                  Votes used: {getTotalVotes()}/3
+                </span>
+              </div>
               <button
                 onClick={handleSubmitVotes}
-                disabled={Object.keys(selectedVotes).length !== 3 || isSubmittingVotes}
+                disabled={getTotalVotes() !== 3 || isSubmittingVotes}
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmittingVotes ? 'Submitting...' : `Submit Votes (${Object.keys(selectedVotes).length}/3)`}
+                {isSubmittingVotes ? 'Submitting...' : 'Submit Votes'}
               </button>
             </div>
           </div>

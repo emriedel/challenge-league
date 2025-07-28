@@ -10,7 +10,7 @@ Glimpse transforms the social media experience into an engaging creative competi
 
 1. **Weekly Challenges** - Creative tasks like "Submit a photo of a beautiful dinner you made" or "Create something artistic with household items"
 2. **Submit & Compete** - Players have 7 days to complete the challenge and submit their photo response
-3. **Vote & Rank** - After submissions close, players vote for their top 3 favorites (3pts, 2pts, 1pt)
+3. **Vote & Rank** - After submissions close, players distribute 3 equal-value votes among submissions
 4. **Winners & Glory** - Results are revealed with full rankings and leaderboard updates
 
 ### 🏅 Key Features
@@ -18,7 +18,7 @@ Glimpse transforms the social media experience into an engaging creative competi
 - **League System**: Join the Main League and compete with everyone
 - **Creative Categories**: Cooking, Photography, Art, Adventure, DIY, and more
 - **Difficulty Levels**: Easy ⭐, Medium ⭐⭐, Hard ⭐⭐⭐ challenges
-- **Fair Voting**: Anonymous 3-choice ranked voting system
+- **Fair Voting**: Anonymous equal-value voting system (3 votes per player)
 - **Comprehensive Stats**: Track wins, podium finishes, and total points
 - **Automatic Cycles**: Seamless progression from submission → voting → results
 
@@ -108,7 +108,7 @@ The seeded database includes test players for immediate exploration:
 
 - **3-Phase Cycle System**: Automated progression through submission → voting → results phases
 - **League Management**: Comprehensive player rankings and statistics
-- **Voting Engine**: Weighted scoring system with automatic rank calculation
+- **Voting Engine**: Equal-value voting system with automatic rank calculation
 - **Admin Interface**: Full challenge management and system monitoring
 - **Real-time Updates**: Live status tracking and countdown timers
 
@@ -120,7 +120,7 @@ Users → Responses → Prompts
 Users → Votes → Responses
 ```
 
-The voting system prevents self-voting and ensures fair ranked scoring (3pts for 1st choice, 2pts for 2nd, 1pt for 3rd).
+The voting system prevents self-voting and ensures fair equal-value scoring (each vote = 1 point).
 
 ## 🛠️ Development
 
@@ -194,7 +194,7 @@ CRON_SECRET="your-cron-secret"
 ### Modifying Competition Rules
 
 - **Voting Duration**: Update `voteEnd` calculation in prompt queue system
-- **Point Values**: Modify vote point assignments in voting API
+- **Point Values**: Each vote equals 1 point in the current system
 - **Cycle Timing**: Adjust cron schedule in `vercel.json`
 
 ## 🤝 Contributing

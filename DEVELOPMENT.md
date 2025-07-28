@@ -62,7 +62,7 @@ npm run dev
 #### Phase 2: Voting (2 days)
 1. Wait for submission window to close (or manually trigger cycle in admin)
 2. Voting tab becomes active on the dashboard
-3. Players vote for their top 3 favorites (3pts, 2pts, 1pt)
+3. Players distribute 3 equal-value votes among submissions
 4. Cannot vote for own submission
 5. Test voting with different player accounts
 
@@ -129,8 +129,8 @@ CRON_SECRET="your-cron-secret-here"
   - "Capture an interesting shadow or reflection"
 
 ### Voting System
-- **3-Choice Ranking**: Players select 1st, 2nd, 3rd place choices
-- **Weighted Scoring**: 3pts for 1st, 2pts for 2nd, 1pt for 3rd
+- **Equal-Value Voting**: Players get 3 votes to distribute
+- **Flexible Distribution**: Can give multiple votes to same submission or spread across different ones
 - **Fair Play**: Cannot vote for own submission
 - **Anonymous Voting**: Votes are private, results are public
 
@@ -177,7 +177,7 @@ npx prisma db seed
 
 ### Voting Issues
 - Ensure you're not trying to vote for your own submission
-- Check that exactly 3 votes are selected (1st, 2nd, 3rd)
+- Check that exactly 3 votes are used total
 - Verify voting window is still open
 
 ## 📁 Project Structure

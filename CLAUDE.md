@@ -78,7 +78,7 @@ src/
 ### Main App Features
 1. **League Dashboard**: Overview of competition status, personal stats, and leaderboard
 2. **Task Submission**: Current challenge with creative prompts, photo upload, caption input
-3. **Voting Interface**: Vote for top 3 submissions (3pts, 2pts, 1pt scoring system)
+3. **Voting Interface**: Distribute 3 equal-value votes among submissions
 4. **Results Gallery**: View ranked results from completed challenges
 5. **Leaderboard**: League standings based on total points earned
 
@@ -88,9 +88,10 @@ src/
 - Players see "waiting for voting" state after submitting
 - Confirmation step required before submitting
 - Players cannot vote for their own submissions
-- Each player gets exactly 3 votes (1st, 2nd, 3rd place)
+- Each player gets exactly 3 votes to distribute (each vote = 1 point)
+- Can allocate multiple votes to same submission or spread across different ones
 - Photos automatically deleted after each cycle (no permanent history)
-- Rankings based on weighted vote points
+- Rankings based on total vote points received
 - No grace period for submission or voting deadlines
 
 ### Creative Challenge System
@@ -117,8 +118,9 @@ src/
 
 ### Voting System
 - Anonymous voting with public results
-- Weighted scoring: 1st choice = 3pts, 2nd = 2pts, 3rd = 1pt
-- Players must use all 3 votes
+- Equal-value voting: Each vote = 1 point
+- Players get exactly 3 votes to distribute among submissions
+- Can give multiple votes to the same submission or spread across different ones
 - Cannot vote for own submission
 - Voting window: 48 hours after submissions close
 - Automatic ranking calculation based on total points

@@ -130,7 +130,15 @@ export default function HowItWorksPage() {
             <ul className="space-y-2 text-blue-700">
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">•</span>
-                You must vote for exactly 3 submissions (1st, 2nd, 3rd place)
+                You get exactly 3 votes to cast among all submissions
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">•</span>
+                Each vote counts for 1 point (all votes are equal value)
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-500 mr-2">•</span>
+                You can vote for different submissions or give multiple votes to the same submission
               </li>
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">•</span>
@@ -139,10 +147,6 @@ export default function HowItWorksPage() {
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">•</span>
                 Voting is anonymous, but results are public
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-500 mr-2">•</span>
-                Scoring: 1st place = 3pts, 2nd place = 2pts, 3rd place = 1pt
               </li>
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">•</span>
