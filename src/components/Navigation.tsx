@@ -9,18 +9,23 @@ export default function Navigation() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isLeaguesOpen, setIsLeaguesOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Don't show navigation on auth pages
   if (pathname?.startsWith('/auth/')) {
     return null;
   }
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsLeaguesOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -75,18 +80,41 @@ export default function Navigation() {
                 </nav>
                 
                 <div className="flex items-center space-x-4">
-                  <Link 
-                    href="/profile"
-                    className="text-sm text-gray-700 hover:text-gray-900"
-                  >
-                    @{session.user.username}
-                  </Link>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Sign out
-                  </button>
+                  {/* User Menu Dropdown */}
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="flex items-center text-sm text-gray-700 hover:text-gray-900"
+                    >
+                      @{session.user.username}
+                      <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {isUserMenuOpen && (
+                      <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                        <div className="py-1">
+                          <Link
+                            href="/profile"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            View Profile
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setIsUserMenuOpen(false);
+                              signOut();
+                            }}
+                            className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             ) : (
