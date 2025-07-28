@@ -24,7 +24,6 @@ interface LeaderboardEntry {
 interface RecentActivity {
   id: string;
   text: string;
-  category: string;
   weekEnd: string;
   responses: {
     id: string;

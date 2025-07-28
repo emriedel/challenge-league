@@ -62,8 +62,7 @@ export async function GET() {
             prompt: {
               select: {
                 id: true,
-                text: true,
-                category: true
+                text: true
               }
             }
           }

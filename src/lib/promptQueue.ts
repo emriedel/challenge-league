@@ -200,7 +200,6 @@ export async function processPromptQueue() {
         });
 
         console.log(`🚀 Activated next task: "${nextPrompt.text}"`);
-        console.log(`   Category: ${nextPrompt.category} | Difficulty: ${nextPrompt.difficulty}/3`);
         console.log(`   Submit: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`);
         console.log(`   Vote: ${voteStart.toLocaleDateString()} - ${voteEnd.toLocaleDateString()}`);
       } else {

@@ -23,7 +23,6 @@ export default function LeagueNavigation({ leagueId, leagueName }: LeagueNavigat
         {/* League Header */}
         <div className="py-6 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">🏆 {leagueName}</h1>
-          <p className="text-gray-600">Compete in weekly creative challenges</p>
         </div>
 
         {/* Navigation Tabs */}

@@ -23,10 +23,6 @@ const getRankIcon = (rank: number) => {
   }
 };
 
-// Difficulty stars
-const getDifficultyStars = (difficulty: number) => {
-  return '★'.repeat(difficulty) + '☆'.repeat(3 - difficulty);
-};
 
 interface LeagueHomePageProps {
   params: { leagueId: string };
@@ -169,10 +165,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               <h2 className="text-xl font-semibold mb-2">🗳️ Cast Your Votes</h2>
               <div className="space-y-2 text-blue-700">
                 <p className="font-medium">Challenge: "{votingData.prompt?.text}"</p>
-                <p className="text-sm">
-                  Category: {votingData.prompt?.category} | 
-                  Difficulty: {getDifficultyStars(votingData.prompt?.difficulty || 1)}
-                </p>
               </div>
               <div className="mt-4 space-y-1 text-sm text-blue-600">
                 <p>• You have 3 votes to distribute among submissions (each vote = 1 point)</p>

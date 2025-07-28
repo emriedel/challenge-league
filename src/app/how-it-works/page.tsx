@@ -73,52 +73,39 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
-        {/* Challenge Categories */}
+        {/* Challenge Examples */}
         <section>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">🎨 Challenge Categories</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { name: 'Cooking', emoji: '🍳' },
-              { name: 'Creativity', emoji: '🎨' },
-              { name: 'Photography', emoji: '📷' },
-              { name: 'Adventure', emoji: '🗺️' },
-              { name: 'Design', emoji: '✏️' },
-              { name: 'Fitness', emoji: '💪' },
-              { name: 'Art', emoji: '🖼️' },
-              { name: 'DIY', emoji: '🔨' },
-            ].map((category) => (
-              <div key={category.name} className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-2">{category.emoji}</div>
-                <div className="text-sm font-medium text-gray-900">{category.name}</div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">💡 Sample Challenges</h2>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Submit a photo of a beautiful dinner you made this week"</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Create something artistic with household items and share the result"</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Capture an interesting shadow or reflection in your daily life"</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Difficulty Levels */}
-        <section>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">⭐ Difficulty Levels</h2>
-          <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center mb-2">
-                <span className="text-lg">⭐</span>
-                <h4 className="ml-2 font-medium text-green-900">Easy</h4>
+              <div className="space-y-3">
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Visit somewhere you've never been before and document it"</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Show us your workspace or favorite creative corner"</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span className="text-gray-700">"Photograph something that represents your mood today"</span>
+                </div>
               </div>
-              <p className="text-green-700 text-sm">Quick and simple tasks that anyone can complete</p>
-            </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-center mb-2">
-                <span className="text-lg">⭐⭐</span>
-                <h4 className="ml-2 font-medium text-yellow-900">Medium</h4>
-              </div>
-              <p className="text-yellow-700 text-sm">Moderate effort required, some planning needed</p>
-            </div>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center mb-2">
-                <span className="text-lg">⭐⭐⭐</span>
-                <h4 className="ml-2 font-medium text-red-900">Hard</h4>
-              </div>
-              <p className="text-red-700 text-sm">Challenging and creative tasks that push your limits</p>
             </div>
           </div>
         </section>

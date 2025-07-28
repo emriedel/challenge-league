@@ -95,16 +95,14 @@ src/
 - No grace period for submission or voting deadlines
 
 ### Creative Challenge System
-- **Categories**: Cooking, Creativity, Photography, Adventure, Design, Fitness, Art, DIY
-- **Difficulty Levels**: 
-  - Easy ⭐ (Quick and simple tasks)
-  - Medium ⭐⭐ (Moderate effort required)  
-  - Hard ⭐⭐⭐ (Challenging and creative)
+- **Diverse Prompts**: Wide variety of creative tasks covering cooking, photography, art, adventure, and more
 - **Sample Tasks**:
   - "Submit a photo of a beautiful dinner you made this week"
   - "Create something artistic with household items and share the result"
   - "Capture an interesting shadow or reflection in your daily life"
   - "Visit somewhere you've never been before and document it"
+  - "Show us your workspace or favorite creative corner"
+  - "Photograph something that represents your mood today"
 
 ### League System
 - Single "Main League" for all players initially

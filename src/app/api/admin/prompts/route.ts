@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { text, category, difficulty } = await request.json();
+    const { text } = await request.json();
 
     if (!text) {
       return NextResponse.json({ error: 'Prompt text is required' }, { status: 400 });
@@ -57,8 +57,6 @@ export async function POST(request: NextRequest) {
     const prompt = await db.prompt.create({
       data: {
         text,
-        category: category || 'Creativity',
-        difficulty: difficulty || 2,
         weekStart: placeholder, // Placeholder - will be updated when activated
         weekEnd: placeholder,   // Placeholder - will be updated when activated
         voteStart: placeholder, // Placeholder - will be updated when activated

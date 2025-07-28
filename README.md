@@ -16,8 +16,7 @@ Glimpse transforms the social media experience into an engaging creative competi
 ### 🏅 Key Features
 
 - **League System**: Join the Main League and compete with everyone
-- **Creative Categories**: Cooking, Photography, Art, Adventure, DIY, and more
-- **Difficulty Levels**: Easy ⭐, Medium ⭐⭐, Hard ⭐⭐⭐ challenges
+- **Diverse Challenges**: Wide variety of creative prompts covering cooking, photography, art, adventure, DIY, and more
 - **Fair Voting**: Anonymous equal-value voting system (3 votes per player)
 - **Comprehensive Stats**: Track wins, podium finishes, and total points
 - **Automatic Cycles**: Seamless progression from submission → voting → results

@@ -121,12 +121,12 @@ CRON_SECRET="your-cron-secret-here"
 - **Leaderboard Tab**: Full league standings with comprehensive stats
 
 ### Creative Challenge System
-- **Categories**: Cooking, Creativity, Photography, Adventure, Design, Fitness, Art, DIY
-- **Difficulty Levels**: Easy ⭐, Medium ⭐⭐, Hard ⭐⭐⭐
+- **Diverse Prompts**: Wide variety of creative challenges covering cooking, photography, art, adventure, and more
 - **Sample Tasks**:
   - "Submit a photo of a beautiful dinner you made this week"
   - "Create something artistic with household items"
   - "Capture an interesting shadow or reflection"
+  - "Visit somewhere you've never been before and document it"
 
 ### Voting System
 - **Equal-Value Voting**: Players get 3 votes to distribute
@@ -221,10 +221,10 @@ src/
 3. Verify vote counts and point calculations
 4. Check leaderboard updates after results
 
-### Adding New Challenge Categories
-1. Update categories array in `src/app/admin/page.tsx`
+### Adding New Challenge Types
+1. Create new prompt text variations in admin interface
 2. Add sample tasks in `prisma/seed.ts`
-3. Consider UI icons/colors for new categories
+3. Test different prompt styles and formats
 
 ### Customizing Scoring System
 - Modify point values in voting API endpoints

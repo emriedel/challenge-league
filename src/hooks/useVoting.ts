@@ -15,8 +15,6 @@ interface VotingResponse {
 interface VotingPrompt {
   id: string;
   text: string;
-  category: string;
-  difficulty: number;
   voteEnd: string;
 }
 
