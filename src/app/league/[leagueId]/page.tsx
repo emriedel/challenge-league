@@ -283,30 +283,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           </div>
         )}
 
-        {/* Your Performance */}
-        {currentUserEntry && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">📊 Your Performance</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">#{currentUserEntry.stats.leagueRank}</div>
-                <div className="text-sm text-gray-500">League Rank</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{currentUserEntry.stats.totalPoints}</div>
-                <div className="text-sm text-gray-500">Total Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{currentUserEntry.stats.wins}</div>
-                <div className="text-sm text-gray-500">Wins</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{currentUserEntry.stats.podiumFinishes}</div>
-                <div className="text-sm text-gray-500">Top 3 Finishes</div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

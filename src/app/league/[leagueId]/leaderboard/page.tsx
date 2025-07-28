@@ -70,12 +70,38 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
 
   const league = leagueData?.league;
   const leaderboard = leagueData?.leaderboard || [];
+  const currentUserEntry = leaderboard.find(entry => entry.user.username === session.user.username);
 
   return (
     <div>
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Your Performance */}
+        {currentUserEntry && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">📊 Your Performance</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">#{currentUserEntry.stats.leagueRank}</div>
+                <div className="text-sm text-gray-500">League Rank</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{currentUserEntry.stats.totalPoints}</div>
+                <div className="text-sm text-gray-500">Total Points</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{currentUserEntry.stats.wins}</div>
+                <div className="text-sm text-gray-500">Wins</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{currentUserEntry.stats.podiumFinishes}</div>
+                <div className="text-sm text-gray-500">Top 3 Finishes</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-2xl font-semibold">🏆 League Leaderboard</h2>
