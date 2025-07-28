@@ -27,7 +27,7 @@ export default function LeagueNavigation({ leagueId, leagueName }: LeagueNavigat
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex space-x-8" aria-label="League Tabs">
+        <nav className="flex justify-center space-x-8" aria-label="League Tabs">
           {tabs.map((tab) => (
             <Link
               key={tab.id}
