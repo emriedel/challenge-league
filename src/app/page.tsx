@@ -95,12 +95,16 @@ export default function HomePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Challenge League!</h1>
-        <p className="text-xl text-gray-600">Creative competition leagues for friends and communities</p>
+        <p className="text-xl text-gray-600">Submit photos to win challenges against your friends</p>
       </div>
 
       {leagues.length === 0 ? (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <div className="text-gray-400 text-5xl mb-4">🏆</div>
+          <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm4 14a6 6 0 006-6V4a2 2 0 00-2-2H6a2 2 0 00-2 2v6a6 6 0 006 6z" clipRule="evenodd" />
+            </svg>
+          </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get Started</h2>
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Join creative competition leagues to compete in weekly challenges with friends, family, or communities. 
@@ -179,7 +183,7 @@ export default function HomePage() {
                 href="/leagues/join"
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Join Another League
+                Join A League
               </Link>
               <Link
                 href="/leagues/new"

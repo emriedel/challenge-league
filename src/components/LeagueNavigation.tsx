@@ -13,7 +13,7 @@ export default function LeagueNavigation({ leagueId, leagueName }: LeagueNavigat
 
   const tabs = [
     { id: 'home', name: 'League Home', href: `/league/${leagueId}` },
-    { id: 'results', name: 'Latest Results', href: `/league/${leagueId}/results` },
+    { id: 'results', name: 'Completed Rounds', href: `/league/${leagueId}/results` },
     { id: 'leaderboard', name: 'Leaderboard', href: `/league/${leagueId}/leaderboard` },
   ];
 

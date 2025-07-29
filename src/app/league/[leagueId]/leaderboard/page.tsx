@@ -6,15 +6,15 @@ import { useEffect } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
 
-// Trophy icons for rankings
+// Ranking display for leaderboard
 const getRankIcon = (rank: number) => {
   switch (rank) {
     case 1:
-      return '🥇';
+      return '#1';
     case 2:
-      return '🥈';
+      return '#2';
     case 3:
-      return '🥉';
+      return '#3';
     default:
       return `#${rank}`;
   }
@@ -80,7 +80,7 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
         {/* Your Performance */}
         {currentUserEntry && (
           <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">📊 Your Performance</h2>
+            <h2 className="text-xl font-semibold mb-4">Your Performance</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">#{currentUserEntry.stats.leagueRank}</div>
@@ -104,7 +104,7 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
 
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-2xl font-semibold">🏆 League Leaderboard</h2>
+            <h2 className="text-2xl font-semibold">League Leaderboard</h2>
             <p className="text-gray-600 text-sm">Rankings based on total points earned across all challenges</p>
           </div>
           

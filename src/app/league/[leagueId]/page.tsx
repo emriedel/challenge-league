@@ -9,15 +9,15 @@ import { useVoting } from '@/hooks/useVoting';
 import { useGallery } from '@/hooks/useGallery';
 import LeagueNavigation from '@/components/LeagueNavigation';
 
-// Trophy icons for rankings
+// Ranking display for results
 const getRankIcon = (rank: number) => {
   switch (rank) {
     case 1:
-      return '🥇';
+      return '#1';
     case 2:
-      return '🥈';
+      return '#2';
     case 3:
-      return '🥉';
+      return '#3';
     default:
       return `#${rank}`;
   }
@@ -131,17 +131,17 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Status */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">🎯 Current Status</h2>
+          <h2 className="text-xl font-semibold mb-4">Current Status</h2>
           {showVoting ? (
             <div className="space-y-2">
-              <p className="text-blue-700 font-medium">⏰ Voting is now open!</p>
+              <p className="text-blue-700 font-medium">Voting is now open!</p>
               <p className="text-gray-600">Cast your votes for the best submissions in the current challenge.</p>
             </div>
           ) : (
             <div className="space-y-2">
               <p className="text-gray-700">Competition in progress</p>
               <p className="text-sm text-gray-500">
-                {showLatestResults ? 'View the latest results below' : 'Check back for updates'}
+                {showLatestResults ? 'View the latest completed round below' : 'Check back for updates'}
               </p>
               <Link
                 href="/submit"
@@ -158,7 +158,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           <div className="space-y-6 mb-8">
             {/* Voting Instructions */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-2">🗳️ Cast Your Votes</h2>
+              <h2 className="text-xl font-semibold mb-2">Cast Your Votes</h2>
               <div className="space-y-2 text-blue-700">
                 <p className="font-medium">Challenge: "{votingData.prompt?.text}"</p>
               </div>
@@ -239,14 +239,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           </div>
         )}
 
-        {/* Latest Results (when not voting) */}
+        {/* Completed Rounds (when not voting) */}
         {showLatestResults && !showVoting && (
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-2">🏆 Latest Results</h2>
+              <h2 className="text-xl font-semibold mb-2">Latest Completed Round</h2>
               <p className="text-gray-600 mb-4">"{galleryData.prompt?.text}"</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {galleryData.responses.slice(0, 6).map((response) => (
+                {galleryData.responses?.slice(0, 6).map((response) => (
                   <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="relative">
                       <img
@@ -255,7 +255,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                         className="w-full h-48 object-cover"
                       />
                       {response.finalRank && response.finalRank <= 3 && (
-                        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-sm font-bold">
+                        <div className="absolute top-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-bold">
                           {getRankIcon(response.finalRank)}
                         </div>
                       )}
@@ -278,7 +278,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                   href={`/league/${params.leagueId}/results`}
                   className="text-blue-600 hover:text-blue-700 text-sm"
                 >
-                  View All Results →
+                  View All Completed Rounds →
                 </Link>
               </div>
             </div>

@@ -57,54 +57,46 @@ export async function GET(request: NextRequest) {
     // Get all league member IDs
     const leagueMemberIds = league.memberships.map(m => m.userId);
 
-    // Get published responses from league members for the most recent completed prompt in this league
-    const latestCompletedPrompt = await db.prompt.findFirst({
+    // Get all completed prompts from this league with their responses
+    const completedPrompts = await db.prompt.findMany({
       where: { 
         status: 'COMPLETED',
         leagueId: league.id
       },
-      orderBy: { weekEnd: 'desc' }
-    });
-
-    if (!latestCompletedPrompt) {
-      return NextResponse.json({
-        responses: [],
-        prompt: null
-      });
-    }
-
-    const responses = await db.response.findMany({
-      where: {
-        promptId: latestCompletedPrompt.id,
-        userId: { in: leagueMemberIds },
-        isPublished: true
-      },
       include: {
-        user: {
-          select: {
-            username: true
-          }
-        },
-        votes: {
+        responses: {
+          where: {
+            userId: { in: leagueMemberIds },
+            isPublished: true
+          },
           include: {
-            voter: {
+            user: {
               select: {
                 username: true
               }
+            },
+            votes: {
+              include: {
+                voter: {
+                  select: {
+                    username: true
+                  }
+                }
+              }
             }
-          }
+          },
+          orderBy: [
+            { finalRank: 'asc' }, // Show ranked results first
+            { totalPoints: 'desc' },
+            { submittedAt: 'desc' }
+          ]
         }
       },
-      orderBy: [
-        { finalRank: 'asc' }, // Show ranked results first
-        { totalPoints: 'desc' },
-        { submittedAt: 'desc' }
-      ]
+      orderBy: { weekEnd: 'desc' } // Most recent rounds first
     });
 
     return NextResponse.json({
-      responses: responses,
-      prompt: latestCompletedPrompt
+      rounds: completedPrompts
     });
 
   } catch (error) {

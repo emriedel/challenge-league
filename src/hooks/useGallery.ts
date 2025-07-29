@@ -24,9 +24,19 @@ interface GalleryResponse {
   }[];
 }
 
-interface GalleryData {
+interface CompletedRound {
+  id: string;
+  text: string;
+  weekStart: string;
+  weekEnd: string;
   responses: GalleryResponse[];
-  prompt: {
+}
+
+interface GalleryData {
+  rounds: CompletedRound[];
+  // Legacy fields for backwards compatibility
+  responses?: GalleryResponse[];
+  prompt?: {
     id: string;
     text: string;
     weekStart: string;
@@ -68,7 +78,25 @@ export function useGallery(leagueSlug?: string): UseGalleryReturn {
       }
 
       const galleryData = await response.json();
-      setData(galleryData);
+      
+      // Handle new rounds format with backwards compatibility
+      if (galleryData.rounds) {
+        const processedData: GalleryData = {
+          rounds: galleryData.rounds,
+          // For backwards compatibility, provide latest round data
+          responses: galleryData.rounds.length > 0 ? galleryData.rounds[0].responses : [],
+          prompt: galleryData.rounds.length > 0 ? {
+            id: galleryData.rounds[0].id,
+            text: galleryData.rounds[0].text,
+            weekStart: galleryData.rounds[0].weekStart,
+            weekEnd: galleryData.rounds[0].weekEnd
+          } : null
+        };
+        setData(processedData);
+      } else {
+        // Handle legacy format
+        setData(galleryData);
+      }
     } catch (err) {
       console.error('Gallery fetch error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
