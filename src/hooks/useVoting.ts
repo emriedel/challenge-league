@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface VotingResponse {
   id: string;
@@ -49,7 +49,7 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchVoting = async () => {
+  const fetchVoting = useCallback(async () => {
     if (!leagueSlug) {
       setError('League slug is required');
       setIsLoading(false);
@@ -78,7 +78,7 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [leagueSlug]);
 
   const submitVotes = async (votes: { [responseId: string]: number }) => {
     if (!leagueSlug) {
@@ -113,7 +113,7 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
     if (leagueSlug) {
       fetchVoting();
     }
-  }, [leagueSlug]);
+  }, [leagueSlug, fetchVoting]);
 
   return {
     data,

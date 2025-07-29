@@ -141,8 +141,8 @@ export default function CreateLeaguePage() {
             What happens after creating a league?
           </h3>
           <div className="text-sm text-gray-600 space-y-2">
-            <p>• You'll become the league owner with full administrative privileges</p>
-            <p>• You'll receive a unique invite code to share with friends</p>
+            <p>• You&rsquo;ll become the league owner with full administrative privileges</p>
+            <p>• You&rsquo;ll receive a unique invite code to share with friends</p>
             <p>• You can create challenges and manage the competition schedule</p>
             <p>• Only league members can see and participate in your challenges</p>
           </div>

@@ -46,7 +46,7 @@ export default function ProfilePage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
             <p className="text-blue-700 mb-2">🚧 Profile management coming soon!</p>
             <p className="text-blue-600 text-sm">
-              You'll be able to update your information, view your competition history, and manage your account settings here.
+              You&rsquo;ll be able to update your information, view your competition history, and manage your account settings here.
             </p>
           </div>
         </div>

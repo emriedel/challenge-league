@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface GalleryResponse {
   id: string;
@@ -56,7 +56,7 @@ export function useGallery(leagueSlug?: string): UseGalleryReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGallery = async () => {
+  const fetchGallery = useCallback(async () => {
     if (!leagueSlug) {
       setError('League slug is required');
       setIsLoading(false);
@@ -103,13 +103,13 @@ export function useGallery(leagueSlug?: string): UseGalleryReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [leagueSlug]);
 
   useEffect(() => {
     if (leagueSlug) {
       fetchGallery();
     }
-  }, [leagueSlug]);
+  }, [leagueSlug, fetchGallery]);
 
   return {
     data,

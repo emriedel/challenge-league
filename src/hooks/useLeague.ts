@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface LeagueUser {
   id: string;
@@ -62,7 +62,7 @@ export function useLeague(leagueSlug?: string): UseLeagueReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLeague = async () => {
+  const fetchLeague = useCallback(async () => {
     if (!leagueSlug) {
       setError('League slug is required');
       setIsLoading(false);
@@ -91,13 +91,13 @@ export function useLeague(leagueSlug?: string): UseLeagueReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [leagueSlug]);
 
   useEffect(() => {
     if (leagueSlug) {
       fetchLeague();
     }
-  }, [leagueSlug]);
+  }, [leagueSlug, fetchLeague]);
 
   return {
     data,

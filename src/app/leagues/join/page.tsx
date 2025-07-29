@@ -83,7 +83,7 @@ export default function JoinLeaguePage() {
               Welcome to {success.league.name}!
             </h1>
             <p className="text-green-700 mb-6">
-              You've successfully joined the league. You can now participate in challenges and compete with other members.
+              You&rsquo;ve successfully joined the league. You can now participate in challenges and compete with other members.
             </p>
 
             <div className="bg-white border border-green-200 rounded-md p-4 mb-6">
@@ -181,7 +181,7 @@ export default function JoinLeaguePage() {
 
         <div className="mt-8 pt-6 border-t border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 mb-3">
-            Don't have an invite code?
+            Don&rsquo;t have an invite code?
           </h3>
           <div className="text-sm text-gray-600 space-y-2">
             <p>Ask a league owner to share their invite code with you, or:</p>

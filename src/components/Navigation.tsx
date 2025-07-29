@@ -23,11 +23,6 @@ export default function Navigation() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Don't show navigation on auth pages
-  if (pathname?.startsWith('/auth/')) {
-    return null;
-  }
-
   // Fetch user's leagues when authenticated
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
@@ -61,6 +56,11 @@ export default function Navigation() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Don't show navigation on auth pages
+  if (pathname?.startsWith('/auth/')) {
+    return null;
+  }
 
   return (
     <header className="bg-white shadow-sm border-b">

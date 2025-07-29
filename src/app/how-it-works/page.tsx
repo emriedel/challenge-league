@@ -81,29 +81,29 @@ export default function HowItWorksPage() {
               <div className="space-y-3">
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Submit a photo of a beautiful dinner you made this week"</span>
+                  <span className="text-gray-700">&ldquo;Submit a photo of a beautiful dinner you made this week&rdquo;</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Create something artistic with household items and share the result"</span>
+                  <span className="text-gray-700">&ldquo;Create something artistic with household items and share the result&rdquo;</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Capture an interesting shadow or reflection in your daily life"</span>
+                  <span className="text-gray-700">&ldquo;Capture an interesting shadow or reflection in your daily life&rdquo;</span>
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Visit somewhere you've never been before and document it"</span>
+                  <span className="text-gray-700">&ldquo;Visit somewhere you&rsquo;ve never been before and document it&rdquo;</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Show us your workspace or favorite creative corner"</span>
+                  <span className="text-gray-700">&ldquo;Show us your workspace or favorite creative corner&rdquo;</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-blue-500 mr-2">•</span>
-                  <span className="text-gray-700">"Photograph something that represents your mood today"</span>
+                  <span className="text-gray-700">&ldquo;Photograph something that represents your mood today&rdquo;</span>
                 </div>
               </div>
             </div>

@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate unique slug and invite code
-    let baseSlug = generateSlug(name);
+    const baseSlug = generateSlug(name);
     let slug = baseSlug;
     let counter = 1;
 

@@ -73,7 +73,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                       <h2 className="text-xl font-semibold mb-1">
                         Round {galleryData.rounds.length - index}
                       </h2>
-                      <p className="text-gray-600">"{round.text}"</p>
+                      <p className="text-gray-600">&ldquo;{round.text}&rdquo;</p>
                     </div>
                     <div className="text-right text-sm text-gray-500">
                       <div>Ended: {new Date(round.weekEnd).toLocaleDateString()}</div>
