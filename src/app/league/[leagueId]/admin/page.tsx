@@ -288,7 +288,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
             <h2 className="text-xl font-semibold text-green-900 mb-4">📍 Currently Active</h2>
             {queue.active.map((prompt) => (
               <div key={prompt.id} className="bg-white rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">&ldquo;{prompt.text}&rdquo;</h3>
+                <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
                 <div className="text-sm text-gray-600">
                   <p>Active until: {new Date(prompt.weekEnd).toLocaleDateString('en-US', {
                     weekday: 'long',
@@ -343,7 +343,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
                             </button>
                           </div>
                         ) : (
-                          <h3 className="font-medium text-gray-900">&ldquo;{prompt.text}&rdquo;</h3>
+                          <h3 className="font-medium text-gray-900">{prompt.text}</h3>
                         )}
                       </div>
                     </div>
@@ -401,7 +401,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
             <div className="space-y-2">
               {queue.completed.slice(-10).reverse().map((prompt) => (
                 <div key={prompt.id} className="text-sm text-gray-600">
-                  &ldquo;{prompt.text}&rdquo; - {new Date(prompt.createdAt).toLocaleDateString()}
+                  {prompt.text} - {new Date(prompt.createdAt).toLocaleDateString()}
                 </div>
               ))}
             </div>

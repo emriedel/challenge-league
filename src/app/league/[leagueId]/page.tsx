@@ -223,7 +223,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
               <div className="bg-white rounded-lg p-4 mb-4">
-                <p className="text-lg text-gray-800 font-medium">&ldquo;{votingData.prompt?.text}&rdquo;</p>
+                <p className="text-lg text-gray-800 font-medium">{votingData.prompt?.text}</p>
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -248,7 +248,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
               <div className="bg-white rounded-lg p-4 mb-4">
-                <p className="text-lg text-gray-800 font-medium">&ldquo;{promptData.prompt.text}&rdquo;</p>
+                <p className="text-lg text-gray-800 font-medium">{promptData.prompt.text}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-500">Submission deadline:&nbsp;
@@ -282,7 +282,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">Cast Your Votes</h2>
               <div className="space-y-2 text-blue-700">
-                <p className="font-medium">Challenge: &ldquo;{votingData.prompt?.text}&rdquo;</p>
+                <p className="font-medium">Challenge: {votingData.prompt?.text}</p>
               </div>
               <div className="mt-4 space-y-1 text-sm text-blue-600">
                 <p>• You have 3 votes to distribute among submissions (each vote = 1 point)</p>
@@ -375,7 +375,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
-              <p className="text-gray-600 mb-6">&ldquo;{promptData.prompt.text}&rdquo;</p>
+              <p className="text-gray-600 mb-6">{promptData.prompt.text}</p>
               
               {submissionMessage && (
                 <div className={`mb-4 p-3 rounded-lg text-sm ${
@@ -486,7 +486,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">Latest Completed Round</h2>
-              <p className="text-gray-600 mb-4">&ldquo;{galleryData.prompt?.text}&rdquo;</p>
+              <p className="text-gray-600 mb-4">{galleryData.prompt?.text}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {galleryData.responses?.slice(0, 6).map((response) => (
                   <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
