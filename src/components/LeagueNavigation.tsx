@@ -6,15 +6,17 @@ import { usePathname } from 'next/navigation';
 interface LeagueNavigationProps {
   leagueId: string;
   leagueName: string;
+  isOwner?: boolean;
 }
 
-export default function LeagueNavigation({ leagueId, leagueName }: LeagueNavigationProps) {
+export default function LeagueNavigation({ leagueId, leagueName, isOwner }: LeagueNavigationProps) {
   const pathname = usePathname();
 
   const tabs = [
     { id: 'home', name: 'League Home', href: `/league/${leagueId}` },
     { id: 'results', name: 'Completed Rounds', href: `/league/${leagueId}/results` },
     { id: 'leaderboard', name: 'Leaderboard', href: `/league/${leagueId}/leaderboard` },
+    ...(isOwner ? [{ id: 'admin', name: 'Admin', href: `/league/${leagueId}/admin` }] : []),
   ];
 
   return (
