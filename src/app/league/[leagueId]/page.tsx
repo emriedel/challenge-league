@@ -7,7 +7,9 @@ import Link from 'next/link';
 import { useLeague } from '@/hooks/useLeague';
 import { useVoting } from '@/hooks/useVoting';
 import { useGallery } from '@/hooks/useGallery';
+import { useLeaguePrompt } from '@/hooks/useLeaguePrompt';
 import LeagueNavigation from '@/components/LeagueNavigation';
+import SubmissionForm from '@/components/SubmissionForm';
 
 // Ranking display for results
 const getRankIcon = (rank: number) => {
@@ -34,8 +36,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError, submitVotes } = useVoting(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery(params.leagueId);
+  const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePrompt(params.leagueId);
   const [selectedVotes, setSelectedVotes] = useState<{ [responseId: string]: number }>({});
   const [isSubmittingVotes, setIsSubmittingVotes] = useState(false);
+  const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -84,7 +88,57 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     }
   };
 
-  if (status === 'loading' || leagueLoading) {
+  const handleSubmitResponse = async (data: { photo: File; caption: string }) => {
+    if (!promptData?.prompt) return;
+
+    setIsSubmittingResponse(true);
+
+    try {
+      // First upload the photo
+      const formData = new FormData();
+      formData.append('photo', data.photo);
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload photo');
+      }
+
+      const { url: photoUrl } = await uploadResponse.json();
+
+      // Then submit the response
+      const submitResponse = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          promptId: promptData.prompt.id,
+          photoUrl,
+          caption: data.caption,
+          leagueSlug: params.leagueId,
+        }),
+      });
+
+      if (!submitResponse.ok) {
+        const errorData = await submitResponse.json();
+        throw new Error(errorData.error || 'Failed to submit response');
+      }
+
+      alert('Response submitted successfully!');
+      refetchPrompt(); // Refresh to show that user has submitted
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Failed to submit response'}`);
+    } finally {
+      setIsSubmittingResponse(false);
+    }
+  };
+
+  if (status === 'loading' || leagueLoading || promptLoading) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
@@ -122,7 +176,9 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
   // Show voting interface if voting is active, otherwise show submission area or latest results
   const showVoting = votingData?.canVote && votingData.responses.length > 0;
-  const showLatestResults = !showVoting && galleryData?.responses && galleryData.responses.length > 0;
+  const showSubmission = !showVoting && promptData?.prompt && !promptData.userResponse;
+  const showSubmitted = !showVoting && promptData?.prompt && promptData.userResponse;
+  const showLatestResults = !showVoting && !showSubmission && !showSubmitted && galleryData?.responses && galleryData.responses.length > 0;
 
   return (
     <div>
@@ -137,18 +193,39 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               <p className="text-blue-700 font-medium">Voting is now open!</p>
               <p className="text-gray-600">Cast your votes for the best submissions in the current challenge.</p>
             </div>
+          ) : showSubmission ? (
+            <div className="space-y-2">
+              <p className="text-green-700 font-medium">New challenge is active!</p>
+              <p className="text-gray-600">Submit your creative response to the current challenge below.</p>
+              <p className="text-sm text-gray-500">
+                Deadline: {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
+              </p>
+            </div>
+          ) : showSubmitted ? (
+            <div className="space-y-2">
+              <p className="text-purple-700 font-medium">Response submitted!</p>
+              <p className="text-gray-600">You&rsquo;ve submitted your response for the current challenge. Voting will begin when the submission period ends.</p>
+              <p className="text-sm text-gray-500">
+                Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
+              </p>
+            </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-gray-700">Competition in progress</p>
+              <p className="text-gray-700">No active challenge</p>
               <p className="text-sm text-gray-500">
-                {showLatestResults ? 'View the latest completed round below' : 'Check back for updates'}
+                {showLatestResults ? 'View the latest completed round below' : 'Check back for new challenges'}
               </p>
-              <Link
-                href="/submit"
-                className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Submit Response →
-              </Link>
             </div>
           )}
         </div>
@@ -235,6 +312,22 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               >
                 {isSubmittingVotes ? 'Submitting...' : 'Submit Votes'}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Submission Form */}
+        {showSubmission && (
+          <div className="space-y-6 mb-8">
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
+              <p className="text-gray-600 mb-6">&ldquo;{promptData.prompt.text}&rdquo;</p>
+              
+              <SubmissionForm
+                prompt={promptData.prompt}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={isSubmittingResponse}
+              />
             </div>
           </div>
         )}
