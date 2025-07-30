@@ -4,7 +4,12 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { processPromptQueue } from '@/lib/promptQueue';
 
-export async function GET(request: NextRequest) {
+interface RouteParams {
+  params: { slug: string };
+}
+
+// GET /api/leagues/[slug]/prompt - Get current active prompt for a league
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -12,19 +17,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get league slug from query params
-    const { searchParams } = new URL(request.url);
-    const leagueSlug = searchParams.get('slug');
-
-    if (!leagueSlug) {
-      return NextResponse.json({ 
-        error: 'League slug is required' 
-      }, { status: 400 });
-    }
+    const { slug } = params;
 
     // Find the league and verify membership
     const league = await db.league.findUnique({
-      where: { slug: leagueSlug }
+      where: { slug }
     });
 
     if (!league) {

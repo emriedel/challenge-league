@@ -46,7 +46,7 @@ export function useLeaguePrompt(leagueSlug?: string): UseLeaguePromptReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/prompts/current?slug=${encodeURIComponent(leagueSlug)}`);
+      const response = await fetch(`/api/leagues/${encodeURIComponent(leagueSlug)}/prompt`);
       
       if (!response.ok) {
         if (response.status === 404) {
