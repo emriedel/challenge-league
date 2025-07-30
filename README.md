@@ -186,7 +186,7 @@ CRON_SECRET="your-cron-secret"
 
 ### Adding New Challenge Categories
 
-1. Update the categories list in `/src/app/admin/page.tsx`
+1. Update the categories list in each league's admin page (`/src/app/league/[leagueId]/admin/page.tsx`)
 2. Add corresponding icons/colors in the UI components
 3. Update seed data with new category examples
 

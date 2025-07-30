@@ -307,7 +307,7 @@ voteEnd.setDate(voteEnd.getDate() + 2); // 2 days voting
 ```
 
 **Adding New Categories:**
-Update categories in `/src/app/admin/page.tsx`:
+Update categories in each league's admin page (`/src/app/league/[leagueId]/admin/page.tsx`):
 ```typescript
 const categories = ['Cooking', 'Creativity', 'Photography', 'YourNewCategory'];
 ```
