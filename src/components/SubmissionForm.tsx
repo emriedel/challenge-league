@@ -17,14 +17,20 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const handlePhotoSelected = (file: File | null, preview: string) => {
     if (file && preview) {
       setSelectedPhoto(file);
       setPreviewUrl(preview);
+      setUploadError(null); // Clear any previous upload errors
     } else {
       setSelectedPhoto(null);
       setPreviewUrl(null);
     }
+  };
+
+  const handleUploadError = (error: string) => {
+    setUploadError(error);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,10 +75,16 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           </label>
           <PhotoUpload
             onPhotoSelected={handlePhotoSelected}
+            onError={handleUploadError}
             selectedPhoto={selectedPhoto}
             previewUrl={previewUrl}
             disabled={isSubmitting}
           />
+          {uploadError && (
+            <div className="mt-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+              {uploadError}
+            </div>
+          )}
         </div>
 
         {/* Caption Input */}

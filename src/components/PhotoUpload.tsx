@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 
 interface PhotoUploadProps {
   onPhotoSelected: (file: File | null, previewUrl: string) => void;
+  onError?: (error: string) => void;
   selectedPhoto?: File | null;
   previewUrl?: string | null;
   disabled?: boolean;
@@ -11,6 +12,7 @@ interface PhotoUploadProps {
 
 export default function PhotoUpload({ 
   onPhotoSelected, 
+  onError,
   selectedPhoto, 
   previewUrl, 
   disabled = false 
@@ -23,14 +25,14 @@ export default function PhotoUpload({
     
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      onError?.('Please select an image file');
       return;
     }
 
     // Validate file size (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('File size must be less than 10MB');
+      onError?.('File size must be less than 10MB');
       return;
     }
 

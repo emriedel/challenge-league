@@ -41,6 +41,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const [isSubmittingVotes, setIsSubmittingVotes] = useState(false);
   const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [submissionMessage, setSubmissionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [votingMessage, setVotingMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -48,6 +50,25 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       router.push('/auth/signin');
     }
   }, [session, status, router]);
+
+  // Auto-clear success messages after 5 seconds
+  useEffect(() => {
+    if (submissionMessage?.type === 'success') {
+      const timer = setTimeout(() => {
+        setSubmissionMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [submissionMessage]);
+
+  useEffect(() => {
+    if (votingMessage?.type === 'success') {
+      const timer = setTimeout(() => {
+        setVotingMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [votingMessage]);
 
   const handleVoteSelection = (responseId: string, increment: boolean) => {
     const newVotes = { ...selectedVotes };
@@ -73,19 +94,20 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const handleSubmitVotes = async () => {
     const totalVotes = getTotalVotes();
     if (totalVotes !== 3) {
-      alert('Please use all 3 of your votes');
+      setVotingMessage({ type: 'error', text: 'Please use all 3 of your votes' });
       return;
     }
 
     setIsSubmittingVotes(true);
+    setVotingMessage(null);
     const result = await submitVotes(selectedVotes);
     setIsSubmittingVotes(false);
 
     if (result.success) {
-      alert('Votes submitted successfully!');
+      setVotingMessage({ type: 'success', text: 'Votes submitted successfully!' });
       setSelectedVotes({});
     } else {
-      alert(`Error: ${result.error}`);
+      setVotingMessage({ type: 'error', text: result.error || 'Failed to submit votes' });
     }
   };
 
@@ -93,6 +115,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     if (!promptData?.prompt) return;
 
     setIsSubmittingResponse(true);
+    setSubmissionMessage(null); // Clear any previous messages
 
     try {
       // First upload the photo
@@ -130,12 +153,18 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       }
 
       const isEditing = promptData.userResponse !== null;
-      alert(isEditing ? 'Response updated successfully!' : 'Response submitted successfully!');
+      setSubmissionMessage({ 
+        type: 'success', 
+        text: isEditing ? 'Response updated successfully!' : 'Response submitted successfully!' 
+      });
       setShowEditForm(false); // Hide edit form after successful submission
       refetchPrompt(); // Refresh to show updated submission
     } catch (error) {
       console.error('Submission error:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Failed to submit response'}`);
+      setSubmissionMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to submit response' 
+      });
     } finally {
       setIsSubmittingResponse(false);
     }
@@ -316,6 +345,15 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               >
                 {isSubmittingVotes ? 'Submitting...' : 'Submit Votes'}
               </button>
+              {votingMessage && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  votingMessage.type === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-700' 
+                    : 'bg-red-50 border border-red-200 text-red-700'
+                }`}>
+                  {votingMessage.text}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -326,6 +364,16 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
               <p className="text-gray-600 mb-6">&ldquo;{promptData.prompt.text}&rdquo;</p>
+              
+              {submissionMessage && (
+                <div className={`mb-4 p-3 rounded-lg text-sm ${
+                  submissionMessage.type === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-700' 
+                    : 'bg-red-50 border border-red-200 text-red-700'
+                }`}>
+                  {submissionMessage.text}
+                </div>
+              )}
               
               <SubmissionForm
                 prompt={promptData.prompt}
@@ -403,6 +451,16 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                     <p className="text-sm text-gray-600 mb-4">
                       Your previous submission will be replaced with the new one.
                     </p>
+                    
+                    {submissionMessage && (
+                      <div className={`mb-4 p-3 rounded-lg text-sm ${
+                        submissionMessage.type === 'success' 
+                          ? 'bg-green-50 border border-green-200 text-green-700' 
+                          : 'bg-red-50 border border-red-200 text-red-700'
+                      }`}>
+                        {submissionMessage.text}
+                      </div>
+                    )}
                     
                     <SubmissionForm
                       prompt={promptData.prompt}
