@@ -24,7 +24,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* League Header */}
         <div className="py-6 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">🏆 {leagueName}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{leagueName}</h1>
         </div>
 
         {/* Navigation Tabs */}
