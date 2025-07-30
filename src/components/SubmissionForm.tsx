@@ -17,8 +17,6 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
   const handlePhotoSelected = (file: File | null, preview: string) => {
     if (file && preview) {
       setSelectedPhoto(file);
@@ -36,21 +34,10 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
       return;
     }
 
-    setShowConfirmation(true);
-  };
-
-  const confirmSubmission = () => {
-    if (selectedPhoto && caption.trim()) {
-      onSubmit({
-        photo: selectedPhoto,
-        caption: caption.trim(),
-      });
-      setShowConfirmation(false);
-    }
-  };
-
-  const cancelSubmission = () => {
-    setShowConfirmation(false);
+    onSubmit({
+      photo: selectedPhoto,
+      caption: caption.trim(),
+    });
   };
 
   const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting;
@@ -122,60 +109,6 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
         </div>
       </form>
 
-      {/* Confirmation Modal */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Confirm Your Submission
-            </h3>
-            
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-3">
-                <strong>Prompt:</strong> &quot;{prompt.text}&quot;
-              </p>
-              
-              {previewUrl && (
-                <div className="mb-3">
-                  <img
-                    src={previewUrl}
-                    alt="Your submission"
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-              
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-700">
-                  <strong>Caption:</strong> {caption}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Important:</strong> Once submitted, you cannot edit or change your response. 
-                Your photo and caption will be published when the submission window closes.
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={cancelSubmission}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmSubmission}
-                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              >
-                Confirm Submission
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

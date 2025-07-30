@@ -40,6 +40,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const [selectedVotes, setSelectedVotes] = useState<{ [responseId: string]: number }>({});
   const [isSubmittingVotes, setIsSubmittingVotes] = useState(false);
   const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -96,7 +97,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     try {
       // First upload the photo
       const formData = new FormData();
-      formData.append('photo', data.photo);
+      formData.append('file', data.photo);
 
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
@@ -128,8 +129,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         throw new Error(errorData.error || 'Failed to submit response');
       }
 
-      alert('Response submitted successfully!');
-      refetchPrompt(); // Refresh to show that user has submitted
+      const isEditing = promptData.userResponse !== null;
+      alert(isEditing ? 'Response updated successfully!' : 'Response submitted successfully!');
+      setShowEditForm(false); // Hide edit form after successful submission
+      refetchPrompt(); // Refresh to show updated submission
     } catch (error) {
       console.error('Submission error:', error);
       alert(`Error: ${error instanceof Error ? error.message : 'Failed to submit response'}`);
@@ -210,9 +213,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           ) : showSubmitted ? (
             <div className="space-y-2">
               <p className="text-purple-700 font-medium">Response submitted!</p>
-              <p className="text-gray-600">You&rsquo;ve submitted your response for the current challenge. Voting will begin when the submission period ends.</p>
+              <p className="text-gray-600">You&rsquo;ve submitted your response for the current challenge. You can edit your submission until the deadline.</p>
               <p className="text-sm text-gray-500">
-                Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
+                Deadline: {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
+                  weekday: 'long',
                   month: 'long',
                   day: 'numeric',
                   hour: 'numeric',
@@ -328,6 +332,86 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 onSubmit={handleSubmitResponse}
                 isSubmitting={isSubmittingResponse}
               />
+            </div>
+          </div>
+        )}
+
+        {/* User's Current Submission (when already submitted) */}
+        {showSubmitted && (
+          <div className="space-y-6 mb-8">
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
+                  <p className="text-gray-600">&ldquo;{promptData.prompt.text}&rdquo;</p>
+                </div>
+                <div className="text-right text-sm text-gray-500">
+                  <div>Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}</div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <h3 className="text-lg font-medium mb-3">Your Current Submission</h3>
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="md:w-1/3">
+                    <img
+                      src={promptData.userResponse!.imageUrl}
+                      alt="Your submission"
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                  </div>
+                  <div className="md:w-2/3">
+                    <div className="bg-white rounded-lg p-4 h-full">
+                      <h4 className="font-medium text-gray-900 mb-2">Caption:</h4>
+                      <p className="text-gray-700">{promptData.userResponse!.caption}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                {!showEditForm ? (
+                  <div className="text-center">
+                    <button
+                      onClick={() => setShowEditForm(true)}
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    >
+                      Edit Submission
+                    </button>
+                    <p className="text-sm text-gray-500 mt-2">
+                      You can update your submission until the deadline
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-lg font-medium">Edit Your Submission</h3>
+                      <button
+                        onClick={() => setShowEditForm(false)}
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Your previous submission will be replaced with the new one.
+                    </p>
+                    
+                    <SubmissionForm
+                      prompt={promptData.prompt}
+                      onSubmit={handleSubmitResponse}
+                      isSubmitting={isSubmittingResponse}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -194,35 +194,56 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Create or update the response
+    let response;
     if (existingResponse) {
-      return NextResponse.json({ 
-        error: 'You have already submitted a response to this prompt' 
-      }, { status: 400 });
-    }
-
-    // Create the response
-    const response = await db.response.create({
-      data: {
-        userId: session.user.id,
-        promptId: promptId,
-        imageUrl: photoUrl,
-        caption: caption.trim(),
-        isPublished: false // Will be published when prompt ends
-      },
-      include: {
-        user: {
-          select: {
-            username: true
-          }
+      // Update existing response
+      response = await db.response.update({
+        where: { id: existingResponse.id },
+        data: {
+          imageUrl: photoUrl,
+          caption: caption.trim(),
+          submittedAt: new Date(), // Update submission time
         },
-        prompt: {
-          select: {
-            text: true,
-            weekEnd: true
+        include: {
+          user: {
+            select: {
+              username: true
+            }
+          },
+          prompt: {
+            select: {
+              text: true,
+              weekEnd: true
+            }
           }
         }
-      }
-    });
+      });
+    } else {
+      // Create new response
+      response = await db.response.create({
+        data: {
+          userId: session.user.id,
+          promptId: promptId,
+          imageUrl: photoUrl,
+          caption: caption.trim(),
+          isPublished: false // Will be published when prompt ends
+        },
+        include: {
+          user: {
+            select: {
+              username: true
+            }
+          },
+          prompt: {
+            select: {
+              text: true,
+              weekEnd: true
+            }
+          }
+        }
+      });
+    }
 
     return NextResponse.json({
       success: true,

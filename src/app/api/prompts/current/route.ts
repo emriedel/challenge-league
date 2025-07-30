@@ -65,6 +65,8 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             submittedAt: true,
+            imageUrl: true,
+            caption: true,
           },
         },
       },
@@ -86,6 +88,8 @@ export async function GET(request: NextRequest) {
       userResponse: userResponse ? {
         id: userResponse.id,
         submittedAt: userResponse.submittedAt,
+        imageUrl: userResponse.imageUrl,
+        caption: userResponse.caption,
       } : null,
     });
   } catch (error) {

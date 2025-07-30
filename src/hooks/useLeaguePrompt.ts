@@ -13,6 +13,8 @@ interface Prompt {
 interface UserResponse {
   id: string;
   submittedAt: string;
+  imageUrl: string;
+  caption: string;
 }
 
 interface PromptData {
