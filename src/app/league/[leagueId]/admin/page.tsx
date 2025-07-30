@@ -246,7 +246,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{league.name} - Admin Panel</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{league.name} - League Settings</h1>
           <p className="text-gray-600">Manage prompts for your league - they&rsquo;ll automatically activate in order</p>
         </div>
 

@@ -217,49 +217,61 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Current Status */}
+        {/* Current Challenge */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Current Status</h2>
           {showVoting ? (
-            <div className="space-y-2">
-              <p className="text-blue-700 font-medium">Voting is now open!</p>
-              <p className="text-gray-600">Cast your votes for the best submissions in the current challenge.</p>
-            </div>
-          ) : showSubmission ? (
-            <div className="space-y-2">
-              <p className="text-green-700 font-medium">New challenge is active!</p>
-              <p className="text-gray-600">Submit your creative response to the current challenge below.</p>
-              <p className="text-sm text-gray-500">
-                Deadline: {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                })}
-              </p>
-            </div>
-          ) : showSubmitted ? (
-            <div className="space-y-2">
-              <p className="text-purple-700 font-medium">Response submitted!</p>
-              <p className="text-gray-600">You&rsquo;ve submitted your response for the current challenge. You can edit your submission until the deadline.</p>
-              <p className="text-sm text-gray-500">
-                Deadline: {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                })}
-              </p>
-            </div>
+            <>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <p className="text-lg text-gray-800 font-medium">&ldquo;{votingData.prompt?.text}&rdquo;</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-blue-700 font-medium">Voting Phase Active</p>
+                  <p className="text-gray-600">Cast your votes for the best submissions</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Voting deadline:</p>
+                  <p className="text-lg font-semibold">
+                    {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    }) : 'TBD'}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (showSubmission || showSubmitted) && promptData?.prompt ? (
+            <>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <p className="text-lg text-gray-800 font-medium">&ldquo;{promptData.prompt.text}&rdquo;</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Submission deadline:&nbsp;
+                  {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}
+                </p>
+              </div>
+            </>
           ) : (
-            <div className="space-y-2">
-              <p className="text-gray-700">No active challenge</p>
-              <p className="text-sm text-gray-500">
-                {showLatestResults ? 'View the latest completed round below' : 'Check back for new challenges'}
-              </p>
-            </div>
+            <>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">No Active Challenge</h2>
+              <div className="space-y-2">
+                <p className="text-gray-700">No challenge is currently active</p>
+                <p className="text-sm text-gray-500">
+                  {showLatestResults ? 'View the latest completed round below' : 'Check back for new challenges'}
+                </p>
+              </div>
+            </>
           )}
         </div>
 
@@ -388,32 +400,27 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {showSubmitted && (
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
-                  <p className="text-gray-600">&ldquo;{promptData.prompt.text}&rdquo;</p>
-                </div>
-                <div className="text-right text-sm text-gray-500">
-                  <div>Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}</div>
-                </div>
-              </div>
-
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <h3 className="text-lg font-medium mb-3">Your Current Submission</h3>
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-lg font-medium mb-3">Your Current Submission</h2>
+                  <div className="text-right text-sm text-gray-500">
+                    <div>Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}</div>
+                  </div>
+                </div>
                 <div className="flex flex-col md:flex-row gap-4">
-                  <div className="md:w-1/3">
+                  <div className="md:w-1/2">
                     <img
                       src={promptData.userResponse!.imageUrl}
                       alt="Your submission"
                       className="w-full h-48 object-cover rounded-lg"
                     />
                   </div>
-                  <div className="md:w-2/3">
+                  <div className="md:w-1/2">
                     <div className="bg-white rounded-lg p-4 h-full">
                       <h4 className="font-medium text-gray-900 mb-2">Caption:</h4>
                       <p className="text-gray-700">{promptData.userResponse!.caption}</p>

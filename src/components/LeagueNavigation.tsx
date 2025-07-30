@@ -16,7 +16,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
     { id: 'home', name: 'League Home', href: `/league/${leagueId}` },
     { id: 'results', name: 'Completed Rounds', href: `/league/${leagueId}/results` },
     { id: 'leaderboard', name: 'Leaderboard', href: `/league/${leagueId}/leaderboard` },
-    ...(isOwner ? [{ id: 'admin', name: 'Admin', href: `/league/${leagueId}/admin` }] : []),
+    ...(isOwner ? [{ id: 'admin', name: 'League Settings', href: `/league/${leagueId}/admin` }] : []),
   ];
 
   return (
