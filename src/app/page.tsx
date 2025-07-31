@@ -32,7 +32,7 @@ export default function HomePage() {
         setLoading(false);
       } else if (userLeagues.length === 1) {
         // Single league - auto-redirect
-        router.push(`/league/${userLeagues[0].slug}`);
+        router.push(`/league/${userLeagues[0].id}`);
       } else {
         // Multiple leagues - show selection dashboard
         setLoading(false);

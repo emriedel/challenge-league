@@ -140,11 +140,11 @@ async function main() {
   ];
 
   const sampleImageUrls = [
-    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500", // Art supplies
-    "https://images.unsplash.com/photo-1550950158-8e6aa8b6e5c1?w=500", // Creative workspace
-    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500", // Artistic creation
-    "https://images.unsplash.com/photo-1502780402662-acc01917ef2e?w=500", // Handmade item
-    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500", // Craft project
+    "https://picsum.photos/500/400?random=21", // Random placeholder 1
+    "https://picsum.photos/500/400?random=22", // Random placeholder 2
+    "https://picsum.photos/500/400?random=23", // Random placeholder 3
+    "https://picsum.photos/500/400?random=24", // Random placeholder 4
+    "https://picsum.photos/500/400?random=25", // Random placeholder 5
   ];
 
   const completedResponses = [];

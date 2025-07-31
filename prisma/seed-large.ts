@@ -59,28 +59,28 @@ const sampleCaptions = [
   "Nature provided the perfect backdrop - I just had to capture it right."
 ];
 
-// Diverse image URLs from Unsplash
+// Reliable placeholder images using picsum.photos (Lorem Picsum)
 const imageUrls = [
-  "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500",
-  "https://images.unsplash.com/photo-1550950158-8e6aa8b6e5c1?w=500", 
-  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500",
-  "https://images.unsplash.com/photo-1502780402662-acc01917ef2e?w=500",
-  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500",
-  "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=500",
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500",
-  "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500",
-  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500",
-  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500",
-  "https://images.unsplash.com/photo-1549740425-5e9ed4d8cd34?w=500",
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500",
-  "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=500",
-  "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500",
-  "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500",
-  "https://images.unsplash.com/photo-1502780402662-acc01917ef2e?w=500",
-  "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500",
-  "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=500",
-  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500",
-  "https://images.unsplash.com/photo-1549740425-5e9ed4d8cd34?w=500"
+  "https://picsum.photos/500/400?random=1", // Random image 1
+  "https://picsum.photos/500/400?random=2", // Random image 2
+  "https://picsum.photos/500/400?random=3", // Random image 3
+  "https://picsum.photos/500/400?random=4", // Random image 4
+  "https://picsum.photos/500/400?random=5", // Random image 5
+  "https://picsum.photos/500/400?random=6", // Random image 6
+  "https://picsum.photos/500/400?random=7", // Random image 7
+  "https://picsum.photos/500/400?random=8", // Random image 8
+  "https://picsum.photos/500/400?random=9", // Random image 9
+  "https://picsum.photos/500/400?random=10", // Random image 10
+  "https://picsum.photos/500/400?random=11", // Random image 11
+  "https://picsum.photos/500/400?random=12", // Random image 12
+  "https://picsum.photos/500/400?random=13", // Random image 13
+  "https://picsum.photos/500/400?random=14", // Random image 14
+  "https://picsum.photos/500/400?random=15", // Random image 15
+  "https://picsum.photos/500/400?random=16", // Random image 16
+  "https://picsum.photos/500/400?random=17", // Random image 17
+  "https://picsum.photos/500/400?random=18", // Random image 18
+  "https://picsum.photos/500/400?random=19", // Random image 19
+  "https://picsum.photos/500/400?random=20"  // Random image 20
 ];
 
 // Helper function to get random items from array
