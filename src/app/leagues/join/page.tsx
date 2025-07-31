@@ -13,8 +13,8 @@ export default function JoinLeaguePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<{
     league: {
+      id: string;
       name: string;
-      slug: string;
       memberCount: number;
       owner: { username: string };
     };

@@ -9,7 +9,6 @@ import { useState, useRef, useEffect } from 'react';
 interface League {
   id: string;
   name: string;
-  slug: string;
   memberCount: number;
   isOwner: boolean;
 }

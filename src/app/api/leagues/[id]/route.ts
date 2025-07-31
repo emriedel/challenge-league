@@ -150,7 +150,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       league: {
         id: league.id,
         name: league.name,
-        slug: league.slug,
         description: league.description,
         inviteCode: league.ownerId === session.user.id ? league.inviteCode : undefined, // Only show to owner
         memberCount: league.memberships.length,

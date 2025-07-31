@@ -13,13 +13,6 @@ function generateInviteCode(): string {
   return result;
 }
 
-// Generate a URL-safe slug from a name
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
 
 // GET /api/leagues - Get user's leagues
 export async function GET() {
@@ -107,17 +100,6 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Generate unique slug and invite code
-    const baseSlug = generateSlug(name);
-    let slug = baseSlug;
-    let counter = 1;
-
-    // Ensure slug is unique
-    while (await db.league.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${counter}`;
-      counter++;
-    }
-
     // Generate unique invite code
     let inviteCode = generateInviteCode();
     while (await db.league.findUnique({ where: { inviteCode } })) {
@@ -128,7 +110,6 @@ export async function POST(request: NextRequest) {
     const league = await db.league.create({
       data: {
         name,
-        slug,
         description,
         inviteCode,
         ownerId: session.user.id,

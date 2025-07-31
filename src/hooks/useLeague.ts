@@ -40,7 +40,6 @@ interface RecentActivity {
 interface League {
   id: string;
   name: string;
-  slug: string;
   description: string;
   memberCount: number;
   isOwner: boolean;

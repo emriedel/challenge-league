@@ -8,7 +8,6 @@ import Link from 'next/link';
 interface League {
   id: string;
   name: string;
-  slug: string;
   description?: string;
   memberCount: number;
   isOwner: boolean;

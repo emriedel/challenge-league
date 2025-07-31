@@ -70,7 +70,6 @@ export default function StandingPage({ params }: StandingPageProps) {
 
   const league = leagueData?.league;
   const standings = leagueData?.leaderboard || [];
-  const currentUserEntry = standings.find(entry => entry.user.username === session.user.username);
 
   return (
     <div>
