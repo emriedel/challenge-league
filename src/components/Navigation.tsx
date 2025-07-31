@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 
@@ -63,11 +64,20 @@ export default function Navigation() {
   }
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="shadow-sm border-b" style={{ backgroundColor: '#2d8cff' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700">
-            Challenge League
+          <Link href="/" className="flex items-center space-x-3 hover:opacity-80">
+            <Image
+              src="/challenge-league-logo.png"
+              alt="Challenge League"
+              width={40}
+              height={40}
+              className="w-10 h-10"
+            />
+            <span className="text-2xl font-bold text-white">
+              Challenge League
+            </span>
           </Link>
           
           <div className="flex items-center space-x-8">
@@ -76,7 +86,7 @@ export default function Navigation() {
                 <nav className="flex space-x-8">
                   <Link 
                     href="/how-it-works" 
-                    className="text-gray-500 hover:text-gray-900"
+                    className="text-white/80 hover:text-white"
                   >
                     How it works
                   </Link>
@@ -85,7 +95,7 @@ export default function Navigation() {
                   <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                      className="flex items-center text-gray-500 hover:text-gray-900"
+                      className="flex items-center text-white/80 hover:text-white"
                     >
                       Leagues
                       <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,7 +179,7 @@ export default function Navigation() {
                   <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center text-sm text-gray-700 hover:text-gray-900"
+                      className="flex items-center text-sm text-white/80 hover:text-white"
                     >
                       @{session.user.username}
                       <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,13 +216,13 @@ export default function Navigation() {
               <div className="flex items-center space-x-4">
                 <Link
                   href="/how-it-works"
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-white/80 hover:text-white"
                 >
                   How it works
                 </Link>
                 <Link
                   href="/auth/signin"
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-white/80 hover:text-white"
                 >
                   Sign in
                 </Link>

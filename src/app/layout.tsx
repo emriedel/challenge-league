@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Challenge League',
   description: 'Creative competition leagues for friends and communities',
+  icons: {
+    icon: '/challenge-league-logo.png',
+    shortcut: '/challenge-league-logo.png',
+    apple: '/challenge-league-logo.png',
+  },
 };
 
 export default function RootLayout({
