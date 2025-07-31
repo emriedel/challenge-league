@@ -16,15 +16,7 @@ export interface LeagueWithMembership {
     id: string;
     username: string;
   };
-  memberships?: {
-    userId: string;
-    leagueId: string;
-    isActive: boolean;
-    user: {
-      id: string;
-      username: string;
-    };
-  }[];
+  memberships?: any[]; // Use any for now to avoid complex Prisma type matching
   _count?: {
     memberships: number;
   };

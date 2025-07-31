@@ -140,7 +140,7 @@ export default function HomePage() {
                       </h3>
                       <p className="text-sm text-gray-500 mb-2">
                         {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} • 
-                        Owner: @{league.owner.username}
+                        Owner: @{league.owner?.username || 'Unknown'}
                       </p>
                     </div>
                     {league.isOwner && (

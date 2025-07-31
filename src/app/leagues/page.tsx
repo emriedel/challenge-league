@@ -132,7 +132,7 @@ export default function LeaguesPage() {
                   </h3>
                   <p className="text-sm text-gray-500">
                     {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} • 
-                    Owner: @{league.owner.username}
+                    Owner: @{league.owner?.username || 'Unknown'}
                   </p>
                 </div>
                 {league.isOwner && (

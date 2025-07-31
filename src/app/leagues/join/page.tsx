@@ -85,7 +85,7 @@ export default function JoinLeaguePage() {
             <div className="bg-white border border-green-200 rounded-md p-4 mb-6">
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>League:</strong> {success.league.name}</p>
-                <p><strong>Owner:</strong> @{success.league.owner.username}</p>
+                <p><strong>Owner:</strong> @{success.league.owner?.username || 'Unknown'}</p>
                 <p><strong>Members:</strong> {success.league.memberCount}</p>
               </div>
             </div>

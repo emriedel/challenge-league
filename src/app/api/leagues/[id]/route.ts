@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Get league standings - calculate total points across all completed prompts in this league
     const leaderboard = await Promise.all(
-      league.memberships.map(async (membership) => {
+      (league.memberships || []).map(async (membership) => {
         const userResponses = await db.response.findMany({
           where: {
             userId: membership.userId,
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         responses: {
           where: {
             isPublished: true,
-            userId: { in: league.memberships.map(m => m.userId) }
+            userId: { in: (league.memberships || []).map(m => m.userId) }
           },
           include: {
             user: {
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         name: league.name,
         description: league.description,
         inviteCode: league.ownerId === session.user.id ? league.inviteCode : undefined, // Only show to owner
-        memberCount: league.memberships.length,
+        memberCount: league.memberships?.length || 0,
         isOwner: league.ownerId === session.user.id,
         owner: league.owner
       },
