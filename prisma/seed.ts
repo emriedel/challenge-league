@@ -169,24 +169,26 @@ async function main() {
   console.log(`📸 Created 5 responses for completed task`);
 
   // Create votes for the completed task
-  // Each player votes for their top 3 (excluding their own submission)
+  // Each player gets exactly 3 votes worth 1 point each (excluding their own submission)
   for (let voterIndex = 0; voterIndex < users.length; voterIndex++) {
     const voter = users[voterIndex];
     const availableResponses = completedResponses.filter(r => r.userId !== voter.id);
     
-    // Shuffle and take top 3
-    const shuffled = availableResponses.sort(() => 0.5 - Math.random());
-    const top3 = shuffled.slice(0, 3);
-    
-    for (let rank = 1; rank <= 3; rank++) {
-      if (top3[rank - 1]) {
-        const points = 4 - rank; // 1st = 3pts, 2nd = 2pts, 3rd = 1pt
+    if (availableResponses.length >= 1) {
+      // Shuffle available responses
+      const shuffled = availableResponses.sort(() => 0.5 - Math.random());
+      
+      // Each user gets exactly 3 votes to distribute
+      const votesToGive = 3;
+      const responsesToVoteFor = shuffled.slice(0, Math.min(3, shuffled.length));
+      
+      // Distribute votes - for simplicity in basic seed, give 1 vote to each of top 3
+      for (let i = 0; i < Math.min(votesToGive, responsesToVoteFor.length); i++) {
         await prisma.vote.create({
           data: {
             voterId: voter.id,
-            responseId: top3[rank - 1].id,
-            rank,
-            points,
+            responseId: responsesToVoteFor[i].id,
+            points: 1, // Each vote worth 1 point
           },
         });
       }

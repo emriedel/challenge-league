@@ -140,8 +140,7 @@ model LeagueMembership {
 
 model Vote {
   id        String   @id @default(cuid())
-  rank      Int      // 1 = first choice (3 points), 2 = second choice (2 points), 3 = third choice (1 point)
-  points    Int      // Points awarded (3, 2, or 1)
+  points    Int      @default(1) // Each vote is worth 1 point
   createdAt DateTime @default(now())
 
   voterId    String
@@ -149,8 +148,7 @@ model Vote {
   responseId String
   response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
 
-  @@unique([voterId, responseId]) // One vote per voter per response
-  @@unique([voterId, rank]) // One vote per rank per voter (can't give two responses the same rank)
+  // No unique constraint - users can give multiple votes to the same response
   @@map("votes")
 }
 

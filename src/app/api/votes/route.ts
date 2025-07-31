@@ -203,7 +203,6 @@ export async function POST(request: NextRequest) {
             data: {
               voterId: session.user.id,
               responseId: responseId,
-              rank: 1, // All votes have equal rank
               points: 1 // Each vote worth 1 point
             }
           });

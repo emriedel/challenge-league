@@ -2,9 +2,9 @@
 
 ## 🧪 Test Credentials
 
-The following test accounts are available after running `npx prisma db seed`:
+The following test accounts are available after running database seed commands:
 
-### Player Accounts
+### Basic Seed (`npx prisma db seed`) - 6 Players
 | Email | Password | Username | Special Access |
 |-------|----------|----------|----------------|
 | `player1@example.com` | `password123` | `player1` | **Admin Access** 🔑 |
@@ -14,15 +14,50 @@ The following test accounts are available after running `npx prisma db seed`:
 | `player5@example.com` | `password123` | `player5` | Player |
 | `player6@example.com` | `password123` | `player6` | Player |
 
+### Large Seed (`npx tsx prisma/seed-large.ts`) - 20 Players + 5 Completed Rounds
+For comprehensive testing with realistic competition data:
+
+| Email | Password | Username | Points | Wins | Status |
+|-------|----------|----------|--------|------|--------|
+| `photophoenix@example.com` | `password123` | `PhotoPhoenix` | 29 | 1 | **League Owner** 🔑 |
+| `craftycaptain@example.com` | `password123` | `CraftyCaptain` | 14 | 0 | Player |
+| `pixelpioneer@example.com` | `password123` | `PixelPioneer` | 13 | 0 | Player |
+| `artisticace@example.com` | `password123` | `ArtisticAce` | 21 | 0 | Player |
+| `creativecomet@example.com` | `password123` | `CreativeComet` | - | 0 | Player |
+| `snapsage@example.com` | `password123` | `SnapSage` | - | 0 | Player |
+| `visionvoyager@example.com` | `password123` | `VisionVoyager` | - | 0 | Player |
+| `dreamdesigner@example.com` | `password123` | `DreamDesigner` | 25 | 1 | Player |
+| `studiostar@example.com` | `password123` | `StudioStar` | - | 0 | Player |
+| `framefusion@example.com` | `password123` | `FrameFusion` | - | 0 | Player |
+| `colorcrafter@example.com` | `password123` | `ColorCrafter` | 16 | 0 | Player |
+| `lenslegend@example.com` | `password123` | `LensLegend` | 20 | 1 | Player |
+| `brushboss@example.com` | `password123` | `BrushBoss` | 18 | 1 | Player |
+| `sketchsorcerer@example.com` | `password123` | `SketchSorcerer` | 28 | 1 | Player |
+| `paintpro@example.com` | `password123` | `PaintPro` | - | 0 | Player |
+| `digitaldynamo@example.com` | `password123` | `DigitalDynamo` | - | 0 | Player |
+| `artfulavenger@example.com` | `password123` | `ArtfulAvenger` | - | 0 | Player |
+| `creativeclimber@example.com` | `password123` | `CreativeClimber` | - | 0 | Player |
+| `visualvibe@example.com` | `password123` | `VisualVibe` | 18 | 0 | Player |
+| `mastermaker@example.com` | `password123` | `MasterMaker` | - | 0 | Player |
+
+### Large Seed League Data
+- **League Name**: Creative Champions League
+- **Invite Code**: A1TXJG
+- **Total Members**: 20 active users  
+- **Completed Rounds**: 5 with full voting history
+- **Total Submissions**: ~71 creative responses
+- **Total Votes**: ~300 distributed votes
+- **Current Leader**: PhotoPhoenix (29 points, 1 win)
+
 ### Admin Access
-- **Username**: `player1` has admin access to `/admin`
+- **Basic Seed**: `player1` has admin access to `/league-settings`
+- **Large Seed**: `PhotoPhoenix` has admin access to `/league-settings`
 - Admin can manage creative challenges, queue ordering, and system processing
-- All other accounts are regular players in the Main League
 
 ### League Setup
-- All players are automatically assigned to the "Main League"
-- Pre-populated with sample challenges and vote data
-- Complete competition cycle examples ready for testing
+- All players are automatically assigned to their respective league
+- Pre-populated with sample challenges and complete vote data
+- Full competition cycle examples ready for testing
 
 ## 🚀 Development Workflow
 
@@ -85,15 +120,23 @@ npm run dev
 # Reset database completely
 npx prisma migrate reset --force
 
+# Basic seed (6 players, basic data)
+npx prisma db seed
+
+# Large seed (20 players, 5 completed rounds, realistic data)
+npx tsx prisma/seed-large.ts
+
 # View database in browser
 npx prisma studio
-
-# Check current data
-npx prisma db seed
 
 # Generate client after schema changes
 npx prisma generate
 ```
+
+#### Choosing Your Seed Data
+- **Basic Seed**: Ideal for development and testing core features
+- **Large Seed**: Perfect for testing UI with realistic data volumes, leaderboards, and full competition history
+- **Custom Data**: Modify seed scripts in `prisma/` directory for specific test scenarios
 
 ### 6. Environment Variables
 Create a `.env` file with:
