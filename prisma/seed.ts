@@ -42,7 +42,15 @@ async function main() {
   await prisma.leagueMembership.deleteMany();
   await prisma.prompt.deleteMany();
   await prisma.league.deleteMany();
+  
+  // Clear sessions and accounts (NextAuth data) to force fresh login after reseed
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.verificationToken.deleteMany();
+  
   await prisma.user.deleteMany();
+  
+  console.log('🔑 Cleared all sessions - users will need to log in again after reseed');
 
   // Create test users first (need user ID for league owner)
   const users = [];

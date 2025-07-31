@@ -42,12 +42,14 @@ For comprehensive testing with realistic competition data:
 
 ### Large Seed League Data
 - **League Name**: Creative Champions League
-- **Invite Code**: A1TXJG
+- **Invite Code**: 6A5SH7
 - **Total Members**: 20 active users  
 - **Completed Rounds**: 5 with full voting history
-- **Total Submissions**: ~71 creative responses
-- **Total Votes**: ~300 distributed votes
-- **Current Leader**: PhotoPhoenix (29 points, 1 win)
+- **Active Prompt**: "Show us your most creative breakfast setup - make it Instagram-worthy!" (8 submissions so far)
+- **Voting Prompt**: "Capture the most interesting architectural detail in your neighborhood" (12 submissions, 6 users have voted)
+- **Total Submissions**: ~90+ creative responses across all prompts
+- **Total Votes**: ~320+ distributed votes (including ongoing voting)
+- **Current Leader**: CraftyCaptain (28 points, 1 win)
 
 ### Admin Access
 - **Basic Seed**: `player1` has admin access to `/league-settings`
@@ -137,6 +139,13 @@ npx prisma generate
 - **Basic Seed**: Ideal for development and testing core features
 - **Large Seed**: Perfect for testing UI with realistic data volumes, leaderboards, and full competition history
 - **Custom Data**: Modify seed scripts in `prisma/` directory for specific test scenarios
+
+#### Important Note About Sessions
+Both seed scripts automatically clear all user sessions when they run. This means:
+- **After running any seed script, all users will be logged out**
+- **You'll need to log in again** with the new account credentials
+- **This prevents stale session issues** where old user IDs don't match the new database data
+- **This is expected behavior** - the seed scripts tell you when sessions are cleared
 
 ### 6. Environment Variables
 Create a `.env` file with:

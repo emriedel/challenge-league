@@ -105,7 +105,15 @@ async function main() {
   await prisma.leagueMembership.deleteMany();
   await prisma.prompt.deleteMany();
   await prisma.league.deleteMany();
+  
+  // Clear sessions and accounts (NextAuth data) to force fresh login after reseed
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.verificationToken.deleteMany();
+  
   await prisma.user.deleteMany();
+  
+  console.log('🔑 Cleared all sessions - users will need to log in again after reseed');
 
   // Create 20 test users
   console.log('👥 Creating 20 users...');
@@ -309,12 +317,157 @@ async function main() {
     console.log(`   🏆 Winner: ${topUser?.username} with ${topResponse.totalPoints} points`);
   }
 
+  // Create current active prompt for testing submission flow
+  console.log('\\n🚀 Creating current active prompt for testing...');
+  
+  const now = new Date();
+  const currentStart = new Date(now);
+  currentStart.setDate(currentStart.getDate() - 2); // Started 2 days ago
+  const currentEnd = new Date(now);
+  currentEnd.setDate(currentEnd.getDate() + 5); // Ends in 5 days
+  const currentVoteStart = new Date(currentEnd);
+  const currentVoteEnd = new Date(currentVoteStart);
+  currentVoteEnd.setDate(currentVoteEnd.getDate() + 2);
+
+  const currentPrompt = await prisma.prompt.create({
+    data: {
+      text: "Show us your most creative breakfast setup - make it Instagram-worthy!",
+      weekStart: currentStart,
+      weekEnd: currentEnd,
+      voteStart: currentVoteStart,
+      voteEnd: currentVoteEnd,
+      status: 'ACTIVE',
+      queueOrder: 5,
+      leagueId: mainLeague.id,
+    },
+  });
+  console.log(`📝 Created active prompt: "${currentPrompt.text}"`);
+  console.log(`   Submit until: ${currentEnd.toLocaleDateString()}`);
+
+  // Create some current submissions (not published yet)
+  console.log('🥞 Creating current submissions for active prompt...');
+  const currentSubmissions = [];
+  for (let i = 0; i < 8; i++) { // 8 users have submitted so far
+    const submissionUser = users[i];
+    const submittedAt = new Date(currentStart);
+    submittedAt.setHours(submittedAt.getHours() + (i * 6)); // Stagger over 2 days
+    
+    const submission = await prisma.response.create({
+      data: {
+        caption: `${getRandomItem(sampleCaptions)} This breakfast challenge really got my creative juices flowing!`,
+        imageUrl: getRandomItem(imageUrls),
+        userId: submissionUser.id,
+        promptId: currentPrompt.id,
+        isPublished: false, // Not published until submission window closes
+        submittedAt,
+        totalVotes: 0,
+        totalPoints: 0,
+      },
+    });
+    currentSubmissions.push(submission);
+  }
+  console.log(`📸 Created 8 current submissions (unpublished, waiting for submission window to close)`);
+
+  // Create a voting prompt for testing voting flow
+  console.log('\\n🗳️ Creating voting prompt for testing...');
+  
+  const votingStart = new Date(now);
+  votingStart.setDate(votingStart.getDate() - 9); // Started 9 days ago
+  const votingEnd = new Date(votingStart);
+  votingEnd.setDate(votingEnd.getDate() + 7); // Ended 2 days ago
+  const votingVoteStart = new Date(votingEnd);
+  const votingVoteEnd = new Date(votingVoteStart);
+  votingVoteEnd.setDate(votingVoteEnd.getDate() + 1); // Voting ends tomorrow
+
+  const votingPrompt = await prisma.prompt.create({
+    data: {
+      text: "Capture the most interesting architectural detail in your neighborhood",
+      weekStart: votingStart,
+      weekEnd: votingEnd,
+      voteStart: votingVoteStart,
+      voteEnd: votingVoteEnd,
+      status: 'VOTING',
+      queueOrder: 6,
+      leagueId: mainLeague.id,
+    },
+  });
+  console.log(`📝 Created voting prompt: "${votingPrompt.text}"`);
+  console.log(`   Voting until: ${votingVoteEnd.toLocaleDateString()}`);
+
+  // Create submissions for voting prompt (published)
+  console.log('🏗️ Creating submissions for voting prompt...');
+  const votingSubmissions = [];
+  for (let i = 0; i < 12; i++) { // 12 users submitted
+    const submissionUser = users[i + 2]; // Different users than current prompt
+    const publishedAt = new Date(votingEnd);
+    publishedAt.setMinutes(publishedAt.getMinutes() + (i * 3));
+    
+    const submission = await prisma.response.create({
+      data: {
+        caption: `${getRandomItem(sampleCaptions)} Architecture has so much hidden beauty!`,
+        imageUrl: getRandomItem(imageUrls),
+        userId: submissionUser.id,
+        promptId: votingPrompt.id,
+        isPublished: true, // Published for voting
+        publishedAt,
+        submittedAt: new Date(votingEnd.getTime() - (i * 1000 * 60 * 30)), // Submitted before deadline
+        totalVotes: 0, // Will be updated as people vote
+        totalPoints: 0,
+      },
+    });
+    votingSubmissions.push(submission);
+  }
+  console.log(`📸 Created 12 voting submissions (published, ready for voting)`);
+
+  // Add some votes to the voting prompt (simulate some people have voted)
+  console.log('🗳️ Adding some example votes to voting prompt...');
+  let voteCount = 0;
+  for (let voterIndex = 0; voterIndex < 6; voterIndex++) { // 6 people have voted so far
+    const voter = users[voterIndex + 14]; // Use different users as voters
+    const availableSubmissions = votingSubmissions.filter(s => s.userId !== voter.id);
+    
+    if (availableSubmissions.length >= 3) {
+      const shuffled = [...availableSubmissions].sort(() => 0.5 - Math.random());
+      const votedSubmissions = shuffled.slice(0, 3);
+      
+      for (const submission of votedSubmissions) {
+        await prisma.vote.create({
+          data: {
+            voterId: voter.id,
+            responseId: submission.id,
+            points: 1,
+          },
+        });
+        voteCount++;
+      }
+    }
+  }
+  
+  // Update vote counts for voting submissions
+  for (const submission of votingSubmissions) {
+    const votes = await prisma.vote.findMany({
+      where: { responseId: submission.id }
+    });
+    
+    const totalVotes = votes.length;
+    const totalPoints = votes.reduce((sum, vote) => sum + vote.points, 0);
+    
+    await prisma.response.update({
+      where: { id: submission.id },
+      data: { totalVotes, totalPoints },
+    });
+  }
+  
+  console.log(`🗳️ Added ${voteCount} example votes (6 users have voted, others can still vote)`);
+
   console.log('\\n📊 FINAL SUMMARY:');
   console.log(`   🏆 League: ${mainLeague.name}`);
   console.log(`   👥 Users: 20 active members`);
   console.log(`   🏁 Completed Rounds: 5`);
-  console.log(`   📸 Total Submissions: ~75-90 (varies per round)`);
-  console.log(`   🗳️ Total Votes: ~300 (20 users × 3 votes × 5 rounds)`);
+  console.log(`   📝 Active Prompt: 1 (accepting submissions)`);
+  console.log(`   🗳️ Voting Prompt: 1 (voting in progress)`);
+  console.log(`   📸 Total Submissions: ~90+ across all prompts`);
+  console.log(`   🗳️ Total Votes: ~320+ (including ongoing voting)`);
   
   // Calculate and display leaderboard
   console.log('\\n🏅 LEAGUE LEADERBOARD:');
