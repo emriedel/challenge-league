@@ -4,10 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 interface RouteParams {
-  params: { slug: string };
+  params: { id: string };
 }
 
-// GET /api/leagues/[slug]/admin/prompts - Get prompts queue for league (owner only)
+// GET /api/leagues/[id]/admin/prompts - Get prompts queue for league (owner only)
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,11 +16,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
     const { text } = await request.json();
 
     if (!text?.trim()) {
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {

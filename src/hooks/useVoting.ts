@@ -44,13 +44,13 @@ interface UseVotingReturn {
   submitVotes: (votes: { [responseId: string]: number }) => Promise<{ success: boolean; error?: string }>;
 }
 
-export function useVoting(leagueSlug?: string): UseVotingReturn {
+export function useVoting(leagueId?: string): UseVotingReturn {
   const [data, setData] = useState<VotingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchVoting = useCallback(async () => {
-    if (!leagueSlug) {
+    if (!leagueId) {
       setError('League slug is required');
       setIsLoading(false);
       return;
@@ -60,7 +60,7 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/votes?slug=${encodeURIComponent(leagueSlug)}`);
+      const response = await fetch(`/api/votes?id=${encodeURIComponent(leagueId)}`);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -78,10 +78,10 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [leagueSlug]);
+  }, [leagueId]);
 
   const submitVotes = async (votes: { [responseId: string]: number }) => {
-    if (!leagueSlug) {
+    if (!leagueId) {
       return { success: false, error: 'League slug is required' };
     }
 
@@ -91,7 +91,7 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ votes, leagueSlug }),
+        body: JSON.stringify({ votes, leagueId }),
       });
 
       const result = await response.json();
@@ -110,10 +110,10 @@ export function useVoting(leagueSlug?: string): UseVotingReturn {
   };
 
   useEffect(() => {
-    if (leagueSlug) {
+    if (leagueId) {
       fetchVoting();
     }
-  }, [leagueSlug, fetchVoting]);
+  }, [leagueId, fetchVoting]);
 
   return {
     data,

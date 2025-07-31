@@ -4,10 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 interface RouteParams {
-  params: { slug: string };
+  params: { id: string };
 }
 
-// POST /api/leagues/[slug]/admin/prompts/reorder - Reorder prompts (owner only)
+// POST /api/leagues/[id]/admin/prompts/reorder - Reorder prompts (owner only)
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
     const { promptIds } = await request.json();
 
     if (!Array.isArray(promptIds) || promptIds.length === 0) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {

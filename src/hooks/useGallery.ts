@@ -51,13 +51,13 @@ interface UseGalleryReturn {
   refetch: () => Promise<void>;
 }
 
-export function useGallery(leagueSlug?: string): UseGalleryReturn {
+export function useGallery(leagueId?: string): UseGalleryReturn {
   const [data, setData] = useState<GalleryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchGallery = useCallback(async () => {
-    if (!leagueSlug) {
+    if (!leagueId) {
       setError('League slug is required');
       setIsLoading(false);
       return;
@@ -67,7 +67,7 @@ export function useGallery(leagueSlug?: string): UseGalleryReturn {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/responses?slug=${encodeURIComponent(leagueSlug)}`);
+      const response = await fetch(`/api/responses?id=${encodeURIComponent(leagueId)}`);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -103,13 +103,13 @@ export function useGallery(leagueSlug?: string): UseGalleryReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [leagueSlug]);
+  }, [leagueId]);
 
   useEffect(() => {
-    if (leagueSlug) {
+    if (leagueId) {
       fetchGallery();
     }
-  }, [leagueSlug, fetchGallery]);
+  }, [leagueId, fetchGallery]);
 
   return {
     data,

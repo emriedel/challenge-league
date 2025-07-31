@@ -167,7 +167,7 @@ export default function HomePage() {
                   )}
 
                   <Link
-                    href={`/league/${league.slug}`}
+                    href={`/league/${league.id}`}
                     className="block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-center"
                   >
                     Enter League

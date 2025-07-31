@@ -50,7 +50,7 @@ export default function CreateLeaguePage() {
       }
 
       // Redirect to the newly created league
-      router.push(`/league/${data.league.slug}`);
+      router.push(`/league/${data.league.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

@@ -11,19 +11,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get league slug from query params
+    // Get league ID from query params
     const { searchParams } = new URL(request.url);
-    const leagueSlug = searchParams.get('slug');
+    const leagueId = searchParams.get('id');
 
-    if (!leagueSlug) {
+    if (!leagueId) {
       return NextResponse.json({ 
-        error: 'League slug is required' 
+        error: 'League ID is required' 
       }, { status: 400 });
     }
 
     // Find the league and verify membership
     const league = await db.league.findUnique({
-      where: { slug: leagueSlug }
+      where: { id: leagueId }
     });
 
     if (!league) {
@@ -137,17 +137,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { votes, leagueSlug } = await request.json();
+    const { votes, leagueId } = await request.json();
 
-    if (!leagueSlug) {
+    if (!leagueId) {
       return NextResponse.json({ 
-        error: 'League slug is required' 
+        error: 'League ID is required' 
       }, { status: 400 });
     }
 
     // Find the league and verify membership
     const league = await db.league.findUnique({
-      where: { slug: leagueSlug }
+      where: { id: leagueId }
     });
 
     if (!league) {

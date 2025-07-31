@@ -144,7 +144,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           promptId: promptData.prompt.id,
           photoUrl,
           caption: data.caption,
-          leagueSlug: params.leagueId,
+          leagueId: params.leagueId,
         }),
       });
 

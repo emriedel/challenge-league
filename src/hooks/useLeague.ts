@@ -63,14 +63,14 @@ interface UseLeagueReturn {
   refetch: () => Promise<void>;
 }
 
-export function useLeague(leagueSlug?: string): UseLeagueReturn {
+export function useLeague(leagueId?: string): UseLeagueReturn {
   const [data, setData] = useState<LeagueData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchLeague = useCallback(async () => {
-    if (!leagueSlug) {
-      setError('League slug is required');
+    if (!leagueId) {
+      setError('League ID is required');
       setIsLoading(false);
       return;
     }
@@ -79,7 +79,7 @@ export function useLeague(leagueSlug?: string): UseLeagueReturn {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/leagues/${leagueSlug}`);
+      const response = await fetch(`/api/leagues/${leagueId}`);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -97,13 +97,13 @@ export function useLeague(leagueSlug?: string): UseLeagueReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [leagueSlug]);
+  }, [leagueId]);
 
   useEffect(() => {
-    if (leagueSlug) {
+    if (leagueId) {
       fetchLeague();
     }
-  }, [leagueSlug, fetchLeague]);
+  }, [leagueId, fetchLeague]);
 
   return {
     data,

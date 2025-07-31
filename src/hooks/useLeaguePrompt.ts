@@ -29,15 +29,15 @@ interface UseLeaguePromptReturn {
   refetch: () => Promise<void>;
 }
 
-export function useLeaguePrompt(leagueSlug?: string): UseLeaguePromptReturn {
+export function useLeaguePrompt(leagueId?: string): UseLeaguePromptReturn {
   const { data: session } = useSession();
   const [data, setData] = useState<PromptData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPrompt = useCallback(async () => {
-    if (!session || !leagueSlug) {
-      setError('Session or league slug is required');
+    if (!session || !leagueId) {
+      setError('Session or league ID is required');
       setIsLoading(false);
       return;
     }
@@ -46,7 +46,7 @@ export function useLeaguePrompt(leagueSlug?: string): UseLeaguePromptReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/leagues/${encodeURIComponent(leagueSlug)}/prompt`);
+      const response = await fetch(`/api/leagues/${encodeURIComponent(leagueId)}/prompt`);
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -68,13 +68,13 @@ export function useLeaguePrompt(leagueSlug?: string): UseLeaguePromptReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [session, leagueSlug]);
+  }, [session, leagueId]);
 
   useEffect(() => {
-    if (session && leagueSlug) {
+    if (session && leagueId) {
       fetchPrompt();
     }
-  }, [session, leagueSlug, fetchPrompt]);
+  }, [session, leagueId, fetchPrompt]);
 
   return {
     data,

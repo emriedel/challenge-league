@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
 
-// Ranking display for leaderboard
+// Ranking display for standings
 const getRankIcon = (rank: number) => {
   switch (rank) {
     case 1:
@@ -20,11 +20,11 @@ const getRankIcon = (rank: number) => {
   }
 };
 
-interface LeaderboardPageProps {
+interface StandingPageProps {
   params: { leagueId: string };
 }
 
-export default function LeaderboardPage({ params }: LeaderboardPageProps) {
+export default function StandingPage({ params }: StandingPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
@@ -43,7 +43,7 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading leaderboard...</p>
+            <p className="mt-4 text-gray-600">Loading standings...</p>
           </div>
         </div>
       </div>
@@ -69,8 +69,8 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
   }
 
   const league = leagueData?.league;
-  const leaderboard = leagueData?.leaderboard || [];
-  const currentUserEntry = leaderboard.find(entry => entry.user.username === session.user.username);
+  const standings = leagueData?.leaderboard || [];
+  const currentUserEntry = standings.find(entry => entry.user.username === session.user.username);
 
   return (
     <div>
@@ -104,11 +104,11 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
 
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-2xl font-semibold">League Leaderboard</h2>
+            <h2 className="text-2xl font-semibold">League Standings</h2>
             <p className="text-gray-600 text-sm">Rankings based on total points earned across all challenges</p>
           </div>
           
-          {leaderboard.length > 0 ? (
+          {standings.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -122,7 +122,7 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {leaderboard.map((entry, index) => (
+                  {standings.map((entry, index) => (
                     <tr 
                       key={entry.user.id}
                       className={entry.user.username === session.user.username ? 'bg-blue-50' : ''}
@@ -163,7 +163,7 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Players Yet</h3>
-              <p className="text-gray-500">The leaderboard will populate as players join and compete.</p>
+              <p className="text-gray-500">The standings will populate as players join and compete.</p>
             </div>
           )}
         </div>

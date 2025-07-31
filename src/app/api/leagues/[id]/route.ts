@@ -4,10 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 interface RouteParams {
-  params: { slug: string };
+  params: { id: string };
 }
 
-// GET /api/leagues/[slug] - Get specific league data
+// GET /api/leagues/[id] - Get specific league data
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,11 +16,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug },
+      where: { id },
       include: {
         owner: {
           select: {
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// PUT /api/leagues/[slug] - Update league (owner only)
+// PUT /api/leagues/[id] - Update league (owner only)
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -178,12 +178,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
     const { name, description } = await request.json();
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {

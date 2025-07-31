@@ -96,7 +96,7 @@ export default function JoinLeaguePage() {
 
             <div className="space-y-3">
               <Link
-                href={`/league/${success.league.slug}`}
+                href={`/league/${success.league.id}`}
                 className="block w-full bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 text-center"
               >
                 Go to League Dashboard

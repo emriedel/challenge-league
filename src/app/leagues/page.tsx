@@ -161,7 +161,7 @@ export default function LeaguesPage() {
 
               <div className="space-y-3">
                 <Link
-                  href={`/league/${league.slug}`}
+                  href={`/league/${league.id}`}
                   className="block w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-center text-sm"
                 >
                   View League

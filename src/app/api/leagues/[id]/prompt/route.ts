@@ -5,10 +5,10 @@ import { db } from '@/lib/db';
 import { processPromptQueue } from '@/lib/promptQueue';
 
 interface RouteParams {
-  params: { slug: string };
+  params: { id: string };
 }
 
-// GET /api/leagues/[slug]/prompt - Get current active prompt for a league
+// GET /api/leagues/[id]/prompt - Get current active prompt for a league
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,11 +17,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug } = params;
+    const { id } = params;
 
     // Find the league and verify membership
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {

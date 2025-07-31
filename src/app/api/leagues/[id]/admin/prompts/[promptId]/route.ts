@@ -4,10 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 interface RouteParams {
-  params: { slug: string; id: string };
+  params: { id: string; promptId: string };
 }
 
-// PATCH /api/leagues/[slug]/admin/prompts/[id] - Update prompt (owner only)
+// PATCH /api/leagues/[id]/admin/prompts/[promptId] - Update prompt (owner only)
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug, id } = params;
+    const { id, promptId } = params;
     const { text } = await request.json();
 
     if (!text?.trim()) {
@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {
@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Find the prompt and verify it belongs to this league
     const prompt = await db.prompt.findUnique({
-      where: { id }
+      where: { id: promptId }
     });
 
     if (!prompt) {
@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Update the prompt
     const updatedPrompt = await db.prompt.update({
-      where: { id },
+      where: { id: promptId },
       data: {
         text: text.trim()
       }
@@ -85,7 +85,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// DELETE /api/leagues/[slug]/admin/prompts/[id] - Delete prompt (owner only)
+// DELETE /api/leagues/[id]/admin/prompts/[promptId] - Delete prompt (owner only)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
@@ -94,11 +94,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug, id } = params;
+    const { id, promptId } = params;
 
     // Find the league
     const league = await db.league.findUnique({
-      where: { slug }
+      where: { id }
     });
 
     if (!league) {
@@ -116,7 +116,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Find the prompt and verify it belongs to this league
     const prompt = await db.prompt.findUnique({
-      where: { id }
+      where: { id: promptId }
     });
 
     if (!prompt) {
@@ -140,7 +140,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Delete the prompt
     await db.prompt.delete({
-      where: { id }
+      where: { id: promptId }
     });
 
     // Reorder remaining prompts
