@@ -77,35 +77,9 @@ export default function StandingPage({ params }: StandingPageProps) {
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Your Performance */}
-        {currentUserEntry && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Your Performance</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">#{currentUserEntry.stats.leagueRank}</div>
-                <div className="text-sm text-gray-500">League Rank</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{currentUserEntry.stats.totalPoints}</div>
-                <div className="text-sm text-gray-500">Total Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{currentUserEntry.stats.wins}</div>
-                <div className="text-sm text-gray-500">Wins</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{currentUserEntry.stats.podiumFinishes}</div>
-                <div className="text-sm text-gray-500">Top 3 Finishes</div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-2xl font-semibold">League Standings</h2>
-            <p className="text-gray-600 text-sm">Rankings based on total points earned across all challenges</p>
           </div>
           
           {standings.length > 0 ? (
@@ -117,7 +91,6 @@ export default function StandingPage({ params }: StandingPageProps) {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top 3</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Challenges</th>
                   </tr>
                 </thead>
@@ -130,9 +103,6 @@ export default function StandingPage({ params }: StandingPageProps) {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <span className="flex items-center gap-2">
                           {getRankIcon(entry.stats.leagueRank)}
-                          {entry.user.username === session.user.username && (
-                            <span className="text-blue-600 text-xs">(You)</span>
-                          )}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -143,9 +113,6 @@ export default function StandingPage({ params }: StandingPageProps) {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {entry.stats.wins}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {entry.stats.podiumFinishes}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {entry.stats.totalSubmissions}
