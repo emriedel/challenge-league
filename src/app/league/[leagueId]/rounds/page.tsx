@@ -7,6 +7,7 @@ import { useGallery } from '@/hooks/useGallery';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import Image from 'next/image';
+import ProfileAvatar from '@/components/ProfileAvatar';
 
 // Ranking display for results
 const getRankIcon = (rank: number) => {
@@ -102,7 +103,14 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                           </div>
                           <div className="p-4">
                             <div className="flex justify-between items-start mb-2">
-                              <p className="font-medium text-gray-900">@{response.user.username}</p>
+                              <div className="flex items-center space-x-2">
+                                <ProfileAvatar 
+                                  username={response.user.username}
+                                  profilePhoto={response.user.profilePhoto}
+                                  size="sm"
+                                />
+                                <p className="font-medium text-gray-900">@{response.user.username}</p>
+                              </div>
                               <div className="text-right text-sm">
                                 <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
                                 <div className="text-gray-500">#{response.finalRank || '—'}</div>

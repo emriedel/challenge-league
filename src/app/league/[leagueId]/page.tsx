@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useLeague } from '@/hooks/useLeague';
 import { useVoting } from '@/hooks/useVoting';
 import { useGallery } from '@/hooks/useGallery';
+import ProfileAvatar from '@/components/ProfileAvatar';
 import { useLeaguePrompt } from '@/hooks/useLeaguePrompt';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import SubmissionForm from '@/components/SubmissionForm';
@@ -314,7 +315,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                       className="w-full h-48 object-cover"
                     />
                     <div className="p-4">
-                      <p className="text-sm text-gray-600 mb-2">@{response.user.username}</p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <ProfileAvatar 
+                          username={response.user.username}
+                          profilePhoto={response.user.profilePhoto}
+                          size="sm"
+                        />
+                        <p className="text-sm text-gray-600">@{response.user.username}</p>
+                      </div>
                       <p className="text-gray-800 text-sm mb-4">{response.caption}</p>
                       
                       {/* Vote Controls */}
@@ -511,7 +519,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                     </div>
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <p className="font-medium text-gray-900">@{response.user.username}</p>
+                        <div className="flex items-center space-x-2">
+                          <ProfileAvatar 
+                            username={response.user.username}
+                            profilePhoto={response.user.profilePhoto}
+                            size="sm"
+                          />
+                          <p className="font-medium text-gray-900">@{response.user.username}</p>
+                        </div>
                         <div className="text-right text-sm">
                           <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
                           <div className="text-gray-500">#{response.finalRank || '—'}</div>

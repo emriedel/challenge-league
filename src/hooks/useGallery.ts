@@ -13,6 +13,7 @@ interface GalleryResponse {
   finalRank: number | null;
   user: {
     username: string;
+    profilePhoto?: string;
   };
   votes?: {
     id: string;

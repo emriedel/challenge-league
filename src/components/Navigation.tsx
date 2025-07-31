@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import type { League } from '@/types/league';
+import ProfileAvatar from './ProfileAvatar';
 
 
 export default function Navigation() {
@@ -173,10 +174,15 @@ export default function Navigation() {
                   <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center text-sm text-white/80 hover:text-white"
+                      className="flex items-center space-x-2 text-sm text-white/80 hover:text-white"
                     >
-                      @{session.user.username}
-                      <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <ProfileAvatar 
+                        username={session.user.username || session.user.email || 'User'}
+                        profilePhoto={session.user.profilePhoto}
+                        size="sm"
+                      />
+                      <span className="hidden sm:inline">@{session.user.username}</span>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>

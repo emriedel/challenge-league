@@ -9,6 +9,7 @@ interface VotingResponse {
   submittedAt: string;
   user: {
     username: string;
+    profilePhoto?: string;
   };
 }
 

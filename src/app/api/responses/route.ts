@@ -72,7 +72,8 @@ export async function GET(request: NextRequest) {
           include: {
             user: {
               select: {
-                username: true
+                username: true,
+                profilePhoto: true
               }
             },
             votes: {
@@ -208,7 +209,8 @@ export async function POST(request: NextRequest) {
         include: {
           user: {
             select: {
-              username: true
+              username: true,
+              profilePhoto: true
             }
           },
           prompt: {
@@ -232,7 +234,8 @@ export async function POST(request: NextRequest) {
         include: {
           user: {
             select: {
-              username: true
+              username: true,
+              profilePhoto: true
             }
           },
           prompt: {

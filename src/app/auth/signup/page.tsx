@@ -46,7 +46,7 @@ export default function SignUp() {
       });
 
       if (result?.ok) {
-        router.push('/');
+        router.push('/profile/setup');
       } else {
         setError('Registration successful, but sign in failed. Please try signing in manually.');
       }
