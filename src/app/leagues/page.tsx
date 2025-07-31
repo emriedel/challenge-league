@@ -4,18 +4,8 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import type { League } from '@/types/league';
 
-interface League {
-  id: string;
-  name: string;
-  description?: string;
-  memberCount: number;
-  isOwner: boolean;
-  inviteCode?: string;
-  owner: {
-    username: string;
-  };
-}
 
 export default function LeaguesPage() {
   const { data: session, status } = useSession();

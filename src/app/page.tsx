@@ -4,17 +4,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import type { League } from '@/types/league';
 
-interface League {
-  id: string;
-  name: string;
-  description?: string;
-  memberCount: number;
-  isOwner: boolean;
-  owner: {
-    username: string;
-  };
-}
 
 export default function HomePage() {
   const { data: session, status } = useSession();

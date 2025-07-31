@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import type { League } from '@/types/league';
 
 export default function JoinLeaguePage() {
   const { data: session, status } = useSession();
@@ -12,12 +13,7 @@ export default function JoinLeaguePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<{
-    league: {
-      id: string;
-      name: string;
-      memberCount: number;
-      owner: { username: string };
-    };
+    league: League;
   } | null>(null);
 
   if (status === 'loading') {

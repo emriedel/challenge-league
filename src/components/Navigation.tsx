@@ -5,13 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
+import type { League } from '@/types/league';
 
-interface League {
-  id: string;
-  name: string;
-  memberCount: number;
-  isOwner: boolean;
-}
 
 export default function Navigation() {
   const { data: session, status } = useSession();

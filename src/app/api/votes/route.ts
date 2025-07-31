@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withLeagueAccess } from '@/lib/leagueMiddleware';
 import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     // Get league ID from query params
     const { searchParams } = new URL(request.url);
     const leagueId = searchParams.get('id');
@@ -21,31 +14,13 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Find the league and verify membership
-    const league = await db.league.findUnique({
-      where: { id: leagueId }
-    });
-
-    if (!league) {
-      return NextResponse.json({ 
-        error: 'League not found' 
-      }, { status: 404 });
+    // Verify league access
+    const accessResult = await withLeagueAccess(leagueId);
+    if (!accessResult.success) {
+      return accessResult.response;
     }
 
-    const userMembership = await db.leagueMembership.findUnique({
-      where: {
-        userId_leagueId: {
-          userId: session.user.id,
-          leagueId: league.id
-        }
-      }
-    });
-
-    if (!userMembership || !userMembership.isActive) {
-      return NextResponse.json({ 
-        error: 'You are not a member of this league' 
-      }, { status: 403 });
-    }
+    const { session, league } = accessResult.context;
 
     // Get current voting prompt for this league
     const votingPrompt = await db.prompt.findFirst({
@@ -131,12 +106,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { votes, leagueId } = await request.json();
 
     if (!leagueId) {
@@ -145,31 +114,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Find the league and verify membership
-    const league = await db.league.findUnique({
-      where: { id: leagueId }
-    });
-
-    if (!league) {
-      return NextResponse.json({ 
-        error: 'League not found' 
-      }, { status: 404 });
+    // Verify league access
+    const accessResult = await withLeagueAccess(leagueId);
+    if (!accessResult.success) {
+      return accessResult.response;
     }
 
-    const userMembership = await db.leagueMembership.findUnique({
-      where: {
-        userId_leagueId: {
-          userId: session.user.id,
-          leagueId: league.id
-        }
-      }
-    });
-
-    if (!userMembership || !userMembership.isActive) {
-      return NextResponse.json({ 
-        error: 'You are not a member of this league' 
-      }, { status: 403 });
-    }
+    const { session, league } = accessResult.context;
 
     if (!votes || typeof votes !== 'object') {
       return NextResponse.json({ 

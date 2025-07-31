@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import type { LeagueWithMembers } from '@/types/league';
 
 interface LeagueUser {
   id: string;
@@ -37,20 +38,9 @@ interface RecentActivity {
   }[];
 }
 
-interface League {
-  id: string;
-  name: string;
-  description: string;
-  memberCount: number;
-  isOwner: boolean;
-  owner: {
-    id: string;
-    username: string;
-  };
-}
 
 interface LeagueData {
-  league: League;
+  league: LeagueWithMembers;
   leaderboard: LeaderboardEntry[];
   recentActivity: RecentActivity[];
 }

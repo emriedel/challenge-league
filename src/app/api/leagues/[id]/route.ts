@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { withLeagueAccess } from '@/lib/leagueMiddleware';
 import { db } from '@/lib/db';
 
 interface RouteParams {
@@ -10,59 +11,15 @@ interface RouteParams {
 // GET /api/leagues/[id] - Get specific league data
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = params;
 
-    // Find the league
-    const league = await db.league.findUnique({
-      where: { id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true
-          }
-        },
-        memberships: {
-          where: { isActive: true },
-          include: {
-            user: {
-              select: {
-                id: true,
-                username: true
-              }
-            }
-          }
-        }
-      }
-    });
-
-    if (!league) {
-      return NextResponse.json({ 
-        error: 'League not found' 
-      }, { status: 404 });
+    // Verify league access and get members
+    const accessResult = await withLeagueAccess(id, { includeMembers: true });
+    if (!accessResult.success) {
+      return accessResult.response;
     }
 
-    // Check if user is a member
-    const userMembership = await db.leagueMembership.findUnique({
-      where: {
-        userId_leagueId: {
-          userId: session.user.id,
-          leagueId: league.id
-        }
-      }
-    });
-
-    if (!userMembership || !userMembership.isActive) {
-      return NextResponse.json({ 
-        error: 'You are not a member of this league' 
-      }, { status: 403 });
-    }
+    const { session, league } = accessResult.context;
 
     // Get league standings - calculate total points across all completed prompts in this league
     const leaderboard = await Promise.all(
