@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLeague } from '@/hooks/useLeague';
 import { useVoting } from '@/hooks/useVoting';
 import { useGallery } from '@/hooks/useGallery';
@@ -305,9 +306,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <img
+                    <Image
                       src={response.imageUrl}
                       alt={response.caption}
+                      width={400}
+                      height={192}
                       className="w-full h-48 object-cover"
                     />
                     <div className="p-4">
@@ -414,9 +417,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 </div>
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="md:w-1/2">
-                    <img
+                    <Image
                       src={promptData.userResponse!.imageUrl}
                       alt="Your submission"
+                      width={400}
+                      height={192}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                   </div>
@@ -491,9 +496,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 {galleryData.responses?.slice(0, 6).map((response) => (
                   <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="relative">
-                      <img
+                      <Image
                         src={response.imageUrl}
                         alt={response.caption}
+                        width={400}
+                        height={192}
                         className="w-full h-48 object-cover"
                       />
                       {response.finalRank && response.finalRank <= 3 && (

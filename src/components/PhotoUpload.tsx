@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 
 interface PhotoUploadProps {
   onPhotoSelected: (file: File | null, previewUrl: string) => void;
@@ -94,9 +95,11 @@ export default function PhotoUpload({
     return (
       <div className="relative">
         <div className="relative rounded-lg overflow-hidden bg-gray-100">
-          <img
+          <Image
             src={previewUrl}
             alt="Preview"
+            width={400}
+            height={256}
             className="w-full h-64 object-cover"
           />
           {!disabled && (

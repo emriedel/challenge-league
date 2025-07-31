@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useGallery } from '@/hooks/useGallery';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
+import Image from 'next/image';
 
 // Ranking display for results
 const getRankIcon = (rank: number) => {
@@ -86,9 +87,11 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                       {round.responses.map((response) => (
                         <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
                           <div className="relative">
-                            <img
+                            <Image
                               src={response.imageUrl}
                               alt={response.caption}
+                              width={400}
+                              height={192}
                               className="w-full h-48 object-cover"
                             />
                             {response.finalRank && response.finalRank <= 3 && (
