@@ -246,7 +246,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{league.name} - League Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">League Settings</h1>
           <p className="text-gray-600">Manage prompts for your league - they&rsquo;ll automatically activate in order</p>
         </div>
 
@@ -285,7 +285,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         {/* Current Active Prompt */}
         {queue.active.length > 0 && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-green-900 mb-4">📍 Currently Active</h2>
+            <h2 className="text-xl font-semibold text-green-900 mb-4">Currently Active</h2>
             {queue.active.map((prompt) => (
               <div key={prompt.id} className="bg-white rounded-lg p-4">
                 <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
@@ -306,7 +306,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         {/* Scheduled Prompts Queue */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            📅 Upcoming Queue ({queue.scheduled.length} prompts)
+            Upcoming Queue ({queue.scheduled.length} prompts)
           </h2>
           
           {queue.scheduled.length === 0 ? (
@@ -396,7 +396,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         {queue.completed.length > 0 && (
           <div className="bg-gray-50 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
-              📚 Past Prompts ({queue.completed.length})
+              Past Prompts ({queue.completed.length})
             </h2>
             <div className="space-y-2">
               {queue.completed.slice(-10).reverse().map((prompt) => (
