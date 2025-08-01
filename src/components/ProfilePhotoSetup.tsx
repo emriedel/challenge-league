@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import ProfileAvatar from './ProfileAvatar';
 
 interface ProfilePhotoSetupProps {
@@ -94,10 +95,12 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
         <div className="relative">
           {preview ? (
             <div className="w-24 h-24 relative rounded-full overflow-hidden">
-              <img
+              <Image
                 src={preview}
                 alt="Profile preview"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="96px"
               />
             </div>
           ) : (
