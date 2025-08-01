@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useGallery } from '@/hooks/useGallery';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
@@ -85,7 +86,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                   
                   {round.responses.length > 0 ? (
                     <div className="space-y-8">
-                      {round.responses.map((response) => (
+                      {round.responses.slice(0, 3).map((response) => (
                         <div key={response.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                           {/* Header with user info and rank */}
                           <div className="flex items-center justify-between p-4 pb-3">
@@ -148,6 +149,21 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                           </div>
                         </div>
                       ))}
+                      
+                      {/* View All Submissions Button */}
+                      {round.responses.length > 3 && (
+                        <div className="text-center pt-4">
+                          <Link
+                            href={`/league/${params.leagueId}/rounds/${round.id}`}
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                          >
+                            View All {round.responses.length} Submissions
+                            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
