@@ -411,32 +411,53 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {showSubmitted && (
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-lg font-medium mb-3">Your Current Submission</h2>
-                  <div className="text-right text-sm text-gray-500">
-                    <div>Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    })}</div>
+              <h2 className="text-lg font-medium mb-4">Your Current Submission</h2>
+              
+              {/* Instagram-style submission display */}
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-4">
+                {/* Header with user info */}
+                <div className="flex items-center justify-between p-4 pb-3">
+                  <div className="flex items-center space-x-3">
+                    <ProfileAvatar 
+                      username={session.user.username || ''}
+                      profilePhoto={session.user.profilePhoto}
+                      size="md"
+                    />
+                    <div>
+                      <p className="font-semibold text-gray-900">{session.user.username}</p>
+                      <p className="text-sm text-gray-500">
+                        Submitted: {new Date(promptData.userResponse!.submittedAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="md:w-1/2">
-                    <Image
-                      src={promptData.userResponse!.imageUrl}
-                      alt="Your submission"
-                      width={400}
-                      height={192}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="md:w-1/2">
-                    <div className="bg-white rounded-lg p-4 h-full">
-                      <h4 className="font-medium text-gray-900 mb-2">Caption:</h4>
-                      <p className="text-gray-700">{promptData.userResponse!.caption}</p>
+                
+                {/* Image with preserved aspect ratio */}
+                <div className="relative w-full">
+                  <Image
+                    src={promptData.userResponse!.imageUrl}
+                    alt="Your submission"
+                    width={800}
+                    height={600}
+                    className="w-full h-auto"
+                    style={{ maxHeight: '70vh' }}
+                    priority={false}
+                  />
+                </div>
+                
+                {/* Caption area */}
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <p className="text-gray-800 leading-relaxed">
+                        <span className="font-semibold">{session.user.username}</span>{' '}
+                        <span>{promptData.userResponse!.caption}</span>
+                      </p>
                     </div>
                   </div>
                 </div>
