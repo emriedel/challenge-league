@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import type { League } from '@/types/league';
 import ProfileAvatar from './ProfileAvatar';
+import { rubik } from '@/lib/fonts';
 
 
 export default function Navigation() {
@@ -70,7 +71,7 @@ export default function Navigation() {
               height={40}
               className="w-10 h-10"
             />
-            <span className="text-2xl font-bold text-white">
+            <span className={`text-2xl font-medium text-white ${rubik.className}`}>
               Challenge League
             </span>
           </Link>
