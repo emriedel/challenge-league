@@ -10,17 +10,29 @@ import LeagueNavigation from '@/components/LeagueNavigation';
 import Image from 'next/image';
 import ProfileAvatar from '@/components/ProfileAvatar';
 
-// Ranking display for results
-const getRankIcon = (rank: number) => {
+// Ranking display for results with medal colors
+const getRankBadge = (rank: number) => {
   switch (rank) {
     case 1:
-      return '#1';
+      return {
+        text: '#1',
+        className: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white'
+      };
     case 2:
-      return '#2';
+      return {
+        text: '#2',
+        className: 'bg-gradient-to-r from-gray-300 to-gray-500 text-white'
+      };
     case 3:
-      return '#3';
+      return {
+        text: '#3',
+        className: 'bg-gradient-to-r from-amber-600 to-amber-800 text-white'
+      };
     default:
-      return `#${rank}`;
+      return {
+        text: `#${rank}`,
+        className: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white'
+      };
   }
 };
 
@@ -106,8 +118,8 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                               </div>
                             </div>
                             {response.finalRank && response.finalRank <= 3 && (
-                              <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
-                                {getRankIcon(response.finalRank)}
+                              <div className={`${getRankBadge(response.finalRank).className} px-3 py-1 rounded-full text-sm font-bold flex items-center`}>
+                                {getRankBadge(response.finalRank).text}
                               </div>
                             )}
                           </div>
@@ -130,20 +142,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex-1">
                                 <p className="text-gray-800 leading-relaxed">
-                                  <span className="font-semibold">@{response.user.username}</span>{' '}
+                                  <span className="font-semibold">{response.user.username}</span>{' '}
                                   <span>{response.caption}</span>
                                 </p>
-                              </div>
-                            </div>
-                            
-                            {/* Stats row */}
-                            <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t border-gray-100">
-                              <div className="flex items-center space-x-4">
-                                <span>{response.totalVotes} votes</span>
-                                <span>{response.totalPoints} points</span>
-                              </div>
-                              <div>
-                                Rank #{response.finalRank || '—'}
                               </div>
                             </div>
                           </div>

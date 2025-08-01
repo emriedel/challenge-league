@@ -6,20 +6,33 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLeague } from '@/hooks/useLeague';
+import { useGallery } from '@/hooks/useGallery';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 
-// Ranking display for results
-const getRankIcon = (rank: number) => {
+// Ranking display for results with medal colors
+const getRankBadge = (rank: number) => {
   switch (rank) {
     case 1:
-      return '#1';
+      return {
+        text: '#1',
+        className: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white'
+      };
     case 2:
-      return '#2';
+      return {
+        text: '#2',
+        className: 'bg-gradient-to-r from-gray-300 to-gray-500 text-white'
+      };
     case 3:
-      return '#3';
+      return {
+        text: '#3',
+        className: 'bg-gradient-to-r from-amber-600 to-amber-800 text-white'
+      };
     default:
-      return `#${rank}`;
+      return {
+        text: `#${rank}`,
+        className: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white'
+      };
   }
 };
 
@@ -54,6 +67,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading } = useLeague(params.leagueId);
+  const { data: galleryData } = useGallery(params.leagueId);
   const [roundData, setRoundData] = useState<RoundData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,24 +156,25 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
       />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back link outside content area */}
+        <div className="mb-6">
+          <Link
+            href={`/league/${params.leagueId}/rounds`}
+            className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Completed Rounds
+          </Link>
+        </div>
+
         <div className="space-y-8">
           {/* Round Header */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Link
-                href={`/league/${params.leagueId}/rounds`}
-                className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Completed Rounds
-              </Link>
-            </div>
-            
+          <div className="bg-white border border-gray-200 rounded-lg p-6">            
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold mb-2">Round Details</h1>
+                <h1 className="text-2xl font-bold mb-2">Round #{galleryData?.rounds ? galleryData.rounds.length - galleryData.rounds.findIndex(r => r.id === roundData.id) : 1}</h1>
                 <p className="text-gray-600 text-lg">{roundData.text}</p>
               </div>
               <div className="text-right text-sm text-gray-500">
@@ -183,7 +198,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                         size="md"
                       />
                       <div>
-                        <p className="font-semibold text-gray-900">@{response.user.username}</p>
+                        <p className="font-semibold text-gray-900">{response.user.username}</p>
                         {response.finalRank && (
                           <p className="text-sm text-gray-500">
                             #{response.finalRank} • {response.totalPoints} points
@@ -192,8 +207,8 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                       </div>
                     </div>
                     {response.finalRank && response.finalRank <= 3 && (
-                      <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
-                        {getRankIcon(response.finalRank)}
+                      <div className={`${getRankBadge(response.finalRank).className} px-3 py-1 rounded-full text-sm font-bold flex items-center`}>
+                        {getRankBadge(response.finalRank).text}
                       </div>
                     )}
                   </div>
@@ -216,20 +231,9 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <p className="text-gray-800 leading-relaxed">
-                          <span className="font-semibold">@{response.user.username}</span>{' '}
+                          <span className="font-semibold">{response.user.username}</span>{' '}
                           <span>{response.caption}</span>
                         </p>
-                      </div>
-                    </div>
-                    
-                    {/* Stats row */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t border-gray-100">
-                      <div className="flex items-center space-x-4">
-                        <span>{response.totalVotes} votes</span>
-                        <span>{response.totalPoints} points</span>
-                      </div>
-                      <div>
-                        Rank #{response.finalRank || '—'}
                       </div>
                     </div>
                   </div>
