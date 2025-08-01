@@ -67,7 +67,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-            <>
+            <div className="space-y-12">
               {galleryData.rounds.map((round, index) => (
                 <div key={round.id} className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -84,39 +84,67 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                   </div>
                   
                   {round.responses.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-8">
                       {round.responses.map((response) => (
-                        <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                          <div className="relative">
-                            <Image
-                              src={response.imageUrl}
-                              alt={response.caption}
-                              width={400}
-                              height={192}
-                              className="w-full h-48 object-cover"
-                            />
+                        <div key={response.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                          {/* Header with user info and rank */}
+                          <div className="flex items-center justify-between p-4 pb-3">
+                            <div className="flex items-center space-x-3">
+                              <ProfileAvatar 
+                                username={response.user.username}
+                                profilePhoto={response.user.profilePhoto}
+                                size="md"
+                              />
+                              <div>
+                                <p className="font-semibold text-gray-900">{response.user.username}</p>
+                                {response.finalRank && (
+                                  <p className="text-sm text-gray-500">
+                                    #{response.finalRank} • {response.totalPoints} points
+                                  </p>
+                                )}
+                              </div>
+                            </div>
                             {response.finalRank && response.finalRank <= 3 && (
-                              <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-bold">
+                              <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
                                 {getRankIcon(response.finalRank)}
                               </div>
                             )}
                           </div>
+                          
+                          {/* Image with preserved aspect ratio */}
+                          <div className="relative w-full">
+                            <Image
+                              src={response.imageUrl}
+                              alt={response.caption}
+                              width={800}
+                              height={600}
+                              className="w-full h-auto"
+                              style={{ maxHeight: '70vh' }}
+                              priority={false}
+                            />
+                          </div>
+                          
+                          {/* Caption and interaction area */}
                           <div className="p-4">
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="flex items-center space-x-2">
-                                <ProfileAvatar 
-                                  username={response.user.username}
-                                  profilePhoto={response.user.profilePhoto}
-                                  size="sm"
-                                />
-                                <p className="font-medium text-gray-900">{response.user.username}</p>
-                              </div>
-                              <div className="text-right text-sm">
-                                <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
-                                <div className="text-gray-500">#{response.finalRank || '—'}</div>
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <p className="text-gray-800 leading-relaxed">
+                                  <span className="font-semibold">@{response.user.username}</span>{' '}
+                                  <span>{response.caption}</span>
+                                </p>
                               </div>
                             </div>
-                            <p className="text-gray-700 text-sm">{response.caption}</p>
+                            
+                            {/* Stats row */}
+                            <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t border-gray-100">
+                              <div className="flex items-center space-x-4">
+                                <span>{response.totalVotes} votes</span>
+                                <span>{response.totalPoints} points</span>
+                              </div>
+                              <div>
+                                Rank #{response.finalRank || '—'}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -128,7 +156,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                   )}
                 </div>
               ))}
-            </>
+            </div>
           ) : (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
               <div className="text-gray-400 mb-4">
