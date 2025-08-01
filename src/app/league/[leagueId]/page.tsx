@@ -176,7 +176,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading league...</p>
@@ -194,7 +194,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Error" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <h3 className="text-lg font-medium text-red-900 mb-2">Error</h3>
             <p className="text-red-700">{leagueError}</p>
@@ -218,7 +218,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     <div>
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Challenge */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
           {showVoting ? (

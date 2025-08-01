@@ -44,7 +44,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading results...</p>
@@ -64,7 +64,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
     <div>
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {galleryData?.rounds && galleryData.rounds.length > 0 ? (
             <>
