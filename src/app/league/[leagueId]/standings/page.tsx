@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
+import ProfileAvatar from '@/components/ProfileAvatar';
 
 // Ranking display for standings
 const getRankIcon = (rank: number) => {
@@ -105,7 +106,14 @@ export default function StandingPage({ params }: StandingPageProps) {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {entry.user.username}
+                        <div className="flex items-center space-x-3">
+                          <ProfileAvatar 
+                            username={entry.user.username}
+                            profilePhoto={entry.user.profilePhoto}
+                            size="sm"
+                          />
+                          <span>{entry.user.username}</span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                         {entry.stats.totalPoints}

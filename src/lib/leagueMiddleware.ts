@@ -70,7 +70,8 @@ export async function withLeagueAccess(
             user: {
               select: {
                 id: true,
-                username: true
+                username: true,
+                profilePhoto: true
               }
             }
           }

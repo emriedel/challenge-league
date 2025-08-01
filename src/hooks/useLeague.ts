@@ -6,6 +6,7 @@ import type { LeagueWithMembers } from '@/types/league';
 interface LeagueUser {
   id: string;
   username: string;
+  profilePhoto?: string;
 }
 
 interface LeagueStats {
