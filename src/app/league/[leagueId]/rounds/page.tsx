@@ -109,7 +109,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                                   profilePhoto={response.user.profilePhoto}
                                   size="sm"
                                 />
-                                <p className="font-medium text-gray-900">@{response.user.username}</p>
+                                <p className="font-medium text-gray-900">{response.user.username}</p>
                               </div>
                               <div className="text-right text-sm">
                                 <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
