@@ -176,12 +176,7 @@ export default function Navigation() {
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       className="flex items-center space-x-2 text-sm text-white/80 hover:text-white"
                     >
-                      <ProfileAvatar 
-                        username={session.user.username || session.user.email || 'User'}
-                        profilePhoto={session.user.profilePhoto}
-                        size="sm"
-                      />
-                      <span className="hidden sm:inline">@{session.user.username}</span>
+                      <span>{session.user.username}</span>
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
