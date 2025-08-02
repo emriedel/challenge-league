@@ -220,7 +220,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                       alt={response.caption}
                       width={800}
                       height={600}
-                      className="w-full h-auto"
+                      className="w-full h-auto object-contain bg-gray-50"
                       style={{ maxHeight: '70vh' }}
                       priority={false}
                     />

@@ -395,7 +395,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                       alt={response.caption}
                       width={400}
                       height={192}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-48 object-contain bg-gray-50"
                     />
                     <div className="p-4">
                       <div className="flex items-center space-x-2 mb-2">
@@ -542,7 +542,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                         alt="Your submission"
                         width={800}
                         height={600}
-                        className="w-full h-auto"
+                        className="w-full h-auto object-contain bg-gray-50"
                         style={{ maxHeight: '70vh' }}
                         priority={false}
                       />
@@ -573,7 +573,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                       alt="Your submission"
                       width={800}
                       height={600}
-                      className="w-full h-auto"
+                      className="w-full h-auto object-contain bg-gray-50"
                       style={{ maxHeight: '70vh' }}
                       priority={false}
                     />
@@ -666,7 +666,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                         alt={response.caption}
                         width={400}
                         height={192}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48 object-contain bg-gray-50"
                       />
                       {response.finalRank && response.finalRank <= 3 && (
                         <div className="absolute top-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-bold">
