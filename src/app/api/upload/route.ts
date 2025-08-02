@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { put } from '@vercel/blob';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createErrorResponse, ErrorCodes } from '@/lib/errors';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     
     if (!session?.user) {
       console.log('No session found');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED');
     }
 
     console.log('User authenticated:', session.user.id);
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       console.log('No file in formData');
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return createErrorResponse('VALIDATION_ERROR', 'No file provided');
     }
 
     console.log('File received:', file.name, file.size, file.type);
@@ -31,14 +32,14 @@ export async function POST(request: NextRequest) {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       console.log('Invalid file type:', file.type);
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+      return createErrorResponse('INVALID_FILE_TYPE');
     }
 
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       console.log('File too large:', file.size);
-      return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 });
+      return createErrorResponse('FILE_TOO_LARGE', 'File size must be less than 10MB');
     }
 
     // Generate unique filename

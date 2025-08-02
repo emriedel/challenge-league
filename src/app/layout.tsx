@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import Navigation from '@/components/Navigation';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { inter } from '@/lib/fonts';
 
 export const metadata: Metadata = {
@@ -22,12 +23,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider>
-          <div className="min-h-screen bg-gray-50">
-            <Navigation />
-            <main>{children}</main>
-          </div>
-        </SessionProvider>
+        <ErrorBoundary>
+          <SessionProvider>
+            <div className="min-h-screen bg-gray-50">
+              <Navigation />
+              <main>
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
+              </main>
+            </div>
+          </SessionProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

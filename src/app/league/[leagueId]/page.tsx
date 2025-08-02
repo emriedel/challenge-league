@@ -12,6 +12,10 @@ import ProfileAvatar from '@/components/ProfileAvatar';
 import { useLeaguePrompt } from '@/hooks/useLeaguePrompt';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import SubmissionForm from '@/components/SubmissionForm';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import PageErrorFallback from '@/components/PageErrorFallback';
+import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
+import { NoSubmissionsEmptyState, NoChallengeEmptyState } from '@/components/EmptyState';
 
 // Ranking display for results
 const getRankIcon = (rank: number) => {
@@ -260,9 +264,13 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading league...</p>
+          <div className="space-y-8">
+            <SkeletonChallenge />
+            {votingLoading ? (
+              <SkeletonSubmissionGrid count={3} />
+            ) : (
+              <SkeletonSubmissionFeed count={1} />
+            )}
           </div>
         </div>
       </div>
@@ -277,12 +285,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Error" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <h3 className="text-lg font-medium text-red-900 mb-2">Error</h3>
-            <p className="text-red-700">{leagueError}</p>
-          </div>
-        </div>
+        <PageErrorFallback 
+          title="League Error"
+          description={leagueError}
+          resetError={() => window.location.reload()}
+        />
       </div>
     );
   }
@@ -298,10 +305,23 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const showLatestResults = !showVoting && !showSubmission && !showSubmitted && galleryData?.responses && galleryData.responses.length > 0;
 
   return (
-    <div>
-      <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <ErrorBoundary 
+      fallback={({ error, resetError }) => (
+        <div>
+          <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
+          <PageErrorFallback 
+            error={error}
+            resetError={resetError}
+            title="League Page Error"
+            description="This league page encountered an error. Please try again."
+          />
+        </div>
+      )}
+    >
+      <div>
+        <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Challenge */}
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-8">
           {showVoting ? (
@@ -348,15 +368,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               </div>
             </>
           ) : (
-            <>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">No Active Challenge</h2>
-              <div className="space-y-2">
-                <p className="text-gray-700">No challenge is currently active</p>
-                <p className="text-sm text-gray-500">
-                  {showLatestResults ? 'View the latest completed round below' : 'Check back for new challenges'}
-                </p>
-              </div>
-            </>
+            <NoChallengeEmptyState />
           )}
         </div>
 
@@ -378,8 +390,9 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             </div>
 
             {/* Voting Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {votingData.responses.map((response) => {
+            {votingData.responses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {votingData.responses.map((response) => {
                 const voteCount = selectedVotes[response.id] || 0;
                 return (
                   <div
@@ -434,8 +447,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            ) : (
+              <NoSubmissionsEmptyState />
+            )}
 
             {/* Submit Votes */}
             <div className="text-center">
@@ -706,7 +722,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           </div>
         )}
 
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
