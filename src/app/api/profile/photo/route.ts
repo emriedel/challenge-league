@@ -86,6 +86,45 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { photoUrl } = await request.json();
+
+    if (!photoUrl) {
+      return NextResponse.json({ error: 'Photo URL is required' }, { status: 400 });
+    }
+
+    // Update user's profile photo in database
+    const updatedUser = await db.user.update({
+      where: { id: session.user.id },
+      data: { profilePhoto: photoUrl },
+      select: {
+        id: true,
+        username: true,
+        profilePhoto: true,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      user: updatedUser,
+      photoUrl,
+    });
+
+  } catch (error) {
+    console.error('Profile photo update error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update profile photo' 
+    }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

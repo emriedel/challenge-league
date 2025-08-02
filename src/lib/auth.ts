@@ -58,12 +58,36 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
         token.profilePhoto = user.profilePhoto;
       }
+      
+      // Refresh user data from database on session update or every request (for development)
+      if (trigger === 'update' || (token.id && !user)) {
+        try {
+          const freshUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: {
+              id: true,
+              email: true,
+              username: true,
+              profilePhoto: true,
+            },
+          });
+          
+          if (freshUser) {
+            token.id = freshUser.id;
+            token.username = freshUser.username;
+            token.profilePhoto = freshUser.profilePhoto || undefined;
+          }
+        } catch (error) {
+          console.error('Error refreshing user data in JWT callback:', error);
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
