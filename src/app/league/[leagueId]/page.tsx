@@ -303,11 +303,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Challenge */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-8">
           {showVoting ? (
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
-              <div className="bg-white rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
                 <p className="text-lg text-gray-800 font-medium">{votingData.prompt?.text}</p>
               </div>
               <div className="flex items-center justify-between">
@@ -332,7 +332,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           ) : (showSubmission || showSubmitted) && promptData?.prompt ? (
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">Current Challenge</h2>
-              <div className="bg-white rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
                 <p className="text-lg text-gray-800 font-medium">{promptData.prompt.text}</p>
               </div>
               <div className="text-right">
@@ -494,7 +494,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {showSubmitted && (
           <div className="space-y-6 mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-lg font-medium mb-4">Your Current Submission</h2>
+              <h2 className="text-lg font-medium mb-4">Your Submission</h2>
               
               {/* Instagram-style submission display */}
               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-4">
