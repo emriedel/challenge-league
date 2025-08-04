@@ -16,6 +16,24 @@ const nextConfig = {
       },
     ],
   },
+  // Experimental: Skip build-time optimizations for API routes that cause issues
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
+  },
+  // Ensure all API routes are treated as dynamic
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig
