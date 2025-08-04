@@ -1,10 +1,10 @@
-# 🏆 Glimpse - Creative Competition League
+# 🏆 Challenge League - Creative Competition Platform
 
 > A Taskmaster-inspired creative competition platform where players compete in weekly challenges, submit photo responses, and vote on each other's creativity.
 
-## ✨ What is Glimpse?
+## ✨ What is Challenge League?
 
-Glimpse transforms the social media experience into an engaging creative competition. Instead of endless scrolling, players participate in structured weekly challenges that encourage creativity, skill-building, and friendly competition.
+Challenge League transforms creative expression into an engaging competition platform. Instead of endless scrolling, players participate in structured weekly challenges that encourage creativity, skill-building, and friendly competition.
 
 ### 🎯 How it Works
 
@@ -19,7 +19,7 @@ Glimpse transforms the social media experience into an engaging creative competi
 - **Diverse Challenges**: Wide variety of creative prompts covering cooking, photography, art, adventure, DIY, and more
 - **Fair Voting**: Anonymous equal-value voting system (3 votes per player)
 - **Comprehensive Stats**: Track wins, podium finishes, and total points
-- **Automatic Cycles**: Seamless progression from submission → voting → results
+- **Automatic Cycles**: Seamless progression from submission → voting → results (every 24 hours)
 
 ## 🚀 Getting Started
 
@@ -33,7 +33,7 @@ Glimpse transforms the social media experience into an engaging creative competi
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd glimpse
+   cd challenge-league
    ```
 
 2. **Install dependencies**
@@ -49,8 +49,8 @@ Glimpse transforms the social media experience into an engaging creative competi
 
 4. **Set up the database**
    ```bash
-   npx prisma migrate dev
-   npx prisma db seed
+   npx prisma db push
+   npm run db:seed
    ```
 
 5. **Start the development server**
@@ -67,7 +67,7 @@ The seeded database includes test players for immediate exploration:
 
 | Email | Password | Role |
 |-------|----------|------|
-| player1@example.com | password123 | Player |
+| player1@example.com | password123 | Admin |
 | player2@example.com | password123 | Player |
 | player3@example.com | password123 | Player |
 | player4@example.com | password123 | Player |
@@ -105,7 +105,7 @@ The seeded database includes test players for immediate exploration:
 
 ### Key Components
 
-- **3-Phase Cycle System**: Automated progression through submission → voting → results phases
+- **3-Phase Cycle System**: Automated progression through submission → voting → results phases (24-hour cycles)
 - **League Management**: Comprehensive player rankings and statistics
 - **Voting Engine**: Equal-value voting system with automatic rank calculation
 - **Admin Interface**: Full challenge management and system monitoring
@@ -131,15 +131,16 @@ npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript checks
+npm run db:seed      # Seed database with test data
 ```
 
 ### Database Commands
 
 ```bash
 npx prisma studio       # Open database browser
-npx prisma migrate dev  # Create and apply migrations
+npx prisma db push      # Push schema to database
 npx prisma generate     # Regenerate Prisma client
-npx prisma db seed      # Reseed with test data
+npm run db:seed         # Reseed with test data
 ```
 
 ### Project Structure
@@ -150,43 +151,55 @@ src/
 │   ├── api/            # API endpoints
 │   ├── auth/           # Authentication pages
 │   ├── admin/          # Admin interface
-│   └── submit/         # Challenge submission
+│   └── league/         # League pages
 ├── components/         # Reusable UI components
 ├── hooks/              # Custom React hooks
 ├── lib/                # Utilities and database
-└── types/              # TypeScript definitions
+└── types/              # TypeScript definitions (centralized)
 ```
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
 
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment instructions.
+
+**Quick Start:**
 1. **Connect repository** to Vercel
-2. **Set environment variables** in Vercel dashboard
+2. **Set environment variables** in Vercel dashboard:
+   ```bash
+   DATABASE_URL="postgresql://..."           # From Neon
+   NEXTAUTH_SECRET="your-secret-key"        # Generated secret
+   NEXTAUTH_URL="https://your-app.vercel.app"
+   BLOB_READ_WRITE_TOKEN="vercel_blob_..."  # From Vercel Blob
+   CRON_SECRET="your-cron-secret"           # Generated secret
+   ```
 3. **Deploy** - Automatic deployments on push to main
 
-### Environment Variables
+### Automated Competition Cycles
 
-```bash
-# Database
-DATABASE_URL="your-database-url"
+The app includes automated cron jobs that run every 24 hours to:
+- Transition active prompts to voting phase
+- Calculate voting results and rankings  
+- Activate next scheduled challenges
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-
-# File Storage
-BLOB_READ_WRITE_TOKEN="your-vercel-blob-token"
-
-# Cron Security
-CRON_SECRET="your-cron-secret"
+Configuration in `vercel.json`:
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/prompt-cycle",
+      "schedule": "0 */24 * * *"
+    }
+  ]
+}
 ```
 
 ## 🎨 Customization
 
 ### Adding New Challenge Categories
 
-1. Update the categories list in each league's admin page (`/src/app/league/[leagueId]/admin/page.tsx`)
+1. Update the categories list in admin components
 2. Add corresponding icons/colors in the UI components
 3. Update seed data with new category examples
 
@@ -194,7 +207,17 @@ CRON_SECRET="your-cron-secret"
 
 - **Voting Duration**: Update `voteEnd` calculation in prompt queue system
 - **Point Values**: Each vote equals 1 point in the current system
-- **Cycle Timing**: Adjust cron schedule in `vercel.json`
+- **Cycle Timing**: Adjust cron schedule in `vercel.json` (currently 24 hours)
+
+## 🔧 Code Quality & Architecture
+
+### Type System
+- Centralized TypeScript definitions in `/src/types/`
+- Strict type checking with `npm run type-check`
+- Barrel exports for clean imports
+
+### Refactoring Roadmap
+See [CLAUDE.md](./CLAUDE.md) for high-priority refactoring tasks and architecture improvements.
 
 ## 🤝 Contributing
 
@@ -227,4 +250,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for creative competition and friendly rivalry**
 
-Transform your creative energy into engaging competition with Glimpse! 🏆
+Transform your creative energy into engaging competition with Challenge League! 🏆

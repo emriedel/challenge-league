@@ -238,7 +238,7 @@ Your `vercel.json` is already configured:
   "crons": [
     {
       "path": "/api/cron/prompt-cycle",
-      "schedule": "0 */24 * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
