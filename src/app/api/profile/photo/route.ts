@@ -5,6 +5,9 @@ import { db } from '@/lib/db';
 import { put } from '@vercel/blob';
 import { FILE_LIMITS } from '@/constants/app';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

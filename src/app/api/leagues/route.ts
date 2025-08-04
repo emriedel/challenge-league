@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 // Generate a random invite code
 function generateInviteCode(): string {
   const chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'; // Exclude O and 0 for clarity

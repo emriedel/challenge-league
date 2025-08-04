@@ -3,6 +3,9 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { validateEmail, validatePassword, validateUsername } from '@/lib/validations';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password, username } = await request.json();

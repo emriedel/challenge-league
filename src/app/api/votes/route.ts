@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withLeagueAccess } from '@/lib/leagueMiddleware';
 import { db } from '@/lib/db';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Get league ID from query params
