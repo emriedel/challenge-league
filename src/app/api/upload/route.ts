@@ -7,6 +7,9 @@ import { join } from 'node:path';
 import { createErrorResponse, ErrorCodes } from '@/lib/errors';
 import { FILE_LIMITS } from '@/constants/app';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     console.log('Upload API called');

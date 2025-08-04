@@ -4,6 +4,9 @@ import { authOptions } from '@/lib/auth';
 import { withLeagueAccess } from '@/lib/leagueMiddleware';
 import { db } from '@/lib/db';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: { id: string };
 }

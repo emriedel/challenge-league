@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { processPromptQueue } from '@/lib/promptQueue';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Verify this is a legitimate cron request

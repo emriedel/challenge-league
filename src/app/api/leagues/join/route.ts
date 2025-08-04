@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic';
+
 // POST /api/leagues/join - Join league via invite code
 export async function POST(request: NextRequest) {
   try {
