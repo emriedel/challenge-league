@@ -1,6 +1,6 @@
-# Deployment Guide - Glimpse Competition Platform
+# Deployment Guide - Challenge League
 
-This guide will walk you through deploying Glimpse's creative competition platform for the first time, including setting up PostgreSQL database, automated cycle management, and cron jobs.
+This guide will walk you through deploying Challenge League's creative competition platform for the first time, including setting up PostgreSQL database, automated cycle management, and cron jobs.
 
 ## Prerequisites
 
@@ -10,31 +10,37 @@ This guide will walk you through deploying Glimpse's creative competition platfo
 
 ## Step 1: Prepare Your Code for Deployment
 
-### 1.1 Update Database Configuration
+### 1.1 Update Database Configuration for Production
 
-First, update your Prisma schema to use PostgreSQL for production:
-
-```bash
-# Open prisma/schema.prisma and verify it looks like this:
-```
-
-The schema should already be set up correctly, but make sure the `datasource db` block looks like:
+Your Prisma schema is currently configured for SQLite development. For production, we'll use environment variables to switch to PostgreSQL:
 
 ```prisma
+// prisma/schema.prisma already has:
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 ```
 
-We'll use environment variables to switch between SQLite (local) and PostgreSQL (production).
+The provider will be overridden by the DATABASE_URL format in production.
 
-### 1.2 Update Environment Variables Template
+### 1.2 Verify Environment Variables Template
 
-Update your `.env.example` file to include production database options:
+Your `.env.example` is already set up correctly. Key variables you'll need:
 
 ```bash
-# Copy the current .env.example and add production notes
+# Production Database (PostgreSQL)
+DATABASE_URL="postgresql://username:password@host.neon.tech/dbname?sslmode=require"
+
+# NextAuth.js
+NEXTAUTH_SECRET="super-long-random-secret-key-at-least-32-characters"
+NEXTAUTH_URL="https://your-app-name.vercel.app"
+
+# Vercel Blob for photo uploads
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_your_token_here"
+
+# Cron job security
+CRON_SECRET="your-random-cron-secret-here"
 ```
 
 ### 1.3 Commit Your Code to GitHub
@@ -47,10 +53,10 @@ git init
 git add .
 
 # Commit your changes
-git commit -m "Initial Glimpse app with authentication"
+git commit -m "Prepare Challenge League for deployment"
 
 # Create a new repository on GitHub, then:
-git remote add origin https://github.com/YOUR_USERNAME/glimpse.git
+git remote add origin https://github.com/YOUR_USERNAME/challenge-league.git
 git branch -M main
 git push -u origin main
 ```
@@ -62,7 +68,7 @@ git push -u origin main
 1. Go to [neon.tech](https://neon.tech) and sign up
 2. Click "Create a project"
 3. Choose:
-   - **Name**: `glimpse-production`
+   - **Name**: `challenge-league-production`
    - **PostgreSQL Version**: Latest (default)
    - **Region**: Choose closest to your users
 4. Click "Create Project"
@@ -157,30 +163,57 @@ vercel link
 # Run migrations and seed competition data on production
 vercel env pull .env.production
 npx dotenv -e .env.production -- npx prisma db push
-npx dotenv -e .env.production -- npx prisma db seed
+npx dotenv -e .env.production -- npm run db:seed
 ```
 
 **Option B: Add Migration to Build Process**
-Add this to your `package.json` scripts:
+Add this to your `package.json` scripts temporarily:
 ```json
 {
   "scripts": {
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && prisma db push && next build"
   }
 }
 ```
-Then redeploy.
+Then redeploy and revert the change.
 
-## Step 4: Update URLs and Test
+## Step 4: Set Up Vercel Blob Storage (Required for Photo Uploads)
 
-### 4.1 Update NEXTAUTH_URL
+### 4.1 Create Blob Store
 
-1. Copy your Vercel app URL (something like `https://glimpse-abc123.vercel.app`)
+1. Go to your Vercel dashboard
+2. Navigate to "Storage" tab
+3. Click "Create Database" → "Blob"
+4. Name it "challenge-league-uploads"
+5. Click "Create"
+
+### 4.2 Get Access Token
+
+1. After creating the Blob store, click on it
+2. Go to the "Settings" tab
+3. Find the "Access Tokens" section
+4. Copy the `BLOB_READ_WRITE_TOKEN`
+
+### 4.3 Add to Environment Variables
+
+1. Go to your Vercel project settings
+2. Navigate to "Environment Variables"
+3. Add or update:
+   ```
+   BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
+   ```
+4. Redeploy your application
+
+## Step 5: Update URLs and Test
+
+### 5.1 Update NEXTAUTH_URL
+
+1. Copy your Vercel app URL (something like `https://challenge-league-abc123.vercel.app`)
 2. Go to Vercel project settings → Environment Variables
 3. Update `NEXTAUTH_URL` to your actual URL
 4. Redeploy the app
 
-### 4.2 Test Your Deployment
+### 5.2 Test Your Deployment
 
 1. Visit your deployed app
 2. Test competition features:
@@ -191,16 +224,51 @@ Then redeploy.
    - Test voting interface (if in voting phase)
 3. Check the database:
    - Go to Neon dashboard
-   - Use the SQL Editor to run: `SELECT * FROM users;` and `SELECT * FROM leagues;`
+   - Use the SQL Editor to run: `SELECT * FROM "User";` and `SELECT * FROM "League";`
    - You should see test users and the Main League
 
-## Step 5: Set Up Custom Domain (Optional)
+## Step 6: Set Up Automated Competition Cycles
 
-### 5.1 Purchase Domain
+### 6.1 Verify Cron Configuration
+
+Your `vercel.json` is already configured:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/prompt-cycle",
+      "schedule": "0 */12 * * *"
+    }
+  ]
+}
+```
+
+This runs every 12 hours to check and transition competition phases.
+
+### 6.2 Verify Cron Functionality
+
+1. In Vercel dashboard, go to "Functions" tab
+2. Check "Cron Functions" section
+3. Verify the `/api/cron/prompt-cycle` function is listed
+4. Monitor the function logs for successful executions
+
+### 6.3 Manual Cycle Testing
+
+You can manually trigger cycle processing:
+
+1. Sign in as admin (player1@example.com / password123)
+2. Go to `/admin`
+3. Use "Process Queue Now" button to test transitions
+4. Check console logs for detailed processing information
+
+## Step 7: Set Up Custom Domain (Optional)
+
+### 7.1 Purchase Domain
 
 Buy a domain from any registrar (Namecheap, GoDaddy, etc.)
 
-### 5.2 Configure in Vercel
+### 7.2 Configure in Vercel
 
 1. In Vercel project settings, go to "Domains"
 2. Add your custom domain
@@ -227,6 +295,12 @@ Buy a domain from any registrar (Namecheap, GoDaddy, etc.)
 2. Check that the connection string is correct
 3. Ensure your Neon project has connection permissions
 
+### Issue: "Photo upload fails"
+**Solution**:
+1. Verify BLOB_READ_WRITE_TOKEN is set correctly
+2. Check Vercel Blob storage is created and accessible
+3. Test locally with the same token
+
 ## Monitoring and Maintenance
 
 ### Database Management
@@ -237,83 +311,12 @@ Buy a domain from any registrar (Namecheap, GoDaddy, etc.)
 ### Application Monitoring
 - Vercel provides analytics and performance monitoring
 - Check the "Analytics" tab in your project dashboard
-- Set up error tracking with Sentry (optional)
+- Monitor cron job executions in the Functions tab
 
 ### Backup Strategy
 - Neon automatically backs up your database
 - Consider exporting data periodically for extra safety
 - Document your environment variables securely
-
-## Step 6: Set Up Vercel Blob Storage (Required for Photo Uploads)
-
-### 6.1 Create Blob Store
-
-1. Go to your Vercel dashboard
-2. Navigate to "Storage" tab
-3. Click "Create Database" → "Blob"
-4. Name it "glimpse-uploads" (or similar)
-5. Click "Create"
-
-### 6.2 Get Access Token
-
-1. After creating the Blob store, click on it
-2. Go to the "Settings" tab
-3. Find the "Access Tokens" section
-4. Copy the `BLOB_READ_WRITE_TOKEN`
-
-### 6.3 Add to Environment Variables
-
-1. Go to your Vercel project settings
-2. Navigate to "Environment Variables"
-3. Add or update:
-   ```
-   BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
-   ```
-4. Redeploy your application
-
-### 6.4 For Local Development
-
-Add the same token to your local `.env` file:
-```bash
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
-```
-
-**Note**: The app includes a fallback for development that stores files locally in `public/uploads/` when the Vercel Blob token is not configured.
-
-## Step 7: Set Up Automated Competition Cycles
-
-### 7.1 Configure Cron Jobs
-
-Vercel will automatically set up the cron job based on your `vercel.json` configuration:
-
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/prompt-cycle",
-      "schedule": "0 */12 * * *"
-    }
-  ]
-}
-```
-
-This runs every 12 hours to check and transition competition phases.
-
-### 7.2 Verify Cron Functionality
-
-1. In Vercel dashboard, go to "Functions" tab
-2. Check "Cron Functions" section
-3. Verify the `/api/cron/prompt-cycle` function is listed
-4. Monitor the function logs for successful executions
-
-### 7.3 Manual Cycle Testing
-
-You can manually trigger cycle processing:
-
-1. Sign in as admin (player1@example.com)
-2. Go to `/admin`
-3. Use "Process Queue Now" button to test transitions
-4. Check console logs for detailed processing information
 
 ## Next Steps
 
@@ -333,7 +336,14 @@ You'll now have:
 - **Production**: PostgreSQL on Neon + Next.js app on Vercel with automated cycles
 - **Version Control**: Code on GitHub
 - **Domain**: Custom domain (optional) or Vercel subdomain
-- **Automation**: Cron jobs managing competition phase transitions
+- **Automation**: Cron jobs managing competition phase transitions every 12 hours
 - **Admin Interface**: Challenge management at `/admin`
+- **File Storage**: Vercel Blob for photo uploads
 
-Congratulations! Your Glimpse competition platform is now deployed and ready for creative challenges! 🏆
+## Test User Accounts
+
+The seeded database includes these test accounts:
+- **Admin**: player1@example.com / password123
+- **Users**: player2@example.com through player6@example.com / password123
+
+Congratulations! Your Challenge League competition platform is now deployed and ready for creative challenges! 🏆
