@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { League } from '@/types/league';
+import { CONTENT_LIMITS } from '@/constants/app';
 
 export default function JoinLeaguePage() {
   const { data: session, status } = useSession();
@@ -141,10 +142,10 @@ export default function JoinLeaguePage() {
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-lg tracking-wider"
-              placeholder="Enter 6-character invite code"
+              placeholder={`Enter ${CONTENT_LIMITS.INVITE_CODE_LENGTH}-character invite code`}
               required
-              minLength={6}
-              maxLength={6}
+              minLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
+              maxLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
               style={{ textTransform: 'uppercase' }}
             />
             <p className="text-sm text-gray-500 mt-1">

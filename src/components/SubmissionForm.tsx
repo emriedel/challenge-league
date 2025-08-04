@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import PhotoUpload from './PhotoUpload';
+import { CONTENT_LIMITS } from '@/constants/app';
 
 interface SubmissionFormProps {
   prompt: {
@@ -99,13 +100,13 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             placeholder="Share the story behind your photo..."
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            maxLength={500}
+            maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
             disabled={isSubmitting}
             required
           />
           <div className="mt-1 flex justify-between text-sm text-gray-500">
             <span>Tell us about your photo and why you chose it</span>
-            <span>{caption.length}/500</span>
+            <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
           </div>
         </div>
 

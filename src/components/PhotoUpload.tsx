@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { FILE_LIMITS } from '@/constants/app';
 
 interface PhotoUploadProps {
   onPhotoSelected: (file: File | null, previewUrl: string) => void;
@@ -30,10 +31,9 @@ export default function PhotoUpload({
       return;
     }
 
-    // Validate file size (10MB)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      onError?.('File size must be less than 10MB');
+    // Validate file size
+    if (file.size > FILE_LIMITS.PHOTO_MAX_SIZE) {
+      onError?.(`File size must be less than ${FILE_LIMITS.PHOTO_MAX_SIZE / (1024 * 1024)}MB`);
       return;
     }
 

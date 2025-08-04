@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ProfileAvatar from './ProfileAvatar';
+import { FILE_LIMITS } from '@/constants/app';
 
 interface ProfilePhotoSetupProps {
   username: string;
@@ -28,10 +29,9 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
       return;
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      setError('File size must be less than 5MB');
+    // Validate file size for profile photos
+    if (file.size > FILE_LIMITS.PROFILE_PHOTO_MAX_SIZE) {
+      setError(`File size must be less than ${FILE_LIMITS.PROFILE_PHOTO_MAX_SIZE / (1024 * 1024)}MB`);
       return;
     }
 

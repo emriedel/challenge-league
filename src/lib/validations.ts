@@ -1,7 +1,9 @@
+import { CONTENT_LIMITS } from '@/constants/app';
+
 export function validateUsername(username: string): { valid: boolean; error?: string } {
-  // Check length (3-30 characters)
-  if (username.length < 3 || username.length > 30) {
-    return { valid: false, error: 'Username must be between 3 and 30 characters' };
+  // Check length
+  if (username.length < CONTENT_LIMITS.USERNAME_MIN_LENGTH || username.length > CONTENT_LIMITS.USERNAME_MAX_LENGTH) {
+    return { valid: false, error: `Username must be between ${CONTENT_LIMITS.USERNAME_MIN_LENGTH} and ${CONTENT_LIMITS.USERNAME_MAX_LENGTH} characters` };
   }
 
   // Check if it starts with letter or number
@@ -39,8 +41,8 @@ export function validateEmail(email: string): { valid: boolean; error?: string }
 }
 
 export function validatePassword(password: string): { valid: boolean; error?: string } {
-  if (password.length < 8) {
-    return { valid: false, error: 'Password must be at least 8 characters long' };
+  if (password.length < CONTENT_LIMITS.PASSWORD_MIN_LENGTH) {
+    return { valid: false, error: `Password must be at least ${CONTENT_LIMITS.PASSWORD_MIN_LENGTH} characters long` };
   }
 
   return { valid: true };

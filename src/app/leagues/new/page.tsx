@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useMessages } from '@/hooks/useMessages';
+import { CONTENT_LIMITS, UI_TIMEOUTS } from '@/constants/app';
 
 export default function CreateLeaguePage() {
   const { data: session, status } = useSession();
@@ -54,7 +55,7 @@ export default function CreateLeaguePage() {
       addMessage('creation', { type: 'success', text: 'League created successfully!' });
       setTimeout(() => {
         router.push(`/league/${data.league.id}`);
-      }, 1500);
+      }, UI_TIMEOUTS.REDIRECT_DELAY_MS);
     } catch (err) {
       addMessage('creation', { type: 'error', text: err instanceof Error ? err.message : 'An error occurred' });
     } finally {
@@ -92,10 +93,10 @@ export default function CreateLeaguePage() {
               placeholder="Enter a unique name for your league"
               required
               minLength={3}
-              maxLength={50}
+              maxLength={CONTENT_LIMITS.LEAGUE_NAME_MAX_LENGTH}
             />
             <p className="text-sm text-gray-500 mt-1">
-              3-50 characters. This will be used to generate a unique URL for your league.
+              {CONTENT_LIMITS.USERNAME_MIN_LENGTH}-{CONTENT_LIMITS.LEAGUE_NAME_MAX_LENGTH} characters. This will be used to generate a unique URL for your league.
             </p>
           </div>
 
@@ -110,10 +111,10 @@ export default function CreateLeaguePage() {
               rows={4}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Describe your league's purpose, theme, or rules..."
-              maxLength={500}
+              maxLength={CONTENT_LIMITS.LEAGUE_DESCRIPTION_MAX_LENGTH}
             />
             <p className="text-sm text-gray-500 mt-1">
-              Optional. Up to 500 characters to help others understand what your league is about.
+              Optional. Up to {CONTENT_LIMITS.LEAGUE_DESCRIPTION_MAX_LENGTH} characters to help others understand what your league is about.
             </p>
           </div>
 

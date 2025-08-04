@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { put } from '@vercel/blob';
+import { FILE_LIMITS } from '@/constants/app';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,10 +25,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
+    // Validate file size for profile photos
+    if (file.size > FILE_LIMITS.PROFILE_PHOTO_MAX_SIZE) {
+      return NextResponse.json({ error: `File size must be less than ${FILE_LIMITS.PROFILE_PHOTO_MAX_SIZE / (1024 * 1024)}MB` }, { status: 400 });
     }
 
     let photoUrl: string;

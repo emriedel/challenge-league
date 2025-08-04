@@ -5,6 +5,7 @@ import { put } from '@vercel/blob';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createErrorResponse, ErrorCodes } from '@/lib/errors';
+import { FILE_LIMITS } from '@/constants/app';
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,11 +36,10 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('INVALID_FILE_TYPE');
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
+    // Validate file size
+    if (file.size > FILE_LIMITS.PHOTO_MAX_SIZE) {
       console.log('File too large:', file.size);
-      return createErrorResponse('FILE_TOO_LARGE', 'File size must be less than 10MB');
+      return createErrorResponse('FILE_TOO_LARGE', `File size must be less than ${FILE_LIMITS.PHOTO_MAX_SIZE / (1024 * 1024)}MB`);
     }
 
     // Generate unique filename
