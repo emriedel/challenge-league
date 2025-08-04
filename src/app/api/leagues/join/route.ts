@@ -1,27 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
+import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 
-// Ensure this route is always dynamic
-export const dynamic = 'force-dynamic';
+// Dynamic export is handled by the API handler
+export { dynamic } from '@/lib/apiMethods';
 
 // POST /api/leagues/join - Join league via invite code
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+const joinLeague = async ({ req, session }: AuthenticatedApiContext) => {
+  const { inviteCode } = await req.json();
 
-    const { inviteCode } = await request.json();
-
-    if (!inviteCode) {
-      return NextResponse.json({ 
-        error: 'Invite code is required' 
-      }, { status: 400 });
-    }
+  if (!inviteCode) {
+    throw new Error('Invite code is required');
+  }
 
     // Find the league by invite code
     const league = await db.league.findUnique({
@@ -45,17 +36,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (!league) {
-      return NextResponse.json({ 
-        error: 'Invalid invite code' 
-      }, { status: 404 });
-    }
+  if (!league) {
+    const error = new Error('Invalid invite code');
+    (error as any).status = 404;
+    throw error;
+  }
 
-    if (!league.isActive) {
-      return NextResponse.json({ 
-        error: 'This league is no longer active' 
-      }, { status: 400 });
-    }
+  if (!league.isActive) {
+    throw new Error('This league is no longer active');
+  }
 
     // Check if user is already a member
     const existingMembership = await db.leagueMembership.findUnique({
@@ -67,41 +56,36 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (existingMembership) {
-      if (existingMembership.isActive) {
-        return NextResponse.json({ 
-          error: 'You are already a member of this league' 
-        }, { status: 400 });
-      } else {
-        // Reactivate existing membership
-        await db.leagueMembership.update({
-          where: { id: existingMembership.id },
-          data: { isActive: true }
-        });
-      }
+  if (existingMembership) {
+    if (existingMembership.isActive) {
+      throw new Error('You are already a member of this league');
     } else {
-      // Create new membership
-      await db.leagueMembership.create({
-        data: {
-          userId: session.user.id,
-          leagueId: league.id,
-          isActive: true,
-        },
+      // Reactivate existing membership
+      await db.leagueMembership.update({
+        where: { id: existingMembership.id },
+        data: { isActive: true }
       });
     }
-
-    return NextResponse.json({ 
-      league: {
-        ...league,
-        memberCount: league._count.memberships + 1,
-        isOwner: league.ownerId === session.user.id
-      }
+  } else {
+    // Create new membership
+    await db.leagueMembership.create({
+      data: {
+        userId: session.user.id,
+        leagueId: league.id,
+        isActive: true,
+      },
     });
-
-  } catch (error) {
-    console.error('Error joining league:', error);
-    return NextResponse.json({ 
-      error: 'Failed to join league' 
-    }, { status: 500 });
   }
-}
+
+  return NextResponse.json({ 
+    league: {
+      ...league,
+      memberCount: league._count.memberships + 1,
+      isOwner: league.ownerId === session.user.id
+    }
+  });
+};
+
+export const { POST } = createMethodHandlers({
+  POST: joinLeague
+});

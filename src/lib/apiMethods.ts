@@ -18,6 +18,11 @@ export const POST = (
   requireAuth = true
 ) => createApiHandler(handler, { requireAuth, allowedMethods: ['POST'] });
 
+export const PUT = (
+  handler: (context: ApiContext) => Promise<NextResponse> | NextResponse,
+  requireAuth = true
+) => createApiHandler(handler, { requireAuth, allowedMethods: ['PUT'] });
+
 export const PATCH = (
   handler: (context: ApiContext) => Promise<NextResponse> | NextResponse,
   requireAuth = true
@@ -34,6 +39,7 @@ export const DELETE = (
 export const createMethodHandlers = (handlers: {
   GET?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
   POST?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
+  PUT?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
   PATCH?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
   DELETE?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
 }, requireAuth = true) => {
@@ -72,6 +78,7 @@ export const createMethodHandlers = (handlers: {
 export const createPublicMethodHandlers = (handlers: {
   GET?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
   POST?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
+  PUT?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
   PATCH?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
   DELETE?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
 }) => {

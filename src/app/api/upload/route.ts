@@ -38,20 +38,24 @@ export const { POST } = createMethodHandlers({
     console.log(`File received: ${file.name}, ${file.size} bytes, ${file.type}`);
 
     try {
-      // Check if we have Vercel Blob token
-      if (process.env.BLOB_READ_WRITE_TOKEN) {
+      // Check if we have a valid Vercel Blob token and we're not in development
+      const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const hasValidBlobToken = blobToken && blobToken.startsWith('vercel_blob_rw_') && !isDevelopment;
+      
+      if (hasValidBlobToken) {
         console.log('Using Vercel Blob for storage');
         
         // Upload to Vercel Blob
         const { url } = await put(file.name, file, {
           access: 'public',
-          token: process.env.BLOB_READ_WRITE_TOKEN,
+          token: blobToken,
         });
 
         console.log('File uploaded to Vercel Blob:', url);
         return NextResponse.json({ url });
       } else {
-        console.log('No Blob token found, using local storage');
+        console.log('Using local storage (development mode or no valid blob token)');
         
         // Fallback: store locally in public/uploads
         const bytes = await file.arrayBuffer();

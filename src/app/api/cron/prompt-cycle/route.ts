@@ -1,47 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { createPublicMethodHandlers } from '@/lib/apiMethods';
 import { processPromptQueue } from '@/lib/promptQueue';
+import type { ApiContext } from '@/lib/apiHandler';
 
-// Ensure this route is always dynamic
-export const dynamic = 'force-dynamic';
+// Dynamic export is handled by the API handler
+export { dynamic } from '@/lib/apiMethods';
 
-export async function GET(request: NextRequest) {
-  try {
-    // Verify this is a legitimate cron request
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET || 'dev-cron-secret';
-    
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    console.log('⏰ Cron job triggered: Processing prompt queue');
-    
-    const result = await processPromptQueue();
-    
-    if (result.success) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Prompt queue processed successfully',
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: result.error,
-        timestamp: new Date().toISOString()
-      }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('❌ Cron job error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error',
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
+const processCronJob = async ({ req }: ApiContext) => {
+  // Verify this is a legitimate cron request
+  const authHeader = req.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET || 'dev-cron-secret';
+  
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    const error = new Error('Unauthorized');
+    (error as any).status = 401;
+    throw error;
   }
-}
 
-export async function POST(request: NextRequest) {
-  // Allow POST requests as well for flexibility
-  return GET(request);
-}
+  console.log('⏰ Cron job triggered: Processing prompt queue');
+  
+  const result = await processPromptQueue();
+  
+  if (result.success) {
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Prompt queue processed successfully',
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    const errorMessage = result.error instanceof Error ? result.error.message : 'Processing failed';
+    const error = new Error(errorMessage);
+    (error as any).status = 500;
+    throw error;
+  }
+};
+
+export const { GET, POST } = createPublicMethodHandlers({
+  GET: processCronJob,
+  POST: processCronJob // Allow POST requests as well for flexibility
+});

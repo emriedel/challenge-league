@@ -37,7 +37,7 @@ export function createApiHandler(
   handler: ApiHandler,
   options: ApiHandlerOptions = {}
 ) {
-  const { requireAuth = false, allowedMethods = ['GET', 'POST', 'PATCH', 'DELETE'] } = options;
+  const { requireAuth = false, allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] } = options;
 
   return async function(req: NextRequest, context?: { params?: Record<string, string> }) {
     try {

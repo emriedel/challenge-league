@@ -1,230 +1,240 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withLeagueAccess } from '@/lib/leagueMiddleware';
+import { NextResponse } from 'next/server';
+import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
+import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 
-// Ensure this route is always dynamic
-export const dynamic = 'force-dynamic';
+// Dynamic export is handled by the API handler
+export { dynamic } from '@/lib/apiMethods';
 
-export async function GET(request: NextRequest) {
-  try {
-    // Get league ID from query params
-    const { searchParams } = new URL(request.url);
-    const leagueId = searchParams.get('id');
+const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
+  // Get league ID from query params
+  const { searchParams } = new URL(req.url);
+  const leagueId = searchParams.get('id');
 
-    if (!leagueId) {
-      return NextResponse.json({ 
-        error: 'League ID is required' 
-      }, { status: 400 });
-    }
+  if (!leagueId) {
+    throw new Error('League ID is required');
+  }
 
-    // Verify league access
-    const accessResult = await withLeagueAccess(leagueId);
-    if (!accessResult.success) {
-      return accessResult.response;
-    }
+  // Find the league and verify membership
+  const league = await db.league.findUnique({
+    where: { id: leagueId }
+  });
 
-    const { session, league } = accessResult.context;
+  if (!league) {
+    const error = new Error('League not found');
+    (error as any).status = 404;
+    throw error;
+  }
 
-    // Get current voting prompt for this league
-    const votingPrompt = await db.prompt.findFirst({
-      where: { 
-        status: 'VOTING',
+  const userMembership = await db.leagueMembership.findUnique({
+    where: {
+      userId_leagueId: {
+        userId: session.user.id,
         leagueId: league.id
-      },
-      include: {
-        responses: {
-          where: { isPublished: true },
-          include: {
-            user: {
-              select: {
-                username: true,
-                profilePhoto: true
-              }
+      }
+    }
+  });
+
+  if (!userMembership || !userMembership.isActive) {
+    const error = new Error('You are not a member of this league');
+    (error as any).status = 403;
+    throw error;
+  }
+
+  // Get current voting prompt for this league
+  const votingPrompt = await db.prompt.findFirst({
+    where: { 
+      status: 'VOTING',
+      leagueId: league.id
+    },
+    include: {
+      responses: {
+        where: { isPublished: true },
+        include: {
+          user: {
+            select: {
+              username: true,
+              profilePhoto: true
             }
-          },
-          orderBy: {
-            submittedAt: 'asc'
           }
+        },
+        orderBy: {
+          submittedAt: 'asc'
         }
       }
-    });
-
-    if (!votingPrompt) {
-      return NextResponse.json({
-        prompt: null,
-        responses: [],
-        canVote: false,
-        message: 'No voting session currently active'
-      });
     }
+  });
 
-    // Check if voting window is still open
-    const now = new Date();
-    const voteEnd = new Date(votingPrompt.voteEnd);
-    if (now >= voteEnd) {
-      return NextResponse.json({
-        prompt: votingPrompt,
-        responses: votingPrompt.responses,
-        canVote: false,
-        message: 'Voting window has closed'
-      });
-    }
-
-    // Get user's existing votes for this prompt
-    const existingVotes = await db.vote.findMany({
-      where: {
-        voterId: session.user.id,
-        response: {
-          promptId: votingPrompt.id
-        }
-      },
-      include: {
-        response: {
-          select: {
-            id: true
-          }
-        }
-      }
+  if (!votingPrompt) {
+    return NextResponse.json({
+      prompt: null,
+      responses: [],
+      canVote: false,
+      message: 'No voting session currently active'
     });
+  }
 
-    // Filter out user's own response from voting options
-    const votableResponses = votingPrompt.responses.filter(
-      response => response.userId !== session.user.id
-    );
-
+  // Check if voting window is still open
+  const now = new Date();
+  const voteEnd = new Date(votingPrompt.voteEnd);
+  if (now >= voteEnd) {
     return NextResponse.json({
       prompt: votingPrompt,
-      responses: votableResponses,
-      existingVotes: existingVotes,
-      canVote: true,
-      voteEnd: votingPrompt.voteEnd
+      responses: votingPrompt.responses,
+      canVote: false,
+      message: 'Voting window has closed'
     });
-
-  } catch (error) {
-    console.error('Error fetching voting data:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch voting data' 
-    }, { status: 500 });
   }
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const { votes, leagueId } = await request.json();
-
-    if (!leagueId) {
-      return NextResponse.json({ 
-        error: 'League ID is required' 
-      }, { status: 400 });
+  // Get user's existing votes for this prompt
+  const existingVotes = await db.vote.findMany({
+    where: {
+      voterId: session.user.id,
+      response: {
+        promptId: votingPrompt.id
+      }
+    },
+    include: {
+      response: {
+        select: {
+          id: true
+        }
+      }
     }
+  });
 
-    // Verify league access
-    const accessResult = await withLeagueAccess(leagueId);
-    if (!accessResult.success) {
-      return accessResult.response;
-    }
+  // Filter out user's own response from voting options
+  const votableResponses = votingPrompt.responses.filter(
+    response => response.userId !== session.user.id
+  );
 
-    const { session, league } = accessResult.context;
+  return NextResponse.json({
+    prompt: votingPrompt,
+    responses: votableResponses,
+    existingVotes: existingVotes,
+    canVote: true,
+    voteEnd: votingPrompt.voteEnd
+  });
+};
 
-    if (!votes || typeof votes !== 'object') {
-      return NextResponse.json({ 
-        error: 'Invalid votes format' 
-      }, { status: 400 });
-    }
+const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
+  const { votes, leagueId } = await req.json();
 
-    // Calculate total votes - should be exactly 3
-    const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
-    if (totalVotes !== 3) {
-      return NextResponse.json({ 
-        error: 'Must use exactly 3 votes' 
-      }, { status: 400 });
-    }
+  if (!leagueId) {
+    throw new Error('League ID is required');
+  }
 
-    // Get current voting prompt for this league
-    const votingPrompt = await db.prompt.findFirst({
-      where: { 
-        status: 'VOTING',
+  // Find the league and verify membership
+  const league = await db.league.findUnique({
+    where: { id: leagueId }
+  });
+
+  if (!league) {
+    const error = new Error('League not found');
+    (error as any).status = 404;
+    throw error;
+  }
+
+  const userMembership = await db.leagueMembership.findUnique({
+    where: {
+      userId_leagueId: {
+        userId: session.user.id,
         leagueId: league.id
-      },
-      include: {
-        responses: {
-          where: { isPublished: true }
-        }
-      }
-    });
-
-    if (!votingPrompt) {
-      return NextResponse.json({ 
-        error: 'No voting session currently active' 
-      }, { status: 400 });
-    }
-
-    // Check if voting window is still open
-    const now = new Date();
-    if (now >= new Date(votingPrompt.voteEnd)) {
-      return NextResponse.json({ 
-        error: 'Voting window has closed' 
-      }, { status: 400 });
-    }
-
-    // Validate that responses exist and user isn't voting for their own
-    const responseIds = votingPrompt.responses.map(r => r.id);
-    const userResponseIds = votingPrompt.responses
-      .filter(r => r.userId === session.user.id)
-      .map(r => r.id);
-
-    for (const responseId of Object.keys(votes)) {
-      if (!responseIds.includes(responseId)) {
-        return NextResponse.json({ 
-          error: 'Invalid response ID' 
-        }, { status: 400 });
-      }
-      
-      if (userResponseIds.includes(responseId)) {
-        return NextResponse.json({ 
-          error: 'Cannot vote for your own submission' 
-        }, { status: 400 });
       }
     }
+  });
 
-    // Remove existing votes for this prompt
-    await db.vote.deleteMany({
-      where: {
-        voterId: session.user.id,
-        response: {
-          promptId: votingPrompt.id
-        }
-      }
-    });
-
-    // Create new votes - each vote is worth 1 point
-    const createdVotes = [];
-    for (const [responseId, count] of Object.entries(votes)) {
-      const voteCount = count as number;
-      if (voteCount > 0) {
-        for (let i = 0; i < voteCount; i++) {
-          const vote = await db.vote.create({
-            data: {
-              voterId: session.user.id,
-              responseId: responseId,
-              points: 1 // Each vote worth 1 point
-            }
-          });
-          createdVotes.push(vote);
-        }
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      votes: createdVotes,
-      message: 'Votes submitted successfully'
-    });
-
-  } catch (error) {
-    console.error('Vote submission error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to submit votes' 
-    }, { status: 500 });
+  if (!userMembership || !userMembership.isActive) {
+    const error = new Error('You are not a member of this league');
+    (error as any).status = 403;
+    throw error;
   }
-}
+
+  if (!votes || typeof votes !== 'object') {
+    throw new Error('Invalid votes format');
+  }
+
+  // Calculate total votes - should be exactly 3
+  const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
+  if (totalVotes !== 3) {
+    throw new Error('Must use exactly 3 votes');
+  }
+
+  // Get current voting prompt for this league
+  const votingPrompt = await db.prompt.findFirst({
+    where: { 
+      status: 'VOTING',
+      leagueId: league.id
+    },
+    include: {
+      responses: {
+        where: { isPublished: true }
+      }
+    }
+  });
+
+  if (!votingPrompt) {
+    throw new Error('No voting session currently active');
+  }
+
+  // Check if voting window is still open
+  const now = new Date();
+  if (now >= new Date(votingPrompt.voteEnd)) {
+    throw new Error('Voting window has closed');
+  }
+
+  // Validate that responses exist and user isn't voting for their own
+  const responseIds = votingPrompt.responses.map(r => r.id);
+  const userResponseIds = votingPrompt.responses
+    .filter(r => r.userId === session.user.id)
+    .map(r => r.id);
+
+  for (const responseId of Object.keys(votes)) {
+    if (!responseIds.includes(responseId)) {
+      throw new Error('Invalid response ID');
+    }
+    
+    if (userResponseIds.includes(responseId)) {
+      throw new Error('Cannot vote for your own submission');
+    }
+  }
+
+  // Remove existing votes for this prompt
+  await db.vote.deleteMany({
+    where: {
+      voterId: session.user.id,
+      response: {
+        promptId: votingPrompt.id
+      }
+    }
+  });
+
+  // Create new votes - each vote is worth 1 point
+  const createdVotes = [];
+  for (const [responseId, count] of Object.entries(votes)) {
+    const voteCount = count as number;
+    if (voteCount > 0) {
+      for (let i = 0; i < voteCount; i++) {
+        const vote = await db.vote.create({
+          data: {
+            voterId: session.user.id,
+            responseId: responseId,
+            points: 1 // Each vote worth 1 point
+          }
+        });
+        createdVotes.push(vote);
+      }
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    votes: createdVotes,
+    message: 'Votes submitted successfully'
+  });
+};
+
+export const { GET, POST } = createMethodHandlers({
+  GET: getVotingData,
+  POST: submitVotes
+});
