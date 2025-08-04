@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useMessages } from '@/hooks/useMessages';
 
 export default function CreateLeaguePage() {
   const { data: session, status } = useSession();
@@ -11,7 +12,8 @@ export default function CreateLeaguePage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const { addMessage, messages } = useMessages();
+  const message = messages.creation;
 
   if (status === 'loading') {
     return (
@@ -28,7 +30,6 @@ export default function CreateLeaguePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsSubmitting(true);
 
     try {
@@ -49,10 +50,13 @@ export default function CreateLeaguePage() {
         throw new Error(data.error || 'Failed to create league');
       }
 
-      // Redirect to the newly created league
-      router.push(`/league/${data.league.id}`);
+      // Show success message and redirect to the newly created league
+      addMessage('creation', { type: 'success', text: 'League created successfully!' });
+      setTimeout(() => {
+        router.push(`/league/${data.league.id}`);
+      }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      addMessage('creation', { type: 'error', text: err instanceof Error ? err.message : 'An error occurred' });
     } finally {
       setIsSubmitting(false);
     }
@@ -113,9 +117,17 @@ export default function CreateLeaguePage() {
             </p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="text-sm text-red-700">{error}</div>
+          {message && (
+            <div className={`rounded-md p-4 ${
+              message.type === 'success' 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              <div className={`text-sm ${
+                message.type === 'success' ? 'text-green-700' : 'text-red-700'
+              }`}>
+                {message.text}
+              </div>
             </div>
           )}
 

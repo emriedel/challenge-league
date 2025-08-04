@@ -4,13 +4,15 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProfileAvatar from '@/components/ProfileAvatar';
+import { useMessages } from '@/hooks/useMessages';
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { addMessage, messages } = useMessages();
+  const message = messages.profile;
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -19,17 +21,8 @@ export default function ProfilePage() {
     }
   }, [session, status, router]);
 
-  // Auto-clear messages after 5 seconds
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
   const handlePhotoUpload = async (file: File) => {
     setIsUploading(true);
-    setMessage(null);
 
     try {
       // First upload the file using the main upload endpoint
@@ -62,14 +55,14 @@ export default function ProfilePage() {
         throw new Error(errorData.error || 'Failed to update profile photo');
       }
 
-      setMessage({ type: 'success', text: 'Profile photo updated successfully!' });
+      addMessage('profile', { type: 'success', text: 'Profile photo updated successfully!' });
       setIsEditingPhoto(false);
       
       // Update the session to reflect the new profile photo
       await update();
     } catch (error) {
       console.error('Photo upload error:', error);
-      setMessage({ 
+      addMessage('profile', { 
         type: 'error', 
         text: error instanceof Error ? error.message : 'Failed to upload photo' 
       });
@@ -80,7 +73,6 @@ export default function ProfilePage() {
 
   const handlePhotoDelete = async () => {
     setIsUploading(true);
-    setMessage(null);
 
     try {
       const deleteResponse = await fetch('/api/profile/photo', {
@@ -92,14 +84,14 @@ export default function ProfilePage() {
         throw new Error(errorData.error || 'Failed to delete photo');
       }
 
-      setMessage({ type: 'success', text: 'Profile photo removed successfully!' });
+      addMessage('profile', { type: 'success', text: 'Profile photo removed successfully!' });
       setIsEditingPhoto(false);
       
       // Update the session to reflect the removed profile photo
       await update();
     } catch (error) {
       console.error('Photo delete error:', error);
-      setMessage({ 
+      addMessage('profile', { 
         type: 'error', 
         text: error instanceof Error ? error.message : 'Failed to delete photo' 
       });

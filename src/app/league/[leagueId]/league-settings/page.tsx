@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
+import { useMessages } from '@/hooks/useMessages';
 
 interface Prompt {
   id: string;
@@ -38,7 +39,8 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { addMessage, messages, clearMessage } = useMessages();
+  const error = messages.admin;
 
   const fetchQueue = useCallback(async () => {
     if (!leagueData?.league.id) return;
@@ -80,7 +82,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
     if (!newPromptText.trim()) return;
 
     setIsLoading(true);
-    setError(null);
+    clearMessage('admin');
 
     try {
       const response = await fetch(`/api/leagues/${params.leagueId}/admin/prompts`, {
@@ -98,10 +100,10 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         fetchQueue();
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to create prompt');
+        addMessage('admin', { type: 'error', text: data.error || 'Failed to create prompt' });
       }
     } catch (error) {
-      setError('Failed to create prompt');
+      addMessage('admin', { type: 'error', text: 'Failed to create prompt' });
     } finally {
       setIsLoading(false);
     }
@@ -119,10 +121,10 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         fetchQueue();
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to delete prompt');
+        addMessage('admin', { type: 'error', text: data.error || 'Failed to delete prompt' });
       }
     } catch (error) {
-      setError('Failed to delete prompt');
+      addMessage('admin', { type: 'error', text: 'Failed to delete prompt' });
     }
   };
 
@@ -156,10 +158,10 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         fetchQueue();
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to update prompt');
+        addMessage('admin', { type: 'error', text: data.error || 'Failed to update prompt' });
       }
     } catch (error) {
-      setError('Failed to update prompt');
+      addMessage('admin', { type: 'error', text: 'Failed to update prompt' });
     }
   };
 
@@ -252,8 +254,8 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-            <button onClick={() => setError(null)} className="float-right text-red-500 hover:text-red-700">×</button>
+            {error.text}
+            <button onClick={() => clearMessage('admin')} className="float-right text-red-500 hover:text-red-700">×</button>
           </div>
         )}
 
