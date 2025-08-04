@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { createPublicMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { validateEmail, validatePassword, validateUsername } from '@/lib/validations';
 
-// Ensure this route is always dynamic
-export const dynamic = 'force-dynamic';
+// Dynamic export is handled by the API handler
+export { dynamic } from '@/lib/apiMethods';
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email, password, username } = await request.json();
+export const { POST } = createPublicMethodHandlers({
+  POST: async ({ req }) => {
+    const { email, password, username } = await req.json();
 
     // Validate input
     const emailValidation = validateEmail(email);
@@ -65,8 +66,5 @@ export async function POST(request: NextRequest) {
         username: user.username,
       },
     });
-  } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

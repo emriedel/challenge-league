@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 
-// Ensure this route is always dynamic
-export const dynamic = 'force-dynamic';
+// Dynamic export is handled by the API handler
+export { dynamic } from '@/lib/apiMethods';
 
 // Generate a random invite code
 function generateInviteCode(): string {
@@ -16,20 +15,16 @@ function generateInviteCode(): string {
   return result;
 }
 
-
-// GET /api/leagues - Get user's leagues
-export async function GET() {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+// Export handlers using the new centralized system
+export const { GET, POST } = createMethodHandlers({
+  // GET /api/leagues - Get user's leagues
+  GET: async ({ session }) => {
+    const userId = session!.user.id;
 
     // Get user's leagues
     const userLeagues = await db.leagueMembership.findMany({
       where: {
-        userId: session.user.id,
+        userId,
         isActive: true
       },
       include: {
@@ -67,40 +62,21 @@ export async function GET() {
     const leagues = userLeagues.map(membership => ({
       ...membership.league,
       memberCount: membership.league._count.memberships,
-      isOwner: membership.league.ownerId === session.user.id
+      isOwner: membership.league.ownerId === userId
     }));
 
     return NextResponse.json({ leagues });
+  },
 
-  } catch (error) {
-    console.error('Error fetching user leagues:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch leagues' 
-    }, { status: 500 });
-  }
-}
-
-// POST /api/leagues - Create new league
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { name, description } = await request.json();
+  // POST /api/leagues - Create new league
+  POST: async ({ session, req }) => {
+    const userId = session!.user.id;
+    const { name, description } = await req.json();
 
     if (!name || !description) {
       return NextResponse.json({ 
         error: 'Name and description are required' 
       }, { status: 400 });
-    }
-
-    if (!session.user.id) {
-      return NextResponse.json({ 
-        error: 'Invalid session - user ID missing' 
-      }, { status: 401 });
     }
 
     // Generate unique invite code
@@ -116,7 +92,7 @@ export async function POST(request: NextRequest) {
         slug: `league-${Date.now()}`, // Temporary slug until we can remove from schema
         description,
         inviteCode,
-        ownerId: session.user.id,
+        ownerId: userId,
         isActive: true,
       },
     });
@@ -124,7 +100,7 @@ export async function POST(request: NextRequest) {
     // Add creator as a member
     await db.leagueMembership.create({
       data: {
-        userId: session.user.id,
+        userId,
         leagueId: league.id,
         isActive: true,
       },
@@ -137,11 +113,5 @@ export async function POST(request: NextRequest) {
         memberCount: 1
       }
     });
-
-  } catch (error) {
-    console.error('Error creating league:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create league' 
-    }, { status: 500 });
   }
-}
+}, true); // requireAuth = true
