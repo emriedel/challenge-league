@@ -9,6 +9,9 @@ export { dynamic } from '@/lib/apiMethods';
 
 export const { POST } = createPublicMethodHandlers({
   POST: async ({ req }) => {
+    console.log('Register API called');
+    console.log('Database connection status:', typeof db, !!db.user);
+    
     const { email, password, username } = await req.json();
 
     // Validate input
