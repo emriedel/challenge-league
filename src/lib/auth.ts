@@ -7,6 +7,7 @@ import { validateEmail, validatePassword } from './validations';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-build',
   providers: [
     CredentialsProvider({
       name: 'credentials',
