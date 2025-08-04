@@ -28,7 +28,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex justify-center space-x-8" aria-label="League Tabs">
+        <nav className="flex justify-center space-x-4 md:space-x-8 overflow-x-auto scrollbar-hide" aria-label="League Tabs">
           {tabs.map((tab) => (
             <Link
               key={tab.id}
@@ -37,9 +37,15 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
                 pathname === tab.href
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap py-2 px-1 md:px-2 border-b-2 font-medium text-sm transition-colors min-w-0 flex-shrink-0`}
             >
-              {tab.name}
+              <span className="hidden sm:inline">{tab.name}</span>
+              <span className="sm:hidden">
+                {tab.name === 'League Home' ? 'Home' : 
+                 tab.name === 'Completed Rounds' ? 'Rounds' : 
+                 tab.name === 'Standings' ? 'Standings' : 
+                 tab.name === 'League Settings' ? 'Settings' : tab.name}
+              </span>
             </Link>
           ))}
         </nav>

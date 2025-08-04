@@ -94,8 +94,8 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           </label>
           <textarea
             id="caption"
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            rows={6}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
             placeholder="Share the story behind your photo..."
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
