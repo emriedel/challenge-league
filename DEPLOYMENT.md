@@ -238,13 +238,13 @@ Your `vercel.json` is already configured:
   "crons": [
     {
       "path": "/api/cron/prompt-cycle",
-      "schedule": "0 */12 * * *"
+      "schedule": "0 */24 * * *"
     }
   ]
 }
 ```
 
-This runs every 12 hours to check and transition competition phases.
+This runs every 24 hours to check and transition competition phases.
 
 ### 6.2 Verify Cron Functionality
 
