@@ -3,14 +3,8 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
+import type { PhotoUploadProps } from '@/types/components';
 
-interface PhotoUploadProps {
-  onPhotoSelected: (file: File | null, previewUrl: string) => void;
-  onError?: (error: string) => void;
-  selectedPhoto?: File | null;
-  previewUrl?: string | null;
-  disabled?: boolean;
-}
 
 export default function PhotoUpload({ 
   onPhotoSelected, 

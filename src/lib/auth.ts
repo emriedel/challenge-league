@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = user.username;
-        token.profilePhoto = user.profilePhoto;
+        token.profilePhoto = user.profilePhoto ?? undefined;
       }
       
       // Refresh user data from database on session update or every request (for development)
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
           if (freshUser) {
             token.id = freshUser.id;
             token.username = freshUser.username;
-            token.profilePhoto = freshUser.profilePhoto || undefined;
+            token.profilePhoto = freshUser.profilePhoto ?? undefined;
           }
         } catch (error) {
           console.error('Error refreshing user data in JWT callback:', error);
@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
-        session.user.profilePhoto = token.profilePhoto as string | undefined;
+        session.user.profilePhoto = (token.profilePhoto ?? undefined) as string | undefined;
       }
       return session;
     },

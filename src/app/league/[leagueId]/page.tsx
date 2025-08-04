@@ -38,7 +38,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { submitResponse, updateResponse, isSubmitting: isSubmittingResponse } = useSubmissionManagement({
     promptId: promptData?.prompt?.id,
     leagueId: params.leagueId,
-    onSuccess: (message) => setSubmissionMessage({ type: 'success', text: message }),
+    onSuccess: setSubmissionMessage,
     onError: (message) => setSubmissionMessage({ type: 'error', text: message }),
     onRefetch: refetchPrompt,
   });
@@ -133,7 +133,20 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {/* Current Challenge */}
         <CurrentChallenge
           votingData={votingData || undefined}
-          promptData={promptData || undefined}
+          promptData={promptData && promptData.prompt ? {
+            prompt: {
+              id: promptData.prompt.id,
+              text: promptData.prompt.text,
+              weekStart: promptData.prompt.weekStart,
+              weekEnd: promptData.prompt.weekEnd,
+              voteStart: '',
+              voteEnd: '',
+              status: 'ACTIVE' as const,
+              queueOrder: 0,
+              createdAt: new Date().toISOString(),
+              leagueId: params.leagueId
+            }
+          } : undefined}
           showVoting={!!showVoting}
           showSubmission={!!showSubmission}
           showSubmitted={!!showSubmitted}
@@ -144,9 +157,18 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           <VotingInterface
             votingData={{
               canVote: votingData.canVote,
-              responses: votingData.responses,
+              responses: votingData.responses.map(response => ({
+                ...response,
+                user: {
+                  id: (response.user as any).id || `user-${response.user.username}`,
+                  username: response.user.username,
+                  profilePhoto: response.user.profilePhoto
+                }
+              })),
               prompt: votingData.prompt ? { text: votingData.prompt.text } : undefined,
               voteEnd: votingData.voteEnd,
+              userHasVoted: false,
+              existingVotes: {}
             }}
             onSubmitVotes={handleSubmitVotes}
             isSubmitting={votingManagement.isSubmitting}
@@ -157,7 +179,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {/* Submission Form */}
         {showSubmission && promptData?.prompt && (
           <SubmissionSection
-            prompt={promptData.prompt}
+            prompt={{
+              id: promptData.prompt.id,
+              text: promptData.prompt.text,
+              weekStart: promptData.prompt.weekStart,
+              weekEnd: promptData.prompt.weekEnd,
+              voteStart: '',
+              voteEnd: ''
+            }}
             onSubmit={handleSubmitResponse}
             isSubmitting={isSubmittingResponse}
             message={submissionMessage}
@@ -167,8 +196,18 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {/* User's Current Submission (when already submitted) */}
         {showSubmitted && promptData?.userResponse && session?.user && (
           <UserSubmissionDisplay
-            userResponse={promptData.userResponse}
+            userResponse={{
+              ...promptData.userResponse,
+              canEdit: true,
+              isOwn: true,
+              user: {
+                id: session.user.id,
+                username: session.user.username || '',
+                profilePhoto: session.user.profilePhoto
+              }
+            }}
             user={{
+              id: session.user.id || `user-${session.user.username}`,
               username: session.user.username || '',
               profilePhoto: session.user.profilePhoto,
             }}
@@ -184,6 +223,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             responses={galleryData.responses.map(response => ({
               ...response,
               finalRank: response.finalRank || undefined,
+              user: {
+                id: (response.user as any).id || `user-${response.user.username}`,
+                username: response.user.username,
+                profilePhoto: response.user.profilePhoto
+              }
             }))}
             prompt={galleryData.prompt || undefined}
             leagueId={params.leagueId}

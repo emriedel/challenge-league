@@ -2,17 +2,14 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { UI_TIMEOUTS } from '@/constants/app';
+import type { Message, UseMessagesReturn } from '@/types/hooks';
 
-export interface Message {
-  type: 'success' | 'error';
-  text: string;
-}
 
 interface UseMessagesProps {
   autoCleanMs?: number;
 }
 
-export function useMessages({ autoCleanMs = UI_TIMEOUTS.MESSAGE_AUTO_CLEAR_MS }: UseMessagesProps = {}) {
+export function useMessages({ autoCleanMs = UI_TIMEOUTS.MESSAGE_AUTO_CLEAR_MS }: UseMessagesProps = {}): UseMessagesReturn {
   const [messages, setMessages] = useState<{ [key: string]: Message }>({});
 
   const addMessage = useCallback((key: string, message: Message) => {

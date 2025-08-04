@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { UseVotingManagementReturn, VoteMap } from '@/types';
 
 interface UseVotingManagementProps {
   maxVotes?: number;
@@ -12,11 +13,11 @@ export function useVotingManagement({
   maxVotes = 3,
   onSuccess,
   onError
-}: UseVotingManagementProps = {}) {
-  const [selectedVotes, setSelectedVotes] = useState<{ [responseId: string]: number }>({});
+}: UseVotingManagementProps = {}): UseVotingManagementReturn {
+  const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getTotalVotesFromObject = useCallback((votes: { [responseId: string]: number }) => {
+  const getTotalVotesFromObject = useCallback((votes: VoteMap) => {
     return Object.values(votes).reduce((sum, voteCount) => sum + voteCount, 0);
   }, []);
 
@@ -44,7 +45,7 @@ export function useVotingManagement({
   }, [selectedVotes, getTotalVotesFromObject]);
 
   const submitVotes = useCallback(async (
-    votingData: { submitVotes: (votes: { [responseId: string]: number }) => Promise<{ success: boolean; error?: string }> }
+    votingData: { submitVotes: (votes: VoteMap) => Promise<{ success: boolean; error?: string }> }
   ) => {
     const totalVotes = getTotalVotes();
     if (totalVotes !== maxVotes) {

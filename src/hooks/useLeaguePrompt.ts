@@ -2,32 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-
-interface Prompt {
-  id: string;
-  text: string;
-  weekStart: string;
-  weekEnd: string;
-}
-
-interface UserResponse {
-  id: string;
-  submittedAt: string;
-  imageUrl: string;
-  caption: string;
-}
-
-interface PromptData {
-  prompt: Prompt;
-  userResponse: UserResponse | null;
-}
-
-interface UseLeaguePromptReturn {
-  data: PromptData | null;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
+import type { UseLeaguePromptReturn, PromptData } from '@/types/hooks';
 
 export function useLeaguePrompt(leagueId?: string): UseLeaguePromptReturn {
   const { data: session } = useSession();

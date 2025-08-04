@@ -4,25 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import ProfileAvatar from './ProfileAvatar';
 import { CONTENT_LIMITS } from '@/constants/app';
+import type { UserSubmissionDisplayProps } from '@/types/components';
 
-interface UserResponse {
-  imageUrl: string;
-  caption: string;
-  submittedAt: string;
-}
-
-interface User {
-  username: string;
-  profilePhoto?: string | null;
-}
-
-interface UserSubmissionDisplayProps {
-  userResponse: UserResponse;
-  user: User;
-  onUpdate: (data: { photo?: File; caption: string }) => Promise<void>;
-  isUpdating: boolean;
-  message?: { type: 'success' | 'error'; text: string } | null;
-}
 
 export default function UserSubmissionDisplay({ 
   userResponse, 

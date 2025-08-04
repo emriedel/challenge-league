@@ -5,32 +5,9 @@ import Image from 'next/image';
 import ProfileAvatar from './ProfileAvatar';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING } from '@/constants/app';
+import type { VotingInterfaceProps } from '@/types/components';
+import type { VoteMap } from '@/types/vote';
 
-interface VotingResponse {
-  id: string;
-  imageUrl: string;
-  caption: string;
-  user: {
-    username: string;
-    profilePhoto?: string | null;
-  };
-}
-
-interface VotingData {
-  canVote: boolean;
-  responses: VotingResponse[];
-  prompt?: {
-    text: string;
-  };
-  voteEnd?: string;
-}
-
-interface VotingInterfaceProps {
-  votingData: VotingData;
-  onSubmitVotes: (votes: { [responseId: string]: number }) => Promise<void>;
-  isSubmitting: boolean;
-  message?: { type: 'success' | 'error'; text: string } | null;
-}
 
 export default function VotingInterface({ 
   votingData, 
@@ -38,7 +15,7 @@ export default function VotingInterface({
   isSubmitting, 
   message 
 }: VotingInterfaceProps) {
-  const [selectedVotes, setSelectedVotes] = useState<{ [responseId: string]: number }>({});
+  const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
 
   const handleVoteSelection = (responseId: string, increment: boolean) => {
     const newVotes = { ...selectedVotes };

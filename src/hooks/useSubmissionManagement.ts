@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
 
 interface SubmissionData {
   photo: File;
@@ -15,7 +16,7 @@ interface UpdateData {
 interface UseSubmissionManagementProps {
   promptId?: string;
   leagueId: string;
-  onSuccess?: (message: string) => void;
+  onSuccess?: (message: Message) => void;
   onError?: (message: string) => void;
   onRefetch?: () => void;
 }
@@ -26,7 +27,7 @@ export function useSubmissionManagement({
   onSuccess,
   onError,
   onRefetch
-}: UseSubmissionManagementProps) {
+}: UseSubmissionManagementProps): UseSubmissionManagementReturn {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submitResponse = useCallback(async (data: SubmissionData) => {
@@ -69,7 +70,7 @@ export function useSubmissionManagement({
         throw new Error(errorData.error || 'Failed to submit response');
       }
 
-      onSuccess?.('Response submitted successfully!');
+      onSuccess?.({ type: 'success', text: 'Response submitted successfully!' });
       onRefetch?.(); // Refresh to show updated submission
     } catch (error) {
       console.error('Submission error:', error);
@@ -124,7 +125,7 @@ export function useSubmissionManagement({
         throw new Error(errorData.error || 'Failed to update submission');
       }
 
-      onSuccess?.('Submission updated successfully!');
+      onSuccess?.({ type: 'success', text: 'Submission updated successfully!' });
       onRefetch?.(); // Refresh to show updated submission
     } catch (error) {
       console.error('Update error:', error);

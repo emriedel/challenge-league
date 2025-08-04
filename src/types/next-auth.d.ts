@@ -1,21 +1,12 @@
 import 'next-auth';
+import type { AuthUser } from './user';
 
 declare module 'next-auth' {
   interface Session {
-    user: {
-      id: string;
-      email: string;
-      username: string;
-      profilePhoto?: string;
-    }
+    user: AuthUser;
   }
 
-  interface User {
-    id: string;
-    email: string;
-    username: string;
-    profilePhoto?: string;
-  }
+  interface User extends AuthUser {}
 }
 
 declare module 'next-auth/jwt' {

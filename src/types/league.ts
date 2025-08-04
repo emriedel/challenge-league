@@ -1,4 +1,8 @@
-// Shared League type definitions
+/**
+ * League-related type definitions
+ */
+
+import type { BaseUser, UserStats } from './user';
 
 export interface League {
   id: string;
@@ -26,6 +30,18 @@ export interface LeagueWithMembers extends League {
       username: string;
     };
   }[];
+}
+
+// Leaderboard entry for league standings
+export interface LeaderboardEntry {
+  user: BaseUser;
+  stats: UserStats;
+}
+
+// League data with leaderboard
+export interface LeagueData {
+  league: League;
+  leaderboard: LeaderboardEntry[];
 }
 
 // Type for league creation responses

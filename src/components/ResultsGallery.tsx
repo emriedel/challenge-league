@@ -4,28 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ProfileAvatar from './ProfileAvatar';
 import { getRankIcon } from '@/lib/utils';
+import type { ResultsGalleryProps } from '@/types/components';
 
-interface ResultsResponse {
-  id: string;
-  imageUrl: string;
-  caption: string;
-  totalPoints: number;
-  finalRank?: number;
-  user: {
-    username: string;
-    profilePhoto?: string | null;
-  };
-}
-
-interface ResultsPrompt {
-  text: string;
-}
-
-interface ResultsGalleryProps {
-  responses: ResultsResponse[];
-  prompt?: ResultsPrompt;
-  leagueId: string;
-}
 
 
 export default function ResultsGallery({ responses, prompt, leagueId }: ResultsGalleryProps) {

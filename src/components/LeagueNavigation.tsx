@@ -2,12 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { LeagueNavigationProps } from '@/types/components';
 
-interface LeagueNavigationProps {
-  leagueId: string;
-  leagueName: string;
-  isOwner?: boolean;
-}
 
 export default function LeagueNavigation({ leagueId, leagueName, isOwner }: LeagueNavigationProps) {
   const pathname = usePathname();

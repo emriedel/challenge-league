@@ -3,16 +3,8 @@
 import { useState } from 'react';
 import PhotoUpload from './PhotoUpload';
 import { CONTENT_LIMITS } from '@/constants/app';
+import type { SubmissionFormProps } from '@/types/components';
 
-interface SubmissionFormProps {
-  prompt: {
-    id: string;
-    text: string;
-    weekEnd: string;
-  };
-  onSubmit: (data: { photo: File; caption: string }) => void;
-  isSubmitting?: boolean;
-}
 
 export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false }: SubmissionFormProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);

@@ -1,19 +1,8 @@
 'use client';
 
 import SubmissionForm from './SubmissionForm';
+import type { SubmissionSectionProps } from '@/types/components';
 
-interface Prompt {
-  id: string;
-  text: string;
-  weekEnd: string;
-}
-
-interface SubmissionSectionProps {
-  prompt: Prompt;
-  onSubmit: (data: { photo: File; caption: string }) => Promise<void>;
-  isSubmitting: boolean;
-  message?: { type: 'success' | 'error'; text: string } | null;
-}
 
 export default function SubmissionSection({ 
   prompt, 

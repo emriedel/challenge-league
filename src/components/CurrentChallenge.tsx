@@ -1,30 +1,8 @@
 'use client';
 
 import { NoChallengeEmptyState } from './EmptyState';
+import type { CurrentChallengeProps } from '@/types/components';
 
-interface Prompt {
-  text: string;
-  weekEnd: string;
-}
-
-interface VotingPrompt {
-  text: string;
-}
-
-interface VotingData {
-  prompt?: VotingPrompt | null;
-  voteEnd?: string;
-}
-
-interface CurrentChallengeProps {
-  votingData?: VotingData;
-  promptData?: {
-    prompt: Prompt;
-  };
-  showVoting: boolean;
-  showSubmission: boolean;
-  showSubmitted: boolean;
-}
 
 export default function CurrentChallenge({ 
   votingData, 
