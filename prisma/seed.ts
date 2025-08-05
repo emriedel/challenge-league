@@ -126,8 +126,7 @@ async function main() {
       data: {
         username: users[i].username,
         email: users[i].email,
-        hashedPassword,
-        profileComplete: true,
+        password: hashedPassword,
       },
     });
     createdUsers.push(user);
@@ -198,7 +197,7 @@ async function main() {
     
     // Create 3 completed rounds
     for (let roundIndex = 0; roundIndex < 3; roundIndex++) {
-      const taskIndex = leagueIndex * 10 + roundIndex; // Unique tasks per league
+      const taskIndex = (leagueIndex * 7 + roundIndex) % competitionTasks.length; // Cycle through available tasks
       const task = competitionTasks[taskIndex];
       
       // Create completed prompt (3 weeks ago, 2 weeks ago, 1 week ago)
@@ -206,17 +205,22 @@ async function main() {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - (weeksAgo * 7));
       
-      const { submissionStart, submissionEnd, votingStart, votingEnd } = getWeeklyPromptDates(startDate);
+      const { weekStart, weekEnd } = getWeeklyPromptDates(startDate);
+      
+      // Calculate voting period (2 days after submissions close)
+      const voteStart = new Date(weekEnd);
+      const voteEnd = new Date(weekEnd);
+      voteEnd.setDate(voteEnd.getDate() + 2);
       
       const prompt = await prisma.prompt.create({
         data: {
           text: task,
           leagueId: league.id,
           status: 'COMPLETED',
-          submissionStart,
-          submissionEnd,
-          votingStart,
-          votingEnd,
+          weekStart,
+          weekEnd,
+          voteStart,
+          voteEnd,
           queueOrder: roundIndex,
         },
       });
@@ -235,9 +239,8 @@ async function main() {
           data: {
             userId: participant.id,
             promptId: prompt.id,
-            photoUrl: `https://picsum.photos/800/600?random=${Date.now() + i}`,
+            imageUrl: `https://picsum.photos/800/600?random=${Date.now() + i}`,
             caption: sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)],
-            submitted: true,
           },
         });
         createdResponses.push(response);
@@ -265,9 +268,9 @@ async function main() {
           if (votes > 0) {
             await prisma.vote.create({
               data: {
-                userId: voter.id,
+                voterId: voter.id,
                 responseId: shuffledResponses[voteIndex].id,
-                votes: votes,
+                points: votes,
               },
             });
           }
@@ -278,14 +281,14 @@ async function main() {
       for (const response of createdResponses) {
         const totalVotes = await prisma.vote.aggregate({
           where: { responseId: response.id },
-          _sum: { votes: true },
+          _sum: { points: true },
         });
         
         await prisma.response.update({
           where: { id: response.id },
           data: { 
-            totalVotes: totalVotes._sum.votes || 0,
-            published: true 
+            totalVotes: totalVotes._sum.points || 0,
+            isPublished: true 
           },
         });
       }
@@ -307,19 +310,24 @@ async function main() {
     }
     
     // Create 1 current round (active submission phase)
-    const currentTaskIndex = leagueIndex * 10 + 3;
+    const currentTaskIndex = (leagueIndex * 7 + 3) % competitionTasks.length;
     const currentTask = competitionTasks[currentTaskIndex];
-    const { submissionStart, submissionEnd, votingStart, votingEnd } = getWeeklyPromptDates();
+    const { weekStart, weekEnd } = getWeeklyPromptDates();
+    
+    // Calculate voting period (2 days after submissions close)
+    const voteStart = new Date(weekEnd);
+    const voteEnd = new Date(weekEnd);
+    voteEnd.setDate(voteEnd.getDate() + 2);
     
     const currentPrompt = await prisma.prompt.create({
       data: {
         text: currentTask,
         leagueId: league.id,
         status: 'ACTIVE',
-        submissionStart,
-        submissionEnd,
-        votingStart,
-        votingEnd,
+        weekStart,
+        weekEnd,
+        voteStart,
+        voteEnd,
         queueOrder: 3,
       },
     });
@@ -335,9 +343,8 @@ async function main() {
         data: {
           userId: leagueMembers[i].id,
           promptId: currentPrompt.id,
-          photoUrl: `https://picsum.photos/800/600?random=${Date.now() + i + 1000}`,
+          imageUrl: `https://picsum.photos/800/600?random=${Date.now() + i + 1000}`,
           caption: sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)],
-          submitted: true,
         },
       });
     }
@@ -346,14 +353,22 @@ async function main() {
     
     // Create 3 future scheduled rounds
     for (let futureIndex = 0; futureIndex < 3; futureIndex++) {
-      const futureTaskIndex = leagueIndex * 10 + 4 + futureIndex;
+      const futureTaskIndex = (leagueIndex * 7 + 4 + futureIndex) % competitionTasks.length;
       const futureTask = competitionTasks[futureTaskIndex];
+      
+      // Create placeholder dates for scheduled prompts (will be set when activated)
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + (futureIndex + 1) * 7);
       
       await prisma.prompt.create({
         data: {
           text: futureTask,
           leagueId: league.id,
           status: 'SCHEDULED',
+          weekStart: futureDate,
+          weekEnd: new Date(futureDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+          voteStart: new Date(futureDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+          voteEnd: new Date(futureDate.getTime() + 9 * 24 * 60 * 60 * 1000),
           queueOrder: 4 + futureIndex,
         },
       });
