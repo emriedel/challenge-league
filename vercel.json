@@ -1,4 +1,5 @@
 {
+  "buildCommand": "npm run build:prod",
   "crons": [
     {
       "path": "/api/cron/prompt-cycle",
