@@ -5,10 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:prod": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:seed": "tsx prisma/seed.ts",
+    "db:setup": "prisma generate && prisma db push && npm run db:seed",
+    "db:prod-setup": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && prisma db push && tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
