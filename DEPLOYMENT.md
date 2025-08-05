@@ -106,12 +106,19 @@ BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
 
 ### 3.4 Configure Build Command
 
-In Vercel project settings:
-1. Go to "Settings" → "General"
+The project includes a `vercel.json` file that automatically configures the correct build command:
+```json
+{
+  "buildCommand": "npm run build:prod"
+}
+```
+
+This ensures production builds use PostgreSQL schema. **No manual configuration needed!**
+
+If you need to manually override this:
+1. Go to Vercel project settings → "Settings" → "General"
 2. Find "Build & Development Settings"
 3. Set Build Command to: `npm run build:prod`
-
-This ensures production builds use PostgreSQL schema.
 
 ### 3.5 Deploy
 
@@ -121,46 +128,43 @@ This ensures production builds use PostgreSQL schema.
 
 ## Step 4: Initialize Production Database
 
-### 4.1 Set Up Database Schema and Data
+### 4.1 Choose Your Database Setup Strategy
 
-After successful deployment, initialize your production database:
-
-**Using Vercel CLI (Recommended):**
+**Option A: Fresh Database with Test Data (Wipe & Reset)**
 ```bash
 # Install Vercel CLI if you haven't
-npm i -g vercel
+npm i -g vercel && vercel login && vercel link
 
-# Login to Vercel
-vercel login
-
-# Link your project
-vercel link
-
-# Set up production database
+# Pull production environment variables
 vercel env pull .env.production
-npx dotenv -e .env.production -- npm run db:prod-setup
-```
 
-This will:
-- Switch to PostgreSQL schema
-- Create all tables and relationships
-- Add test players and sample challenges
-
-**Alternative - Manual Setup:**
-If you prefer to set up manually:
-```bash
-# In your local project
-cp prisma/schema.production.prisma prisma/schema.prisma
-npx prisma generate
-
-# Set your production DATABASE_URL temporarily
-export DATABASE_URL="your-postgres-connection-string"
-npx prisma db push
-npx tsx prisma/seed.ts
-
-# Restore local SQLite schema
+# Deploy fresh database with test data (DESTROYS ALL EXISTING DATA)
+mv .env .env.backup
+cp .env.production .env
+npm run db:prod-fresh
+mv .env.backup .env
 git checkout prisma/schema.prisma
 ```
+
+**Option B: Schema Migration Only (Keep Existing Data)**
+```bash
+# For production deployments where you want to keep existing user data
+vercel env pull .env.production
+
+# Apply schema changes without losing data
+mv .env .env.backup
+cp .env.production .env
+npm run db:prod-migrate
+mv .env.backup .env
+git checkout prisma/schema.prisma
+```
+
+### 4.2 Important Notes
+
+- **db:prod-fresh**: Uses `--force-reset` to completely wipe and recreate database with test accounts
+- **db:prod-migrate**: Keeps existing data, only applies schema changes (safe for production)
+
+⚠️ **Warning**: `db:prod-fresh` will delete ALL existing users, submissions, votes, and data!
 
 ## Step 5: Set Up Photo Uploads (Optional)
 
@@ -180,6 +184,8 @@ If you want external blob storage:
    BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
    ```
 5. Redeploy your application
+
+**Important**: The `next.config.js` is already configured to handle Vercel Blob storage domains. If you use a different storage provider, you'll need to add its domain to the `remotePatterns` in `next.config.js`.
 
 ## Step 6: Final Configuration
 
