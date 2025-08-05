@@ -1,53 +1,110 @@
-# Development Guide - Glimpse Competition League
+# Development Guide - Challenge League
 
 ## 🧪 Test Credentials
 
-The following test accounts are available after running database seed commands:
+The following test accounts are available after running the database seed:
 
-### Basic Seed (`npx prisma db seed`) - 6 Players
-| Email | Password | Username | Special Access |
-|-------|----------|----------|----------------|
-| `player1@example.com` | `password123` | `player1` | **Admin Access** 🔑 |
-| `player2@example.com` | `password123` | `player2` | Player |
-| `player3@example.com` | `password123` | `player3` | Player |
-| `player4@example.com` | `password123` | `player4` | Player |
-| `player5@example.com` | `password123` | `player5` | Player |
-| `player6@example.com` | `password123` | `player6` | Player |
+### Comprehensive Seed (`npm run db:seed`) - 20 Users + 3 Leagues
+The default seed creates a rich testing environment with multiple leagues and realistic data:
 
-### Large Seed (`npx tsx prisma/seed-large.ts`) - 20 Players + 5 Completed Rounds
-For comprehensive testing with realistic competition data:
+#### Primary Test Accounts
+| Email | Password | Username | League Access |
+|-------|----------|----------|---------------|
+| `photophoenix@example.com` | `password123` | `PhotoPhoenix` | **Main League Owner** 🔑 |
+| `craftycaptain@example.com` | `password123` | `CraftyCaptain` | **Photo Masters Owner** 🔑 |
+| `pixelpioneer@example.com` | `password123` | `PixelPioneer` | **Crafty Creators Owner** 🔑 |
+| `artisticace@example.com` | `password123` | `ArtisticAce` | Multiple Leagues |
+| `creativecomet@example.com` | `password123` | `CreativeComet` | Multiple Leagues |
 
-| Email | Password | Username | Points | Wins | Status |
-|-------|----------|----------|--------|------|--------|
-| `photophoenix@example.com` | `password123` | `PhotoPhoenix` | 29 | 1 | **League Owner** 🔑 |
-| `craftycaptain@example.com` | `password123` | `CraftyCaptain` | 14 | 0 | Player |
-| `pixelpioneer@example.com` | `password123` | `PixelPioneer` | 13 | 0 | Player |
-| `artisticace@example.com` | `password123` | `ArtisticAce` | 21 | 0 | Player |
-| `creativecomet@example.com` | `password123` | `CreativeComet` | - | 0 | Player |
-| `snapsage@example.com` | `password123` | `SnapSage` | - | 0 | Player |
-| `visionvoyager@example.com` | `password123` | `VisionVoyager` | - | 0 | Player |
-| `dreamdesigner@example.com` | `password123` | `DreamDesigner` | 25 | 1 | Player |
-| `studiostar@example.com` | `password123` | `StudioStar` | - | 0 | Player |
-| `framefusion@example.com` | `password123` | `FrameFusion` | - | 0 | Player |
-| `colorcrafter@example.com` | `password123` | `ColorCrafter` | 16 | 0 | Player |
-| `lenslegend@example.com` | `password123` | `LensLegend` | 20 | 1 | Player |
-| `brushboss@example.com` | `password123` | `BrushBoss` | 18 | 1 | Player |
-| `sketchsorcerer@example.com` | `password123` | `SketchSorcerer` | 28 | 1 | Player |
-| `paintpro@example.com` | `password123` | `PaintPro` | - | 0 | Player |
-| `digitaldynamo@example.com` | `password123` | `DigitalDynamo` | - | 0 | Player |
-| `artfulavenger@example.com` | `password123` | `ArtfulAvenger` | - | 0 | Player |
-| `creativeclimber@example.com` | `password123` | `CreativeClimber` | - | 0 | Player |
-| `visualvibe@example.com` | `password123` | `VisualVibe` | 18 | 0 | Player |
-| `mastermaker@example.com` | `password123` | `MasterMaker` | - | 0 | Player |
+#### All 20 User Accounts
+All users use password `password123`:
+- `photophoenix@example.com` - PhotoPhoenix
+- `craftycaptain@example.com` - CraftyCaptain  
+- `pixelpioneer@example.com` - PixelPioneer
+- `artisticace@example.com` - ArtisticAce
+- `creativecomet@example.com` - CreativeComet
+- `snapsage@example.com` - SnapSage
+- `visionvoyager@example.com` - VisionVoyager
+- `dreamdesigner@example.com` - DreamDesigner
+- `studiostar@example.com` - StudioStar
+- `framefusion@example.com` - FrameFusion
+- `colorcrafter@example.com` - ColorCrafter
+- `lenslegend@example.com` - LensLegend
+- `brushboss@example.com` - BrushBoss
+- `sketchsorcerer@example.com` - SketchSorcerer
+- `paintpro@example.com` - PaintPro
+- `digitaldynamo@example.com` - DigitalDynamo
+- `artfulavenger@example.com` - ArtfulAvenger
+- `creativeclimber@example.com` - CreativeClimber
+- `visualvibe@example.com` - VisualVibe
+- `mastermaker@example.com` - MasterMaker
 
-### Large Seed League Data
-- **League Name**: Creative Champions League
-- **Invite Code**: 6A5SH7
-- **Total Members**: 20 active users  
-- **Completed Rounds**: 5 with full voting history
-- **Active Prompt**: "Show us your most creative breakfast setup - make it Instagram-worthy!" (8 submissions so far)
-- **Voting Prompt**: "Capture the most interesting architectural detail in your neighborhood" (12 submissions, 6 users have voted)
-- **Total Submissions**: ~90+ creative responses across all prompts
+## 🏆 League Structure
+
+### Three Leagues with Different Themes
+
+#### 1. Main Creative League (15 members)
+- **Focus**: General creative challenges for all skill levels
+- **Members**: Users 1-15 (PhotoPhoenix through PaintPro)
+- **Rounds**: 3 completed, 1 active, 3 scheduled
+
+#### 2. Photography Masters (10 members)  
+- **Focus**: Advanced photography-specific challenges
+- **Members**: Users 6-15 (overlapping with Main League)
+- **Rounds**: 3 completed, 1 active, 3 scheduled
+
+#### 3. Crafty Creators (12 members)
+- **Focus**: Hands-on making and building challenges  
+- **Members**: Users 9-20 (overlapping with other leagues)
+- **Rounds**: 3 completed, 1 active, 3 scheduled
+
+### Multi-League Membership
+Users participate in multiple leagues to test cross-league functionality:
+- Users 6-8: In Main + Photography leagues
+- Users 9-15: In all three leagues  
+- Users 16-20: In Crafty Creators only
+
+## 📊 Competition Data
+
+### Per League Round Structure
+Each league has realistic competition history:
+
+**Completed Rounds (3 per league)**
+- 60-80% participation rate (realistic engagement)
+- Full voting history with varied vote distributions
+- Complete rankings and point calculations
+- 3 weeks of historical data
+
+**Active Round (1 per league)**
+- 30-50% partial submissions (ongoing participation)
+- Different challenges per league theme
+- Ready for additional submissions and voting
+
+**Scheduled Rounds (3 per league)**
+- Future challenges queued for automatic activation
+- Theme-appropriate tasks per league
+
+### Voting Patterns
+Realistic voting distributions simulate real user behavior:
+- Some users give all 3 votes to one submission (3-0-0)
+- Others spread votes across multiple submissions (2-1-0, 1-1-1)
+- Vote totals create natural ranking hierarchies
+
+### Sample Challenges by League Theme
+**Main Creative League:**
+- "Submit a photo of a beautiful dinner you made this week"
+- "Create something artistic with household items"
+- "Design a cozy reading nook using items you already own"
+
+**Photography Masters:**
+- "Create something artistic with household items and share the result"
+- "Capture an interesting shadow or reflection in your daily life"
+- "Create an abstract composition using only kitchen utensils"
+
+**Crafty Creators:**
+- "Capture an interesting shadow or reflection in your daily life"  
+- "Visit somewhere you've never been before and document it"
+- "Photograph the most interesting architectural detail near you"
 - **Total Votes**: ~320+ distributed votes (including ongoing voting)
 - **Current Leader**: CraftyCaptain (28 points, 1 win)
 

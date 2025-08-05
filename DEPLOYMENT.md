@@ -266,13 +266,24 @@ npx dotenv -e .env.production -- npx prisma studio  # Browse production database
 
 After running database seed, choose from these accounts:
 
-### Basic Seed (`npm run db:seed`)
-- **Admin**: player1@example.com / password123
-- **Users**: player2@example.com through player6@example.com / password123
+### Comprehensive Seed (`npm run db:seed`)
+The unified seed creates 20 users across 3 leagues with rich competition history:
 
-### Large Seed (`npx tsx prisma/seed-large.ts`)
-- **Admin**: photophoenix@example.com / password123  
-- **Users**: craftycaptain@example.com, pixelpioneer@example.com, etc. / password123
+**Primary Test Accounts:**
+- **Main League Owner**: photophoenix@example.com / password123  
+- **Photography Masters Owner**: craftycaptain@example.com / password123
+- **Crafty Creators Owner**: pixelpioneer@example.com / password123
+- **Multi-League Users**: artisticace@example.com, creativecomet@example.com / password123
+
+**All 20 Users Available:**
+All users use password `password123`:
+photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage, visionvoyager, dreamdesigner, studiostar, framefusion, colorcrafter, lenslegend, brushboss, sketchsorcerer, paintpro, digitaldynamo, artfulavenger, creativeclimber, visualvibe, mastermaker
+
+**Features Included:**
+- 3 leagues with different themes and overlapping membership
+- 3 completed rounds per league with voting history  
+- 1 active round per league with partial submissions
+- 3 scheduled future rounds per league
 
 ## Benefits of This Approach
 

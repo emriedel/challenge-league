@@ -22,7 +22,33 @@ function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+// 20 diverse usernames and emails
+const users = [
+  { username: 'PhotoPhoenix', email: 'photophoenix@example.com' },
+  { username: 'CraftyCaptain', email: 'craftycaptain@example.com' },
+  { username: 'PixelPioneer', email: 'pixelpioneer@example.com' },
+  { username: 'ArtisticAce', email: 'artisticace@example.com' },
+  { username: 'CreativeComet', email: 'creativecomet@example.com' },
+  { username: 'SnapSage', email: 'snapsage@example.com' },
+  { username: 'VisionVoyager', email: 'visionvoyager@example.com' },
+  { username: 'DreamDesigner', email: 'dreamdesigner@example.com' },
+  { username: 'StudioStar', email: 'studiostar@example.com' },
+  { username: 'FrameFusion', email: 'framefusion@example.com' },
+  { username: 'ColorCrafter', email: 'colorcrafter@example.com' },
+  { username: 'LensLegend', email: 'lenslegend@example.com' },
+  { username: 'BrushBoss', email: 'brushboss@example.com' },
+  { username: 'SketchSorcerer', email: 'sketchsorcerer@example.com' },
+  { username: 'PaintPro', email: 'paintpro@example.com' },
+  { username: 'DigitalDynamo', email: 'digitaldynamo@example.com' },
+  { username: 'ArtfulAvenger', email: 'artfulavenger@example.com' },
+  { username: 'CreativeClimber', email: 'creativeclimber@example.com' },
+  { username: 'VisualVibe', email: 'visualvibe@example.com' },
+  { username: 'MasterMaker', email: 'mastermaker@example.com' }
+];
+
+// Competition tasks for different rounds
 const competitionTasks = [
+  // Completed tasks (past rounds)
   "Submit a photo of a beautiful dinner you made this week",
   "Create something artistic with household items and share the result",
   "Capture an interesting shadow or reflection in your daily life",
@@ -31,10 +57,48 @@ const competitionTasks = [
   "Create the most impressive snack or drink presentation",
   "Find and photograph the most interesting texture around you",
   "Build something functional using only items from your junk drawer",
+  "Take a photo that represents your current mood or feeling",
+  "Show us your most creative use of natural lighting",
+  
+  // Current and future tasks
+  "Design a cozy reading nook using items you already own",
+  "Create an abstract composition using only kitchen utensils",
+  "Photograph the most interesting architectural detail near you",
+  "Make a miniature world scene in a small container",
+  "Create a color gradient using natural objects",
+  "Build the tallest stable structure using paper only",
+  "Photograph water in its most interesting form",
+  "Design a functional bookmark with recycled materials",
+  "Create a pattern using shadows and light",
+  "Make edible art that's almost too pretty to eat"
+];
+
+// Diverse sample captions
+const sampleCaptions = [
+  "Really proud of how this turned out! Took me several tries but worth it.",
+  "Had so much fun with this challenge. Used stuff I never thought would work together!",
+  "This was harder than I expected, but I learned a lot in the process.",
+  "Definitely pushed my creative boundaries with this one. Love the result!",
+  "Simple approach but I think it's effective. Sometimes less is more.",
+  "Spent way too much time on this but couldn't stop tweaking it!",
+  "First time trying something like this - pleasantly surprised with the outcome.",
+  "The lighting was perfect for this shot. Sometimes timing is everything.",
+  "Inspired by a tutorial I watched, but added my own twist to it.",
+  "This challenge made me look at everyday objects in a completely new way.",
+  "Almost gave up halfway through, but so glad I persisted!",
+  "My kids helped me with this one - their creativity amazes me!",
+  "Found this old material in my garage and it was perfect for this.",
+  "The weather wasn't cooperating but I made it work somehow.",
+  "This reminded me why I love being creative. Pure joy!",
+  "Learned a new technique just for this challenge. Always growing!",
+  "My neighbors probably think I'm crazy, but art is art!",
+  "This took longer than expected but the process was so relaxing.",
+  "Happy accident turned into my favorite part of this piece.",
+  "Sometimes the best ideas come at 2am. This was one of those times."
 ];
 
 async function main() {
-  console.log('🌱 Starting competition game database seed...');
+  console.log('🌱 Starting comprehensive database seed...');
 
   // Clear existing data
   await prisma.vote.deleteMany();
@@ -48,258 +112,283 @@ async function main() {
   await prisma.account.deleteMany();
   await prisma.verificationToken.deleteMany();
   
-  await prisma.user.deleteMany();
-  
   console.log('🔑 Cleared all sessions - users will need to log in again after reseed');
+  
+  // Delete users last due to foreign key constraints
+  await prisma.user.deleteMany();
 
-  // Create test users first (need user ID for league owner)
-  const users = [];
-  for (let i = 1; i <= 6; i++) {
-    const hashedPassword = await bcrypt.hash('password123', 12);
+  // Create 20 users
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  const createdUsers = [];
+  
+  for (let i = 0; i < users.length; i++) {
     const user = await prisma.user.create({
       data: {
-        email: `player${i}@example.com`,
-        username: `player${i}`,
-        password: hashedPassword,
+        username: users[i].username,
+        email: users[i].email,
+        hashedPassword,
+        profileComplete: true,
       },
     });
-    users.push(user);
-    console.log(`✅ Created player: ${user.username}`);
+    createdUsers.push(user);
+    console.log(`✅ Created user: ${user.username}`);
   }
 
-  // Create main league with player1 as owner
-  const mainLeague = await prisma.league.create({
-    data: {
-      name: "Main League",
-      slug: "main",
-      description: "The primary competition league where all players compete in creative challenges!",
-      inviteCode: generateInviteCode(),
-      isActive: true,
-      ownerId: users[0].id, // player1 is the owner
+  // Create 3 leagues with different themes
+  const leagues = [
+    {
+      name: "Main Creative League",
+      description: "The original creative competition for all skill levels",
+      slug: "main-creative-league"
     },
-  });
-  console.log(`🏆 Created league: ${mainLeague.name} (owner: ${users[0].username}, invite: ${mainLeague.inviteCode})`);
-
-  // Add all users to main league
-  for (const user of users) {
-    await prisma.leagueMembership.create({
-      data: {
-        userId: user.id,
-        leagueId: mainLeague.id,
-        isActive: true,
-      },
-    });
-    console.log(`👥 Added ${user.username} to Main League`);
-  }
-
-  // Calculate dates for 3-phase cycle
-  const { weekStart, weekEnd } = getWeeklyPromptDates();
-  const voteStart = new Date(weekEnd); // Voting starts when submissions close
-  const voteEnd = new Date(voteStart);
-  voteEnd.setDate(voteEnd.getDate() + 2); // Vote for 2 days (Sat-Mon)
-
-  // Create current active task
-  const currentTask = await prisma.prompt.create({
-    data: {
-      text: competitionTasks[0],
-      weekStart,
-      weekEnd,
-      voteStart,
-      voteEnd,
-      status: 'ACTIVE',
-      queueOrder: 1,
-      leagueId: mainLeague.id,
+    {
+      name: "Photography Masters",
+      description: "Advanced photography challenges for skilled shooters",
+      slug: "photography-masters"
     },
-  });
-  console.log(`📝 Created current task: "${currentTask.text}"`);
-  console.log(`   Submit: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`);
-  console.log(`   Vote: ${voteStart.toLocaleDateString()} - ${voteEnd.toLocaleDateString()}`);
-
-  // Create a completed task with responses and votes
-  const pastTaskStart = new Date(weekStart);
-  pastTaskStart.setDate(weekStart.getDate() - 14); // 2 weeks ago
-  const pastTaskEnd = new Date(weekEnd);
-  pastTaskEnd.setDate(weekEnd.getDate() - 14);
-  const pastVoteStart = new Date(pastTaskEnd);
-  const pastVoteEnd = new Date(pastVoteStart);
-  pastVoteEnd.setDate(pastVoteEnd.getDate() + 2);
-
-  const completedTask = await prisma.prompt.create({
-    data: {
-      text: competitionTasks[1],
-      weekStart: pastTaskStart,
-      weekEnd: pastTaskEnd,
-      voteStart: pastVoteStart,
-      voteEnd: pastVoteEnd,
-      status: 'COMPLETED',
-      queueOrder: 0,
-      leagueId: mainLeague.id,
-    },
-  });
-  console.log(`📝 Created completed task: "${completedTask.text}"`);
-
-  // Create responses for completed task
-  const sampleCaptions = [
-    "Really proud of how this turned out! Took me several tries but worth it.",
-    "Had so much fun with this challenge. Used stuff I never thought would work together!",
-    "This was harder than I expected, but I learned a lot in the process.",
-    "Definitely pushed my creative boundaries with this one. Love the result!",
-    "Simple approach but I think it's effective. Sometimes less is more.",
+    {
+      name: "Crafty Creators",
+      description: "Hands-on making and building challenges",
+      slug: "crafty-creators"
+    }
   ];
 
-  const sampleImageUrls = [
-    "https://picsum.photos/500/400?random=21", // Random placeholder 1
-    "https://picsum.photos/500/400?random=22", // Random placeholder 2
-    "https://picsum.photos/500/400?random=23", // Random placeholder 3
-    "https://picsum.photos/500/400?random=24", // Random placeholder 4
-    "https://picsum.photos/500/400?random=25", // Random placeholder 5
-  ];
-
-  const completedResponses = [];
-  for (let i = 0; i < 5; i++) {
-    const publishedAt = new Date(pastTaskEnd);
-    publishedAt.setMinutes(publishedAt.getMinutes() + (i * 5)); // Stagger publication times
-
-    const response = await prisma.response.create({
+  const createdLeagues = [];
+  for (let i = 0; i < leagues.length; i++) {
+    const league = await prisma.league.create({
       data: {
-        caption: sampleCaptions[i],
-        imageUrl: sampleImageUrls[i],
-        userId: users[i].id,
-        promptId: completedTask.id,
-        isPublished: true,
-        publishedAt,
-        totalVotes: 0, // Will be calculated after votes
-        totalPoints: 0, // Will be calculated after votes
+        name: leagues[i].name,
+        description: leagues[i].description,
+        slug: leagues[i].slug,
+        inviteCode: generateInviteCode(),
+        ownerId: createdUsers[i].id,
       },
     });
-    completedResponses.push(response);
+    createdLeagues.push(league);
+    console.log(`🏆 Created league: ${league.name} (owner: ${createdUsers[i].username}, invite: ${league.inviteCode})`);
   }
-  console.log(`📸 Created 5 responses for completed task`);
 
-  // Create votes for the completed task
-  // Each player gets exactly 3 votes worth 1 point each (excluding their own submission)
-  for (let voterIndex = 0; voterIndex < users.length; voterIndex++) {
-    const voter = users[voterIndex];
-    const availableResponses = completedResponses.filter(r => r.userId !== voter.id);
+  // Distribute users across leagues (including some in multiple leagues)
+  const leagueMemberships = [
+    // Main Creative League - 15 members (users 0-14)
+    ...Array.from({ length: 15 }, (_, i) => ({ userId: createdUsers[i].id, leagueId: createdLeagues[0].id })),
     
-    if (availableResponses.length >= 1) {
-      // Shuffle available responses
-      const shuffled = availableResponses.sort(() => 0.5 - Math.random());
+    // Photography Masters - 10 members (users 5-14, overlapping with main)
+    ...Array.from({ length: 10 }, (_, i) => ({ userId: createdUsers[i + 5].id, leagueId: createdLeagues[1].id })),
+    
+    // Crafty Creators - 12 members (users 8-19, overlapping with others)
+    ...Array.from({ length: 12 }, (_, i) => ({ userId: createdUsers[i + 8].id, leagueId: createdLeagues[2].id }))
+  ];
+
+  for (const membership of leagueMemberships) {
+    await prisma.leagueMembership.create({ data: membership });
+    const user = createdUsers.find(u => u.id === membership.userId);
+    const league = createdLeagues.find(l => l.id === membership.leagueId);
+    console.log(`👥 Added ${user?.username} to ${league?.name}`);
+  }
+
+  // Create rounds for each league
+  for (let leagueIndex = 0; leagueIndex < createdLeagues.length; leagueIndex++) {
+    const league = createdLeagues[leagueIndex];
+    const leagueMembers = createdUsers.filter(user => 
+      leagueMemberships.some(m => m.userId === user.id && m.leagueId === league.id)
+    );
+    
+    console.log(`\n📅 Creating rounds for ${league.name}...`);
+    
+    // Create 3 completed rounds
+    for (let roundIndex = 0; roundIndex < 3; roundIndex++) {
+      const taskIndex = leagueIndex * 10 + roundIndex; // Unique tasks per league
+      const task = competitionTasks[taskIndex];
       
-      // Each user gets exactly 3 votes to distribute
-      const votesToGive = 3;
-      const responsesToVoteFor = shuffled.slice(0, Math.min(3, shuffled.length));
+      // Create completed prompt (3 weeks ago, 2 weeks ago, 1 week ago)
+      const weeksAgo = 3 - roundIndex;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - (weeksAgo * 7));
       
-      // Distribute votes - for simplicity in basic seed, give 1 vote to each of top 3
-      for (let i = 0; i < Math.min(votesToGive, responsesToVoteFor.length); i++) {
-        await prisma.vote.create({
+      const { submissionStart, submissionEnd, votingStart, votingEnd } = getWeeklyPromptDates(startDate);
+      
+      const prompt = await prisma.prompt.create({
+        data: {
+          text: task,
+          leagueId: league.id,
+          status: 'COMPLETED',
+          submissionStart,
+          submissionEnd,
+          votingStart,
+          votingEnd,
+          queueOrder: roundIndex,
+        },
+      });
+      
+      console.log(`📝 Created completed round: "${task}"`);
+      
+      // Create submissions from 60-80% of league members
+      const participationRate = 0.6 + Math.random() * 0.2; // 60-80%
+      const numParticipants = Math.floor(leagueMembers.length * participationRate);
+      const participants = leagueMembers.slice(0, numParticipants);
+      
+      const createdResponses = [];
+      for (let i = 0; i < participants.length; i++) {
+        const participant = participants[i];
+        const response = await prisma.response.create({
           data: {
-            voterId: voter.id,
-            responseId: responsesToVoteFor[i].id,
-            points: 1, // Each vote worth 1 point
+            userId: participant.id,
+            promptId: prompt.id,
+            photoUrl: `https://picsum.photos/800/600?random=${Date.now() + i}`,
+            caption: sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)],
+            submitted: true,
+          },
+        });
+        createdResponses.push(response);
+      }
+      
+      console.log(`📸 Created ${createdResponses.length} submissions for completed round`);
+      
+      // Create votes from league members (everyone gets 3 votes)
+      const voters = leagueMembers.filter(member => 
+        !createdResponses.some(r => r.userId === member.id)
+      ); // Non-participants vote
+      
+      for (const voter of voters) {
+        // Each voter gives 3 votes (can be distributed as 3-0-0, 2-1-0, or 1-1-1)
+        const voteDistributions = [
+          [3, 0, 0], [2, 1, 0], [1, 1, 1], [2, 0, 1]
+        ];
+        const distribution = voteDistributions[Math.floor(Math.random() * voteDistributions.length)];
+        
+        // Shuffle responses and assign votes
+        const shuffledResponses = [...createdResponses].sort(() => Math.random() - 0.5);
+        
+        for (let voteIndex = 0; voteIndex < distribution.length && voteIndex < shuffledResponses.length; voteIndex++) {
+          const votes = distribution[voteIndex];
+          if (votes > 0) {
+            await prisma.vote.create({
+              data: {
+                userId: voter.id,
+                responseId: shuffledResponses[voteIndex].id,
+                votes: votes,
+              },
+            });
+          }
+        }
+      }
+      
+      // Calculate and update final rankings
+      for (const response of createdResponses) {
+        const totalVotes = await prisma.vote.aggregate({
+          where: { responseId: response.id },
+          _sum: { votes: true },
+        });
+        
+        await prisma.response.update({
+          where: { id: response.id },
+          data: { 
+            totalVotes: totalVotes._sum.votes || 0,
+            published: true 
           },
         });
       }
+      
+      // Calculate rankings
+      const responsesWithVotes = await prisma.response.findMany({
+        where: { promptId: prompt.id },
+        orderBy: { totalVotes: 'desc' },
+      });
+      
+      for (let i = 0; i < responsesWithVotes.length; i++) {
+        await prisma.response.update({
+          where: { id: responsesWithVotes[i].id },
+          data: { finalRank: i + 1 },
+        });
+      }
+      
+      console.log(`🗳️ Created votes and calculated rankings for completed round`);
+    }
+    
+    // Create 1 current round (active submission phase)
+    const currentTaskIndex = leagueIndex * 10 + 3;
+    const currentTask = competitionTasks[currentTaskIndex];
+    const { submissionStart, submissionEnd, votingStart, votingEnd } = getWeeklyPromptDates();
+    
+    const currentPrompt = await prisma.prompt.create({
+      data: {
+        text: currentTask,
+        leagueId: league.id,
+        status: 'ACTIVE',
+        submissionStart,
+        submissionEnd,
+        votingStart,
+        votingEnd,
+        queueOrder: 3,
+      },
+    });
+    
+    console.log(`📝 Created current round: "${currentTask}"`);
+    
+    // Create some partial submissions for current round (30-50% of members)
+    const currentParticipationRate = 0.3 + Math.random() * 0.2;
+    const currentParticipants = Math.floor(leagueMembers.length * currentParticipationRate);
+    
+    for (let i = 0; i < currentParticipants; i++) {
+      await prisma.response.create({
+        data: {
+          userId: leagueMembers[i].id,
+          promptId: currentPrompt.id,
+          photoUrl: `https://picsum.photos/800/600?random=${Date.now() + i + 1000}`,
+          caption: sampleCaptions[Math.floor(Math.random() * sampleCaptions.length)],
+          submitted: true,
+        },
+      });
+    }
+    
+    console.log(`🕒 Created ${currentParticipants} submissions for current round`);
+    
+    // Create 3 future scheduled rounds
+    for (let futureIndex = 0; futureIndex < 3; futureIndex++) {
+      const futureTaskIndex = leagueIndex * 10 + 4 + futureIndex;
+      const futureTask = competitionTasks[futureTaskIndex];
+      
+      await prisma.prompt.create({
+        data: {
+          text: futureTask,
+          leagueId: league.id,
+          status: 'SCHEDULED',
+          queueOrder: 4 + futureIndex,
+        },
+      });
+      
+      console.log(`📅 Scheduled future round: "${futureTask}"`);
     }
   }
-  console.log(`🗳️ Created votes for completed task`);
 
-  // Update response vote counts and calculate rankings
-  for (const response of completedResponses) {
-    const votes = await prisma.vote.findMany({
-      where: { responseId: response.id }
-    });
-    
-    const totalVotes = votes.length;
-    const totalPoints = votes.reduce((sum, vote) => sum + vote.points, 0);
-    
-    await prisma.response.update({
-      where: { id: response.id },
-      data: { totalVotes, totalPoints },
-    });
-  }
-
-  // Calculate final rankings
-  const responsesByPoints = await prisma.response.findMany({
-    where: { promptId: completedTask.id },
-    orderBy: [
-      { totalPoints: 'desc' },
-      { totalVotes: 'desc' },
-      { submittedAt: 'asc' },
-    ],
-  });
-
-  for (let i = 0; i < responsesByPoints.length; i++) {
-    await prisma.response.update({
-      where: { id: responsesByPoints[i].id },
-      data: { finalRank: i + 1 },
-    });
-  }
-  console.log(`🏅 Calculated final rankings for completed task`);
-
-  // Create future scheduled tasks
-  for (let i = 2; i < competitionTasks.length; i++) {
-    const futureStart = new Date(weekStart);
-    futureStart.setDate(weekStart.getDate() + (7 * (i - 1)));
-    const futureEnd = new Date(weekEnd);
-    futureEnd.setDate(weekEnd.getDate() + (7 * (i - 1)));
-    const futureVoteStart = new Date(futureEnd);
-    const futureVoteEnd = new Date(futureVoteStart);
-    futureVoteEnd.setDate(futureVoteEnd.getDate() + 2);
-
-    await prisma.prompt.create({
-      data: {
-        text: competitionTasks[i],
-        weekStart: futureStart,
-        weekEnd: futureEnd,
-        voteStart: futureVoteStart,
-        voteEnd: futureVoteEnd,
-        status: 'SCHEDULED',
-        queueOrder: i + 1,
-        leagueId: mainLeague.id,
-      },
-    });
-    console.log(`📅 Scheduled future task: "${competitionTasks[i]}"`);
-  }
-
-  // Create some current task submissions (not published yet)
-  for (let i = 0; i < 3; i++) {
-    await prisma.response.create({
-      data: {
-        caption: `My submission for the current cooking challenge! ${i + 1}`,
-        imageUrl: sampleImageUrls[i % sampleImageUrls.length],
-        userId: users[i].id,
-        promptId: currentTask.id,
-        isPublished: false,
-      },
-    });
-  }
-  console.log(`🕒 Created 3 pending submissions for current task`);
-
-  console.log('\n🎉 Competition game database seed completed successfully!');
+  console.log('\n🎉 Comprehensive database seed completed successfully!');
+  
   console.log('\n📊 Summary:');
-  console.log(`   - 1 Main League created`);
-  console.log(`   - 6 players created and auto-joined league`);
-  console.log(`   - 1 active task (submissions open)`);
-  console.log(`   - 1 completed task with votes and rankings`);
-  console.log(`   - ${competitionTasks.length - 2} future scheduled tasks`);
-  console.log(`   - 3 pending submissions for current task`);
+  console.log(`   - 3 leagues created with different themes`);
+  console.log(`   - 20 users created and distributed across leagues`);
+  console.log(`   - Each league has 3 completed rounds with submissions and votes`);
+  console.log(`   - Each league has 1 active round with partial submissions`);
+  console.log(`   - Each league has 3 scheduled future rounds`);
+  console.log(`   - Users participate in multiple leagues with realistic overlap`);
+
   console.log('\n🔐 Test login credentials:');
-  console.log('   Email: player1@example.com | Password: password123');
-  console.log('   Email: player2@example.com | Password: password123');
-  console.log('   Email: player3@example.com | Password: password123');
-  console.log('   (etc. for player4, player5, player6)');
-  console.log('\n🏆 Competition Features:');
-  console.log('   - Creative task categories (Cooking, Creativity, Photography, etc.)');
-  console.log('   - Difficulty levels (1-3)');
-  console.log('   - 3-choice voting system (3pts, 2pts, 1pt)');
-  console.log('   - Automatic ranking calculation');
-  console.log('   - League-based competition');
+  console.log('   Email: photophoenix@example.com | Password: password123');
+  console.log('   Email: craftycaptain@example.com | Password: password123');
+  console.log('   Email: pixelpioneer@example.com | Password: password123');
+  console.log('   (All 20 users use password123)');
+
+  console.log('\n🏆 League Features:');
+  console.log('   - Multi-league membership support');
+  console.log('   - Completed rounds with realistic vote distributions');
+  console.log('   - Active rounds with partial participation');
+  console.log('   - Scheduled future rounds ready for activation');
+  console.log('   - Comprehensive competition history and rankings');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {
