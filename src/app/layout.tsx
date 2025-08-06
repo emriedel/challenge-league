@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import Navigation from '@/components/Navigation';
@@ -8,14 +8,12 @@ import { inter } from '@/lib/fonts';
 export const metadata: Metadata = {
   title: 'Challenge League',
   description: 'Creative competition leagues for friends and communities',
-  viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: '/challenge-league-logo.png',
     shortcut: '/challenge-league-logo.png',
     apple: '/challenge-league-logo.png',
   },
   manifest: '/manifest.json',
-  themeColor: '#2d8cff',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -24,6 +22,12 @@ export const metadata: Metadata = {
   other: {
     'mobile-web-app-capable': 'yes',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#2d8cff',
 };
 
 export default function RootLayout({
