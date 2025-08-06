@@ -3,6 +3,7 @@ import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import Navigation from '@/components/Navigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { inter } from '@/lib/fonts';
 
 export const metadata: Metadata = {
@@ -66,6 +67,7 @@ export default function RootLayout({
                   {children}
                 </ErrorBoundary>
               </main>
+              <PWAInstallPrompt />
             </div>
           </SessionProvider>
         </ErrorBoundary>

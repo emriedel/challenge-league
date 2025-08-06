@@ -244,23 +244,35 @@ export default function Navigation() {
           {/* Mobile Hamburger Button */}
           <div className="md:hidden">
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-white/80 hover:text-white p-2"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+              }}
+              className="text-white/80 hover:text-white p-2 relative z-50"
               aria-label="Toggle menu"
             >
-              <div className="w-6 h-6 flex flex-col justify-center items-center space-y-1">
-                <span className={`block w-5 h-0.5 bg-current transition-transform ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                <span className={`block w-5 h-0.5 bg-current transition-opacity ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                <span className={`block w-5 h-0.5 bg-current transition-transform ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-              </div>
+              {isMobileMenuOpen ? (
+                /* X icon when menu is open */
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                /* Hamburger icon when menu is closed */
+                <div className="w-6 h-6 flex flex-col justify-center items-center space-y-1">
+                  <span className="block w-5 h-0.5 bg-current"></span>
+                  <span className="block w-5 h-0.5 bg-current"></span>
+                  <span className="block w-5 h-0.5 bg-current"></span>
+                </div>
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden" ref={mobileMenuRef}>
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-blue-600">
+          <div className="md:hidden absolute top-16 left-0 right-0 z-50 shadow-lg" ref={mobileMenuRef}>
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-blue-600 border-t border-blue-500">
               {status === 'authenticated' ? (
                 <>
                   <Link 
