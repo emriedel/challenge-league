@@ -119,7 +119,7 @@ async function main() {
 
   // Create 20 users
   const hashedPassword = await bcrypt.hash('password123', 10);
-  const createdUsers = [];
+  const createdUsers: any[] = [];
   
   for (let i = 0; i < users.length; i++) {
     const user = await prisma.user.create({
