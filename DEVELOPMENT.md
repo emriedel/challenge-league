@@ -1,359 +1,167 @@
 # Development Guide - Challenge League
 
-## 🧪 Test Credentials
+## 🚀 Quick Start (Local Development)
 
-The following test accounts are available after running the database seed:
+### Prerequisites
+- Node.js 18+ installed
+- Git installed
 
-### Comprehensive Seed (`npm run db:seed`) - 20 Users + 3 Leagues
-The default seed creates a rich testing environment with multiple leagues and realistic data:
-
-#### Primary Test Accounts
-| Email | Password | Username | League Access |
-|-------|----------|----------|---------------|
-| `photophoenix@example.com` | `password123` | `PhotoPhoenix` | **Main League Owner** 🔑 |
-| `craftycaptain@example.com` | `password123` | `CraftyCaptain` | **Photo Masters Owner** 🔑 |
-| `pixelpioneer@example.com` | `password123` | `PixelPioneer` | **Crafty Creators Owner** 🔑 |
-| `artisticace@example.com` | `password123` | `ArtisticAce` | Multiple Leagues |
-| `creativecomet@example.com` | `password123` | `CreativeComet` | Multiple Leagues |
-
-#### All 20 User Accounts
-All users use password `password123`:
-- `photophoenix@example.com` - PhotoPhoenix
-- `craftycaptain@example.com` - CraftyCaptain  
-- `pixelpioneer@example.com` - PixelPioneer
-- `artisticace@example.com` - ArtisticAce
-- `creativecomet@example.com` - CreativeComet
-- `snapsage@example.com` - SnapSage
-- `visionvoyager@example.com` - VisionVoyager
-- `dreamdesigner@example.com` - DreamDesigner
-- `studiostar@example.com` - StudioStar
-- `framefusion@example.com` - FrameFusion
-- `colorcrafter@example.com` - ColorCrafter
-- `lenslegend@example.com` - LensLegend
-- `brushboss@example.com` - BrushBoss
-- `sketchsorcerer@example.com` - SketchSorcerer
-- `paintpro@example.com` - PaintPro
-- `digitaldynamo@example.com` - DigitalDynamo
-- `artfulavenger@example.com` - ArtfulAvenger
-- `creativeclimber@example.com` - CreativeClimber
-- `visualvibe@example.com` - VisualVibe
-- `mastermaker@example.com` - MasterMaker
-
-## 🏆 League Structure
-
-### Three Leagues with Different Themes
-
-#### 1. Main Creative League (15 members)
-- **Focus**: General creative challenges for all skill levels
-- **Members**: Users 1-15 (PhotoPhoenix through PaintPro)
-- **Rounds**: 3 completed, 1 active, 3 scheduled
-
-#### 2. Photography Masters (10 members)  
-- **Focus**: Advanced photography-specific challenges
-- **Members**: Users 6-15 (overlapping with Main League)
-- **Rounds**: 3 completed, 1 active, 3 scheduled
-
-#### 3. Crafty Creators (12 members)
-- **Focus**: Hands-on making and building challenges  
-- **Members**: Users 9-20 (overlapping with other leagues)
-- **Rounds**: 3 completed, 1 active, 3 scheduled
-
-### Multi-League Membership
-Users participate in multiple leagues to test cross-league functionality:
-- Users 6-8: In Main + Photography leagues
-- Users 9-15: In all three leagues  
-- Users 16-20: In Crafty Creators only
-
-## 📊 Competition Data
-
-### Per League Round Structure
-Each league has realistic competition history:
-
-**Completed Rounds (3 per league)**
-- 60-80% participation rate (realistic engagement)
-- Full voting history with varied vote distributions
-- Complete rankings and point calculations
-- 3 weeks of historical data
-
-**Active Round (1 per league)**
-- 30-50% partial submissions (ongoing participation)
-- Different challenges per league theme
-- Ready for additional submissions and voting
-
-**Scheduled Rounds (3 per league)**
-- Future challenges queued for automatic activation
-- Theme-appropriate tasks per league
-
-### Voting Patterns
-Realistic voting distributions simulate real user behavior:
-- Some users give all 3 votes to one submission (3-0-0)
-- Others spread votes across multiple submissions (2-1-0, 1-1-1)
-- Vote totals create natural ranking hierarchies
-
-### Sample Challenges by League Theme
-**Main Creative League:**
-- "Submit a photo of a beautiful dinner you made this week"
-- "Create something artistic with household items"
-- "Design a cozy reading nook using items you already own"
-
-**Photography Masters:**
-- "Create something artistic with household items and share the result"
-- "Capture an interesting shadow or reflection in your daily life"
-- "Create an abstract composition using only kitchen utensils"
-
-**Crafty Creators:**
-- "Capture an interesting shadow or reflection in your daily life"  
-- "Visit somewhere you've never been before and document it"
-- "Photograph the most interesting architectural detail near you"
-- **Total Votes**: ~320+ distributed votes (including ongoing voting)
-- **Current Leader**: CraftyCaptain (28 points, 1 win)
-
-### Admin Access
-- **Basic Seed**: `player1` has admin access to `/league-settings`
-- **Large Seed**: `PhotoPhoenix` has admin access to `/league-settings`
-- Admin can manage creative challenges, queue ordering, and system processing
-
-### League Setup
-- All players are automatically assigned to their respective league
-- Pre-populated with sample challenges and complete vote data
-- Full competition cycle examples ready for testing
-
-## 🚀 Development Workflow
-
-### 1. Initial Setup
+### Setup (30 seconds)
 ```bash
-# Install dependencies
+# Clone and install
 npm install
 
-# Generate Prisma client
-npx prisma generate
-
-# Reset database and apply schema
-npx prisma migrate dev
-
-# Seed with competition data
-npx prisma db seed
+# Set up local database and test data
+npm run db:setup
 
 # Start development server
 npm run dev
 ```
 
-### 2. Testing Photo Uploads
-- **Development Mode**: Photos stored locally in `public/uploads/`
-- **Production Mode**: Requires `BLOB_READ_WRITE_TOKEN` for Vercel Blob
-- App automatically falls back to local storage when blob token is missing
-- Supports drag-and-drop upload with preview
+**That's it!** Your local SQLite database is ready with test data.
 
-### 3. Testing the Complete Competition Flow
+## 🧪 Test Accounts
 
-#### Phase 1: Submission (7 days)
-1. Sign in with `player1@example.com` / `password123`
-2. Go to **League Dashboard** (`/`) to see current challenge status
-3. Go to `/submit` to upload photo and caption for active challenge
-4. Submit response (stored as unpublished until submission window closes)
-5. Test with multiple players to simulate competition
+All users use password `password123`:
 
-#### Phase 2: Voting (2 days)
-1. Wait for submission window to close (or manually trigger cycle in admin)
-2. Voting tab becomes active on the dashboard
-3. Players distribute 3 equal-value votes among submissions
-4. Cannot vote for own submission
-5. Test voting with different player accounts
+**Primary Test Accounts:**
+- `photophoenix@example.com` - Main League Owner
+- `craftycaptain@example.com` - Photography Masters Owner  
+- `pixelpioneer@example.com` - Crafty Creators Owner
+- `artisticace@example.com` - Multi-league member
+- `creativecomet@example.com` - Multi-league member
 
-#### Phase 3: Results & New Challenge
-1. Results are calculated automatically when voting closes
-2. Winners announced with full rankings
-3. Leaderboard updates with new points and statistics
-4. Next challenge begins automatically
+**All 20 Available Users:**
+photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage, visionvoyager, dreamdesigner, studiostar, framefusion, colorcrafter, lenslegend, brushboss, sketchsorcerer, paintpro, digitaldynamo, artfulavenger, creativeclimber, visualvibe, mastermaker
 
-### 4. Admin Testing
-1. Sign in as `player1@example.com`
-2. Go to `/admin` to access challenge management
-3. **Create Challenges**: Add new tasks with categories and difficulty
-4. **Manage Queue**: Reorder upcoming challenges
-5. **Manual Processing**: Trigger cycle transitions for testing
-6. **Monitor Status**: View current prompt states and queue
+## 🏆 What's in the Test Data
 
-### 5. Database Management
+**3 Leagues:**
+- **Main Creative League** (15 members) - General creative challenges
+- **Photography Masters** (10 members) - Advanced photography challenges  
+- **Crafty Creators** (12 members) - Hands-on making challenges
+
+**Per League:**
+- 3 completed rounds with full voting history
+- 1 active round with partial submissions
+- 3 scheduled future rounds
+- Realistic participation and vote distributions
+
+## 🛠️ Daily Development Commands
+
 ```bash
-# Reset database completely
-npx prisma migrate reset --force
+# Start development server
+npm run dev
 
-# Basic seed (6 players, basic data)
-npx prisma db seed
+# Reset local database (if needed)
+npm run db:setup
 
-# Large seed (20 players, 5 completed rounds, realistic data)
-npx tsx prisma/seed-large.ts
+# Type checking
+npm run type-check
 
-# View database in browser
+# Linting
+npm run lint
+
+# Browse database in browser
 npx prisma studio
-
-# Generate client after schema changes
-npx prisma generate
-```
-
-#### Choosing Your Seed Data
-- **Basic Seed**: Ideal for development and testing core features
-- **Large Seed**: Perfect for testing UI with realistic data volumes, leaderboards, and full competition history
-- **Custom Data**: Modify seed scripts in `prisma/` directory for specific test scenarios
-
-#### Important Note About Sessions
-Both seed scripts automatically clear all user sessions when they run. This means:
-- **After running any seed script, all users will be logged out**
-- **You'll need to log in again** with the new account credentials
-- **This prevents stale session issues** where old user IDs don't match the new database data
-- **This is expected behavior** - the seed scripts tell you when sessions are cleared
-
-### 6. Environment Variables
-Create a `.env` file with:
-```bash
-# Database (SQLite for development)
-DATABASE_URL="file:./dev.db"
-
-# Authentication
-NEXTAUTH_SECRET="dev-secret-key-replace-in-production"
-NEXTAUTH_URL="http://localhost:3000"
-
-# File Storage (optional for development)
-BLOB_READ_WRITE_TOKEN="your-vercel-blob-token-here"
-
-# Cron Security (for production)
-CRON_SECRET="your-cron-secret-here"
 ```
 
 ## 🎮 Testing Features
 
-### League Dashboard
-- **Overview Tab**: Current status, personal stats, recent activity
-- **Voting Tab**: Active when voting is open, shows submissions to vote on
-- **Results Tab**: Latest completed challenge results with rankings
-- **Leaderboard Tab**: Full league standings with comprehensive stats
+### Competition Flow
+1. **Sign in** with any test account
+2. **Submit** responses to active challenges
+3. **Vote** on submissions (3 votes to distribute)
+4. **View results** and leaderboard
 
-### Creative Challenge System
-- **Diverse Prompts**: Wide variety of creative challenges covering cooking, photography, art, adventure, and more
-- **Sample Tasks**:
-  - "Submit a photo of a beautiful dinner you made this week"
-  - "Create something artistic with household items"
-  - "Capture an interesting shadow or reflection"
-  - "Visit somewhere you've never been before and document it"
+### Admin Features
+1. **Sign in** as `photophoenix@example.com`
+2. **Go to** `/admin` to manage challenges
+3. **Create** new challenges and manage queue
+4. **Trigger** manual cycle processing for testing
 
-### Voting System
-- **Equal-Value Voting**: Players get 3 votes to distribute
-- **Flexible Distribution**: Can give multiple votes to same submission or spread across different ones
-- **Fair Play**: Cannot vote for own submission
-- **Anonymous Voting**: Votes are private, results are public
+### Photo Uploads
+- **Local Development**: Photos stored in memory (no setup needed)
+- **Drag & Drop**: Upload interface supports drag and drop
+- **File Types**: JPG, PNG, GIF, WebP (max 10MB)
 
-### Admin Interface Features
-- Create challenges with categories and difficulty levels
-- Drag-and-drop queue reordering
-- Edit/delete scheduled challenges
-- Manual cycle processing for testing
-- Real-time status monitoring
-- Queue processing controls
+## 🔧 Environment Variables
 
-### Automated Systems
-- **Cron Jobs**: Run every 12 hours to check transitions
-- **Phase Management**: ACTIVE → VOTING → COMPLETED → Next ACTIVE
-- **Vote Calculation**: Automatic ranking and point totals
-- **Photo Cleanup**: Old images deleted after completion
+Create `.env` file (optional):
+```bash
+# Database (auto-created)
+DATABASE_URL="file:./dev.db"
 
-## 🔧 Common Issues & Solutions
+# Authentication (auto-generated if missing)
+NEXTAUTH_SECRET="dev-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
 
-### Authentication Errors
-If you see NextAuth.js errors:
+# Photo uploads (optional - app works without this)
+BLOB_READ_WRITE_TOKEN="your-vercel-blob-token"
+```
+
+**Note:** App works without any environment variables for local development.
+
+## 🚨 Common Issues & Solutions
+
+### "Database problems" or "Migration errors"
+```bash
+npm run db:setup
+```
+
+### "Authentication errors" 
 ```bash
 rm -rf .next
 npm run dev
 ```
 
-### Database Issues
-If database seems corrupted:
+### "Can't log in after seed"
+This is normal - the seed clears all sessions. Just log in again.
+
+### "TypeScript errors"
 ```bash
-npx prisma migrate reset --force
-npx prisma db seed
+npm run type-check
 ```
 
-### Upload Errors
-- Ensure `public/uploads/` directory exists and is writable
-- Check file size is under 10MB
-- Verify user is authenticated before uploading
-- Check image format is supported (jpg, png, gif, webp)
-
-### Admin Access Issues
-- Confirm you're signed in as `player1@example.com`
-- Check that username in session is exactly `player1`
-- Clear browser cache and re-login if needed
-
-### Voting Issues
-- Ensure you're not trying to vote for your own submission
-- Check that exactly 3 votes are used total
-- Verify voting window is still open
-
-## 📁 Project Structure
+## 📁 Project Structure (Key Files)
 
 ```
 src/
 ├── app/
-│   ├── page.tsx              # League Dashboard (main competition interface)
-│   ├── admin/                # Admin interface for challenge management
-│   ├── auth/                 # Authentication pages
-│   ├── submit/               # Challenge submission page
-│   └── api/
-│       ├── votes/            # Voting system endpoints
-│       ├── league/           # League data and statistics
-│       ├── responses/        # Submission management
-│       ├── upload/           # Photo upload handling
-│       ├── cron/             # Automated cycle processing
-│       └── admin/            # Admin API routes
-├── components/
-│   ├── VotingCard.tsx        # Individual submission voting interface
-│   ├── LeaderboardTable.tsx  # League standings display
-│   ├── PhotoUpload.tsx       # Drag-and-drop upload component
-│   └── ResponseCard.tsx      # Competition submission display
-├── hooks/
-│   ├── useLeague.ts          # League data and statistics
-│   ├── useVoting.ts          # Voting interface logic
-│   ├── useGallery.ts         # Results and gallery data
-│   └── usePrompt.ts          # Current challenge information
-├── lib/
-│   ├── promptQueue.ts        # 3-phase cycle automation
-│   ├── auth.ts               # NextAuth.js configuration
-│   └── db.ts                 # Prisma database client
-└── types/                    # TypeScript definitions for competition
+│   ├── page.tsx              # League Dashboard
+│   ├── admin/                # Admin challenge management
+│   ├── auth/                 # Login/register pages
+│   └── api/                  # Backend API routes
+├── components/               # React components
+├── hooks/                    # Custom React hooks  
+├── lib/                      # Database & utilities
+└── types/                    # TypeScript definitions
+
+prisma/
+├── schema.prisma             # Database schema (SQLite)
+├── schema.production.prisma  # Production schema (PostgreSQL)  
+└── seed.ts                   # Test data generator
 ```
 
 ## 🎯 Development Tips
 
-### Testing Competition Cycles
-1. Use admin panel to manually trigger cycle transitions
-2. Test with multiple player accounts simultaneously
-3. Verify vote counts and point calculations
-4. Check leaderboard updates after results
+### Testing Multi-User Scenarios
+- Use multiple browser profiles or incognito tabs
+- Sign in as different users to simulate competition
+- Test voting with various accounts
 
-### Adding New Challenge Types
-1. Create new prompt text variations in admin interface
-2. Add sample tasks in `prisma/seed.ts`
-3. Test different prompt styles and formats
+### Adding New Features  
+- Follow existing patterns in `/src/components/`
+- Add new API routes in `/src/app/api/`
+- Use TypeScript types from `/src/types/`
 
-### Customizing Scoring System
-- Modify point values in voting API endpoints
-- Update vote calculation logic in `promptQueue.ts`
-- Adjust ranking algorithms as needed
-
-### Performance Testing
-- Test with larger numbers of submissions
-- Verify image upload performance
-- Check database query efficiency on leaderboard
-
-## 🚀 Next Steps
-
-After local testing:
-1. Deploy to Vercel with environment variables
-2. Set up Vercel Blob for production photo storage
-3. Configure cron jobs for automatic cycle management
-4. Monitor competition engagement and adjust timing
-5. Plan Phase 2 features (multiple leagues, achievements)
+### Database Changes
+- Modify `prisma/schema.prisma` 
+- Run `npm run db:setup` to apply changes
+- No migrations needed in development!
 
 ---
 
-**Ready to compete?** Sign in as `player1@example.com` and start your creative competition journey! 🏆
+**Ready to develop?** Run `npm run db:setup && npm run dev` and start coding! 🚀
+
+For production deployment, see [DEPLOYMENT.md](./DEPLOYMENT.md).

@@ -16,14 +16,14 @@ This guide will walk you through deploying Challenge League with SQLite for deve
 
 ### 1.1 Local Development Setup
 
-Your local setup uses SQLite and should already be working:
+**For development, you only need ONE command:**
 
 ```bash
-# Ensure local database is set up
+# Reset and seed your local database (SQLite)
 npm run db:setup
 ```
 
-This creates a local SQLite database (`dev.db`) and seeds it with test data.
+This creates a local SQLite database (`dev.db`) with test data. Use this whenever you want to reset your local dev environment.
 
 ### 1.2 Commit Your Code to GitHub
 
@@ -128,9 +128,8 @@ If you need to manually override this:
 
 ## Step 4: Initialize Production Database
 
-### 4.1 Choose Your Database Setup Strategy
+**For first-time production setup with test data:**
 
-**Option A: Fresh Database with Test Data (Wipe & Reset)**
 ```bash
 # Install Vercel CLI if you haven't
 npm i -g vercel && vercel login && vercel link
@@ -138,33 +137,14 @@ npm i -g vercel && vercel login && vercel link
 # Pull production environment variables
 vercel env pull .env.production
 
-# Deploy fresh database with test data (DESTROYS ALL EXISTING DATA)
+# Initialize production database with test data
 mv .env .env.backup
 cp .env.production .env
 npm run db:prod-fresh
 mv .env.backup .env
-git checkout prisma/schema.prisma
 ```
 
-**Option B: Schema Migration Only (Keep Existing Data)**
-```bash
-# For production deployments where you want to keep existing user data
-vercel env pull .env.production
-
-# Apply schema changes without losing data
-mv .env .env.backup
-cp .env.production .env
-npm run db:prod-migrate
-mv .env.backup .env
-git checkout prisma/schema.prisma
-```
-
-### 4.2 Important Notes
-
-- **db:prod-fresh**: Uses `--force-reset` to completely wipe and recreate database with test accounts
-- **db:prod-migrate**: Keeps existing data, only applies schema changes (safe for production)
-
-⚠️ **Warning**: `db:prod-fresh` will delete ALL existing users, submissions, votes, and data!
+⚠️ **Important**: `db:prod-fresh` creates a fresh database with test accounts. Only use for initial setup or when you want to completely reset production data.
 
 ## Step 5: Set Up Photo Uploads (Optional)
 
@@ -233,41 +213,39 @@ This runs daily at noon UTC to manage competition phases.
 
 ## Development Workflow
 
-### Local Development
+### Daily Development (Simple!)
+
 ```bash
-# Always use SQLite locally
-npm run dev           # Start development server
-npm run db:setup      # Reset and seed local database
+# Start development server
+npm run dev
+
+# Reset your local database anytime (if needed)
+npm run db:setup
 ```
 
-### Production Deployment
+**That's it!** Your local development uses SQLite - zero configuration needed.
+
+### Deploy to Production
 ```bash
-# Deploy to production (uses PostgreSQL)
+# Deploy to production (uses PostgreSQL automatically)
 git add .
 git commit -m "Your changes"
 git push              # Automatic deployment via Vercel
 ```
 
-### Database Management
+### Database Commands Reference
 
-**Local (SQLite):**
-```bash
-npm run db:setup      # Reset local database
-npx prisma studio     # Browse local database
-```
+**Local Development (SQLite):**
+- `npm run db:setup` - Reset and seed local database
+- `npx prisma studio` - Browse local database in browser
 
-**Production (PostgreSQL):**
-```bash
-vercel env pull .env.production
-npx dotenv -e .env.production -- npx prisma studio  # Browse production database
-```
+**Production (PostgreSQL) - Only needed occasionally:**
+- `npm run db:prod-fresh` - Reset production with test data (destructive!)
+- `vercel env pull .env.production && npx dotenv -e .env.production -- npx prisma studio` - Browse production database
 
 ## Test User Accounts
 
-After running database seed, choose from these accounts:
-
-### Comprehensive Seed (`npm run db:seed`)
-The unified seed creates 20 users across 3 leagues with rich competition history:
+The database seed creates 20 users across 3 leagues with rich competition history:
 
 **Primary Test Accounts:**
 - **Main League Owner**: photophoenix@example.com / password123  
@@ -295,19 +273,17 @@ photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage,
 
 ## Common Issues and Solutions
 
+### Issue: "Local database problems or migration errors"
+**Solution**: Reset your local environment:
+```bash
+npm run db:setup
+```
+
 ### Issue: "Build fails with Prisma error"
 **Solution**: Make sure you're using the correct build command (`npm run build:prod`) in Vercel.
 
 ### Issue: "Cannot connect to database in production"
 **Solution**: Verify your PostgreSQL `DATABASE_URL` is correct in Vercel environment variables.
-
-### Issue: "Local development not working"
-**Solution**: Make sure you're using SQLite locally:
-```bash
-# Reset to SQLite schema if needed
-git checkout prisma/schema.prisma
-npm run db:setup
-```
 
 ### Issue: "Photos not uploading"
 **Solution**: The app works without Blob storage. If you want external storage, set up Vercel Blob as described in Step 5.

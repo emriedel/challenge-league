@@ -14,6 +14,16 @@ export const metadata: Metadata = {
     shortcut: '/challenge-league-logo.png',
     apple: '/challenge-league-logo.png',
   },
+  manifest: '/manifest.json',
+  themeColor: '#2d8cff',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Challenge League',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({
@@ -23,6 +33,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <SessionProvider>

@@ -32,6 +32,7 @@ CREATE TABLE "users" (
     "image" TEXT,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "profilePhoto" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -40,8 +41,6 @@ CREATE TABLE "users" (
 CREATE TABLE "prompts" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "text" TEXT NOT NULL,
-    "category" TEXT,
-    "difficulty" INTEGER NOT NULL DEFAULT 1,
     "weekStart" DATETIME NOT NULL,
     "weekEnd" DATETIME NOT NULL,
     "voteStart" DATETIME NOT NULL,
@@ -49,7 +48,9 @@ CREATE TABLE "prompts" (
     "status" TEXT NOT NULL DEFAULT 'SCHEDULED',
     "queueOrder" INTEGER NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    "leagueId" TEXT NOT NULL,
+    CONSTRAINT "prompts_leagueId_fkey" FOREIGN KEY ("leagueId") REFERENCES "leagues" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -73,10 +74,14 @@ CREATE TABLE "responses" (
 CREATE TABLE "leagues" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "inviteCode" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    "ownerId" TEXT NOT NULL,
+    CONSTRAINT "leagues_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -93,8 +98,7 @@ CREATE TABLE "league_memberships" (
 -- CreateTable
 CREATE TABLE "votes" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "rank" INTEGER NOT NULL,
-    "points" INTEGER NOT NULL,
+    "points" INTEGER NOT NULL DEFAULT 1,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "voterId" TEXT NOT NULL,
     "responseId" TEXT NOT NULL,
@@ -128,13 +132,13 @@ CREATE UNIQUE INDEX "responses_userId_promptId_key" ON "responses"("userId", "pr
 CREATE UNIQUE INDEX "leagues_name_key" ON "leagues"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "leagues_slug_key" ON "leagues"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "leagues_inviteCode_key" ON "leagues"("inviteCode");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "league_memberships_userId_leagueId_key" ON "league_memberships"("userId", "leagueId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "votes_voterId_responseId_key" ON "votes"("voterId", "responseId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "votes_voterId_rank_key" ON "votes"("voterId", "rank");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
