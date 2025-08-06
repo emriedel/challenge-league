@@ -152,7 +152,7 @@ async function main() {
     }
   ];
 
-  const createdLeagues = [];
+  const createdLeagues: any[] = [];
   for (let i = 0; i < leagues.length; i++) {
     const league = await prisma.league.create({
       data: {
@@ -232,7 +232,7 @@ async function main() {
       const numParticipants = Math.floor(leagueMembers.length * participationRate);
       const participants = leagueMembers.slice(0, numParticipants);
       
-      const createdResponses = [];
+      const createdResponses: any[] = [];
       for (let i = 0; i < participants.length; i++) {
         const participant = participants[i];
         const response = await prisma.response.create({
