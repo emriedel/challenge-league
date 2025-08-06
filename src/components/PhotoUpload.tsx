@@ -130,7 +130,7 @@ export default function PhotoUpload({
       />
       
       <div
-        className={`border-2 border-dashed rounded-lg p-4 md:p-8 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-colors ${
           dragOver
             ? 'border-primary-500 bg-primary-50'
             : disabled

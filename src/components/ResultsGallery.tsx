@@ -10,11 +10,11 @@ import type { ResultsGalleryProps } from '@/types/components';
 
 export default function ResultsGallery({ responses, prompt, leagueId }: ResultsGalleryProps) {
   return (
-    <div className="space-y-6 mb-8">
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
         <h2 className="text-xl font-semibold mb-2">Latest Completed Round</h2>
         <p className="text-gray-600 mb-4">{prompt?.text}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {responses.slice(0, 6).map((response) => (
             <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
               <div className="relative">
@@ -31,7 +31,7 @@ export default function ResultsGallery({ responses, prompt, leagueId }: ResultsG
                   </div>
                 )}
               </div>
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center space-x-2">
                     <ProfileAvatar 

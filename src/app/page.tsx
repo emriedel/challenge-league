@@ -57,7 +57,7 @@ export default function HomePage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your leagues...</p>
@@ -72,8 +72,8 @@ export default function HomePage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+      <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 mx-2 sm:mx-0">
           <div className="text-sm text-red-700">{error}</div>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function HomePage() {
 
   // Show league selection dashboard for users with multiple leagues or no leagues
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Challenge League!</h1>
         <p className="text-xl text-gray-600">Submit photos to win challenges against your friends</p>

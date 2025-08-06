@@ -71,7 +71,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
           <div className="space-y-8">
             <SkeletonChallenge />
             {votingLoading ? (
@@ -129,7 +129,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Current Challenge */}
         <CurrentChallenge
           votingData={votingData || undefined}

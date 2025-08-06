@@ -8,6 +8,7 @@ import { inter } from '@/lib/fonts';
 export const metadata: Metadata = {
   title: 'Challenge League',
   description: 'Creative competition leagues for friends and communities',
+  viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: '/challenge-league-logo.png',
     shortcut: '/challenge-league-logo.png',

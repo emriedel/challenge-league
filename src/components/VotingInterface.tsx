@@ -49,9 +49,9 @@ export default function VotingInterface({
   };
 
   return (
-    <div className="space-y-6 mb-8">
+    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
       {/* Voting Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
         <h2 className="text-xl font-semibold mb-2">Cast Your Votes</h2>
         <div className="space-y-2 text-blue-700">
           <p className="font-medium">Challenge: {votingData.prompt?.text}</p>
@@ -66,7 +66,7 @@ export default function VotingInterface({
 
       {/* Voting Grid */}
       {votingData.responses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0">
           {votingData.responses.map((response) => {
             const voteCount = selectedVotes[response.id] || 0;
             return (
@@ -85,7 +85,7 @@ export default function VotingInterface({
                   height={192}
                   className="w-full h-48 object-contain bg-gray-50"
                 />
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <ProfileAvatar 
                       username={response.user.username}
