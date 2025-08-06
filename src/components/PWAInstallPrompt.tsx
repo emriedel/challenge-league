@@ -16,8 +16,14 @@ export default function PWAInstallPrompt() {
   const [showInstallButton, setShowInstallButton] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if it's a mobile device
+    const mobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   window.matchMedia('(max-width: 768px)').matches;
+    setIsMobile(mobile);
+
     // Check if it's iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
@@ -62,8 +68,8 @@ export default function PWAInstallPrompt() {
     );
   };
 
-  // Don't show if already installed
-  if (isStandalone) {
+  // Don't show if already installed or not on mobile
+  if (isStandalone || !isMobile) {
     return null;
   }
 
