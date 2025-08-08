@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import Navigation from '@/components/Navigation';
+import BottomNavigation from '@/components/BottomNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { inter } from '@/lib/fonts';
@@ -62,11 +63,12 @@ export default function RootLayout({
           <SessionProvider>
             <div className="min-h-screen bg-gray-50">
               <Navigation />
-              <main>
+              <main className="pb-20 md:pb-0">
                 <ErrorBoundary>
                   {children}
                 </ErrorBoundary>
               </main>
+              <BottomNavigation />
               <PWAInstallPrompt />
             </div>
           </SessionProvider>
