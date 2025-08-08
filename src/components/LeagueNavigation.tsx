@@ -23,8 +23,8 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{leagueName}</h1>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex justify-center space-x-4 md:space-x-8 overflow-x-auto scrollbar-hide" aria-label="League Tabs">
+        {/* Navigation Tabs - Hidden on mobile since we use bottom navigation */}
+        <nav className="hidden md:flex justify-center space-x-4 md:space-x-8 overflow-x-auto scrollbar-hide" aria-label="League Tabs">
           {tabs.map((tab) => (
             <Link
               key={tab.id}

@@ -88,96 +88,87 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-8">
             {status === 'authenticated' ? (
               <>
-                <nav className="flex space-x-8">
-                  <Link 
-                    href="/how-it-works" 
-                    className="text-white/80 hover:text-white"
+                {/* Desktop League Selector Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
+                    className="flex items-center text-white/80 hover:text-white"
                   >
-                    How it works
-                  </Link>
+                    Select League
+                    <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                   
-                  {/* Leagues Dropdown */}
-                  <div className="relative" ref={dropdownRef}>
-                    <button
-                      onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                      className="flex items-center text-white/80 hover:text-white"
-                    >
-                      Leagues
-                      <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    
-                    {isLeaguesOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                        <div className="py-1">
-                          {loadingLeagues ? (
+                  {isLeaguesOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="py-1">
+                        {loadingLeagues ? (
+                          <div className="px-4 py-2 text-sm text-gray-500">
+                            Loading leagues...
+                          </div>
+                        ) : leagues.length > 0 ? (
+                          <>
+                            {leagues.map((league) => (
+                              <Link
+                                key={league.id}
+                                href={`/league/${league.id}`}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => setIsLeaguesOpen(false)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span>{league.name}</span>
+                                  {league.isOwner && (
+                                    <span className="text-xs text-blue-500">Owner</span>
+                                  )}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                                </div>
+                              </Link>
+                            ))}
+                            <hr className="my-1" />
+                            <Link
+                              href="/leagues/new"
+                              className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                              onClick={() => setIsLeaguesOpen(false)}
+                            >
+                              + Create New League
+                            </Link>
+                            <Link
+                              href="/leagues/join"
+                              className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                              onClick={() => setIsLeaguesOpen(false)}
+                            >
+                              + Join League
+                            </Link>
+                          </>
+                        ) : (
+                          <>
                             <div className="px-4 py-2 text-sm text-gray-500">
-                              Loading leagues...
+                              No leagues found
                             </div>
-                          ) : leagues.length > 0 ? (
-                            <>
-                              {leagues.map((league) => (
-                                <Link
-                                  key={league.id}
-                                  href={`/league/${league.id}`}
-                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                  onClick={() => setIsLeaguesOpen(false)}
-                                >
-                                  <div className="flex justify-between items-center">
-                                    <span>{league.name}</span>
-                                    {league.isOwner && (
-                                      <span className="text-xs text-blue-500">Owner</span>
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
-                                  </div>
-                                </Link>
-                              ))}
-                              <hr className="my-1" />
-                              <Link
-                                href="/leagues/new"
-                                className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
-                                onClick={() => setIsLeaguesOpen(false)}
-                              >
-                                + Create New League
-                              </Link>
-                              <Link
-                                href="/leagues/join"
-                                className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
-                                onClick={() => setIsLeaguesOpen(false)}
-                              >
-                                + Join League
-                              </Link>
-                            </>
-                          ) : (
-                            <>
-                              <div className="px-4 py-2 text-sm text-gray-500">
-                                No leagues found
-                              </div>
-                              <hr className="my-1" />
-                              <Link
-                                href="/leagues/new"
-                                className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
-                                onClick={() => setIsLeaguesOpen(false)}
-                              >
-                                + Create New League
-                              </Link>
-                              <Link
-                                href="/leagues/join"
-                                className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
-                                onClick={() => setIsLeaguesOpen(false)}
-                              >
-                                + Join League
-                              </Link>
-                            </>
-                          )}
-                        </div>
+                            <hr className="my-1" />
+                            <Link
+                              href="/leagues/new"
+                              className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                              onClick={() => setIsLeaguesOpen(false)}
+                            >
+                              + Create New League
+                            </Link>
+                            <Link
+                              href="/leagues/join"
+                              className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                              onClick={() => setIsLeaguesOpen(false)}
+                            >
+                              + Join League
+                            </Link>
+                          </>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </nav>
+                    </div>
+                  )}
+                </div>
                 
                 <div className="flex items-center space-x-4">
                   {/* User Menu Dropdown */}
@@ -220,12 +211,6 @@ export default function Navigation() {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link
-                  href="/how-it-works"
-                  className="text-white/80 hover:text-white"
-                >
-                  How it works
-                </Link>
-                <Link
                   href="/auth/signin"
                   className="text-white/80 hover:text-white"
                 >
@@ -233,7 +218,7 @@ export default function Navigation() {
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700"
+                  className="bg-blue-700 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-800"
                 >
                   Sign up
                 </Link>
@@ -275,15 +260,7 @@ export default function Navigation() {
             <div className="px-2 pt-2 pb-3 space-y-1 bg-blue-600 border-t border-blue-500">
               {status === 'authenticated' ? (
                 <>
-                  <Link 
-                    href="/how-it-works" 
-                    className="block px-3 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded-md"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    How it works
-                  </Link>
-                  
-                  {/* Mobile Leagues Section */}
+                  {/* Mobile League Selector */}
                   <div className="px-3 py-2">
                     <div className="text-white/80 text-sm font-medium mb-2">Your Leagues</div>
                     {loadingLeagues ? (
@@ -310,77 +287,49 @@ export default function Navigation() {
                             </div>
                           </Link>
                         ))}
-                        <hr className="border-blue-500 my-2" />
-                        <Link
-                          href="/leagues/new"
-                          className="block px-2 py-1 text-blue-200 hover:text-white hover:bg-blue-700 rounded text-sm"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          + Create New League
-                        </Link>
-                        <Link
-                          href="/leagues/join"
-                          className="block px-2 py-1 text-green-200 hover:text-white hover:bg-blue-700 rounded text-sm"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          + Join League
-                        </Link>
                       </div>
                     ) : (
-                      <div className="space-y-1">
-                        <div className="text-white/60 text-sm px-2">
-                          No leagues found
-                        </div>
-                        <Link
-                          href="/leagues/new"
-                          className="block px-2 py-1 text-blue-200 hover:text-white hover:bg-blue-700 rounded text-sm"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          + Create New League
-                        </Link>
-                        <Link
-                          href="/leagues/join"
-                          className="block px-2 py-1 text-green-200 hover:text-white hover:bg-blue-700 rounded text-sm"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          + Join League
-                        </Link>
+                      <div className="text-white/60 text-sm px-2">
+                        No leagues found
                       </div>
                     )}
                   </div>
 
-                  <hr className="border-blue-500" />
+                  <hr className="border-blue-500 mx-3" />
                   
-                  {/* Mobile User Menu */}
-                  <div className="px-3 py-2">
-                    <div className="text-white/80 text-sm font-medium mb-2">@{session.user.username}</div>
+                  {/* League Actions */}
+                  <div className="px-3 py-2 space-y-1">
                     <Link
-                      href="/profile"
-                      className="block px-2 py-1 text-white/80 hover:text-white hover:bg-blue-700 rounded text-sm"
+                      href="/leagues/join"
+                      className="block px-2 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded text-sm"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      View Profile
+                      Join League
                     </Link>
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        signOut();
-                      }}
-                      className="block w-full text-left px-2 py-1 text-white/80 hover:text-white hover:bg-blue-700 rounded text-sm"
+                    <Link
+                      href="/leagues/new"
+                      className="block px-2 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded text-sm"
+                      onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Sign Out
-                    </button>
+                      Create New League
+                    </Link>
+                  </div>
+
+                  <hr className="border-blue-500 mx-3" />
+                  
+                  {/* Profile */}
+                  <div className="px-3 py-2">
+                    <Link
+                      href="/profile"
+                      className="block px-2 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded text-sm"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
                   </div>
                 </>
               ) : (
                 <>
-                  <Link
-                    href="/how-it-works"
-                    className="block px-3 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded-md"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    How it works
-                  </Link>
                   <Link
                     href="/auth/signin"
                     className="block px-3 py-2 text-white/80 hover:text-white hover:bg-blue-700 rounded-md"
