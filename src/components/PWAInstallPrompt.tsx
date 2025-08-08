@@ -17,6 +17,7 @@ export default function PWAInstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     // Check if it's a mobile device
@@ -68,8 +69,13 @@ export default function PWAInstallPrompt() {
     );
   };
 
-  // Don't show if already installed or not on mobile
-  if (isStandalone || !isMobile) {
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    setShowInstallButton(false);
+  };
+
+  // Don't show if already installed, not on mobile, or dismissed
+  if (isStandalone || !isMobile || isDismissed) {
     return null;
   }
 
@@ -78,16 +84,27 @@ export default function PWAInstallPrompt() {
     return (
       <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-medium">Install Challenge League</p>
             <p className="text-xs opacity-90">Add to your home screen for easy access</p>
           </div>
-          <button
-            onClick={handleIOSInstall}
-            className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
-          >
-            Install
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleIOSInstall}
+              className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+            >
+              Install
+            </button>
+            <button
+              onClick={handleDismiss}
+              className="text-white/80 hover:text-white p-1"
+              aria-label="Dismiss"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -97,16 +114,27 @@ export default function PWAInstallPrompt() {
     return (
       <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-medium">Install Challenge League</p>
             <p className="text-xs opacity-90">Get the full app experience</p>
           </div>
-          <button
-            onClick={handleInstallClick}
-            className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
-          >
-            Install
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleInstallClick}
+              className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+            >
+              Install
+            </button>
+            <button
+              onClick={handleDismiss}
+              className="text-white/80 hover:text-white p-1"
+              aria-label="Dismiss"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     );
