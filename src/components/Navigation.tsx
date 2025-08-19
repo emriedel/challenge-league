@@ -18,6 +18,7 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
+  const [currentLeague, setCurrentLeague] = useState<League | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -41,6 +42,20 @@ export default function Navigation() {
         });
     }
   }, [status, session]);
+
+  // Detect current league from pathname
+  useEffect(() => {
+    if (pathname?.startsWith('/league/') && leagues.length > 0) {
+      const pathParts = pathname.split('/');
+      if (pathParts.length >= 3) {
+        const leagueId = pathParts[2];
+        const found = leagues.find(league => league.id === leagueId);
+        setCurrentLeague(found || null);
+      }
+    } else {
+      setCurrentLeague(null);
+    }
+  }, [pathname, leagues]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -94,7 +109,7 @@ export default function Navigation() {
                     onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
                     className="flex items-center text-white/80 hover:text-white"
                   >
-                    Select League
+                    {currentLeague ? currentLeague.name : 'Select League'}
                     <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
