@@ -4,8 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useGallery } from '@/hooks/useGallery';
-import { useLeague } from '@/hooks/useLeague';
+import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import Image from 'next/image';
 import ProfileAvatar from '@/components/ProfileAvatar';
@@ -19,8 +18,8 @@ interface ResultsPageProps {
 export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading } = useLeague(params.leagueId);
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
+  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
 
   useEffect(() => {
     if (status === 'loading') return;

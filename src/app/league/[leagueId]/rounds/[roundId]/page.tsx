@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useLeague } from '@/hooks/useLeague';
-import { useGallery } from '@/hooks/useGallery';
+import { useLeagueQuery, useRoundQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import { getRankBadge } from '@/lib/utils';
@@ -42,8 +41,8 @@ interface RoundDetailPageProps {
 export default function RoundDetailPage({ params }: RoundDetailPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading } = useLeague(params.leagueId);
-  const { data: galleryData } = useGallery(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
+  const { data: roundQueryData, isLoading: roundQueryLoading } = useRoundQuery(params.roundId);
   const [roundData, setRoundData] = useState<RoundData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,7 +149,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
           <div className="bg-white border border-gray-200 rounded-lg p-6">            
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold mb-2">Round #{galleryData?.rounds ? galleryData.rounds.length - galleryData.rounds.findIndex(r => r.id === roundData.id) : 1}</h1>
+                <h1 className="text-2xl font-bold mb-2">Round Details</h1>
                 <p className="text-gray-600 text-lg">{roundData.text}</p>
               </div>
               <div className="text-right text-sm text-gray-500">

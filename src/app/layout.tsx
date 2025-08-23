@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
+import QueryProvider from '@/components/QueryProvider';
 import Navigation from '@/components/Navigation';
 import BottomNavigation from '@/components/BottomNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -60,18 +61,20 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <SessionProvider>
-            <div className="min-h-screen bg-gray-50">
-              <Navigation />
-              <main className="pb-20 md:pb-0">
-                <ErrorBoundary>
-                  {children}
-                </ErrorBoundary>
-              </main>
-              <BottomNavigation />
-              <PWAInstallPrompt />
-            </div>
-          </SessionProvider>
+          <QueryProvider>
+            <SessionProvider>
+              <div className="min-h-screen bg-gray-50">
+                <Navigation />
+                <main className="pb-20 md:pb-0">
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                </main>
+                <BottomNavigation />
+                <PWAInstallPrompt />
+              </div>
+            </SessionProvider>
+          </QueryProvider>
         </ErrorBoundary>
       </body>
     </html>

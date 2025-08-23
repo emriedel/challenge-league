@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useLeague } from '@/hooks/useLeague';
+import { useLeagueStandingsQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -32,7 +32,7 @@ interface StandingPageProps {
 export default function StandingPage({ params }: StandingPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueStandingsQuery(params.leagueId);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -62,7 +62,7 @@ export default function StandingPage({ params }: StandingPageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName="Error" />
         <PageErrorFallback 
           title="Standings Error"
-          description={leagueError}
+          description={leagueError instanceof Error ? leagueError.message : leagueError || 'An error occurred'}
           resetError={() => window.location.reload()}
         />
       </div>

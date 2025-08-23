@@ -3,10 +3,14 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useLeague } from '@/hooks/useLeague';
-import { useVoting } from '@/hooks/useVoting';
-import { useGallery } from '@/hooks/useGallery';
-import { useLeaguePrompt } from '@/hooks/useLeaguePrompt';
+import { 
+  useLeagueQuery, 
+  useVotingQuery, 
+  useRoundsQuery, 
+  useLeaguePromptQuery,
+  useSubmitVotesMutation,
+  useSubmitResponseMutation
+} from '@/hooks/queries';
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
@@ -28,10 +32,14 @@ interface LeagueHomePageProps {
 export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeague(params.leagueId);
-  const { data: votingData, isLoading: votingLoading, error: votingError, submitVotes } = useVoting(params.leagueId);
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useGallery(params.leagueId);
-  const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePrompt(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
+  const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
+  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
+  const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
+  
+  // Mutations for user actions
+  const submitVotesMutation = useSubmitVotesMutation(params.leagueId);
+  const submitResponseMutation = useSubmitResponseMutation(params.leagueId);
   
   // Custom hooks for managing complex state
   const { submissionMessage, votingMessage, setSubmissionMessage, setVotingMessage } = useMessages();
@@ -55,7 +63,15 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   }, [session, status, router]);
 
   const handleSubmitVotes = async (votes: { [responseId: string]: number }) => {
-    await votingManagement.submitVotes({ submitVotes });
+    try {
+      await submitVotesMutation.mutateAsync(votes);
+      setVotingMessage({ type: 'success', text: 'Votes submitted successfully!' });
+    } catch (error) {
+      setVotingMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to submit votes' 
+      });
+    }
   };
 
   const handleSubmitResponse = async (data: { photo: File; caption: string }) => {
@@ -95,7 +111,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName="Error" />
         <PageErrorFallback 
           title="League Error"
-          description={leagueError}
+          description={leagueError instanceof Error ? leagueError.message : leagueError || 'An error occurred'}
           resetError={() => window.location.reload()}
         />
       </div>
