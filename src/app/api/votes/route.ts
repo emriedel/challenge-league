@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
+import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 
 // Dynamic export is handled by the API handler
@@ -12,40 +13,17 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
   const leagueId = searchParams.get('id');
 
   if (!leagueId) {
-    throw new Error('League ID is required');
+    throw new ValidationError('League ID is required');
   }
 
-  // Find the league and verify membership
-  const league = await db.league.findUnique({
-    where: { id: leagueId }
-  });
-
-  if (!league) {
-    const error = new Error('League not found');
-    (error as any).status = 404;
-    throw error;
-  }
-
-  const userMembership = await db.leagueMembership.findUnique({
-    where: {
-      userId_leagueId: {
-        userId: session.user.id,
-        leagueId: league.id
-      }
-    }
-  });
-
-  if (!userMembership || !userMembership.isActive) {
-    const error = new Error('You are not a member of this league');
-    (error as any).status = 403;
-    throw error;
-  }
+  // Validate league membership
+  await validateLeagueMembership(db, session.user.id, leagueId);
 
   // Get current voting prompt for this league
   const votingPrompt = await db.prompt.findFirst({
     where: { 
       status: 'VOTING',
-      leagueId: league.id
+      leagueId: leagueId
     },
     include: {
       responses: {
@@ -120,51 +98,27 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
 const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
   const { votes, leagueId } = await req.json();
 
-  if (!leagueId) {
-    throw new Error('League ID is required');
-  }
+  // Validate required fields
+  validateRequired({ votes, leagueId }, ['votes', 'leagueId']);
 
-  // Find the league and verify membership
-  const league = await db.league.findUnique({
-    where: { id: leagueId }
-  });
-
-  if (!league) {
-    const error = new Error('League not found');
-    (error as any).status = 404;
-    throw error;
-  }
-
-  const userMembership = await db.leagueMembership.findUnique({
-    where: {
-      userId_leagueId: {
-        userId: session.user.id,
-        leagueId: league.id
-      }
-    }
-  });
-
-  if (!userMembership || !userMembership.isActive) {
-    const error = new Error('You are not a member of this league');
-    (error as any).status = 403;
-    throw error;
-  }
+  // Validate league membership
+  await validateLeagueMembership(db, session.user.id, leagueId);
 
   if (!votes || typeof votes !== 'object') {
-    throw new Error('Invalid votes format');
+    throw new ValidationError('Invalid votes format');
   }
 
   // Calculate total votes - should be exactly 3
   const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
   if (totalVotes !== 3) {
-    throw new Error('Must use exactly 3 votes');
+    throw new ValidationError('Must use exactly 3 votes');
   }
 
   // Get current voting prompt for this league
   const votingPrompt = await db.prompt.findFirst({
     where: { 
       status: 'VOTING',
-      leagueId: league.id
+      leagueId: leagueId
     },
     include: {
       responses: {
@@ -174,13 +128,13 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
   });
 
   if (!votingPrompt) {
-    throw new Error('No voting session currently active');
+    throw new NotFoundError('No voting session currently active');
   }
 
   // Check if voting window is still open
   const now = new Date();
   if (now >= new Date(votingPrompt.voteEnd)) {
-    throw new Error('Voting window has closed');
+    throw new ValidationError('Voting window has closed');
   }
 
   // Validate that responses exist and user isn't voting for their own
@@ -191,11 +145,11 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
 
   for (const responseId of Object.keys(votes)) {
     if (!responseIds.includes(responseId)) {
-      throw new Error('Invalid response ID');
+      throw new ValidationError('Invalid response ID');
     }
     
     if (userResponseIds.includes(responseId)) {
-      throw new Error('Cannot vote for your own submission');
+      throw new ForbiddenError('Cannot vote for your own submission');
     }
   }
 

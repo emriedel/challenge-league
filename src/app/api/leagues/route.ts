@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
+import { ValidationError } from '@/lib/apiErrors';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -74,9 +75,7 @@ export const { GET, POST } = createMethodHandlers({
     const { name, description } = await req.json();
 
     if (!name || !description) {
-      return NextResponse.json({ 
-        error: 'Name and description are required' 
-      }, { status: 400 });
+      throw new ValidationError('Name and description are required');
     }
 
     // Generate unique invite code

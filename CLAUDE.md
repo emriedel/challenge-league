@@ -237,26 +237,25 @@ The following refactoring tasks have been identified as high priority for improv
 
 ### ✅ Completed Refactorings
 - **Type Consolidation** - Centralized all TypeScript type definitions into `/src/types/` directory with proper organization and barrel exports. Eliminated duplicate types across 15+ files.
+- **Standardize API Route Error Handling** - Created consistent error response format across all API endpoints with centralized `ApiError` classes, proper status codes, and structured error responses. Enhanced `createApiHandler` to use standardized error handling.
 
 ### 🔥 High Priority (Next Phase)
-1. **Standardize API Route Error Handling** - Create consistent error response format across all API endpoints (`/api/**/*.ts`). Currently each route handles errors differently, making debugging difficult.
+1. **Extract Database Query Patterns** - Create a data access layer to centralize common Prisma queries. Many components duplicate similar database operations (user lookups, league queries, etc.).
 
-2. **Extract Database Query Patterns** - Create a data access layer to centralize common Prisma queries. Many components duplicate similar database operations (user lookups, league queries, etc.).
-
-3. **Create Custom Data Fetching Hook (useApiQuery)** - Replace repetitive fetch patterns with a standardized hook that handles loading states, error handling, and caching consistently across all components.
+2. **Create Custom Data Fetching Hook (useApiQuery)** - Replace repetitive fetch patterns with a standardized hook that handles loading states, error handling, and caching consistently across all components.
 
 ### 🟡 Medium Priority (Future Phases)
-4. **Improve Authentication State Management** - Create `useAuthRedirect` hook to handle authentication redirects and loading states consistently across protected routes.
+3. **Improve Authentication State Management** - Create `useAuthRedirect` hook to handle authentication redirects and loading states consistently across protected routes.
 
-5. **Extract Form Validation Patterns** - Create `useFormValidation` hook to centralize validation logic currently scattered across submission forms, user registration, and other forms.
+4. **Extract Form Validation Patterns** - Create `useFormValidation` hook to centralize validation logic currently scattered across submission forms, user registration, and other forms.
 
-6. **Optimize Image Loading** - Create `OptimizedImage` wrapper component to handle lazy loading, proper sizing, and fallback states for user submissions and profile photos.
+5. **Optimize Image Loading** - Create `OptimizedImage` wrapper component to handle lazy loading, proper sizing, and fallback states for user submissions and profile photos.
 
-7. **Add React.memo to Pure Components** - Identify and memoize components that don't need to re-render on every parent update (ProfileAvatar, ResultsGallery items, etc.).
+6. **Add React.memo to Pure Components** - Identify and memoize components that don't need to re-render on every parent update (ProfileAvatar, ResultsGallery items, etc.).
 
-8. **Implement Consistent Skeleton Loading States** - Standardize loading skeletons across all components to improve perceived performance.
+7. **Implement Consistent Skeleton Loading States** - Standardize loading skeletons across all components to improve perceived performance.
 
-9. **Create Centralized API Client Layer** - Build an API client with interceptors for authentication, error handling, and request/response transformation.
+8. **Create Centralized API Client Layer** - Build an API client with interceptors for authentication, error handling, and request/response transformation.
 
 ### Implementation Notes
 - Focus on high priority items first as they impact code maintainability most significantly

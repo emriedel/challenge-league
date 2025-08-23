@@ -3,7 +3,7 @@ import { createMethodHandlers } from '@/lib/apiMethods';
 import { put } from '@vercel/blob';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { createErrorResponse, ErrorCodes } from '@/lib/errors';
+import { ValidationError, ApiError } from '@/lib/apiErrors';
 import { FILE_LIMITS } from '@/constants/app';
 
 // Dynamic export is handled by the API handler
@@ -19,20 +19,20 @@ export const { POST } = createMethodHandlers({
 
     if (!file) {
       console.log('No file in formData');
-      return createErrorResponse('INVALID_INPUT', 'No file provided');
+      throw new ValidationError('No file provided');
     }
 
     // Validate file size  
     if (file.size > FILE_LIMITS.PHOTO_MAX_SIZE) {
       console.log(`File too large: ${file.size} bytes`);
-      return createErrorResponse('FILE_TOO_LARGE');
+      throw new ValidationError('File size is too large. Please choose a smaller file.');
     }
 
     // Validate file type (accept common image types)
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       console.log(`Invalid file type: ${file.type}`);
-      return createErrorResponse('INVALID_FILE_TYPE');
+      throw new ValidationError('Invalid file type. Please upload an image file.');
     }
 
     console.log(`File received: ${file.name}, ${file.size} bytes, ${file.type}`);
@@ -83,7 +83,7 @@ export const { POST } = createMethodHandlers({
       }
     } catch (error) {
       console.error('Upload error:', error);
-      return createErrorResponse('STORAGE_ERROR');
+      throw new ApiError('File storage error. Please try again.', 500, 'STORAGE_ERROR');
     }
   }
 });

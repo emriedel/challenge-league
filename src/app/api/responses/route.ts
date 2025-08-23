@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { processPromptQueue } from '@/lib/promptQueue';
+import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 
 // Dynamic export is handled by the API handler
@@ -13,10 +14,13 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
   const leagueId = searchParams.get('id');
 
   if (!leagueId) {
-    throw new Error('League ID is required');
+    throw new ValidationError('League ID is required');
   }
 
-  // Find the league and verify membership
+  // Validate league membership
+  await validateLeagueMembership(db, session.user.id, leagueId);
+
+  // Get league with member info
   const league = await db.league.findUnique({
     where: { id: leagueId },
     include: {
@@ -28,24 +32,7 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
   });
 
   if (!league) {
-    const error = new Error('League not found');
-    (error as any).status = 404;
-    throw error;
-  }
-
-  const userMembership = await db.leagueMembership.findUnique({
-    where: {
-      userId_leagueId: {
-        userId: session.user.id,
-        leagueId: league.id
-      }
-    }
-  });
-
-  if (!userMembership || !userMembership.isActive) {
-    const error = new Error('You are not a member of this league');
-    (error as any).status = 403;
-    throw error;
+    throw new NotFoundError('League');
   }
 
   // Get all league member IDs
@@ -101,39 +88,14 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
 
   const { promptId, photoUrl, caption, leagueId } = await req.json();
 
-  if (!promptId || !photoUrl || !caption?.trim()) {
-    throw new Error('Missing required fields: promptId, photoUrl, and caption');
-  }
+  // Validate required fields
+  validateRequired(
+    { promptId, photoUrl, caption: caption?.trim(), leagueId },
+    ['promptId', 'photoUrl', 'caption', 'leagueId']
+  );
 
-  if (!leagueId) {
-    throw new Error('League ID is required');
-  }
-
-  // Find the league and verify membership
-  const league = await db.league.findUnique({
-    where: { id: leagueId }
-  });
-
-  if (!league) {
-    const error = new Error('League not found');
-    (error as any).status = 404;
-    throw error;
-  }
-
-  const userMembership = await db.leagueMembership.findUnique({
-    where: {
-      userId_leagueId: {
-        userId: session.user.id,
-        leagueId: league.id
-      }
-    }
-  });
-
-  if (!userMembership || !userMembership.isActive) {
-    const error = new Error('You are not a member of this league');
-    (error as any).status = 403;
-    throw error;
-  }
+  // Validate league membership
+  await validateLeagueMembership(db, session.user.id, leagueId);
 
   // Verify prompt exists, is active, and belongs to this league
   const prompt = await db.prompt.findUnique({
@@ -141,22 +103,20 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
   });
 
   if (!prompt) {
-    const error = new Error('Prompt not found');
-    (error as any).status = 404;
-    throw error;
+    throw new NotFoundError('Prompt');
   }
 
-  if (prompt.leagueId !== league.id) {
-    throw new Error('This prompt does not belong to the specified league');
+  if (prompt.leagueId !== leagueId) {
+    throw new ForbiddenError('This prompt does not belong to the specified league');
   }
 
   if (prompt.status !== 'ACTIVE') {
-    throw new Error('This prompt is no longer accepting submissions');
+    throw new ValidationError('This prompt is no longer accepting submissions');
   }
 
   // Check if submission window is still open
   if (new Date() >= new Date(prompt.weekEnd)) {
-    throw new Error('Submission window has closed');
+    throw new ValidationError('Submission window has closed');
   }
 
   // Check if user has already submitted for this prompt

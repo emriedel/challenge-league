@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { createErrorResponse, UnauthorizedError, MethodNotAllowedError } from '@/lib/apiErrors';
 import type { Session } from 'next-auth';
 
 // Force all API routes using this handler to be dynamic
@@ -43,10 +44,7 @@ export function createApiHandler(
     try {
       // Method validation
       if (!allowedMethods.includes(req.method || '')) {
-        return NextResponse.json(
-          { error: `Method ${req.method} not allowed` },
-          { status: 405 }
-        );
+        throw new MethodNotAllowedError(req.method || 'UNKNOWN');
       }
 
       // Get session if auth is required or available
@@ -56,10 +54,7 @@ export function createApiHandler(
 
       // Auth validation
       if (requireAuth && !session?.user) {
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          { status: 401 }
-        );
+        throw new UnauthorizedError();
       }
 
       // Call the actual handler
@@ -70,11 +65,7 @@ export function createApiHandler(
       });
 
     } catch (error) {
-      console.error('API Error:', error);
-      return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      );
+      return createErrorResponse(error);
     }
   };
 }

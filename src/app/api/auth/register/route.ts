@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { createPublicMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { validateEmail, validatePassword, validateUsername } from '@/lib/validations';
+import { ValidationError, ConflictError } from '@/lib/apiErrors';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -14,17 +15,17 @@ export const { POST } = createPublicMethodHandlers({
     // Validate input
     const emailValidation = validateEmail(email);
     if (!emailValidation.valid) {
-      return NextResponse.json({ error: emailValidation.error }, { status: 400 });
+      throw new ValidationError(emailValidation.error || 'Invalid email');
     }
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
-      return NextResponse.json({ error: passwordValidation.error }, { status: 400 });
+      throw new ValidationError(passwordValidation.error || 'Invalid password');
     }
 
     const usernameValidation = validateUsername(username);
     if (!usernameValidation.valid) {
-      return NextResponse.json({ error: usernameValidation.error }, { status: 400 });
+      throw new ValidationError(usernameValidation.error || 'Invalid username');
     }
 
     // Check if user already exists
@@ -39,10 +40,10 @@ export const { POST } = createPublicMethodHandlers({
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
+        throw new ConflictError('User with this email already exists');
       }
       if (existingUser.username === username) {
-        return NextResponse.json({ error: 'Username is already taken' }, { status: 400 });
+        throw new ConflictError('Username is already taken');
       }
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createApiHandler, ApiContext, AuthenticatedApiContext } from './apiHandler';
+import { MethodNotAllowedError } from './apiErrors';
 
 // Export the dynamic constant so routes that import this get it automatically
 export { dynamic } from './apiHandler';
@@ -51,10 +52,7 @@ export const createMethodHandlers = (handlers: {
       const handler = handlers[method as keyof typeof handlers];
       
       if (!handler) {
-        return NextResponse.json(
-          { error: `Method ${method} not allowed` },
-          { status: 405 }
-        );
+        throw new MethodNotAllowedError(method);
       }
       
       // Cast context to AuthenticatedApiContext since requireAuth=true ensures session exists
@@ -90,10 +88,7 @@ export const createPublicMethodHandlers = (handlers: {
       const handler = handlers[method as keyof typeof handlers];
       
       if (!handler) {
-        return NextResponse.json(
-          { error: `Method ${method} not allowed` },
-          { status: 405 }
-        );
+        throw new MethodNotAllowedError(method);
       }
       
       return await handler(context);
