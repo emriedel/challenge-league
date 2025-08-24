@@ -153,11 +153,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             prompt: {
               id: promptData.prompt.id,
               text: promptData.prompt.text,
-              weekStart: promptData.prompt.weekStart,
-              weekEnd: promptData.prompt.weekEnd,
-              voteStart: '',
-              voteEnd: '',
-              status: 'ACTIVE' as const,
+              phaseStartedAt: promptData.prompt.phaseStartedAt,
+              status: promptData.prompt.status,
               queueOrder: 0,
               createdAt: new Date().toISOString(),
               leagueId: params.leagueId
@@ -198,10 +195,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             prompt={{
               id: promptData.prompt.id,
               text: promptData.prompt.text,
-              weekStart: promptData.prompt.weekStart,
-              weekEnd: promptData.prompt.weekEnd,
-              voteStart: '',
-              voteEnd: ''
+              phaseStartedAt: promptData.prompt.phaseStartedAt,
+              status: promptData.prompt.status
             }}
             onSubmit={handleSubmitResponse}
             isSubmitting={isSubmittingResponse}

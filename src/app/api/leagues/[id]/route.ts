@@ -83,7 +83,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         leagueId: league.id
       },
       orderBy: {
-        weekEnd: 'desc'
+        updatedAt: 'desc'
       },
       take: 3,
       include: {

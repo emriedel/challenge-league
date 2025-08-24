@@ -6,18 +6,15 @@
 export interface BasePrompt {
   id: string;
   text: string;
-  weekStart: string;
-  weekEnd: string;
-  voteStart: string;
-  voteEnd: string;
+  phaseStartedAt: string | null;
+  status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
 }
 
 // Full prompt with status and metadata
 export interface Prompt extends BasePrompt {
-  status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
   queueOrder: number;
   createdAt: string;
-  leagueId: string;
+  leagueId?: string;
 }
 
 // Simplified prompt for voting display

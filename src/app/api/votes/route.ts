@@ -3,6 +3,7 @@ import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
+import { getPhaseEndTime, isPhaseExpired } from '@/lib/phaseCalculations';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -52,14 +53,16 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     });
   }
 
-  // Check if voting window is still open
-  const now = new Date();
-  const voteEnd = new Date(votingPrompt.voteEnd);
-  if (now >= voteEnd) {
+  // Check if voting window is still open using dynamic calculation
+  const voteEndTime = getPhaseEndTime(votingPrompt);
+  const votingExpired = isPhaseExpired(votingPrompt);
+  
+  if (votingExpired || !voteEndTime) {
     return NextResponse.json({
       prompt: votingPrompt,
       responses: votingPrompt.responses,
       canVote: false,
+      voteEnd: voteEndTime?.toISOString(),
       message: 'Voting window has closed'
     });
   }
@@ -91,7 +94,7 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     responses: votableResponses,
     existingVotes: existingVotes,
     canVote: true,
-    voteEnd: votingPrompt.voteEnd
+    voteEnd: voteEndTime.toISOString()
   });
 };
 
@@ -131,9 +134,9 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     throw new NotFoundError('No voting session currently active');
   }
 
-  // Check if voting window is still open
-  const now = new Date();
-  if (now >= new Date(votingPrompt.voteEnd)) {
+  // Check if voting window is still open using dynamic calculation
+  const votingExpired = isPhaseExpired(votingPrompt);
+  if (votingExpired) {
     throw new ValidationError('Voting window has closed');
   }
 

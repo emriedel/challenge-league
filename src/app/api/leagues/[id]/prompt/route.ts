@@ -82,8 +82,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       prompt: {
         id: activePrompt.id,
         text: activePrompt.text,
-        weekStart: activePrompt.weekStart,
-        weekEnd: activePrompt.weekEnd,
+        status: activePrompt.status,
+        phaseStartedAt: activePrompt.phaseStartedAt,
       },
       userResponse: userResponse ? {
         id: userResponse.id,

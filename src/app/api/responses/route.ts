@@ -74,7 +74,7 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
         ]
       }
     },
-    orderBy: { weekEnd: 'desc' } // Most recent rounds first
+    orderBy: { updatedAt: 'desc' } // Most recent rounds first
   });
 
   return NextResponse.json({
@@ -114,8 +114,9 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
     throw new ValidationError('This prompt is no longer accepting submissions');
   }
 
-  // Check if submission window is still open
-  if (new Date() >= new Date(prompt.weekEnd)) {
+  // Check if submission window is still open using dynamic calculation
+  const { isSubmissionWindowOpen } = await import('@/lib/phaseCalculations');
+  if (!isSubmissionWindowOpen(prompt)) {
     throw new ValidationError('Submission window has closed');
   }
 
@@ -148,7 +149,8 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
         prompt: {
           select: {
             text: true,
-            weekEnd: true
+            phaseStartedAt: true,
+            status: true
           }
         }
       }
@@ -173,7 +175,8 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
         prompt: {
           select: {
             text: true,
-            weekEnd: true
+            phaseStartedAt: true,
+            status: true
           }
         }
       }

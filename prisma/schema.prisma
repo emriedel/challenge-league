@@ -60,16 +60,13 @@ model User {
 }
 
 model Prompt {
-  id          String       @id @default(cuid())
-  text        String
-  weekStart   DateTime     // Saturday 12 PM PT when this prompt becomes active
-  weekEnd     DateTime     // Next Saturday 12 PM PT when submissions close
-  voteStart   DateTime     // Saturday 12 PM PT when voting opens
-  voteEnd     DateTime     // Monday 12 PM PT when voting closes
-  status      PromptStatus @default(SCHEDULED)
-  queueOrder  Int          // Order in the queue (lower numbers = sooner)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id             String       @id @default(cuid())
+  text           String
+  phaseStartedAt DateTime?    // When the current phase (ACTIVE/VOTING) started
+  status         PromptStatus @default(SCHEDULED)
+  queueOrder     Int          // Order in the queue (lower numbers = sooner)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   leagueId    String
   league      League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)

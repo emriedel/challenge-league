@@ -4,6 +4,7 @@ import { useState } from 'react';
 import PhotoUpload from './PhotoUpload';
 import { CONTENT_LIMITS } from '@/constants/app';
 import type { SubmissionFormProps } from '@/types/components';
+import { isSubmissionWindowOpen } from '@/lib/phaseCalculations';
 
 
 export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false }: SubmissionFormProps) {
@@ -40,7 +41,11 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
   };
 
   const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting;
-  const isExpired = new Date() >= new Date(prompt.weekEnd);
+  const isExpired = !isSubmissionWindowOpen({
+    id: prompt.id,
+    status: prompt.status,
+    phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null,
+  });
 
   if (isExpired) {
     return (

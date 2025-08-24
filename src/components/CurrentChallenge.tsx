@@ -2,6 +2,7 @@
 
 import { NoChallengeEmptyState } from './EmptyState';
 import type { CurrentChallengeProps } from '@/types/components';
+import { getPhaseEndTime } from '@/lib/phaseCalculations';
 
 
 export default function CurrentChallenge({ 
@@ -46,13 +47,20 @@ export default function CurrentChallenge({
           </div>
           <div className="text-left sm:text-right">
             <p className="text-sm text-gray-500">Submission deadline:&nbsp;
-              {new Date(promptData.prompt.weekEnd).toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              })}
+              {(() => {
+                const endTime = getPhaseEndTime({
+                  id: promptData.prompt.id,
+                  status: promptData.prompt.status,
+                  phaseStartedAt: promptData.prompt.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null,
+                });
+                return endTime ? endTime.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                }) : 'TBD';
+              })()}
             </p>
           </div>
         </>

@@ -6,14 +6,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import { useMessages } from '@/hooks/useMessages';
+import { getPhaseEndTime } from '@/lib/phaseCalculations';
 
 interface Prompt {
   id: string;
   text: string;
-  weekStart: string;
-  weekEnd: string;
-  voteStart: string;
-  voteEnd: string;
+  phaseStartedAt: string | null;
   status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
   queueOrder: number;
   createdAt: string;
@@ -39,6 +37,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { addMessage, messages, clearMessage } = useMessages();
   const error = messages.admin;
 
@@ -194,6 +193,52 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
     }
   };
 
+  const transitionPhase = async () => {
+    if (!confirm('Are you sure you want to transition to the next phase? This will immediately move the current challenge to its next phase, regardless of timing.')) return;
+
+    setIsTransitioning(true);
+    clearMessage('admin');
+
+    try {
+      const response = await fetch(`/api/leagues/${params.leagueId}/admin/transition-phase`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Show success message based on the action taken
+        let successMessage = '';
+        switch (result.action) {
+          case 'activated':
+            successMessage = `Started new challenge: "${result.prompt}"`;
+            break;
+          case 'started_voting':
+            successMessage = `Started voting phase for: "${result.prompt}"`;
+            break;
+          case 'completed':
+            successMessage = `Completed challenge: "${result.prompt}"`;
+            break;
+          case 'completed_and_started_next':
+            successMessage = `Completed "${result.completedPrompt}" and started "${result.newPrompt}"`;
+            break;
+          default:
+            successMessage = 'Phase transition completed';
+        }
+        
+        addMessage('admin', { type: 'success', text: successMessage });
+        fetchQueue(); // Refresh the queue
+      } else {
+        const data = await response.json();
+        addMessage('admin', { type: 'error', text: data.error || 'Failed to transition phase' });
+      }
+    } catch (error) {
+      addMessage('admin', { type: 'error', text: 'Failed to transition phase' });
+    } finally {
+      setIsTransitioning(false);
+    }
+  };
+
   if (status === 'loading' || leagueLoading) {
     return (
       <div>
@@ -253,11 +298,37 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className={`mb-6 px-4 py-3 rounded ${
+            error.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-700' 
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}>
             {error.text}
-            <button onClick={() => clearMessage('admin')} className="float-right text-red-500 hover:text-red-700">×</button>
+            <button 
+              onClick={() => clearMessage('admin')} 
+              className={`float-right hover:opacity-70 ${
+                error.type === 'success' ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              ×
+            </button>
           </div>
         )}
+
+        {/* Manual Phase Controls */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Phase Controls</h2>
+          <p className="text-gray-600 mb-4">
+            Manually transition to the next phase. This will immediately advance the current challenge regardless of timing.
+          </p>
+          <button
+            onClick={transitionPhase}
+            disabled={isTransitioning}
+            className="bg-orange-600 text-white px-6 py-2 rounded-md font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
+          >
+            {isTransitioning ? 'Transitioning...' : 'Transition to Next Phase'}
+          </button>
+        </div>
 
         {/* Add New Prompt */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -292,13 +363,24 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
               <div key={prompt.id} className="bg-white rounded-lg p-4">
                 <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
                 <div className="text-sm text-gray-600">
-                  <p>Active until: {new Date(prompt.weekEnd).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}</p>
+                  {(() => {
+                    const endTime = getPhaseEndTime({ 
+                      id: prompt.id, 
+                      status: prompt.status, 
+                      phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null 
+                    });
+                    return endTime ? (
+                      <p>Active until: {endTime.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}</p>
+                    ) : (
+                      <p>Phase timing not available</p>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

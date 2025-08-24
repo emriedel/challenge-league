@@ -1,5 +1,5 @@
 import { db } from './db';
-import { getWeeklyPromptDates } from './weeklyPrompts';
+import { isPhaseExpired, getNextPhase } from './phaseCalculations';
 import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -13,7 +13,7 @@ async function cleanupOldPhotos() {
     const oldPrompts = await db.prompt.findMany({
       where: {
         status: 'COMPLETED',
-        weekEnd: { lt: cutoffDate },
+        updatedAt: { lt: cutoffDate }, // Use updatedAt as proxy for completion time
       },
       include: {
         responses: true,
@@ -125,47 +125,54 @@ export async function processPromptQueue() {
     const activePrompts = await db.prompt.findMany({
       where: {
         status: 'ACTIVE',
-        weekEnd: { lt: now },
       },
     });
 
     for (const prompt of activePrompts) {
-      // Mark responses as published and move to voting phase
-      const publishedCount = await db.response.updateMany({
-        where: { promptId: prompt.id },
-        data: { 
-          isPublished: true,
-          publishedAt: now,
-        },
-      });
+      // Check if the active phase has expired
+      if (isPhaseExpired(prompt)) {
+        // Mark responses as published and move to voting phase
+        const publishedCount = await db.response.updateMany({
+          where: { promptId: prompt.id },
+          data: { 
+            isPublished: true,
+            publishedAt: now,
+          },
+        });
 
-      await db.prompt.update({
-        where: { id: prompt.id },
-        data: { status: 'VOTING' },
-      });
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { 
+            status: 'VOTING',
+            phaseStartedAt: now, // Update phase start time for voting phase
+          },
+        });
 
-      console.log(`🗳️ Started voting for: "${prompt.text}" (${publishedCount.count} responses published)`);
+        console.log(`🗳️ Started voting for: "${prompt.text}" (${publishedCount.count} responses published)`);
+      }
     }
 
     // Phase 2: Complete VOTING prompts when voting window ends
     const votingPrompts = await db.prompt.findMany({
       where: {
         status: 'VOTING',
-        voteEnd: { lt: now },
       },
     });
 
     for (const prompt of votingPrompts) {
-      // Calculate final results
-      await calculateVoteResults(prompt.id);
+      // Check if the voting phase has expired
+      if (isPhaseExpired(prompt)) {
+        // Calculate final results
+        await calculateVoteResults(prompt.id);
 
-      // Mark prompt as completed
-      await db.prompt.update({
-        where: { id: prompt.id },
-        data: { status: 'COMPLETED' },
-      });
+        // Mark prompt as completed (no need to update phaseStartedAt for completed)
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { status: 'COMPLETED' },
+        });
 
-      console.log(`🏆 Completed voting for: "${prompt.text}"`);
+        console.log(`🏆 Completed voting for: "${prompt.text}"`);
+      }
     }
 
     // Phase 3: Activate next prompt if no active prompt exists
@@ -181,27 +188,17 @@ export async function processPromptQueue() {
       });
 
       if (nextPrompt) {
-        // Calculate dates for this prompt (3-phase system)
-        const { weekStart, weekEnd } = getWeeklyPromptDates(now);
-        const voteStart = new Date(weekEnd); // Voting starts when submissions close
-        const voteEnd = new Date(voteStart);
-        voteEnd.setDate(voteEnd.getDate() + 2); // Vote for 2 days (Sat-Mon)
-        
-        // Activate the prompt with current dates
+        // Activate the prompt with current timestamp
         await db.prompt.update({
           where: { id: nextPrompt.id },
           data: {
             status: 'ACTIVE',
-            weekStart,
-            weekEnd,
-            voteStart,
-            voteEnd,
+            phaseStartedAt: now,
           },
         });
 
         console.log(`🚀 Activated next task: "${nextPrompt.text}"`);
-        console.log(`   Submit: ${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`);
-        console.log(`   Vote: ${voteStart.toLocaleDateString()} - ${voteEnd.toLocaleDateString()}`);
+        console.log(`   Phase started at: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
       } else {
         console.log('⚠️ No scheduled tasks available');
       }
@@ -248,4 +245,123 @@ export async function getPromptQueue() {
     scheduled: prompts.filter(p => p.status === 'SCHEDULED'),
     completed: prompts.filter(p => p.status === 'COMPLETED'),
   };
+}
+
+/**
+ * Manually transition a prompt to the next phase (for admin use)
+ * This bypasses the normal timing constraints
+ */
+export async function manualPhaseTransition(leagueId: string) {
+  const now = new Date();
+  
+  try {
+    console.log('⚡ Manual phase transition requested...');
+
+    // Find the current active or voting prompt for this league
+    const currentPrompt = await db.prompt.findFirst({
+      where: {
+        leagueId,
+        status: { in: ['ACTIVE', 'VOTING'] }
+      },
+    });
+
+    if (!currentPrompt) {
+      // No active prompt, try to start the next scheduled one
+      const nextPrompt = await db.prompt.findFirst({
+        where: { 
+          leagueId,
+          status: 'SCHEDULED' 
+        },
+        orderBy: { queueOrder: 'asc' },
+      });
+
+      if (nextPrompt) {
+        await db.prompt.update({
+          where: { id: nextPrompt.id },
+          data: {
+            status: 'ACTIVE',
+            phaseStartedAt: now,
+          },
+        });
+        
+        console.log(`⚡ Manually activated: "${nextPrompt.text}"`);
+        return { success: true, action: 'activated', prompt: nextPrompt.text };
+      } else {
+        return { success: false, error: 'No scheduled prompts available' };
+      }
+    }
+
+    const nextPhase = getNextPhase(currentPrompt.status);
+    if (!nextPhase) {
+      return { success: false, error: 'Prompt is already completed' };
+    }
+
+    if (currentPrompt.status === 'ACTIVE') {
+      // Transition from ACTIVE to VOTING
+      const publishedCount = await db.response.updateMany({
+        where: { promptId: currentPrompt.id },
+        data: { 
+          isPublished: true,
+          publishedAt: now,
+        },
+      });
+
+      await db.prompt.update({
+        where: { id: currentPrompt.id },
+        data: { 
+          status: 'VOTING',
+          phaseStartedAt: now,
+        },
+      });
+
+      console.log(`⚡ Manually started voting for: "${currentPrompt.text}" (${publishedCount.count} responses published)`);
+      return { success: true, action: 'started_voting', prompt: currentPrompt.text };
+    }
+
+    if (currentPrompt.status === 'VOTING') {
+      // Transition from VOTING to COMPLETED
+      await calculateVoteResults(currentPrompt.id);
+
+      await db.prompt.update({
+        where: { id: currentPrompt.id },
+        data: { status: 'COMPLETED' },
+      });
+
+      console.log(`⚡ Manually completed voting for: "${currentPrompt.text}"`);
+      
+      // Also try to start the next prompt
+      const nextPrompt = await db.prompt.findFirst({
+        where: { 
+          leagueId,
+          status: 'SCHEDULED' 
+        },
+        orderBy: { queueOrder: 'asc' },
+      });
+
+      if (nextPrompt) {
+        await db.prompt.update({
+          where: { id: nextPrompt.id },
+          data: {
+            status: 'ACTIVE',
+            phaseStartedAt: now,
+          },
+        });
+        
+        console.log(`⚡ Manually activated next prompt: "${nextPrompt.text}"`);
+        return { 
+          success: true, 
+          action: 'completed_and_started_next', 
+          completedPrompt: currentPrompt.text,
+          newPrompt: nextPrompt.text
+        };
+      }
+
+      return { success: true, action: 'completed', prompt: currentPrompt.text };
+    }
+
+    return { success: false, error: 'Unexpected prompt status' };
+  } catch (error) {
+    console.error('❌ Error during manual phase transition:', error);
+    return { success: false, error: 'Failed to transition phase' };
+  }
 }

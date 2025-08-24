@@ -99,8 +99,8 @@ export async function GET(
       round: {
         id: round.id,
         text: round.text,
-        weekStart: round.weekStart,
-        weekEnd: round.weekEnd,
+        status: round.status,
+        phaseStartedAt: round.phaseStartedAt,
         responses: round.responses
       }
     });

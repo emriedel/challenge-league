@@ -47,7 +47,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       orderBy: [
         { status: 'asc' },
         { queueOrder: 'asc' },
-        { weekStart: 'asc' }
+        { createdAt: 'asc' }
       ]
     });
 
@@ -125,11 +125,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         status: 'SCHEDULED',
         queueOrder: nextQueueOrder,
         leagueId: league.id,
-        // These will be set when the prompt becomes active
-        weekStart: new Date(),
-        weekEnd: new Date(),
-        voteStart: new Date(),
-        voteEnd: new Date()
+        // phaseStartedAt will be set when the prompt becomes active
+        phaseStartedAt: null
       }
     });
 

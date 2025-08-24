@@ -8,9 +8,7 @@ interface PromptData {
     id: string;
     text: string;
     status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
-    weekStart: string;
-    weekEnd: string;
-    voteEnd: string;
+    phaseStartedAt: string | null;
   } | null;
   userResponse?: {
     id: string;

@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { getWeeklyPromptDates } from '../src/lib/weeklyPrompts';
 
 const prisma = new PrismaClient();
 
@@ -202,25 +201,15 @@ async function main() {
       
       // Create completed prompt (3 weeks ago, 2 weeks ago, 1 week ago)
       const weeksAgo = 3 - roundIndex;
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - (weeksAgo * 7));
-      
-      const { weekStart, weekEnd } = getWeeklyPromptDates(startDate);
-      
-      // Calculate voting period (2 days after submissions close)
-      const voteStart = new Date(weekEnd);
-      const voteEnd = new Date(weekEnd);
-      voteEnd.setDate(voteEnd.getDate() + 2);
+      const phaseStartDate = new Date();
+      phaseStartDate.setDate(phaseStartDate.getDate() - (weeksAgo * 7));
       
       const prompt = await prisma.prompt.create({
         data: {
           text: task,
           leagueId: league.id,
           status: 'COMPLETED',
-          weekStart,
-          weekEnd,
-          voteStart,
-          voteEnd,
+          phaseStartedAt: phaseStartDate,
           queueOrder: roundIndex,
         },
       });
@@ -312,22 +301,17 @@ async function main() {
     // Create 1 current round (active submission phase)
     const currentTaskIndex = (leagueIndex * 7 + 3) % competitionTasks.length;
     const currentTask = competitionTasks[currentTaskIndex];
-    const { weekStart, weekEnd } = getWeeklyPromptDates();
     
-    // Calculate voting period (2 days after submissions close)
-    const voteStart = new Date(weekEnd);
-    const voteEnd = new Date(weekEnd);
-    voteEnd.setDate(voteEnd.getDate() + 2);
+    // Set phase started to a few days ago so it's already in progress
+    const activePhaseStart = new Date();
+    activePhaseStart.setDate(activePhaseStart.getDate() - 2);
     
     const currentPrompt = await prisma.prompt.create({
       data: {
         text: currentTask,
         leagueId: league.id,
         status: 'ACTIVE',
-        weekStart,
-        weekEnd,
-        voteStart,
-        voteEnd,
+        phaseStartedAt: activePhaseStart,
         queueOrder: 3,
       },
     });
@@ -356,19 +340,12 @@ async function main() {
       const futureTaskIndex = (leagueIndex * 7 + 4 + futureIndex) % competitionTasks.length;
       const futureTask = competitionTasks[futureTaskIndex];
       
-      // Create placeholder dates for scheduled prompts (will be set when activated)
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + (futureIndex + 1) * 7);
-      
       await prisma.prompt.create({
         data: {
           text: futureTask,
           leagueId: league.id,
           status: 'SCHEDULED',
-          weekStart: futureDate,
-          weekEnd: new Date(futureDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-          voteStart: new Date(futureDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-          voteEnd: new Date(futureDate.getTime() + 9 * 24 * 60 * 60 * 1000),
+          phaseStartedAt: null, // Will be set when prompt becomes active
           queueOrder: 4 + futureIndex,
         },
       });
