@@ -88,11 +88,7 @@ export default function VotingInterface({
       <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
       {/* Voting Instructions */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
-        <h2 className="text-xl font-semibold mb-2">Cast Your Votes</h2>
-        <div className="space-y-2 text-blue-700">
-          <p className="font-medium">Challenge: {votingData.prompt?.text}</p>
-        </div>
-        <div className="mt-4 space-y-1 text-sm text-blue-600">
+        <div className="space-y-1 text-sm text-blue-600">
           <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
           <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
           <p>• Voting ends: {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleString() : 'TBD'}</p>
