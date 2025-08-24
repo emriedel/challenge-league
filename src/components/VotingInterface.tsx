@@ -16,6 +16,8 @@ export default function VotingInterface({
   message 
 }: VotingInterfaceProps) {
   const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
+  const [lastTap, setLastTap] = useState<{ responseId: string; time: number } | null>(null);
+  const [heartAnimation, setHeartAnimation] = useState<string | null>(null);
 
   const handleVoteToggle = (responseId: string) => {
     const newVotes = { ...selectedVotes };
@@ -30,6 +32,25 @@ export default function VotingInterface({
     }
     
     setSelectedVotes(newVotes);
+  };
+
+  const handleImageTap = (responseId: string) => {
+    const now = Date.now();
+    const doubleTapThreshold = 300; // milliseconds
+    
+    if (lastTap && lastTap.responseId === responseId && now - lastTap.time < doubleTapThreshold) {
+      // Double tap detected - toggle vote
+      handleVoteToggle(responseId);
+      
+      // Show heart animation
+      setHeartAnimation(responseId);
+      setTimeout(() => setHeartAnimation(null), 1000);
+      
+      setLastTap(null); // Reset to prevent triple-tap issues
+    } else {
+      // Single tap - just record the tap
+      setLastTap({ responseId, time: now });
+    }
   };
 
   const getTotalVotes = () => {
@@ -47,7 +68,24 @@ export default function VotingInterface({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+    <>
+      <style jsx>{`
+        @keyframes heartBeat {
+          0% {
+            transform: scale(0);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0;
+          }
+        }
+      `}</style>
+      <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
       {/* Voting Instructions */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
         <h2 className="text-xl font-semibold mb-2">Cast Your Votes</h2>
@@ -55,8 +93,8 @@ export default function VotingInterface({
           <p className="font-medium">Challenge: {votingData.prompt?.text}</p>
         </div>
         <div className="mt-4 space-y-1 text-sm text-blue-600">
-          <p>• You have {VOTING_CONFIG.VOTES_PER_PLAYER} votes to cast among submissions (each vote = {VOTING_CONFIG.POINTS_PER_VOTE} point)</p>
-          <p>• You can vote for up to {VOTING_CONFIG.VOTES_PER_PLAYER} different submissions (one vote per submission)</p>
+          <p>• You can vote for up to {VOTING_CONFIG.VOTES_PER_PLAYER} submissions</p>
+          <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
           <p>• You cannot vote for your own submission</p>
           <p>• Voting ends: {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleString() : 'TBD'}</p>
         </div>
@@ -70,7 +108,7 @@ export default function VotingInterface({
             return (
               <div
                 key={response.id}
-                className={`bg-white border rounded-lg overflow-hidden transition-all ${
+                className={`group bg-white border rounded-lg overflow-hidden transition-all ${
                   hasVoted
                     ? 'border-blue-500 shadow-lg' 
                     : 'border-gray-200'
@@ -107,7 +145,11 @@ export default function VotingInterface({
                 </div>
 
                 {/* Image */}
-                <div className="relative">
+                <div 
+                  className="relative cursor-pointer select-none"
+                  onClick={() => handleImageTap(response.id)}
+                  style={{ WebkitTapHighlightColor: 'transparent' }} // Remove mobile tap highlight
+                >
                   <Image
                     src={response.imageUrl}
                     alt={response.caption}
@@ -115,6 +157,22 @@ export default function VotingInterface({
                     height={600}
                     className="w-full h-auto object-contain bg-gray-50 max-h-[600px]"
                   />
+                  
+                  {/* Heart Animation Overlay */}
+                  {heartAnimation === response.id && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div 
+                        className="text-red-500 transform scale-0 animate-bounce"
+                        style={{
+                          animation: 'heartBeat 0.8s ease-out forwards',
+                          fontSize: '4rem'
+                        }}
+                      >
+                        ❤️
+                      </div>
+                    </div>
+                  )}
+                  
                 </div>
 
                 {/* Caption */}
@@ -153,6 +211,7 @@ export default function VotingInterface({
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
