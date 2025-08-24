@@ -119,9 +119,9 @@ export async function processPromptQueue() {
   const now = new Date();
   
   try {
-    console.log('🔄 Processing 3-phase prompt queue...');
+    console.log('🔄 Processing 2-phase prompt queue...');
 
-    // Phase 1: Move ACTIVE prompts to VOTING when submission window ends
+    // Step 1: Move ACTIVE prompts to VOTING when submission window ends
     const activePrompts = await db.prompt.findMany({
       where: {
         status: 'ACTIVE',
@@ -152,7 +152,7 @@ export async function processPromptQueue() {
       }
     }
 
-    // Phase 2: Complete VOTING prompts when voting window ends
+    // Step 2: Complete VOTING prompts when voting window ends
     const votingPrompts = await db.prompt.findMany({
       where: {
         status: 'VOTING',
@@ -175,7 +175,7 @@ export async function processPromptQueue() {
       }
     }
 
-    // Phase 3: Activate next prompt if no active prompt exists
+    // Step 3: Activate next prompt if no active prompt exists (immediate transition after voting)
     const currentActivePrompt = await db.prompt.findFirst({
       where: { status: 'ACTIVE' },
     });

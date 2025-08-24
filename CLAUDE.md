@@ -70,15 +70,15 @@ src/
 
 ## Core App Specifications
 
-### 3-Phase Competition Cycle
-- **Submission Phase**: 7 days to submit creative responses (Saturday 12 PM PT to next Saturday 12 PM PT)
-- **Voting Phase**: 2 days to vote on submissions (Saturday 12 PM PT to Monday 12 PM PT)
-- **Results Phase**: Winners announced, next challenge begins (Monday 12 PM PT to Saturday 12 PM PT)
+### 2-Phase Competition Cycle
+- **Submission Phase**: 7 days to submit creative responses
+- **Voting Phase**: 2 days to vote on submissions
+- **Results**: Winners announced immediately after voting ends, next challenge begins
 
 ### Main App Features
 1. **League Dashboard**: Overview of competition status, personal stats, and leaderboard
 2. **Task Submission**: Current challenge with creative prompts, photo upload, caption input
-3. **Voting Interface**: Distribute 3 equal-value votes among submissions
+3. **Voting Interface**: Instagram-style feed with double-tap voting and vote buttons
 4. **Results Gallery**: View ranked results from completed challenges
 5. **Leaderboard**: League standings based on total points earned
 
@@ -88,8 +88,8 @@ src/
 - Players see "waiting for voting" state after submitting
 - Confirmation step required before submitting
 - Players cannot vote for their own submissions
-- Each player gets exactly 3 votes to distribute (each vote = 1 point)
-- Can allocate multiple votes to same submission or spread across different ones
+- Each player gets exactly 3 votes to cast (1 vote per submission, each vote = 1 point)
+- Double-tap photos or use vote buttons to cast votes
 - Photos automatically deleted after each cycle (no permanent history)
 - Rankings based on total vote points received
 - No grace period for submission or voting deadlines
@@ -116,11 +116,11 @@ src/
 
 ### Voting System
 - Anonymous voting with public results
-- Equal-value voting: Each vote = 1 point
-- Players get exactly 3 votes to distribute among submissions
-- Can give multiple votes to the same submission or spread across different ones
+- Instagram-style interface with double-tap voting
+- Players get exactly 3 votes to cast among submissions (1 vote per submission)
+- Each vote = 1 point
 - Cannot vote for own submission
-- Voting window: 48 hours after submissions close
+- Voting window: 2 days after submissions close
 - Automatic ranking calculation based on total points
 
 ### Username Requirements
@@ -143,10 +143,10 @@ src/
 1. Next.js app setup with TypeScript and Tailwind
 2. User authentication with NextAuth.js
 3. League system with auto-assignment
-4. 3-phase competition cycle (submit → vote → results)
+4. 2-phase competition cycle (submit → vote → results)
 5. Creative task system with categories and difficulty
 6. Photo upload and caption submission
-7. Voting interface with 3-choice ranking
+7. Instagram-style voting interface with double-tap functionality
 8. League dashboard with multiple tabs
 9. Leaderboard with comprehensive stats
 10. Automatic cycle management and vote calculation
@@ -190,7 +190,7 @@ src/
 ### Prompt (Challenge)
 - Text description and category
 - Difficulty level (1-3)
-- 3-phase timing (submit, vote, results)
+- 2-phase timing (submit, vote)
 - Status: SCHEDULED → ACTIVE → VOTING → COMPLETED
 - Queue order for automatic progression
 
