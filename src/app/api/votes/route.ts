@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 import { getPhaseEndTime, isPhaseExpired } from '@/lib/phaseCalculations';
+import { VOTING_CONFIG } from '@/constants/phases';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -111,10 +112,17 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     throw new ValidationError('Invalid votes format');
   }
 
-  // Calculate total votes - should be exactly 3
+  // Calculate total votes - should be exactly VOTES_PER_PLAYER
   const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
-  if (totalVotes !== 3) {
-    throw new ValidationError('Must use exactly 3 votes');
+  if (totalVotes !== VOTING_CONFIG.VOTES_PER_PLAYER) {
+    throw new ValidationError(`Must use exactly ${VOTING_CONFIG.VOTES_PER_PLAYER} votes`);
+  }
+
+  // Validate that each vote is exactly 1 (one vote per submission)
+  for (const count of Object.values(votes)) {
+    if (count !== 1) {
+      throw new ValidationError('Each submission can receive only one vote');
+    }
   }
 
   // Get current voting prompt for this league
@@ -166,21 +174,19 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     }
   });
 
-  // Create new votes - each vote is worth 1 point
+  // Create new votes - each vote is worth POINTS_PER_VOTE
   const createdVotes = [];
   for (const [responseId, count] of Object.entries(votes)) {
     const voteCount = count as number;
-    if (voteCount > 0) {
-      for (let i = 0; i < voteCount; i++) {
-        const vote = await db.vote.create({
-          data: {
-            voterId: session.user.id,
-            responseId: responseId,
-            points: 1 // Each vote worth 1 point
-          }
-        });
-        createdVotes.push(vote);
-      }
+    if (voteCount === 1) { // Should always be 1 due to validation above
+      const vote = await db.vote.create({
+        data: {
+          voterId: session.user.id,
+          responseId: responseId,
+          points: VOTING_CONFIG.POINTS_PER_VOTE
+        }
+      });
+      createdVotes.push(vote);
     }
   }
 

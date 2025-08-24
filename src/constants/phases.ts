@@ -13,6 +13,18 @@ export const PHASE_DURATIONS = {
   RESULTS_PHASE_DAYS: 5,
 } as const;
 
+/**
+ * Global voting configuration
+ * Change these values to adjust how voting works
+ */
+export const VOTING_CONFIG = {
+  /** Number of votes each player gets per challenge */
+  VOTES_PER_PLAYER: 3,
+  
+  /** Points awarded per vote */
+  POINTS_PER_VOTE: 1,
+} as const;
+
 /** Total cycle duration in days */
 export const TOTAL_CYCLE_DAYS = 
   PHASE_DURATIONS.SUBMISSION_PHASE_DAYS + 

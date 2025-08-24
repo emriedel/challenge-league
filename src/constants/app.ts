@@ -38,13 +38,11 @@ export const CONTENT_LIMITS = {
 } as const;
 
 // =============================================================================
-// VOTING SYSTEM
+// VOTING SYSTEM (Moved to phases.ts)
 // =============================================================================
 
-export const VOTING = {
-  /** Total number of votes each user gets per round */
-  TOTAL_VOTES_PER_USER: 3,
-} as const;
+// NOTE: Voting configuration has been moved to @/constants/phases
+// for better organization with other phase-related settings.
 
 // =============================================================================
 // UI TIMEOUTS (in milliseconds)
