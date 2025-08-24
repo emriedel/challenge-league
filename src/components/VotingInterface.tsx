@@ -93,9 +93,8 @@ export default function VotingInterface({
           <p className="font-medium">Challenge: {votingData.prompt?.text}</p>
         </div>
         <div className="mt-4 space-y-1 text-sm text-blue-600">
-          <p>• You can vote for up to {VOTING_CONFIG.VOTES_PER_PLAYER} submissions</p>
+          <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
           <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
-          <p>• You cannot vote for your own submission</p>
           <p>• Voting ends: {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleString() : 'TBD'}</p>
         </div>
       </div>
