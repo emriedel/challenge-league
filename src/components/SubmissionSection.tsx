@@ -13,8 +13,7 @@ export default function SubmissionSection({
   return (
     <div className="space-y-6 mb-8">
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-2">Current Challenge</h2>
-        <p className="text-gray-600 mb-6">{prompt.text}</p>
+        <h2 className="text-xl font-semibold mb-2">Your Submission</h2>
         
         {message && (
           <div className={`mb-4 p-3 rounded-lg text-sm ${

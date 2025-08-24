@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
 import type { PhotoUploadProps } from '@/types/components';
@@ -13,7 +13,6 @@ export default function PhotoUpload({
   previewUrl, 
   disabled = false 
 }: PhotoUploadProps) {
-  const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (file: File) => {
@@ -43,28 +42,6 @@ export default function PhotoUpload({
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      handleFileSelect(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!disabled) {
-      setDragOver(true);
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-  };
-
   const openFileDialog = () => {
     if (!disabled) {
       fileInputRef.current?.click();
@@ -92,9 +69,9 @@ export default function PhotoUpload({
           <Image
             src={previewUrl}
             alt="Preview"
-            width={400}
-            height={256}
-            className="w-full h-64 object-cover"
+            width={800}
+            height={600}
+            className="w-full h-auto object-contain bg-gray-50 max-h-[400px]"
           />
           {!disabled && (
             <button
@@ -108,12 +85,6 @@ export default function PhotoUpload({
             </button>
           )}
         </div>
-        {selectedPhoto && (
-          <div className="mt-2 text-sm text-gray-500">
-            <p>{selectedPhoto.name}</p>
-            <p>{(selectedPhoto.size / (1024 * 1024)).toFixed(1)} MB</p>
-          </div>
-        )}
       </div>
     );
   }
@@ -129,42 +100,21 @@ export default function PhotoUpload({
         disabled={disabled}
       />
       
-      <div
-        className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-colors ${
-          dragOver
-            ? 'border-primary-500 bg-primary-50'
-            : disabled
-            ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
-            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-        }`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+      <button
         onClick={openFileDialog}
+        disabled={disabled}
+        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
       >
-        <div className={`text-gray-400 mb-4 ${disabled ? 'opacity-50' : ''}`}>
-          <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-        </div>
-        
-        <div className={disabled ? 'opacity-50' : ''}>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Upload your photo
-          </h3>
-          <p className="text-gray-500 mb-2">
-            Drag and drop your image here, or click to select
-          </p>
-          <p className="text-sm text-gray-400">
-            Supports: JPG, PNG, GIF, WebP (Max 10MB)
-          </p>
-        </div>
-      </div>
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+        Upload Photo
+      </button>
     </div>
   );
 }
