@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { ValidationError } from '@/lib/apiErrors';
+import { getStarterPrompts } from '@/lib/starterPrompts';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -103,6 +104,32 @@ export const { GET, POST } = createMethodHandlers({
         leagueId: league.id,
         isActive: true,
       },
+    });
+
+    // Add starter prompts to the new league
+    const starterPrompts = getStarterPrompts(8); // Get 8 random starter prompts
+    
+    // Create prompts with sequential queue order
+    const promptCreationData = starterPrompts.map((promptText, index) => {
+      const weekStart = new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000); // Each prompt 1 week apart
+      const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000); // 6 days after start
+      const voteStart = weekEnd; // Voting starts when submission ends
+      const voteEnd = new Date(voteStart.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days after vote start
+      
+      return {
+        text: promptText,
+        leagueId: league.id,
+        status: 'SCHEDULED' as const,
+        queueOrder: index + 1,
+        weekStart,
+        weekEnd,
+        voteStart,
+        voteEnd,
+      };
+    });
+
+    await db.prompt.createMany({
+      data: promptCreationData,
     });
 
     return NextResponse.json({ 
