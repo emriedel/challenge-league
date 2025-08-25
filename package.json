@@ -13,6 +13,7 @@
     "db:setup": "prisma generate && prisma db push && npm run db:seed",
     "db:prod-fresh": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && prisma db push --force-reset && tsx prisma/seed.ts",
     "db:prod-migrate": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && prisma db push",
+    "migrate:prod": "./scripts/migrate-production.sh",
     "postinstall": "prisma generate"
   },
   "dependencies": {

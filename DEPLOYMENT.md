@@ -271,7 +271,86 @@ photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage,
 🔧 **Easier maintenance** - Best database for each environment
 📦 **Flexible** - Easy to switch between environments
 
+## Database Schema Changes and Migrations
+
+When you make changes to your database schema (in `prisma/schema.prisma`), you need to apply those changes to production safely.
+
+### Applying Schema Changes to Production
+
+**⚠️ IMPORTANT: This preserves all production data - users, responses, votes, etc.**
+
+#### Option 1: Automated Script (Recommended)
+
+```bash
+# Run the automated migration script
+npm run migrate:prod
+
+# Then deploy your code changes
+git add .
+git commit -m "Apply database schema changes"  
+git push
+```
+
+#### Option 2: Manual Steps
+
+```bash
+# 1. Pull production environment variables
+vercel env pull .env.production
+
+# 2. Backup your current local environment
+mv .env .env.backup
+
+# 3. Switch to production environment locally
+cp .env.production .env
+
+# 4. Apply schema changes to production database (safe migration)
+npm run db:prod-migrate
+
+# 5. Restore your local development environment
+mv .env.backup .env
+
+# 6. Deploy the updated code to Vercel
+git add .
+git commit -m "Apply database schema changes"
+git push
+```
+
+**What this does:**
+- Applies new migrations to production PostgreSQL database
+- Preserves all existing data (users, competitions, votes, etc.)
+- Updates the database schema to match your code changes
+- Generates updated Prisma client for production
+
+### Understanding Migration Safety
+
+The `npm run db:prod-migrate` command uses Prisma's `db push` which:
+- ✅ **Safe for additive changes** (new columns, tables)
+- ✅ **Safe for column renames/type changes** (with proper migrations)
+- ✅ **Preserves all existing data**
+- ⚠️ **Will fail if changes would cause data loss** (protects your data)
+
+### When Schema Changes Cause Deployment Errors
+
+If you see errors like:
+- "Column doesn't exist"
+- "Prisma client out of sync"
+- "Database schema mismatch"
+
+**Root Cause:** Your code expects the new schema, but production database hasn't been updated yet.
+
+**Solution:** Follow the migration steps above before your next deployment.
+
 ## Common Issues and Solutions
+
+### Issue: "Database schema mismatch after code changes"
+**Solution**: Apply schema migrations to production:
+```bash
+# Follow the complete migration process above
+vercel env pull .env.production
+mv .env .env.backup && cp .env.production .env
+npm run db:prod-migrate
+mv .env.backup .env
+```
 
 ### Issue: "Local database problems or migration errors"
 **Solution**: Reset your local environment:
@@ -287,6 +366,14 @@ npm run db:setup
 
 ### Issue: "Photos not uploading"
 **Solution**: The app works without Blob storage. If you want external storage, set up Vercel Blob as described in Step 5.
+
+### Issue: "Migration fails with data loss warning"
+**Solution**: Prisma is protecting your data. Review the migration carefully:
+```bash
+# Check what the migration would do
+npx prisma db push --preview-feature-only
+# If safe, proceed with the migration steps above
+```
 
 ## Environment Summary
 
