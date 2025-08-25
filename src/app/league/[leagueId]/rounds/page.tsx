@@ -80,14 +80,14 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
       {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-        <div>
+        <div className="bg-gray-50 min-h-screen">
           {/* Challenge Selector and Details */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="relative mb-6" ref={dropdownRef}>
+          <div className="py-4">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="relative mb-4" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-between p-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors min-w-48"
+                  className="flex items-center justify-between p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-48 shadow-sm"
                 >
                   <div className="text-left">
                     {selectedRound ? (
@@ -135,13 +135,16 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
               {/* Challenge Details */}
               {selectedRound && (
-                <div>
-                  <p className="text-lg text-gray-700 mb-4 font-bold">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 mb-2 shadow-sm">
+                  <p className="text-lg text-gray-700 mb-3 font-bold">
                     {selectedRound.text}
                   </p>
                   <div className="flex items-center space-x-6 text-sm text-gray-500">
                     <div>
-                      Ended: {new Date(selectedRound.weekEnd).toLocaleDateString()}
+                      Ended: {selectedRound.weekEnd 
+                        ? new Date(selectedRound.weekEnd).toLocaleDateString()
+                        : 'Date not available'
+                      }
                     </div>
                   </div>
                 </div>
@@ -150,13 +153,13 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           </div>
 
           {/* Full-width Photo Display */}
-          <div className="min-h-screen">
+          <div>
             {selectedRound?.responses && selectedRound.responses.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-0">
                 {selectedRound.responses.map((response) => (
-                  <div key={response.id} className="border-b border-gray-200">
+                  <div key={response.id} className="border-t border-gray-200">
                     {/* Header with user info and rank */}
-                    <div className="p-4 max-w-4xl mx-auto">
+                    <div className="px-4 py-3 max-w-4xl mx-auto">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <ProfileAvatar 
@@ -171,7 +174,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                         {response.finalRank && (
                           <div className="text-right">
                             <p className="text-sm text-gray-500">
-                              #{response.finalRank} • {response.totalPoints} points
+                              #{response.finalRank} • {response.totalVotes} votes
                             </p>
                           </div>
                         )}
@@ -179,20 +182,20 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                     </div>
                     
                     {/* Full-width Image */}
-                    <div className="relative w-full">
+                    <div className="relative w-full max-w-4xl mx-auto">
                       <Image
                         src={response.imageUrl}
                         alt={response.caption}
                         width={1200}
                         height={800}
-                        className="w-full h-auto object-contain bg-gray-50"
+                        className="w-full h-auto object-contain bg-gray-100"
                         style={{ maxHeight: '80vh' }}
                         priority={false}
                       />
                     </div>
                     
                     {/* Caption */}
-                    <div className="p-4 max-w-4xl mx-auto">
+                    <div className="px-4 pt-3 pb-8 max-w-4xl mx-auto">
                       <p className="text-gray-800 leading-relaxed">
                         <span className="font-semibold">{response.user.username}</span>{' '}
                         <span>{response.caption}</span>

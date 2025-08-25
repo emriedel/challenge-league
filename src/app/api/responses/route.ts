@@ -3,6 +3,7 @@ import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { processPromptQueue } from '@/lib/promptQueue';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
+import { calculatePhaseEndTime } from '@/lib/phaseCalculations';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 
 // Dynamic export is handled by the API handler
@@ -77,8 +78,22 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
     orderBy: { updatedAt: 'desc' } // Most recent rounds first
   });
 
+  // Add calculated dates to completed prompts
+  const roundsWithDates = completedPrompts.map(prompt => {
+    // For completed prompts, calculate when the submission phase ended
+    const submissionEndDate = prompt.phaseStartedAt 
+      ? calculatePhaseEndTime(new Date(prompt.phaseStartedAt), 'ACTIVE')
+      : null;
+
+    return {
+      ...prompt,
+      weekEnd: submissionEndDate ? submissionEndDate.toISOString() : null,
+      weekStart: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt).toISOString() : null
+    };
+  });
+
   return NextResponse.json({
-    rounds: completedPrompts
+    rounds: roundsWithDates
   });
 };
 

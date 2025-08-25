@@ -72,7 +72,7 @@ export default function Navigation() {
   }
 
   return (
-    <header className="shadow-sm border-b sticky top-0 z-40" style={{ backgroundColor: '#2d8cff' }}>
+    <header className="shadow-sm sticky top-0 z-40" style={{ backgroundColor: '#2d8cff' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80">

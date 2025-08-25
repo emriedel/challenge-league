@@ -16,7 +16,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
   ];
 
   return (
-    <div className="border-b border-gray-200 bg-white">
+    <div className="md:border-b border-gray-200 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Navigation Tabs - Hidden on mobile since we use bottom navigation */}
