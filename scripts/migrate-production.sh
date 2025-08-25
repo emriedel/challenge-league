@@ -55,14 +55,24 @@ echo
 
 echo "🗃️  Step 5: Applying database migrations to production..."
 echo "⚠️  This will update the production database schema while preserving all data"
-echo "⚠️  Note: Old timing columns (weekStart, weekEnd, voteStart, voteEnd) will be removed"
-echo "⚠️  This is expected - we're replacing them with dynamic phase calculations"
 echo
 
-# Run the migration with data loss acceptance for the expected column removals
+# Run the migration (will fail safely if there's potential data loss)
 cp prisma/schema.production.prisma prisma/schema.prisma
 npx prisma generate
-npx prisma db push --accept-data-loss
+
+echo "Running database migration..."
+if ! npx prisma db push; then
+    echo
+    echo "❌ Migration failed due to potential data loss."
+    echo "Prisma detected changes that could result in data loss."
+    echo 
+    echo "To proceed anyway (only if you're certain it's safe):"
+    echo "   npx prisma db push --accept-data-loss"
+    echo
+    echo "Or review the changes and modify your schema accordingly."
+    exit 1
+fi
 
 echo "✅ Database migration completed successfully!"
 echo

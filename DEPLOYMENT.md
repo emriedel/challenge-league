@@ -320,14 +320,18 @@ git push
 - Preserves all existing data (users, competitions, votes, etc.)
 - Updates the database schema to match your code changes
 - Generates updated Prisma client for production
+- **Fails safely if changes would cause data loss**
 
 ### Understanding Migration Safety
 
-The `npm run db:prod-migrate` command uses Prisma's `db push` which:
+The migration script uses Prisma's `db push` which:
 - ✅ **Safe for additive changes** (new columns, tables)
 - ✅ **Safe for column renames/type changes** (with proper migrations)
 - ✅ **Preserves all existing data**
 - ⚠️ **Will fail if changes would cause data loss** (protects your data)
+
+**If migration fails due to data loss warnings:**
+The script will stop and show you exactly what would be lost, then provide the command to proceed manually if you're certain it's safe.
 
 ### When Schema Changes Cause Deployment Errors
 
