@@ -271,21 +271,8 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
     );
   }
 
-  if (!leagueData?.league.isOwner) {
-    return (
-      <div>
-        <LeagueNavigation leagueId={params.leagueId} leagueName={leagueData?.league.name || 'League'} />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-            <h3 className="text-lg font-medium text-yellow-900 mb-2">Access Denied</h3>
-            <p className="text-yellow-700">Only league owners can access the admin panel.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const league = leagueData.league;
+  const league = leagueData?.league;
+  const isOwner = league?.isOwner || false;
 
   return (
     <div>
@@ -294,7 +281,19 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">League Settings</h1>
-          <p className="text-gray-600">Manage prompts for your league - they&rsquo;ll automatically activate in order</p>
+          <p className="text-gray-600">
+            {isOwner 
+              ? "Manage prompts for your league - they'll automatically activate in order"
+              : "View prompts and queue for this league"
+            }
+          </p>
+          {!isOwner && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-blue-700 text-sm">
+                <strong>Read-only view:</strong> Only league owners can modify prompts and settings.
+              </p>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -315,45 +314,50 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
           </div>
         )}
 
-        {/* Manual Phase Controls */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Phase Controls</h2>
-          <p className="text-gray-600 mb-4">
-            Manually transition to the next phase. This will immediately advance the current challenge regardless of timing.
-          </p>
-          <button
-            onClick={transitionPhase}
-            disabled={isTransitioning}
-            className="bg-orange-600 text-white px-6 py-2 rounded-md font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
-          >
-            {isTransitioning ? 'Transitioning...' : 'Transition to Next Phase'}
-          </button>
-        </div>
-
-        {/* Add New Prompt */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Add Future Prompt</h2>
-          <form onSubmit={createPrompt}>
-            <div className="mb-4">
-              <textarea
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="e.g., Share a photo that represents your favorite moment from this week"
-                value={newPromptText}
-                onChange={(e) => setNewPromptText(e.target.value)}
-                required
-              />
+        {/* Admin Controls - Only for owners */}
+        {isOwner && (
+          <>
+            {/* Manual Phase Controls */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Phase Controls</h2>
+              <p className="text-gray-600 mb-4">
+                Manually transition to the next phase. This will immediately advance the current challenge regardless of timing.
+              </p>
+              <button
+                onClick={transitionPhase}
+                disabled={isTransitioning}
+                className="bg-orange-600 text-white px-6 py-2 rounded-md font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {isTransitioning ? 'Transitioning...' : 'Transition to Next Phase'}
+              </button>
             </div>
-            
-            <button
-              type="submit"
-              disabled={isLoading || !newPromptText.trim()}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {isLoading ? 'Adding...' : 'Add to Queue'}
-            </button>
-          </form>
-        </div>
+
+            {/* Add New Prompt */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Add Future Prompt</h2>
+              <form onSubmit={createPrompt}>
+                <div className="mb-4">
+                  <textarea
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Share a photo that represents your favorite moment from this week"
+                    value={newPromptText}
+                    onChange={(e) => setNewPromptText(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isLoading || !newPromptText.trim()}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                >
+                  {isLoading ? 'Adding...' : 'Add to Queue'}
+                </button>
+              </form>
+            </div>
+          </>
+        )}
 
         {/* Current Active Prompt */}
         {queue.active.length > 0 && (
@@ -405,7 +409,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
                         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
                           #{index + 1}
                         </span>
-                        {editingPrompt === prompt.id ? (
+                        {editingPrompt === prompt.id && isOwner ? (
                           <div className="flex-1 flex items-center gap-2">
                             <textarea
                               rows={2}
@@ -432,7 +436,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
                       </div>
                     </div>
                     
-                    {editingPrompt !== prompt.id && (
+                    {editingPrompt !== prompt.id && isOwner && (
                       <div className="flex items-center gap-2">
                         {/* Move Up/Down */}
                         <button

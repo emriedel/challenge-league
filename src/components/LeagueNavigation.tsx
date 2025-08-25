@@ -10,7 +10,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
 
   const tabs = [
     { id: 'home', name: 'Current Challenge', href: `/league/${leagueId}` },
-    { id: 'rounds', name: 'Completed Challenges', href: `/league/${leagueId}/rounds` },
+    { id: 'rounds', name: 'Challenge Results', href: `/league/${leagueId}/rounds` },
     { id: 'standings', name: 'Standings', href: `/league/${leagueId}/standings` },
     ...(isOwner ? [{ id: 'league-settings', name: 'League Settings', href: `/league/${leagueId}/league-settings` }] : []),
   ];
@@ -34,7 +34,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
               <span className="hidden sm:inline">{tab.name}</span>
               <span className="sm:hidden">
                 {tab.name === 'Current Challenge' ? 'Home' : 
-                 tab.name === 'Completed Challenges' ? 'Rounds' : 
+                 tab.name === 'Challenge Results' ? 'Results' : 
                  tab.name === 'Standings' ? 'Standings' : 
                  tab.name === 'League Settings' ? 'Settings' : tab.name}
               </span>

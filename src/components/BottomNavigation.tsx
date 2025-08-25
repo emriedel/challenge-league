@@ -40,12 +40,11 @@ export default function BottomNavigation() {
       )
     },
     {
-      name: 'History',
+      name: 'Results',
       href: currentLeagueId ? `/league/${currentLeagueId}/rounds` : '/rounds',
       icon: (active: boolean) => (
         <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12a9 9 0 009-9" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
         </svg>
       )
     },
@@ -59,8 +58,8 @@ export default function BottomNavigation() {
       )
     },
     {
-      name: 'Settings',
-      href: '/settings',
+      name: 'League',
+      href: currentLeagueId ? `/league/${currentLeagueId}/league-settings` : '/league-settings',
       icon: (active: boolean) => (
         <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -76,9 +75,9 @@ export default function BottomNavigation() {
         {navItems.map((item) => {
           const isActive = pathname === item.href || 
                          (item.name === 'Challenge' && currentLeagueId && pathname === `/league/${currentLeagueId}`) ||
-                         (item.name === 'History' && pathname?.includes('/rounds')) ||
+                         (item.name === 'Results' && pathname?.includes('/rounds')) ||
                          (item.name === 'Standings' && pathname?.includes('/standings')) ||
-                         (item.name === 'Settings' && (pathname?.includes('/league-settings') || pathname?.includes('/profile')));
+                         (item.name === 'League' && pathname?.includes('/league-settings'));
           return (
             <Link
               key={item.name}
