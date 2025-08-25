@@ -55,10 +55,14 @@ echo
 
 echo "🗃️  Step 5: Applying database migrations to production..."
 echo "⚠️  This will update the production database schema while preserving all data"
+echo "⚠️  Note: Old timing columns (weekStart, weekEnd, voteStart, voteEnd) will be removed"
+echo "⚠️  This is expected - we're replacing them with dynamic phase calculations"
 echo
 
-# Run the migration
-npm run db:prod-migrate
+# Run the migration with data loss acceptance for the expected column removals
+cp prisma/schema.production.prisma prisma/schema.prisma
+npx prisma generate
+npx prisma db push --accept-data-loss
 
 echo "✅ Database migration completed successfully!"
 echo
