@@ -1,4 +1,4 @@
-import { PHASE_DURATIONS_MS } from '@/constants/phases';
+import { PHASE_DURATIONS_MS, CRON_CONFIG } from '@/constants/phases';
 
 export interface PromptWithPhase {
   id: string;
@@ -109,4 +109,41 @@ export function calculatePhaseEndTime(phaseStartedAt: Date, status: 'ACTIVE' | '
     : PHASE_DURATIONS_MS.VOTING_PHASE;
   
   return new Date(phaseStartedAt.getTime() + duration);
+}
+
+/**
+ * Get the next cron execution time at 12 PM PT
+ */
+function getNextCronExecution(fromDate: Date = new Date()): Date {
+  // Create a date object in PT timezone
+  const ptDate = new Date(fromDate.toLocaleString("en-US", { timeZone: CRON_CONFIG.PROCESSING_TIMEZONE }));
+  const utcDate = new Date(fromDate.toUTCString());
+  
+  // Calculate timezone offset
+  const offsetMs = utcDate.getTime() - ptDate.getTime();
+  
+  // Start with today at 12 PM PT
+  const today12PM = new Date(fromDate);
+  today12PM.setHours(CRON_CONFIG.PROCESSING_HOUR + (offsetMs / (1000 * 60 * 60)), 0, 0, 0);
+  
+  // If we're past today's 12 PM PT, move to tomorrow
+  if (fromDate >= today12PM) {
+    const tomorrow12PM = new Date(today12PM);
+    tomorrow12PM.setDate(tomorrow12PM.getDate() + 1);
+    return tomorrow12PM;
+  }
+  
+  return today12PM;
+}
+
+/**
+ * Calculate when the phase will ACTUALLY end (next cron run after theoretical end time)
+ * This is what should be displayed to users since phases only process during cron runs
+ */
+export function getRealisticPhaseEndTime(prompt: PromptWithPhase): Date | null {
+  const theoreticalEndTime = getPhaseEndTime(prompt);
+  if (!theoreticalEndTime) return null;
+  
+  // Find the next cron execution after the theoretical end time
+  return getNextCronExecution(theoreticalEndTime);
 }

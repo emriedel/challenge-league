@@ -2,7 +2,7 @@
 
 import { NoChallengeEmptyState } from './EmptyState';
 import type { CurrentChallengeProps } from '@/types/components';
-import { getPhaseEndTime } from '@/lib/phaseCalculations';
+import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
 
 export default function CurrentChallenge({ 
@@ -46,9 +46,9 @@ export default function CurrentChallenge({
             <p className="text-lg text-gray-800 font-medium">{promptData.prompt.text}</p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-sm text-gray-500">Submission deadline:&nbsp;
+            <p className="text-sm text-gray-500">Submissions close:&nbsp;
               {(() => {
-                const endTime = getPhaseEndTime({
+                const endTime = getRealisticPhaseEndTime({
                   id: promptData.prompt.id,
                   status: promptData.prompt.status,
                   phaseStartedAt: promptData.prompt.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null,
@@ -59,7 +59,7 @@ export default function CurrentChallenge({
                   day: 'numeric',
                   hour: 'numeric',
                   minute: '2-digit',
-                }) : 'TBD';
+                }) + ' PT' : 'TBD';
               })()}
             </p>
           </div>

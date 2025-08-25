@@ -32,3 +32,15 @@ export const PHASE_DURATIONS_MS = {
   SUBMISSION_PHASE: PHASE_DURATIONS.SUBMISSION_PHASE_DAYS * 24 * 60 * 60 * 1000,
   VOTING_PHASE: PHASE_DURATIONS.VOTING_PHASE_DAYS * 24 * 60 * 60 * 1000,
 } as const;
+
+/**
+ * Cron job configuration
+ * When phases are actually processed in production
+ */
+export const CRON_CONFIG = {
+  /** Hour when cron job runs (12 PM PT) */
+  PROCESSING_HOUR: 12,
+  
+  /** Timezone for cron execution */
+  PROCESSING_TIMEZONE: 'America/Los_Angeles', // PT timezone
+} as const;

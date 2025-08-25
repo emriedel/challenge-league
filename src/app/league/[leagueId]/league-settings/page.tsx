@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLeague } from '@/hooks/useLeague';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import { useMessages } from '@/hooks/useMessages';
-import { getPhaseEndTime } from '@/lib/phaseCalculations';
+import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
 interface Prompt {
   id: string;
@@ -364,7 +364,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
                 <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
                 <div className="text-sm text-gray-600">
                   {(() => {
-                    const endTime = getPhaseEndTime({ 
+                    const endTime = getRealisticPhaseEndTime({ 
                       id: prompt.id, 
                       status: prompt.status, 
                       phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null 
@@ -376,7 +376,7 @@ export default function LeagueAdminPage({ params }: LeagueAdminPageProps) {
                         day: 'numeric',
                         hour: 'numeric',
                         minute: '2-digit',
-                      })}</p>
+                      })} PT</p>
                     ) : (
                       <p>Phase timing not available</p>
                     );

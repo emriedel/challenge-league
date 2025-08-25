@@ -56,13 +56,12 @@ export const UI_TIMEOUTS = {
 } as const;
 
 // =============================================================================
-// COMPETITION TIMING
+// COMPETITION TIMING (Moved to phases.ts)
 // =============================================================================
 
-export const COMPETITION = {
-  /** Hour of day when competition cycles start (12 PM PT) */
-  START_HOUR: 12,
-} as const;
+// NOTE: Competition timing configuration has been moved to @/constants/phases
+// to consolidate all phase-related settings in one location. This includes
+// cron execution timing, phase durations, and processing schedules.
 
 // =============================================================================
 // API CONFIGURATION
