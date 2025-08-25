@@ -379,6 +379,62 @@ npx prisma db push --preview-feature-only
 # If safe, proceed with the migration steps above
 ```
 
+### Issue: "Accidentally wiped production database with --accept-data-loss"
+**Solution**: If you used `--accept-data-loss` and it wiped your database, restore with test data:
+```bash
+# Restore production database with fresh test data
+vercel env pull .env.production
+mv .env .env.backup && cp .env.production .env
+npm run db:prod-fresh
+mv .env.backup .env
+```
+
+⚠️ **Warning**: `--accept-data-loss` can be extremely destructive. Prisma may wipe entire tables rather than just removing specific columns. Always backup production data before using this flag.
+
+## Deployment Safety Audit
+
+### ✅ Safe Automatic Deployments
+
+**Normal git push deployment:**
+- Vercel runs `npm run build:prod` 
+- This only copies schema and generates Prisma client (`prisma generate`)
+- **NO database operations performed**
+- **Your data is completely safe**
+
+**Schema changes via git push:**
+- Build succeeds but runtime may fail with schema mismatch errors
+- **NO data loss occurs** - just runtime errors until you run migration
+- Database remains untouched until you manually migrate
+
+### ⚠️ Manual Operations Only
+
+These commands can affect your database but are **NEVER run automatically:**
+
+```bash
+# Safe migration (recommended)
+npm run migrate:prod
+
+# Destructive operations (testing only)  
+npm run db:prod-fresh        # ⚠️ Wipes and reseeds database
+npx prisma db push --accept-data-loss  # ⚠️ May wipe data
+
+# Always safe
+npm run build:prod          # ✅ Only generates client
+npm run dev                 # ✅ Local development only  
+git push                    # ✅ Triggers safe build process
+```
+
+### 📋 Safe Schema Change Workflow
+
+1. **Make schema changes locally**
+2. **Test with local database:** `npm run db:setup`
+3. **Commit and push changes:** `git push`
+4. **App builds successfully but may show runtime errors**
+5. **Run safe migration:** `npm run migrate:prod`
+6. **App works with new schema**
+
+**Key Point:** Pushing schema changes never automatically modifies your production database. You always have control over when and how database changes are applied.
+
 ## Environment Summary
 
 You'll now have:

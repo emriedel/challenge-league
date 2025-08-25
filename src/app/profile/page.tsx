@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProfileAvatar from '@/components/ProfileAvatar';
@@ -245,6 +245,22 @@ export default function ProfilePage() {
                 <strong>Note:</strong> Username and email changes are not currently available. 
                 Contact support if you need to update this information.
               </p>
+            </div>
+          </div>
+
+          {/* Sign Out Section */}
+          <div className="border-t border-gray-200 pt-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-4 sm:mb-0">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Account Actions</h2>
+                <p className="text-gray-600 text-sm">Sign out of your account or manage your session.</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </div>

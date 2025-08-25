@@ -235,19 +235,21 @@ export default function Navigation() {
             )}
           </div>
 
-          {/* Mobile League Selector */}
-          <div className="md:hidden">
+          {/* Mobile Right Section */}
+          <div className="md:hidden flex items-center space-x-3">
             {status === 'authenticated' ? (
-              <div className="relative" ref={mobileDropdownRef}>
-                <button
-                  onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                  className="flex items-center text-white/80 hover:text-white"
-                >
-                  <span className="text-sm">{currentLeague ? currentLeague.name : 'Select League'}</span>
-                  <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+              <>
+                {/* League Selector */}
+                <div className="relative" ref={mobileDropdownRef}>
+                  <button
+                    onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
+                    className="flex items-center text-white/80 hover:text-white"
+                  >
+                    <span className="text-sm">{currentLeague ? currentLeague.name : 'Select League'}</span>
+                    <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 
                 {isLeaguesOpen && (
                   <div className="absolute top-full right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
@@ -317,7 +319,18 @@ export default function Navigation() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+                
+                {/* Profile Picture */}
+                <Link href="/profile" className="flex items-center">
+                  <ProfileAvatar 
+                    username={session.user.username}
+                    profilePhoto={session.user.profilePhoto}
+                    size="sm"
+                    className="ring-2 ring-white/20 hover:ring-white/40 transition-all"
+                  />
+                </Link>
+              </>
             ) : (
               <div className="flex items-center space-x-2 text-sm">
                 <Link
