@@ -30,20 +30,22 @@ export default function BottomNavigation() {
 
   const navItems = [
     {
-      name: 'Home',
+      name: 'Challenge',
       href: currentLeagueId ? `/league/${currentLeagueId}` : '/',
       icon: (active: boolean) => (
-        <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.5L12 5l7.5 7.5M12 5l7.5 7.5-7.5 7.5L4.5 12.5 12 5z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 16l8-8M16 16L8 8" />
         </svg>
       )
     },
     {
-      name: 'Rounds',
+      name: 'History',
       href: currentLeagueId ? `/league/${currentLeagueId}/rounds` : '/rounds',
       icon: (active: boolean) => (
         <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v0a2 2 0 002 2h2a2 2 0 002-2v0a2 2 0 00-2-2zM9 5a2 2 0 012 2v0a2 2 0 01-2 2M9 5a2 2 0 012 2v0a2 2 0 01-2 2m0 0v2a2 2 0 002 2v0a2 2 0 002-2v-2a2 2 0 00-2-2v0a2 2 0 00-2 2zm0 0V9a2 2 0 012-2v0a2 2 0 012 2v0a2 2 0 01-2 2v0a2 2 0 01-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12a9 9 0 009-9" />
         </svg>
       )
     },
@@ -70,11 +72,11 @@ export default function BottomNavigation() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" style={{ backgroundColor: '#2d8cff' }}>
-      <div className="flex justify-around items-center py-2 px-4">
+      <div className="flex justify-around items-center py-2 px-4 pb-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href || 
-                         (item.name === 'Home' && currentLeagueId && pathname === `/league/${currentLeagueId}`) ||
-                         (item.name === 'Rounds' && pathname?.includes('/rounds')) ||
+                         (item.name === 'Challenge' && currentLeagueId && pathname === `/league/${currentLeagueId}`) ||
+                         (item.name === 'History' && pathname?.includes('/rounds')) ||
                          (item.name === 'Standings' && pathname?.includes('/standings')) ||
                          (item.name === 'Settings' && (pathname?.includes('/league-settings') || pathname?.includes('/profile')));
           return (
