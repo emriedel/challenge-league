@@ -163,6 +163,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             showVoting={!!showVoting}
             showSubmission={!!showSubmission}
             showSubmitted={!!showSubmitted}
+            leagueSettings={league ? {
+              submissionDays: league.submissionDays,
+              votingDays: league.votingDays,
+              votesPerPlayer: league.votesPerPlayer
+            } : undefined}
           />
 
           {/* Submission Form */}
@@ -220,6 +225,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             onSubmitVotes={handleSubmitVotes}
             isSubmitting={votingManagement.isSubmitting}
             message={votingMessage}
+            leagueSettings={league ? {
+              submissionDays: league.submissionDays,
+              votingDays: league.votingDays,
+              votesPerPlayer: league.votesPerPlayer
+            } : undefined}
           />
         )}
 

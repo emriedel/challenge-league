@@ -21,6 +21,11 @@ export interface VotingInterfaceProps {
   onSubmitVotes: (votes: VoteMap) => Promise<void>;
   isSubmitting: boolean;
   message?: Message | null;
+  leagueSettings?: {
+    submissionDays: number;
+    votingDays: number;
+    votesPerPlayer: number;
+  };
 }
 
 // Current Challenge component props
@@ -35,6 +40,11 @@ export interface CurrentChallengeProps {
   showVoting: boolean;
   showSubmission: boolean;
   showSubmitted: boolean;
+  leagueSettings?: {
+    submissionDays: number;
+    votingDays: number;
+    votesPerPlayer: number;
+  };
 }
 
 // Submission Section component props

@@ -6,34 +6,41 @@ export interface PromptWithPhase {
   phaseStartedAt: Date | null;
 }
 
+export interface LeagueSettings {
+  submissionDays: number;
+  votingDays: number;
+  votesPerPlayer: number;
+}
+
 /**
- * Calculate when the current phase ends
+ * Calculate when the current phase ends using league settings
  */
-export function getPhaseEndTime(prompt: PromptWithPhase): Date | null {
+export function getPhaseEndTime(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): Date | null {
   if (!prompt.phaseStartedAt) return null;
 
   const phaseStart = new Date(prompt.phaseStartedAt);
-  let phaseDuration: number;
+  let phaseDurationDays: number;
 
   switch (prompt.status) {
     case 'ACTIVE':
-      phaseDuration = PHASE_DURATIONS_MS.SUBMISSION_PHASE;
+      phaseDurationDays = leagueSettings?.submissionDays ?? (PHASE_DURATIONS_MS.SUBMISSION_PHASE / (24 * 60 * 60 * 1000));
       break;
     case 'VOTING':
-      phaseDuration = PHASE_DURATIONS_MS.VOTING_PHASE;
+      phaseDurationDays = leagueSettings?.votingDays ?? (PHASE_DURATIONS_MS.VOTING_PHASE / (24 * 60 * 60 * 1000));
       break;
     default:
       return null;
   }
 
-  return new Date(phaseStart.getTime() + phaseDuration);
+  const phaseDurationMs = phaseDurationDays * 24 * 60 * 60 * 1000;
+  return new Date(phaseStart.getTime() + phaseDurationMs);
 }
 
 /**
  * Check if the current phase has expired
  */
-export function isPhaseExpired(prompt: PromptWithPhase): boolean {
-  const endTime = getPhaseEndTime(prompt);
+export function isPhaseExpired(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): boolean {
+  const endTime = getPhaseEndTime(prompt, leagueSettings);
   if (!endTime) return false;
   
   return new Date() >= endTime;
@@ -42,20 +49,20 @@ export function isPhaseExpired(prompt: PromptWithPhase): boolean {
 /**
  * Check if submissions are currently open
  */
-export function isSubmissionWindowOpen(prompt: PromptWithPhase): boolean {
-  return prompt.status === 'ACTIVE' && !isPhaseExpired(prompt);
+export function isSubmissionWindowOpen(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): boolean {
+  return prompt.status === 'ACTIVE' && !isPhaseExpired(prompt, leagueSettings);
 }
 
 /**
  * Get time remaining until current phase ends
  */
-export function getTimeUntilPhaseEnd(prompt: PromptWithPhase): {
+export function getTimeUntilPhaseEnd(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): {
   days: number;
   hours: number;
   minutes: number;
   isExpired: boolean;
 } {
-  const endTime = getPhaseEndTime(prompt);
+  const endTime = getPhaseEndTime(prompt, leagueSettings);
   
   if (!endTime) {
     return { days: 0, hours: 0, minutes: 0, isExpired: true };
@@ -78,8 +85,8 @@ export function getTimeUntilPhaseEnd(prompt: PromptWithPhase): {
 /**
  * Get time remaining until submission deadline (for backward compatibility)
  */
-export function getTimeUntilSubmissionDeadline(prompt: PromptWithPhase) {
-  return getTimeUntilPhaseEnd(prompt);
+export function getTimeUntilSubmissionDeadline(prompt: PromptWithPhase, leagueSettings?: LeagueSettings) {
+  return getTimeUntilPhaseEnd(prompt, leagueSettings);
 }
 
 /**
@@ -103,12 +110,17 @@ export function getNextPhase(currentStatus: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 
 /**
  * Calculate when a phase will end based on when it started and the phase type
  */
-export function calculatePhaseEndTime(phaseStartedAt: Date, status: 'ACTIVE' | 'VOTING'): Date {
-  const duration = status === 'ACTIVE' 
-    ? PHASE_DURATIONS_MS.SUBMISSION_PHASE 
-    : PHASE_DURATIONS_MS.VOTING_PHASE;
+export function calculatePhaseEndTime(phaseStartedAt: Date, status: 'ACTIVE' | 'VOTING', leagueSettings?: LeagueSettings): Date {
+  let durationDays: number;
   
-  return new Date(phaseStartedAt.getTime() + duration);
+  if (status === 'ACTIVE') {
+    durationDays = leagueSettings?.submissionDays ?? (PHASE_DURATIONS_MS.SUBMISSION_PHASE / (24 * 60 * 60 * 1000));
+  } else {
+    durationDays = leagueSettings?.votingDays ?? (PHASE_DURATIONS_MS.VOTING_PHASE / (24 * 60 * 60 * 1000));
+  }
+  
+  const durationMs = durationDays * 24 * 60 * 60 * 1000;
+  return new Date(phaseStartedAt.getTime() + durationMs);
 }
 
 /**
@@ -140,8 +152,8 @@ function getNextCronExecution(fromDate: Date = new Date()): Date {
  * Calculate when the phase will ACTUALLY end (next cron run after theoretical end time)
  * This is what should be displayed to users since phases only process during cron runs
  */
-export function getRealisticPhaseEndTime(prompt: PromptWithPhase): Date | null {
-  const theoreticalEndTime = getPhaseEndTime(prompt);
+export function getRealisticPhaseEndTime(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): Date | null {
+  const theoreticalEndTime = getPhaseEndTime(prompt, leagueSettings);
   if (!theoreticalEndTime) return null;
   
   // Find the next cron execution after the theoretical end time

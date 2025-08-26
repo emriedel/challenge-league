@@ -9,7 +9,8 @@ import {
   useUpdatePromptMutation,
   useDeletePromptMutation,
   useReorderPromptsMutation,
-  useTransitionPhaseMutation
+  useTransitionPhaseMutation,
+  useUpdateLeagueSettingsMutation
 } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -41,6 +42,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const deletePromptMutation = useDeletePromptMutation(params.leagueId);
   const reorderPromptsMutation = useReorderPromptsMutation(params.leagueId);
   const transitionPhaseMutation = useTransitionPhaseMutation(params.leagueId);
+  const updateLeagueSettingsMutation = useUpdateLeagueSettingsMutation(params.leagueId);
   
   // Local state
   const [newPromptText, setNewPromptText] = useState('');
@@ -48,6 +50,12 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [editText, setEditText] = useState('');
   const [showTransitionModal, setShowTransitionModal] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  // League settings state - use strings for inputs, parse only on submit
+  const [submissionDays, setSubmissionDays] = useState('5');
+  const [votingDays, setVotingDays] = useState('2');
+  const [votesPerPlayer, setVotesPerPlayer] = useState('3');
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -55,6 +63,16 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       router.push('/auth/signin');
     }
   }, [session, status, router]);
+
+  // Initialize settings when starting to edit
+  const handleStartEditing = () => {
+    if (settingsData?.league) {
+      setSubmissionDays(settingsData.league.submissionDays.toString());
+      setVotingDays(settingsData.league.votingDays.toString());
+      setVotesPerPlayer(settingsData.league.votesPerPlayer.toString());
+    }
+    setIsEditingSettings(true);
+  };
 
   // Clear message after 5 seconds
   useEffect(() => {
@@ -140,16 +158,16 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       let successMessage = '';
       switch (result.action) {
         case 'activated':
-          successMessage = `Started new challenge: "${result.prompt}"`;
+          successMessage = `Started new challenge: &quot;${result.prompt}&quot;`;
           break;
         case 'started_voting':
-          successMessage = `Started voting phase for: "${result.prompt}"`;
+          successMessage = `Started voting phase for: &quot;${result.prompt}&quot;`;
           break;
         case 'completed':
-          successMessage = `Completed challenge: "${result.prompt}"`;
+          successMessage = `Completed challenge: &quot;${result.prompt}&quot;`;
           break;
         case 'completed_and_started_next':
-          successMessage = `Completed "${result.completedPrompt}" and started "${result.newPrompt}"`;
+          successMessage = `Completed &quot;${result.completedPrompt}&quot; and started &quot;${result.newPrompt}&quot;`;
           break;
         default:
           successMessage = 'Phase transition completed';
@@ -164,6 +182,55 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       });
       setShowTransitionModal(false);
     }
+  };
+
+  const handleUpdateLeagueSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Parse and validate input values
+    const parsedSubmissionDays = parseInt(submissionDays, 10);
+    const parsedVotingDays = parseInt(votingDays, 10);
+    const parsedVotesPerPlayer = parseInt(votesPerPlayer, 10);
+    
+    // Validation
+    if (isNaN(parsedSubmissionDays) || parsedSubmissionDays < 1 || parsedSubmissionDays > 14) {
+      setMessage({ type: 'error', text: 'Submission days must be between 1 and 14' });
+      return;
+    }
+    if (isNaN(parsedVotingDays) || parsedVotingDays < 1 || parsedVotingDays > 7) {
+      setMessage({ type: 'error', text: 'Voting days must be between 1 and 7' });
+      return;
+    }
+    if (isNaN(parsedVotesPerPlayer) || parsedVotesPerPlayer < 1 || parsedVotesPerPlayer > 10) {
+      setMessage({ type: 'error', text: 'Votes per player must be between 1 and 10' });
+      return;
+    }
+    
+    try {
+      await updateLeagueSettingsMutation.mutateAsync({
+        submissionDays: parsedSubmissionDays,
+        votingDays: parsedVotingDays,
+        votesPerPlayer: parsedVotesPerPlayer
+      });
+      
+      setIsEditingSettings(false);
+      setMessage({ type: 'success', text: 'League settings updated successfully!' });
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to update league settings' 
+      });
+    }
+  };
+
+  const handleCancelSettingsEdit = () => {
+    // Reset to current values
+    if (settingsData?.league) {
+      setSubmissionDays(settingsData.league.submissionDays.toString());
+      setVotingDays(settingsData.league.votingDays.toString());
+      setVotesPerPlayer(settingsData.league.votesPerPlayer.toString());
+    }
+    setIsEditingSettings(false);
   };
 
   if (status === 'loading' || settingsLoading) {
@@ -242,6 +309,109 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             </div>
           </div>
 
+          {/* League Configuration Settings */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">League Configuration</h2>
+              {isOwner && !isEditingSettings && (
+                <button
+                  onClick={handleStartEditing}
+                  className="px-3 py-2 text-blue-600 hover:text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  Edit Settings
+                </button>
+              )}
+            </div>
+
+            {isEditingSettings && isOwner ? (
+              <form onSubmit={handleUpdateLeagueSettings} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="submission-days" className="block text-sm font-medium text-gray-700 mb-2">
+                      Submission Days
+                    </label>
+                    <input
+                      id="submission-days"
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={submissionDays}
+                      onChange={(e) => setSubmissionDays(e.target.value)}
+                      placeholder="Enter number of days (1-14)"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Days for submission phase (1-14)</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="voting-days" className="block text-sm font-medium text-gray-700 mb-2">
+                      Voting Days
+                    </label>
+                    <input
+                      id="voting-days"
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={votingDays}
+                      onChange={(e) => setVotingDays(e.target.value)}
+                      placeholder="Enter number of days (1-7)"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Days for voting phase (1-7)</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="votes-per-player" className="block text-sm font-medium text-gray-700 mb-2">
+                      Votes Per Player
+                    </label>
+                    <input
+                      id="votes-per-player"
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={votesPerPlayer}
+                      onChange={(e) => setVotesPerPlayer(e.target.value)}
+                      placeholder="Enter number of votes (1-10)"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Number of votes each player gets (1-10)</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    disabled={updateLeagueSettingsMutation.isPending}
+                    className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                  >
+                    {updateLeagueSettingsMutation.isPending ? 'Saving...' : 'Save Settings'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelSettingsEdit}
+                    className="w-full sm:w-auto bg-gray-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Submission Phase</h3>
+                  <p className="text-2xl font-bold text-gray-900">{league?.submissionDays || 5} days</p>
+                  <p className="text-xs text-gray-500">Time to submit responses</p>
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Voting Phase</h3>
+                  <p className="text-2xl font-bold text-gray-900">{league?.votingDays || 2} days</p>
+                  <p className="text-xs text-gray-500">Time to vote on submissions</p>
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Votes Per Player</h3>
+                  <p className="text-2xl font-bold text-gray-900">{league?.votesPerPlayer || 3} votes</p>
+                  <p className="text-xs text-gray-500">Each player can cast this many votes</p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Messages */}
           {message && (
             <div className={`mb-6 px-4 py-3 rounded-lg border ${
@@ -275,7 +445,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   )}
                   {phaseInfo?.currentPhase.type === 'ACTIVE' && (
                     <div className="text-blue-700 text-sm">
-                      <p className="font-medium">Active Phase: "{phaseInfo.currentPhase.prompt}"</p>
+                      <p className="font-medium">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
                       {phaseInfo.currentPhase.endTime && (
                         <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
                           weekday: 'short',
@@ -289,7 +459,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   )}
                   {phaseInfo?.currentPhase.type === 'VOTING' && (
                     <div className="text-blue-700 text-sm">
-                      <p className="font-medium">Voting Phase: "{phaseInfo.currentPhase.prompt}"</p>
+                      <p className="font-medium">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
                       {phaseInfo.currentPhase.endTime && (
                         <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
                           weekday: 'short',
@@ -366,7 +536,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                         id: prompt.id, 
                         status: prompt.status, 
                         phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null 
-                      });
+                      }, league ? {
+                        submissionDays: league.submissionDays,
+                        votingDays: league.votingDays,
+                        votesPerPlayer: league.votesPerPlayer
+                      } : undefined);
                       return endTime ? (
                         <p>Active until: {endTime.toLocaleDateString('en-US', {
                           weekday: 'long',
@@ -398,7 +572,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                         id: prompt.id, 
                         status: prompt.status, 
                         phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null 
-                      });
+                      }, league ? {
+                        submissionDays: league.submissionDays,
+                        votingDays: league.votingDays,
+                        votesPerPlayer: league.votesPerPlayer
+                      } : undefined);
                       return endTime ? (
                         <p>Voting ends: {endTime.toLocaleDateString('en-US', {
                           weekday: 'long',
@@ -559,8 +737,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             <h3 className="font-semibold text-blue-900 mb-2">How It Works</h3>
             <div className="text-blue-700 space-y-1">
               <p>• Challenges automatically activate in queue order</p>
-              <p>• Each challenge runs for 7 days (submission phase)</p>
-              <p>• Followed by 2 days of voting</p>
+              <p>• Each challenge runs for {league?.submissionDays || 5} days (submission phase)</p>
+              <p>• Followed by {league?.votingDays || 2} days of voting</p>
+              <p>• Each player gets {league?.votesPerPlayer || 3} votes to cast per challenge</p>
               <p>• {isOwner ? 'Use "Transition to Next Phase" to manually advance phases' : 'League owners can manually advance phases if needed'}</p>
             </div>
           </div>

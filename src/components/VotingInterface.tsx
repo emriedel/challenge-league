@@ -13,7 +13,8 @@ export default function VotingInterface({
   votingData, 
   onSubmitVotes, 
   isSubmitting, 
-  message 
+  message,
+  leagueSettings 
 }: VotingInterfaceProps) {
   const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
   const [lastTap, setLastTap] = useState<{ responseId: string; time: number } | null>(null);
@@ -26,7 +27,7 @@ export default function VotingInterface({
     if (hasVoted) {
       // Remove vote
       delete newVotes[responseId];
-    } else if (getTotalVotes() < VOTING_CONFIG.VOTES_PER_PLAYER) {
+    } else if (getTotalVotes() < (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER)) {
       // Add vote (only 1 vote per submission allowed)
       newVotes[responseId] = 1;
     }
@@ -59,7 +60,8 @@ export default function VotingInterface({
 
   const handleSubmitVotes = async () => {
     const totalVotes = getTotalVotes();
-    if (totalVotes !== VOTING_CONFIG.VOTES_PER_PLAYER) {
+    const requiredVotes = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
+    if (totalVotes !== requiredVotes) {
       return;
     }
 
@@ -111,7 +113,7 @@ export default function VotingInterface({
                     </div>
                     <button
                       onClick={() => handleVoteToggle(response.id)}
-                      disabled={!hasVoted && getTotalVotes() >= VOTING_CONFIG.VOTES_PER_PLAYER}
+                      disabled={!hasVoted && getTotalVotes() >= (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER)}
                       className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
                         hasVoted 
                           ? 'bg-blue-600 text-white hover:bg-blue-700' 
@@ -176,12 +178,12 @@ export default function VotingInterface({
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="mb-4">
             <span className="text-lg font-medium">
-              Votes cast: {getTotalVotes()}/{VOTING_CONFIG.VOTES_PER_PLAYER}
+              Votes cast: {getTotalVotes()}/{leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER}
             </span>
           </div>
           <button
             onClick={handleSubmitVotes}
-            disabled={getTotalVotes() !== VOTING_CONFIG.VOTES_PER_PLAYER || isSubmitting}
+            disabled={getTotalVotes() !== (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER) || isSubmitting}
             className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Votes'}

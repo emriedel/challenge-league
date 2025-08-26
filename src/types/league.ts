@@ -15,6 +15,10 @@ export interface League {
     id: string;
     username: string;
   };
+  // Configurable league settings
+  submissionDays: number;
+  votingDays: number;
+  votesPerPlayer: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

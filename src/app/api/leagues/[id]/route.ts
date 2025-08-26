@@ -114,7 +114,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         inviteCode: league.ownerId === session.user.id ? league.inviteCode : undefined, // Only show to owner
         memberCount: league.memberships?.length || 0,
         isOwner: league.ownerId === session.user.id,
-        owner: league.owner
+        owner: league.owner,
+        // Include configurable league settings
+        submissionDays: league.submissionDays,
+        votingDays: league.votingDays,
+        votesPerPlayer: league.votesPerPlayer
       },
       leaderboard,
       recentActivity: recentPrompts

@@ -37,4 +37,5 @@ export {
   useDeletePromptMutation,
   useReorderPromptsMutation,
   useTransitionPhaseMutation,
+  useUpdateLeagueSettingsMutation,
 } from './useLeagueSettingsQuery';

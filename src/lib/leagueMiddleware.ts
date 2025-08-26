@@ -12,6 +12,10 @@ export interface LeagueWithMembership {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Configurable league settings
+  submissionDays: number;
+  votingDays: number;
+  votesPerPlayer: number;
   owner?: {
     id: string;
     username: string;

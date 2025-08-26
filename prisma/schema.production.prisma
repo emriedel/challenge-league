@@ -113,6 +113,11 @@ model League {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // Configurable league settings
+  submissionDays Int     @default(5)  // Days for submission phase
+  votingDays     Int     @default(2)  // Days for voting phase
+  votesPerPlayer Int     @default(3)  // Number of votes each player gets
+
   ownerId     String
   owner       User      @relation("LeagueOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 

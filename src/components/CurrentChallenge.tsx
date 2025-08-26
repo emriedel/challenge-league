@@ -12,7 +12,8 @@ export default function CurrentChallenge({
   promptData, 
   showVoting, 
   showSubmission, 
-  showSubmitted 
+  showSubmitted,
+  leagueSettings 
 }: CurrentChallengeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
@@ -44,7 +45,7 @@ export default function CurrentChallenge({
                       {/* Tooltip */}
                       <div className="fixed sm:absolute top-20 sm:top-6 left-4 right-4 sm:left-0 sm:right-auto z-30 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
                         <div className="space-y-1 text-sm text-blue-600">
-                          <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
+                          <p>• You must vote for {leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
                           <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
                         </div>
                         {/* Arrow pointing up - hidden on mobile since we're using fixed positioning */}
@@ -83,7 +84,7 @@ export default function CurrentChallenge({
                   id: promptData.prompt.id,
                   status: promptData.prompt.status,
                   phaseStartedAt: promptData.prompt.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null,
-                });
+                }, leagueSettings);
                 return endTime ? endTime.toLocaleDateString('en-US', {
                   weekday: 'short',
                   month: 'short',

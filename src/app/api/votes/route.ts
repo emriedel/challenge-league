@@ -54,9 +54,29 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     });
   }
 
+  // Get league settings for dynamic calculations
+  const league = await db.league.findUnique({
+    where: { id: leagueId },
+    select: { 
+      submissionDays: true, 
+      votingDays: true, 
+      votesPerPlayer: true 
+    }
+  });
+
+  if (!league) {
+    throw new NotFoundError('League not found');
+  }
+
+  const leagueSettings = {
+    submissionDays: league.submissionDays,
+    votingDays: league.votingDays,
+    votesPerPlayer: league.votesPerPlayer
+  };
+
   // Check if voting window is still open using dynamic calculation
-  const voteEndTime = getPhaseEndTime(votingPrompt);
-  const votingExpired = isPhaseExpired(votingPrompt);
+  const voteEndTime = getPhaseEndTime(votingPrompt, leagueSettings);
+  const votingExpired = isPhaseExpired(votingPrompt, leagueSettings);
   
   if (votingExpired || !voteEndTime) {
     return NextResponse.json({
@@ -112,10 +132,30 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     throw new ValidationError('Invalid votes format');
   }
 
-  // Calculate total votes - should be exactly VOTES_PER_PLAYER
+  // Get league settings to validate vote count
+  const league = await db.league.findUnique({
+    where: { id: leagueId },
+    select: { 
+      submissionDays: true, 
+      votingDays: true, 
+      votesPerPlayer: true 
+    }
+  });
+
+  if (!league) {
+    throw new NotFoundError('League not found');
+  }
+
+  const leagueSettings = {
+    submissionDays: league.submissionDays,
+    votingDays: league.votingDays,
+    votesPerPlayer: league.votesPerPlayer
+  };
+
+  // Calculate total votes - should be exactly league's votesPerPlayer
   const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
-  if (totalVotes !== VOTING_CONFIG.VOTES_PER_PLAYER) {
-    throw new ValidationError(`Must use exactly ${VOTING_CONFIG.VOTES_PER_PLAYER} votes`);
+  if (totalVotes !== leagueSettings.votesPerPlayer) {
+    throw new ValidationError(`Must use exactly ${leagueSettings.votesPerPlayer} votes`);
   }
 
   // Validate that each vote is exactly 1 (one vote per submission)
@@ -142,8 +182,8 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     throw new NotFoundError('No voting session currently active');
   }
 
-  // Check if voting window is still open using dynamic calculation
-  const votingExpired = isPhaseExpired(votingPrompt);
+  // Check if voting window is still open using dynamic calculation with league settings
+  const votingExpired = isPhaseExpired(votingPrompt, leagueSettings);
   if (votingExpired) {
     throw new ValidationError('Voting window has closed');
   }

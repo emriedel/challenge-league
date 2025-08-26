@@ -39,6 +39,10 @@ interface LeagueSettingsData {
     isOwner: boolean;
     memberCount: number;
     inviteCode: string;
+    // Configurable settings
+    submissionDays: number;
+    votingDays: number;
+    votesPerPlayer: number;
   };
   queue: PromptQueue;
   phaseInfo: PhaseTransitionInfo;
@@ -255,6 +259,54 @@ export function useTransitionPhaseMutation(leagueId?: string) {
       });
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.votingData(leagueId!) 
+      });
+    },
+  });
+}
+
+/**
+ * Mutation for updating league settings
+ */
+export function useUpdateLeagueSettingsMutation(leagueId?: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (settings: { submissionDays?: number; votingDays?: number; votesPerPlayer?: number }) => {
+      if (!leagueId) {
+        throw new Error('League ID is required');
+      }
+
+      const response = await fetch(`/api/leagues/${leagueId}/settings`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update league settings');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      // Refresh league settings data
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueSettings(leagueId!) 
+      });
+      // Refresh main league data since settings are part of league data
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.league(leagueId!) 
+      });
+      // Also refresh voting data since votesPerPlayer might have changed
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.votingData(leagueId!) 
+      });
+      // Refresh league prompt data since phase calculations use the settings
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leaguePrompt(leagueId!) 
       });
     },
   });
