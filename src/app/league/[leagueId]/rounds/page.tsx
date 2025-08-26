@@ -157,9 +157,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             {selectedRound?.responses && selectedRound.responses.length > 0 ? (
               <div className="space-y-0">
                 {selectedRound.responses.map((response) => (
-                  <div key={response.id} className="border-t border-gray-200">
+                  <div key={response.id} className="border-t border-gray-200 pt-2">
                     {/* Header with user info and rank */}
-                    <div className="px-4 py-3 max-w-4xl mx-auto">
+                    <div className="px-4 py-3 max-w-2xl mx-auto">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <ProfileAvatar 
@@ -182,7 +182,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                     </div>
                     
                     {/* Full-width Image */}
-                    <div className="relative w-full max-w-4xl mx-auto">
+                    <div className="relative w-full max-w-2xl mx-auto">
                       <Image
                         src={response.imageUrl}
                         alt={response.caption}
@@ -195,7 +195,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                     </div>
                     
                     {/* Caption */}
-                    <div className="px-4 pt-3 pb-8 max-w-4xl mx-auto">
+                    <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
                       <p className="text-gray-800 leading-relaxed">
                         <span className="font-semibold">{response.user.username}</span>{' '}
                         <span>{response.caption}</span>
