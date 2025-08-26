@@ -33,6 +33,7 @@ export const queryKeys = {
   leaguePrompt: (leagueId: string) => ['league', leagueId, 'prompt'],
   leagueStandings: (leagueId: string) => ['league', leagueId, 'standings'],
   leagueRounds: (leagueId: string) => ['league', leagueId, 'rounds'],
+  leagueSettings: (leagueId: string) => ['league', leagueId, 'settings'],
   
   // User-specific queries
   userLeagues: () => ['user', 'leagues'],
