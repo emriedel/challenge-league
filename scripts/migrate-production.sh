@@ -48,27 +48,27 @@ cp prisma/schema.prisma prisma/schema.backup
 echo "✅ Schema backed up to prisma/schema.backup"
 echo
 
-echo "🔄 Step 4: Switching to production environment..."
-cp .env.production .env
-echo "✅ Now using production environment"
+echo "🔄 Step 4: Preparing production migration..."
+# Don't overwrite .env - use explicit env file for production migration
+echo "✅ Using production credentials from .env.production"
 echo
 
 echo "🗃️  Step 5: Applying database migrations to production..."
 echo "⚠️  This will update the production database schema while preserving all data"
 echo
 
-# Run the migration (will fail safely if there's potential data loss)
+# Run the migration with explicit production environment
 cp prisma/schema.production.prisma prisma/schema.prisma
-npx prisma generate
 
-echo "Running database migration..."
-if ! npx prisma db push; then
+# Use explicit env file instead of overwriting local .env
+echo "Running database migration with production credentials..."
+if ! DATABASE_URL=$(grep DATABASE_URL .env.production | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//') npx prisma db push; then
     echo
     echo "❌ Migration failed due to potential data loss."
     echo "Prisma detected changes that could result in data loss."
     echo 
     echo "To proceed anyway (only if you're certain it's safe):"
-    echo "   npx prisma db push --accept-data-loss"
+    echo "   DATABASE_URL=\$(grep DATABASE_URL .env.production | cut -d '=' -f2- | sed 's/^\"//' | sed 's/\"\$//') npx prisma db push --accept-data-loss"
     echo
     echo "Or review the changes and modify your schema accordingly."
     exit 1
@@ -82,8 +82,7 @@ if [ -f ".env.backup" ]; then
     mv .env.backup .env
     echo "✅ Local environment restored"
 else
-    rm .env
-    echo "✅ Production environment removed (no local backup to restore)"
+    echo "ℹ️  Local .env was not modified during migration"
 fi
 
 echo "🔄 Step 7: Restoring original schema..."
