@@ -70,7 +70,7 @@ export default function BottomNavigation() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" style={{ backgroundColor: '#2d8cff' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: '#2d8cff' }}>
       <div className="flex justify-around items-center py-2 px-4 pb-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href || 

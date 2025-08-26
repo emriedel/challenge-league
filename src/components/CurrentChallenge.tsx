@@ -32,20 +32,25 @@ export default function CurrentChallenge({
                     onMouseEnter={() => setShowTooltip(true)}
                     onMouseLeave={() => setShowTooltip(false)}
                     onClick={() => setShowTooltip(!showTooltip)}
-                    className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors flex items-center justify-center text-xs font-bold"
+                    className="w-5 h-5 min-w-[20px] min-h-[20px] rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors flex items-center justify-center text-xs font-bold flex-shrink-0"
                     title="Voting instructions"
                   >
                     ?
                   </button>
                   {showTooltip && (
-                    <div className="absolute top-6 left-0 z-50 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-                      <div className="space-y-1 text-sm text-blue-600">
-                        <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
-                        <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
+                    <>
+                      {/* Mobile overlay backdrop */}
+                      <div className="sm:hidden fixed inset-0 z-20" onClick={() => setShowTooltip(false)} />
+                      {/* Tooltip */}
+                      <div className="fixed sm:absolute top-20 sm:top-6 left-4 right-4 sm:left-0 sm:right-auto z-30 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                        <div className="space-y-1 text-sm text-blue-600">
+                          <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
+                          <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
+                        </div>
+                        {/* Arrow pointing up - hidden on mobile since we're using fixed positioning */}
+                        <div className="hidden sm:block absolute -top-2 left-2 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
                       </div>
-                      {/* Arrow pointing up */}
-                      <div className="absolute -top-2 left-2 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
-                    </div>
+                    </>
                   )}
                 </div>
               </div>
