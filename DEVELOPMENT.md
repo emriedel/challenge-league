@@ -63,8 +63,37 @@ npm run type-check
 npm run lint
 
 # Browse database in browser
-npx prisma studio
+npm run db studio development
 ```
+
+## 🗄️ New Database Management System
+
+We've implemented an industry-standard database management system for safer operations:
+
+### Development Commands (Safe & Easy)
+```bash
+# Preview schema changes (always safe)
+npm run db preview development
+
+# Reset and seed development database
+npm run db reset development
+npm run db seed development
+
+# Apply schema changes
+npm run db migrate development
+
+# Browse database
+npm run db studio development
+
+# Get help
+npm run db help
+```
+
+### Why This Is Better
+- ✅ **No file swapping** - Never modifies your `.env` files
+- ✅ **Environment isolation** - Clear separation between dev/prod
+- ✅ **Safety checks** - Prevents accidental production access
+- ✅ **Preview functionality** - See changes before applying them
 
 ## 🎮 Testing Features
 
@@ -157,8 +186,9 @@ prisma/
 
 ### Database Changes
 - Modify `prisma/schema.prisma` 
-- Run `npm run db:setup` to apply changes
-- No migrations needed in development!
+- Preview changes: `npm run db preview development`
+- Apply changes: `npm run db migrate development`
+- Reset if needed: `npm run db:setup` or `npm run db reset development`
 
 ---
 

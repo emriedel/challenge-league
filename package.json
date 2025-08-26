@@ -14,7 +14,9 @@
     "db:prod-fresh": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && prisma db push --force-reset && tsx prisma/seed.ts",
     "db:prod-migrate": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate && prisma db push",
     "migrate:prod": "./scripts/migrate-production.sh",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db": "node scripts/db-manager.js",
+    "db:help": "node scripts/db-manager.js help"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -38,6 +40,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.16",
     "postcss": "^8.5.3",

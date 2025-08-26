@@ -137,14 +137,12 @@ npm i -g vercel && vercel login && vercel link
 # Pull production environment variables
 vercel env pull .env.production
 
-# Initialize production database with test data
-mv .env .env.backup
-cp .env.production .env
-npm run db:prod-fresh
-mv .env.backup .env
+# Initialize production database with test data (SAFE - no file modifications)
+npm run db reset production --force
+npm run db seed production --force
 ```
 
-⚠️ **Important**: `db:prod-fresh` creates a fresh database with test accounts. Only use for initial setup or when you want to completely reset production data.
+🛡️ **New Safety System**: Our industry-standard database manager prevents accidental production access and requires explicit `--force` flags for destructive operations.
 
 ## Step 5: Set Up Photo Uploads (Optional)
 
@@ -236,12 +234,20 @@ git push              # Automatic deployment via Vercel
 ### Database Commands Reference
 
 **Local Development (SQLite):**
-- `npm run db:setup` - Reset and seed local database
-- `npx prisma studio` - Browse local database in browser
+- `npm run db:setup` - Reset and seed local database (legacy command)
+- `npm run db reset development` - Reset development database
+- `npm run db seed development` - Seed with test data
+- `npm run db studio development` - Browse local database
 
-**Production (PostgreSQL) - Only needed occasionally:**
-- `npm run db:prod-fresh` - Reset production with test data (destructive!)
-- `vercel env pull .env.production && npx dotenv -e .env.production -- npx prisma studio` - Browse production database
+**Production (PostgreSQL) - Industry-Standard Safety:**
+- `npm run db preview production` - **SAFE**: Preview changes before applying
+- `npm run db reset production --force` - Reset production with confirmation required
+- `npm run db seed production --force` - Seed production (destructive, requires --force)
+- `npm run db migrate production --force` - Apply schema changes safely
+- `npm run db studio production` - Browse production database (careful!)
+
+**Get Help:**
+- `npm run db help` - Complete command reference with examples
 
 ## Test User Accounts
 
@@ -273,65 +279,84 @@ photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage,
 
 ## Database Schema Changes and Migrations
 
-When you make changes to your database schema (in `prisma/schema.prisma`), you need to apply those changes to production safely.
+When you make changes to your database schema (in `prisma/schema.prisma`), use our industry-standard migration system to apply changes safely to production.
 
-### Applying Schema Changes to Production
+### New Safe Migration Workflow
 
-**⚠️ IMPORTANT: This preserves all production data - users, responses, votes, etc.**
+**⚠️ IMPORTANT: Always preview changes before applying to production!**
 
-#### Option 1: Automated Script (Recommended)
+#### Step 1: Preview Changes (Always Safe)
 
 ```bash
-# Run the automated migration script
-npm run migrate:prod
+# Pull latest production environment
+vercel env pull .env.production
 
-# Then deploy your code changes
+# Preview what will happen (NO changes applied)
+npm run db preview production
+```
+
+This shows you exactly what will change and **detects data loss** before you commit.
+
+#### Step 2: Apply Safe Changes
+
+```bash
+# Apply migration if preview shows no data loss
+npm run db migrate production --force
+
+# Deploy your updated code
 git add .
 git commit -m "Apply database schema changes"  
 git push
 ```
 
-#### Option 2: Manual Steps
+#### Step 3: Handle Dangerous Changes (Data Loss)
+
+If preview shows data loss warnings:
 
 ```bash
-# 1. Pull production environment variables
-vercel env pull .env.production
+# ONLY if you're certain the data loss is acceptable
+npm run db migrate production --force --accept-data-loss
 
-# 2. Backup your current local environment
-mv .env .env.backup
-
-# 3. Switch to production environment locally
-cp .env.production .env
-
-# 4. Apply schema changes to production database (safe migration)
-npm run db:prod-migrate
-
-# 5. Restore your local development environment
-mv .env.backup .env
-
-# 6. Deploy the updated code to Vercel
+# Then deploy
 git add .
-git commit -m "Apply database schema changes"
+git commit -m "Apply breaking database schema changes"
 git push
 ```
 
-**What this does:**
-- Applies new migrations to production PostgreSQL database
-- Preserves all existing data (users, competitions, votes, etc.)
-- Updates the database schema to match your code changes
-- Generates updated Prisma client for production
-- **Fails safely if changes would cause data loss**
+### Migration Safety Features
 
-### Understanding Migration Safety
+**✅ What You Get:**
+- **Preview system** - See exactly what will happen before changes
+- **Data loss detection** - Warns about dropped columns/tables  
+- **Automatic blocking** - Prevents destructive operations without explicit consent
+- **No file manipulation** - Never modifies your local `.env` files
+- **Clear error messages** - Guides you through any issues
 
-The migration script uses Prisma's `db push` which:
-- ✅ **Safe for additive changes** (new columns, tables)
-- ✅ **Safe for column renames/type changes** (with proper migrations)
-- ✅ **Preserves all existing data**
-- ⚠️ **Will fail if changes would cause data loss** (protects your data)
+**🔍 Example Preview Output:**
+```bash
+npm run db preview production
+# 🚨 DATA LOSS DETECTED!
+# The migration will cause data loss:
+#   • You are about to drop the column 'oldField' on the 'User' table
+#   • You are about to drop the 'LegacyTable' table
+```
 
-**If migration fails due to data loss warnings:**
-The script will stop and show you exactly what would be lost, then provide the command to proceed manually if you're certain it's safe.
+### Legacy Migration Commands (Deprecated)
+
+**⚠️ The following commands use the old unsafe method - use the new system above instead:**
+
+```bash
+# OLD WAY (unsafe file swapping)
+npm run migrate:prod              # Deprecated - use new system
+npm run db:prod-migrate           # Deprecated - use new system
+npm run db:prod-fresh             # Deprecated - use new system
+```
+
+**Why the new system is better:**
+- ✅ **No file swapping** - Never touches your local `.env` files
+- ✅ **Preview functionality** - See changes before applying
+- ✅ **Data loss detection** - Warns about destructive operations
+- ✅ **Industry standard** - Follows production database best practices
 
 ### When Schema Changes Cause Deployment Errors
 
@@ -342,23 +367,36 @@ If you see errors like:
 
 **Root Cause:** Your code expects the new schema, but production database hasn't been updated yet.
 
-**Solution:** Follow the migration steps above before your next deployment.
+**Solution:** Use the new migration system:
+```bash
+# 1. Preview changes first
+npm run db preview production
+
+# 2. Apply migration
+npm run db migrate production --force
+
+# 3. Deploy code
+git push
+```
 
 ## Common Issues and Solutions
 
 ### Issue: "Database schema mismatch after code changes"
-**Solution**: Apply schema migrations to production:
+**Solution**: Use the new safe migration system:
 ```bash
-# Follow the complete migration process above
+# Use the new industry-standard approach
 vercel env pull .env.production
-mv .env .env.backup && cp .env.production .env
-npm run db:prod-migrate
-mv .env.backup .env
+npm run db preview production      # Preview changes first
+npm run db migrate production --force  # Apply if safe
 ```
 
 ### Issue: "Local database problems or migration errors"
 **Solution**: Reset your local environment:
 ```bash
+# New way (recommended)
+npm run db reset development
+
+# Legacy way (still works)
 npm run db:setup
 ```
 
@@ -380,16 +418,15 @@ npx prisma db push --preview-feature-only
 ```
 
 ### Issue: "Accidentally wiped production database with --accept-data-loss"
-**Solution**: If you used `--accept-data-loss` and it wiped your database, restore with test data:
+**Solution**: Restore with test data using the new safe system:
 ```bash
-# Restore production database with fresh test data
+# Restore production database with fresh test data (new safe method)
 vercel env pull .env.production
-mv .env .env.backup && cp .env.production .env
-npm run db:prod-fresh
-mv .env.backup .env
+npm run db reset production --force     # Reset database
+npm run db seed production --force      # Restore test data
 ```
 
-⚠️ **Warning**: `--accept-data-loss` can be extremely destructive. Prisma may wipe entire tables rather than just removing specific columns. Always backup production data before using this flag.
+⚠️ **Warning**: `--accept-data-loss` can be extremely destructive. Always use `npm run db preview production` first to see exactly what data will be lost.
 
 ## Deployment Safety Audit
 
@@ -411,12 +448,14 @@ mv .env.backup .env
 These commands can affect your database but are **NEVER run automatically:**
 
 ```bash
-# Safe migration (recommended)
-npm run migrate:prod
+# New safe migration system (recommended)
+npm run db preview production              # ✅ Always safe - just shows changes
+npm run db migrate production --force      # ⚠️ Safe migration (blocks on data loss)
+npm run db migrate production --force --accept-data-loss  # ⚠️ Dangerous - can wipe data
 
-# Destructive operations (testing only)  
-npm run db:prod-fresh        # ⚠️ Wipes and reseeds database
-npx prisma db push --accept-data-loss  # ⚠️ May wipe data
+# Database reset/seed operations  
+npm run db reset production --force        # ⚠️ Wipes and resets database
+npm run db seed production --force         # ⚠️ May overwrite user data
 
 # Always safe
 npm run build:prod          # ✅ Only generates client
@@ -427,13 +466,14 @@ git push                    # ✅ Triggers safe build process
 ### 📋 Safe Schema Change Workflow
 
 1. **Make schema changes locally**
-2. **Test with local database:** `npm run db:setup`
-3. **Commit and push changes:** `git push`
-4. **App builds successfully but may show runtime errors**
-5. **Run safe migration:** `npm run migrate:prod`
-6. **App works with new schema**
+2. **Test with local database:** `npm run db migrate development`
+3. **Preview production impact:** `npm run db preview production`  
+4. **Commit and push changes:** `git push`
+5. **App builds successfully but may show runtime errors**
+6. **Apply safe migration:** `npm run db migrate production --force`
+7. **App works with new schema**
 
-**Key Point:** Pushing schema changes never automatically modifies your production database. You always have control over when and how database changes are applied.
+**Key Point:** The new system gives you complete visibility into what will happen before making any database changes. No more surprises!
 
 ## Environment Summary
 
