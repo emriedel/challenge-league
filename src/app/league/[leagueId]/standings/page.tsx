@@ -100,11 +100,11 @@ export default function StandingPage({ params }: StandingPageProps) {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
-                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Challenges</th>
+                    <th className="px-2 py-3 w-12"></th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
+                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Challenges</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -113,28 +113,28 @@ export default function StandingPage({ params }: StandingPageProps) {
                       key={entry.user.id}
                       className={entry.user.username === session.user.username ? 'bg-blue-50' : ''}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span className="flex items-center gap-2">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-center w-12">
+                        <span className="text-gray-600">
                           {getRankIcon(entry.stats.leagueRank)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center space-x-3">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center space-x-2">
                           <ProfileAvatar 
                             username={entry.user.username}
                             profilePhoto={entry.user.profilePhoto}
                             size="sm"
                           />
-                          <span>{entry.user.username}</span>
+                          <span className="truncate">{entry.user.username}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                         {entry.stats.totalPoints}
                       </td>
-                      <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                         {entry.stats.wins}
                       </td>
-                      <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                         {entry.stats.totalSubmissions}
                       </td>
                     </tr>
