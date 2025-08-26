@@ -48,13 +48,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }, { status: 403 });
     }
 
-    // Process the prompt queue to handle any transitions
-    await processPromptQueue();
-
-    // Get current active prompt for this league
-    const activePrompt = await db.prompt.findFirst({
+    // Get current prompt (ACTIVE or VOTING) for this league first
+    const currentPrompt = await db.prompt.findFirst({
       where: {
-        status: 'ACTIVE',
+        status: {
+          in: ['ACTIVE', 'VOTING']
+        },
         leagueId: league.id,
       },
       include: {
@@ -72,18 +71,63 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    if (!activePrompt) {
-      return NextResponse.json({ error: 'No active prompt found for this league' }, { status: 404 });
+    if (!currentPrompt) {
+      // Only process queue if no current prompt found - might need to start a new one
+      await processPromptQueue();
+      
+      // Try to find current prompt again after processing
+      const newCurrentPrompt = await db.prompt.findFirst({
+        where: {
+          status: {
+            in: ['ACTIVE', 'VOTING']
+          },
+          leagueId: league.id,
+        },
+        include: {
+          responses: {
+            where: {
+              userId: session.user.id,
+            },
+            select: {
+              id: true,
+              submittedAt: true,
+              imageUrl: true,
+              caption: true,
+            },
+          },
+        },
+      });
+      
+      if (!newCurrentPrompt) {
+        return NextResponse.json({ error: 'No active prompt found for this league' }, { status: 404 });
+      }
+      
+      const userResponse = newCurrentPrompt.responses[0];
+      
+      return NextResponse.json({
+        prompt: {
+          id: newCurrentPrompt.id,
+          text: newCurrentPrompt.text,
+          status: newCurrentPrompt.status,
+          phaseStartedAt: newCurrentPrompt.phaseStartedAt,
+        },
+        userResponse: userResponse ? {
+          id: userResponse.id,
+          submittedAt: userResponse.submittedAt,
+          imageUrl: userResponse.imageUrl,
+          caption: userResponse.caption,
+        } : null,
+      });
     }
 
-    const userResponse = activePrompt.responses[0];
+    const userResponse = currentPrompt.responses[0];
     
     return NextResponse.json({
       prompt: {
-        id: activePrompt.id,
-        text: activePrompt.text,
-        status: activePrompt.status,
-        phaseStartedAt: activePrompt.phaseStartedAt,
+        id: currentPrompt.id,
+        text: currentPrompt.text,
+        status: currentPrompt.status,
+        phaseStartedAt: currentPrompt.phaseStartedAt,
       },
       userResponse: userResponse ? {
         id: userResponse.id,

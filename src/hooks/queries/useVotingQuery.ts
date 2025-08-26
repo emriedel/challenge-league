@@ -40,7 +40,7 @@ interface VotingData {
 
 /**
  * Cached hook for voting data
- * Uses real-time cache config during active voting periods
+ * Uses dynamic cache for better performance while still keeping data reasonably fresh
  */
 export function useVotingQuery(leagueId?: string) {
   return useQuery({
@@ -63,7 +63,7 @@ export function useVotingQuery(leagueId?: string) {
       return response.json();
     },
     enabled: !!leagueId,
-    ...cacheConfig.realTime, // Voting data needs frequent updates
+    ...cacheConfig.dynamic, // Use dynamic cache (30s) instead of realTime (10s) for better performance
   });
 }
 

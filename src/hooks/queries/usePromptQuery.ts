@@ -44,7 +44,7 @@ export function useLeaguePromptQuery(leagueId?: string) {
       return response.json();
     },
     enabled: !!leagueId,
-    ...cacheConfig.dynamic, // Prompt data changes as status updates
+    ...cacheConfig.user, // Prompt data changes less frequently, use longer cache
   });
 }
 
