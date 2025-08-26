@@ -145,26 +145,60 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
+        {/* Current Challenge - with container for non-full-width content */}
         <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Current Challenge */}
-        <CurrentChallenge
-          votingData={votingData || undefined}
-          promptData={promptData && promptData.prompt ? {
-            prompt: {
-              id: promptData.prompt.id,
-              text: promptData.prompt.text,
-              phaseStartedAt: promptData.prompt.phaseStartedAt,
-              status: promptData.prompt.status,
-              queueOrder: 0,
-              createdAt: new Date().toISOString(),
-              leagueId: params.leagueId
-            }
-          } : undefined}
-          showVoting={!!showVoting}
-          showSubmission={!!showSubmission}
-          showSubmitted={!!showSubmitted}
-        />
+          <CurrentChallenge
+            votingData={votingData || undefined}
+            promptData={promptData && promptData.prompt ? {
+              prompt: {
+                id: promptData.prompt.id,
+                text: promptData.prompt.text,
+                phaseStartedAt: promptData.prompt.phaseStartedAt,
+                status: promptData.prompt.status,
+                queueOrder: 0,
+                createdAt: new Date().toISOString(),
+                leagueId: params.leagueId
+              }
+            } : undefined}
+            showVoting={!!showVoting}
+            showSubmission={!!showSubmission}
+            showSubmitted={!!showSubmitted}
+          />
 
+          {/* Submission Form */}
+          {showSubmission && promptData?.prompt && (
+            <SubmissionSection
+              prompt={{
+                id: promptData.prompt.id,
+                text: promptData.prompt.text,
+                phaseStartedAt: promptData.prompt.phaseStartedAt,
+                status: promptData.prompt.status
+              }}
+              onSubmit={handleSubmitResponse}
+              isSubmitting={isSubmittingResponse}
+              message={submissionMessage}
+            />
+          )}
+
+          {/* Completed Rounds (when not voting) */}
+          {showLatestResults && !showVoting && galleryData?.responses && (
+            <ResultsGallery
+              responses={galleryData.responses.map(response => ({
+                ...response,
+                finalRank: response.finalRank || undefined,
+                user: {
+                  id: (response.user as any).id || `user-${response.user.username}`,
+                  username: response.user.username,
+                  profilePhoto: response.user.profilePhoto
+                }
+              }))}
+              prompt={galleryData.prompt || undefined}
+              leagueId={params.leagueId}
+            />
+          )}
+        </div>
+
+        {/* Full-width components - outside container */}
         {/* Voting Interface */}
         {showVoting && votingData && (
           <VotingInterface
@@ -186,21 +220,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             onSubmitVotes={handleSubmitVotes}
             isSubmitting={votingManagement.isSubmitting}
             message={votingMessage}
-          />
-        )}
-
-        {/* Submission Form */}
-        {showSubmission && promptData?.prompt && (
-          <SubmissionSection
-            prompt={{
-              id: promptData.prompt.id,
-              text: promptData.prompt.text,
-              phaseStartedAt: promptData.prompt.phaseStartedAt,
-              status: promptData.prompt.status
-            }}
-            onSubmit={handleSubmitResponse}
-            isSubmitting={isSubmittingResponse}
-            message={submissionMessage}
           />
         )}
 
@@ -227,25 +246,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             message={submissionMessage}
           />
         )}
-
-        {/* Completed Rounds (when not voting) */}
-        {showLatestResults && !showVoting && galleryData?.responses && (
-          <ResultsGallery
-            responses={galleryData.responses.map(response => ({
-              ...response,
-              finalRank: response.finalRank || undefined,
-              user: {
-                id: (response.user as any).id || `user-${response.user.username}`,
-                username: response.user.username,
-                profilePhoto: response.user.profilePhoto
-              }
-            }))}
-            prompt={galleryData.prompt || undefined}
-            leagueId={params.leagueId}
-          />
-        )}
-
-        </div>
       </div>
     </ErrorBoundary>
   );

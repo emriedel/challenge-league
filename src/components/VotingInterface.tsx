@@ -68,7 +68,7 @@ export default function VotingInterface({
   };
 
   return (
-    <>
+    <div className="bg-gray-50">
       <style jsx>{`
         @keyframes heartBeat {
           0% {
@@ -85,32 +85,28 @@ export default function VotingInterface({
           }
         }
       `}</style>
-      <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+      
       {/* Voting Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
-        <div className="space-y-1 text-sm text-blue-600">
-          <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
-          <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
-          <p>• Voting ends: {votingData.voteEnd ? new Date(votingData.voteEnd).toLocaleString() : 'TBD'}</p>
+      <div className="py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="space-y-1 text-sm text-blue-600">
+              <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
+              <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Instagram-style Voting Feed */}
+      {/* Full-width Voting Feed */}
       {votingData.responses.length > 0 ? (
-        <div className="space-y-6 px-2 sm:px-0">
+        <div className="space-y-0">
           {votingData.responses.map((response) => {
             const hasVoted = selectedVotes[response.id] === 1;
             return (
-              <div
-                key={response.id}
-                className={`group bg-white border rounded-lg overflow-hidden transition-all ${
-                  hasVoted
-                    ? 'border-blue-500 shadow-lg' 
-                    : 'border-gray-200'
-                }`}
-              >
+              <div key={response.id} className="border-t border-gray-200 pt-2">
                 {/* Header */}
-                <div className="p-4 border-b border-gray-100">
+                <div className="px-4 py-3 max-w-2xl mx-auto">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <ProfileAvatar 
@@ -139,18 +135,19 @@ export default function VotingInterface({
                   </div>
                 </div>
 
-                {/* Image */}
+                {/* Full-width Image */}
                 <div 
-                  className="relative cursor-pointer select-none"
+                  className="relative w-full max-w-2xl mx-auto cursor-pointer select-none"
                   onClick={() => handleImageTap(response.id)}
-                  style={{ WebkitTapHighlightColor: 'transparent' }} // Remove mobile tap highlight
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   <Image
                     src={response.imageUrl}
                     alt={response.caption}
                     width={800}
                     height={600}
-                    className="w-full h-auto object-contain bg-gray-50 max-h-[600px]"
+                    className="w-full h-auto object-contain bg-gray-100"
+                    style={{ maxHeight: '80vh' }}
                   />
                   
                   {/* Heart Animation Overlay */}
@@ -167,46 +164,51 @@ export default function VotingInterface({
                       </div>
                     </div>
                   )}
-                  
                 </div>
 
                 {/* Caption */}
-                <div className="p-4">
-                  <p className="text-gray-800">{response.caption}</p>
+                <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
+                  <p className="text-gray-800 leading-relaxed">
+                    <span className="font-semibold">{response.user.username}</span>{' '}
+                    <span>{response.caption}</span>
+                  </p>
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <NoSubmissionsEmptyState />
+        <div className="bg-white min-h-[50vh] flex items-center justify-center">
+          <NoSubmissionsEmptyState />
+        </div>
       )}
 
       {/* Submit Votes */}
-      <div className="text-center">
-        <div className="mb-4">
-          <span className="text-lg font-medium">
-            Votes cast: {getTotalVotes()}/{VOTING_CONFIG.VOTES_PER_PLAYER}
-          </span>
-        </div>
-        <button
-          onClick={handleSubmitVotes}
-          disabled={getTotalVotes() !== VOTING_CONFIG.VOTES_PER_PLAYER || isSubmitting}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Votes'}
-        </button>
-        {message && (
-          <div className={`mt-4 p-3 rounded-lg text-sm ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-            {message.text}
+      <div className="bg-white border-t border-gray-200 py-6">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <div className="mb-4">
+            <span className="text-lg font-medium">
+              Votes cast: {getTotalVotes()}/{VOTING_CONFIG.VOTES_PER_PLAYER}
+            </span>
           </div>
-        )}
+          <button
+            onClick={handleSubmitVotes}
+            disabled={getTotalVotes() !== VOTING_CONFIG.VOTES_PER_PLAYER || isSubmitting}
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Votes'}
+          </button>
+          {message && (
+            <div className={`mt-4 p-3 rounded-lg text-sm ${
+              message.type === 'success' 
+                ? 'bg-green-50 border border-green-200 text-green-700' 
+                : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
+              {message.text}
+            </div>
+          )}
+        </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }

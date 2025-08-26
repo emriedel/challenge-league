@@ -41,14 +41,12 @@ export default function UserSubmissionDisplay({
   };
 
   return (
-    <div className="space-y-6 mb-8">
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Your Submission</h2>
-        
-        {/* Instagram-style submission display */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-4">
-          {/* Header with user info and edit button */}
-          <div className="flex items-center justify-between p-4 pb-3">
+    <div className="space-y-6 mb-8 bg-gray-50">      
+      {/* Full-width submission display */}
+      <div>
+        {/* Header with user info and edit button */}
+        <div className="px-4 py-3 max-w-2xl mx-auto">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <ProfileAvatar 
                 username={user.username}
@@ -81,9 +79,10 @@ export default function UserSubmissionDisplay({
               </button>
             )}
           </div>
-          
-          {/* Image with preserved aspect ratio */}
-          <div className="relative w-full">
+        </div>
+        
+        {/* Full-width Image */}
+        <div className="relative w-full max-w-2xl mx-auto">
             {isEditingInline ? (
               <div className="relative">
                 <Image
@@ -127,73 +126,74 @@ export default function UserSubmissionDisplay({
                 priority={false}
               />
             )}
-          </div>
-          
-          {/* Caption area */}
-          <div className="p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                {isEditingInline ? (
-                  <div className="space-y-3">
-                    <p className="text-gray-800 leading-relaxed">
-                      <span className="font-semibold">{user.username}</span>{' '}
-                    </p>
-                    <textarea
-                      value={editedCaption}
-                      onChange={(e) => setEditedCaption(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      rows={3}
-                      placeholder="Write a caption..."
-                      maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
-                    />
-                    <div className="text-xs text-gray-500 text-right">
-                      {editedCaption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-gray-800 leading-relaxed">
-                    <span className="font-semibold">{user.username}</span>{' '}
-                    <span>{userResponse.caption}</span>
-                  </p>
-                )}
+        </div>
+        
+        {/* Caption area */}
+        <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
+          {isEditingInline ? (
+            <div className="space-y-3">
+              <p className="text-gray-800 leading-relaxed">
+                <span className="font-semibold">{user.username}</span>{' '}
+              </p>
+              <textarea
+                value={editedCaption}
+                onChange={(e) => setEditedCaption(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={3}
+                placeholder="Write a caption..."
+                maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
+              />
+              <div className="text-xs text-gray-500 text-right">
+                {editedCaption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}
               </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-gray-800 leading-relaxed">
+              <span className="font-semibold">{user.username}</span>{' '}
+              <span>{userResponse.caption}</span>
+            </p>
+          )}
         </div>
 
         {/* Save/Cancel buttons for inline editing */}
         {isEditingInline && (
-          <div className="border-t pt-4">
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={handleCancelInlineEdit}
-                disabled={isUpdating}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveInlineEdit}
-                disabled={isUpdating || editedCaption.trim().length === 0}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isUpdating ? 'Saving...' : 'Save Changes'}
-              </button>
+          <div className="border-t border-gray-200 pt-4 bg-white">
+            <div className="max-w-2xl mx-auto px-4">
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={handleCancelInlineEdit}
+                  disabled={isUpdating}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveInlineEdit}
+                  disabled={isUpdating || editedCaption.trim().length === 0}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUpdating ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mt-2 text-center">
+                You can update your submission until the deadline
+              </p>
             </div>
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              You can update your submission until the deadline
-            </p>
           </div>
         )}
         
         {/* Success/Error messages */}
         {message && (
-          <div className={`mt-4 p-3 rounded-lg text-sm ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-            {message.text}
+          <div className="bg-white border-t border-gray-200 pt-4">
+            <div className="max-w-2xl mx-auto px-4">
+              <div className={`p-3 rounded-lg text-sm ${
+                message.type === 'success' 
+                  ? 'bg-green-50 border border-green-200 text-green-700' 
+                  : 'bg-red-50 border border-red-200 text-red-700'
+              }`}>
+                {message.text}
+              </div>
+            </div>
           </div>
         )}
       </div>
