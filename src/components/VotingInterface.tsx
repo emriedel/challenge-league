@@ -86,18 +86,6 @@ export default function VotingInterface({
         }
       `}</style>
       
-      {/* Voting Instructions */}
-      <div className="py-4">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-            <div className="space-y-1 text-sm text-blue-600">
-              <p>• You must vote for {VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
-              <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Full-width Voting Feed */}
       {votingData.responses.length > 0 ? (
         <div className="space-y-0">
