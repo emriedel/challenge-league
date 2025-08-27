@@ -33,9 +33,9 @@ export default function BottomNavigation() {
       name: 'Challenge',
       href: currentLeagueId ? `/league/${currentLeagueId}` : '/',
       icon: (active: boolean) => (
-        <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.5L12 5l7.5 7.5M12 5l7.5 7.5-7.5 7.5L4.5 12.5 12 5z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 16l8-8M16 16L8 8" />
+        <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-white/70'}`} fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <path d="m2.75 9.25 1.5 2.5 2 1.5m-4.5 0 1 1m1.5-2.5-1.5 1.5m3-1 8.5-8.5v-2h-2l-8.5 8.5"/>
+          <path d="m10.25 12.25-2.25-2.25m2-2 2.25 2.25m1-1-1.5 2.5-2 1.5m4.5 0-1 1m-1.5-2.5 1.5 1.5m-7.25-5.25-4.25-4.25v-2h2l4.25 4.25"/>
         </svg>
       )
     },
