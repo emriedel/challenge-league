@@ -17,8 +17,11 @@ export default function Navigation() {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [currentLeague, setCurrentLeague] = useState<League | null>(null);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
+  const scrollThreshold = 10; // minimum scroll distance to trigger hide/show
 
   // Fetch user's leagues when authenticated
   useEffect(() => {
@@ -66,13 +69,51 @@ export default function Navigation() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Smart header visibility based on scroll direction
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Don't hide header if at the very top of the page
+      if (currentScrollY < scrollThreshold) {
+        setIsHeaderVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+      
+      // Show header when scrolling up, hide when scrolling down
+      if (Math.abs(currentScrollY - lastScrollY.current) > scrollThreshold) {
+        if (currentScrollY > lastScrollY.current && currentScrollY > scrollThreshold) {
+          // Scrolling down - hide header
+          setIsHeaderVisible(false);
+        } else {
+          // Scrolling up - show header
+          setIsHeaderVisible(true);
+        }
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrollThreshold]);
+
   // Don't show navigation on auth pages
   if (pathname?.startsWith('/auth/')) {
     return null;
   }
 
   return (
-    <header className="shadow-sm sticky top-0 z-40" style={{ backgroundColor: '#2d8cff' }}>
+    <header 
+      className={`shadow-sm sticky top-0 z-40 transition-transform duration-300 ${
+        isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+      }`} 
+      style={{ backgroundColor: '#2d8cff' }}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80">
