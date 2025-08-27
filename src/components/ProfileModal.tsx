@@ -80,11 +80,11 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         },
       });
 
-      addMessage('profile', 'Profile photo updated successfully!', 'success');
+      addMessage('profile', { type: 'success', text: 'Profile photo updated successfully!' });
       setIsEditingPhoto(false);
     } catch (error: any) {
       console.error('Error updating profile photo:', error);
-      addMessage('profile', error.message || 'Failed to update profile photo', 'error');
+      addMessage('profile', { type: 'error', text: error.message || 'Failed to update profile photo' });
     } finally {
       setIsUploading(false);
     }
@@ -153,7 +153,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <div className="relative inline-block mb-4">
                 <ProfileAvatar 
                   username={session.user.username || session.user.email || 'User'}
-                  profilePhoto={session.user.profilePhoto || session.user.image}
+                  profilePhoto={session.user.profilePhoto}
                   size="xl"
                   className="mx-auto"
                 />
