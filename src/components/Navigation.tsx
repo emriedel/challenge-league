@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import type { League } from '@/types/league';
 import ProfileAvatar from './ProfileAvatar';
+import ProfileModal from './ProfileModal';
 import { rubik } from '@/lib/fonts';
 
 
@@ -18,6 +19,7 @@ export default function Navigation() {
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [currentLeague, setCurrentLeague] = useState<League | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -108,6 +110,7 @@ export default function Navigation() {
   }
 
   return (
+    <>
     <header 
       className={`shadow-sm sticky top-0 z-40 transition-transform duration-300 ${
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
@@ -217,8 +220,8 @@ export default function Navigation() {
                 
                 <div className="flex items-center space-x-4">
                   {/* Profile Picture */}
-                  <Link 
-                    href="/profile"
+                  <button 
+                    onClick={() => setIsProfileModalOpen(true)}
                     className="flex items-center hover:opacity-80 transition-opacity"
                   >
                     <ProfileAvatar 
@@ -227,7 +230,7 @@ export default function Navigation() {
                       size="sm"
                       className="ring-2 ring-white/30 w-8 h-8"
                     />
-                  </Link>
+                  </button>
                 </div>
               </>
             ) : (
@@ -335,14 +338,17 @@ export default function Navigation() {
                 </div>
                 
                 {/* Profile Picture */}
-                <Link href="/profile" className="flex items-center hover:opacity-80 transition-opacity">
+                <button 
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="flex items-center hover:opacity-80 transition-opacity"
+                >
                   <ProfileAvatar 
                     username={session.user.username || session.user.email || 'User'}
                     profilePhoto={session.user.profilePhoto}
                     size="sm"
                     className="ring-2 ring-white/30 w-8 h-8"
                   />
-                </Link>
+                </button>
               </>
             ) : (
               <div className="flex items-center space-x-2 text-sm">
@@ -366,5 +372,12 @@ export default function Navigation() {
 
       </div>
     </header>
+    
+    {/* Profile Modal */}
+    <ProfileModal 
+      isOpen={isProfileModalOpen} 
+      onClose={() => setIsProfileModalOpen(false)} 
+    />
+  </>
   );
 }
