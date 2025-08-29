@@ -5,12 +5,14 @@ import type { UseVotingManagementReturn, VoteMap } from '@/types';
 
 interface UseVotingManagementProps {
   maxVotes?: number;
+  availableSubmissions?: number;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }
 
 export function useVotingManagement({
   maxVotes = 3,
+  availableSubmissions,
   onSuccess,
   onError
 }: UseVotingManagementProps = {}): UseVotingManagementReturn {
@@ -22,11 +24,13 @@ export function useVotingManagement({
   }, []);
 
   const handleVoteSelection = useCallback((responseId: string, increment: boolean) => {
+    const requiredVotes = availableSubmissions ? Math.min(availableSubmissions, maxVotes) : maxVotes;
+    
     setSelectedVotes(prevVotes => {
       const newVotes = { ...prevVotes };
       const currentVotes = newVotes[responseId] || 0;
       
-      if (increment && getTotalVotesFromObject(prevVotes) < maxVotes) {
+      if (increment && getTotalVotesFromObject(prevVotes) < requiredVotes) {
         newVotes[responseId] = currentVotes + 1;
       } else if (!increment && currentVotes > 0) {
         if (currentVotes === 1) {
@@ -38,7 +42,7 @@ export function useVotingManagement({
       
       return newVotes;
     });
-  }, [maxVotes, getTotalVotesFromObject]);
+  }, [maxVotes, availableSubmissions, getTotalVotesFromObject]);
 
   const getTotalVotes = useCallback(() => {
     return getTotalVotesFromObject(selectedVotes);
@@ -47,9 +51,10 @@ export function useVotingManagement({
   const submitVotes = useCallback(async (
     votingData: { submitVotes: (votes: VoteMap) => Promise<{ success: boolean; error?: string }> }
   ) => {
+    const requiredVotes = availableSubmissions ? Math.min(availableSubmissions, maxVotes) : maxVotes;
     const totalVotes = getTotalVotes();
-    if (totalVotes !== maxVotes) {
-      onError?.(`Please use all ${maxVotes} of your votes`);
+    if (totalVotes !== requiredVotes) {
+      onError?.(`Please use all ${requiredVotes} of your votes`);
       return;
     }
 
@@ -63,7 +68,7 @@ export function useVotingManagement({
     } else {
       onError?.(result.error || 'Failed to submit votes');
     }
-  }, [selectedVotes, maxVotes, getTotalVotes, onSuccess, onError]);
+  }, [selectedVotes, maxVotes, availableSubmissions, getTotalVotes, onSuccess, onError]);
 
   const resetVotes = useCallback(() => {
     setSelectedVotes({});

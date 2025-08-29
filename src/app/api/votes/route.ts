@@ -152,19 +152,6 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     votesPerPlayer: league.votesPerPlayer
   };
 
-  // Calculate total votes - should be exactly league's votesPerPlayer
-  const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
-  if (totalVotes !== leagueSettings.votesPerPlayer) {
-    throw new ValidationError(`Must use exactly ${leagueSettings.votesPerPlayer} votes`);
-  }
-
-  // Validate that each vote is exactly 1 (one vote per submission)
-  for (const count of Object.values(votes)) {
-    if (count !== 1) {
-      throw new ValidationError('Each submission can receive only one vote');
-    }
-  }
-
   // Get current voting prompt for this league
   const votingPrompt = await db.prompt.findFirst({
     where: { 
@@ -180,6 +167,27 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
 
   if (!votingPrompt) {
     throw new NotFoundError('No voting session currently active');
+  }
+
+  // Get votable responses (excluding user's own submission)
+  const votableResponses = votingPrompt.responses.filter(
+    response => response.userId !== session.user.id
+  );
+  
+  // Calculate required votes as minimum of available submissions and max votes allowed
+  const requiredVotes = Math.min(votableResponses.length, leagueSettings.votesPerPlayer);
+  
+  // Calculate total votes - should be exactly the required votes
+  const totalVotes = Object.values(votes).reduce((sum: number, count) => sum + (count as number), 0);
+  if (totalVotes !== requiredVotes) {
+    throw new ValidationError(`Must use exactly ${requiredVotes} votes`);
+  }
+
+  // Validate that each vote is exactly 1 (one vote per submission)
+  for (const count of Object.values(votes)) {
+    if (count !== 1) {
+      throw new ValidationError('Each submission can receive only one vote');
+    }
   }
 
   // Check if voting window is still open using dynamic calculation with league settings
