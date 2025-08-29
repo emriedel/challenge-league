@@ -146,7 +146,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         {/* Current Challenge - with container for non-full-width content */}
-        <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
           <CurrentChallenge
             votingData={votingData || undefined}
             promptData={promptData && promptData.prompt ? {

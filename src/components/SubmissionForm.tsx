@@ -68,9 +68,6 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Photo Upload */}
         <div>
-          <label className="block text-sm font-medium text-app-text-secondary mb-3">
-            Upload Your Photo
-          </label>
           <PhotoUpload
             onPhotoSelected={handlePhotoSelected}
             onError={handleUploadError}

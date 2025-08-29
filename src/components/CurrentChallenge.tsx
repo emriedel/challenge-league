@@ -17,11 +17,17 @@ export default function CurrentChallenge({
 }: CurrentChallengeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
-    <div className="bg-app-surface border border-app-border rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 mx-2 sm:mx-0">
+    <div className="pb-4">
       {showVoting ? (
         <>
           <div className="mb-4">
-            <p className="text-lg text-app-text font-bold">{votingData?.prompt?.text}</p>
+            <div className="flex items-center space-x-2">
+              <svg className="w-10 h-10 text-app-text" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="m2.75 9.25 1.5 2.5 2 1.5m-4.5 0 1 1m1.5-2.5-1.5 1.5m3-1 8.5-8.5v-2h-2l-8.5 8.5"/>
+                <path d="m10.25 12.25-2.25-2.25m2-2 2.25 2.25m1-1-1.5 2.5-2 1.5m4.5 0-1 1m-1.5-2.5 1.5 1.5m-7.25-5.25-4.25-4.25v-2h2l4.25 4.25"/>
+              </svg>
+              <p className="text-lg text-app-text font-bold">{votingData?.prompt?.text}</p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="space-y-1">
@@ -73,10 +79,21 @@ export default function CurrentChallenge({
       ) : (showSubmission || showSubmitted) && promptData?.prompt ? (
         <>
           <div className="mb-4">
-            <p className="text-lg text-app-text font-bold">{promptData.prompt.text}</p>
+            <div className="flex items-center space-x-2">
+              <svg className="w-14 h-14 text-app-text mr-2" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="m2.75 9.25 1.5 2.5 2 1.5m-4.5 0 1 1m1.5-2.5-1.5 1.5m3-1 8.5-8.5v-2h-2l-8.5 8.5"/>
+                <path d="m10.25 12.25-2.25-2.25m2-2 2.25 2.25m1-1-1.5 2.5-2 1.5m4.5 0-1 1m-1.5-2.5 1.5 1.5m-7.25-5.25-4.25-4.25v-2h2l4.25 4.25"/>
+              </svg>
+              <p className="text-lg text-app-text font-bold">{promptData.prompt.text}</p>
+            </div>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-sm text-app-text-muted">Submissions close:&nbsp;
+            <p className="text-right text-sm text-app-text-muted flex items-center justify-end space-x-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              <span>
               {(() => {
                 const endTime = getRealisticPhaseEndTime({
                   id: promptData.prompt.id,
@@ -91,6 +108,7 @@ export default function CurrentChallenge({
                   minute: '2-digit',
                 }) + ' PT' : 'TBD';
               })()}
+              </span>
             </p>
           </div>
         </>

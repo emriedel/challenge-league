@@ -51,12 +51,12 @@ export default function UserSubmissionDisplay({
               <ProfileAvatar 
                 username={user.username}
                 profilePhoto={user.profilePhoto}
-                size="md"
+                size="sm"
               />
               <div>
                 <p className="font-semibold text-app-text">{user.username}</p>
                 <p className="text-sm text-app-text-muted">
-                  Submitted: {new Date(userResponse.submittedAt).toLocaleDateString('en-US', {
+                  {new Date(userResponse.submittedAt).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     hour: 'numeric',
@@ -121,7 +121,7 @@ export default function UserSubmissionDisplay({
                 alt="Your submission"
                 width={800}
                 height={600}
-                className="w-full h-auto object-contain bg-gray-50"
+                className="w-full h-auto object-contain border border-gray-900 rounded-sm"
                 style={{ maxHeight: '70vh' }}
                 priority={false}
               />
@@ -138,7 +138,7 @@ export default function UserSubmissionDisplay({
               <textarea
                 value={editedCaption}
                 onChange={(e) => setEditedCaption(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full p-3 bg-app-surface border border-app-border text-app-text placeholder-app-text-muted rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={3}
                 placeholder="Write a caption..."
                 maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
@@ -148,7 +148,7 @@ export default function UserSubmissionDisplay({
               </div>
             </div>
           ) : (
-            <p className="text-gray-800 leading-relaxed">
+            <p className=" text-app-text leading-relaxed">
               <span className="font-semibold">{user.username}</span>{' '}
               <span>{userResponse.caption}</span>
             </p>

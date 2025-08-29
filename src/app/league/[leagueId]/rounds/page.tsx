@@ -165,7 +165,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                           <ProfileAvatar 
                             username={response.user.username}
                             profilePhoto={response.user.profilePhoto}
-                            size="md"
+                            size="sm"
                           />
                           <div>
                             <p className="font-semibold text-app-text">{response.user.username}</p>
