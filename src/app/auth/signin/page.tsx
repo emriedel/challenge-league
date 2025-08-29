@@ -41,49 +41,43 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-app-bg flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-app-bg flex flex-col px-4 pt-16 sm:py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo and Brand */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="bg-app-surface-dark rounded-full p-3 shadow-lg mb-4">
+        <div className="flex flex-col items-center mb-4 sm:mb-8">
+          <div className="bg-app-surface-dark rounded-full p-2 sm:p-3 shadow-lg mb-3 sm:mb-4">
             <Image
               src="/challenge-league-logo.png"
               alt="Challenge League"
-              width={64}
-              height={64}
-              className="rounded-full"
+              width={48}
+              height={48}
+              className="rounded-full sm:w-16 sm:h-16"
               priority
             />
           </div>
-          <h1 className={`${rubik.className} text-3xl font-semibold text-app-text text-center`}>
+          <h1 className={`${rubik.className} text-2xl sm:text-3xl font-semibold text-app-text text-center`}>
             Challenge League
           </h1>
-          <p className="mt-2 text-center text-app-text-secondary font-medium">
-            Creative competition awaits
-          </p>
         </div>
 
         {/* Sign In Card */}
-        <div className="bg-app-surface py-8 px-6 shadow-xl rounded-2xl border border-app-border">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-app-text text-center mb-2">
-              Welcome back
+        <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-2xl border border-app-border">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold text-app-text text-center">
+              Welcome Back
             </h2>
-            <p className="text-center text-app-text-secondary text-sm">
-              Sign in to your account to continue
-            </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-app-error-bg border border-app-error text-app-error px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-app-text-secondary mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-app-text-secondary mb-1.5">
                   Email
                 </label>
                 <input
@@ -92,7 +86,7 @@ export default function SignIn() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -100,7 +94,7 @@ export default function SignIn() {
               </div>
               
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-app-text-secondary mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-app-text-secondary mb-1.5">
                   Password
                 </label>
                 <input
@@ -109,7 +103,7 @@ export default function SignIn() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -120,7 +114,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
+              className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -137,7 +131,7 @@ export default function SignIn() {
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <p className="text-app-text-secondary text-sm">
               Don&apos;t have an account?{' '}
               <Link
@@ -149,11 +143,6 @@ export default function SignIn() {
             </p>
           </div>
         </div>
-
-        {/* Footer Text */}
-        <p className="mt-8 text-center text-xs text-app-text-muted">
-          Join leagues • Submit creations • Vote on favorites • Win challenges
-        </p>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import Navigation from '@/components/Navigation';
 import BottomNavigation from '@/components/BottomNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import LayoutContent from '@/components/LayoutContent';
 import { inter } from '@/lib/fonts';
 
 export const metadata: Metadata = {
@@ -63,16 +64,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <QueryProvider>
             <SessionProvider>
-              <div className="min-h-screen bg-app-bg">
-                <Navigation />
-                <main className="pb-20 md:pb-0">
-                  <ErrorBoundary>
-                    {children}
-                  </ErrorBoundary>
-                </main>
-                <BottomNavigation />
-                <PWAInstallPrompt />
-              </div>
+              <LayoutContent>
+                {children}
+              </LayoutContent>
             </SessionProvider>
           </QueryProvider>
         </ErrorBoundary>

@@ -66,9 +66,7 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
         throw new Error(data.error || 'Failed to upload photo');
       }
 
-      // Force refresh session to get updated user data
-      window.location.reload();
-      
+      // Navigate to complete the setup flow
       onComplete?.();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to upload photo');
@@ -82,15 +80,15 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Add a Profile Photo</h2>
-        <p className="text-gray-600">
-          Help others recognize you by adding a profile photo
+    <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-2xl border border-app-border">
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-app-text mb-2">Add Profile Photo</h2>
+        <p className="text-app-text-secondary text-sm">
+          Help others recognize you
         </p>
       </div>
 
-      <div className="flex flex-col items-center space-y-6">
+      <div className="flex flex-col items-center space-y-4 sm:space-y-6">
         {/* Current/Preview Avatar */}
         <div className="relative">
           {preview ? (
@@ -120,22 +118,21 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
           />
           <label
             htmlFor="profile-photo-input"
-            className="block w-full text-center bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-colors"
+            className="block w-full text-center bg-app-surface-dark border-2 border-dashed border-app-border-light rounded-xl p-4 cursor-pointer hover:bg-app-surface-light transition-colors"
           >
             <div className="text-blue-600">
               <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <p className="text-sm font-medium">Click to select a photo</p>
-              <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+              <p className="text-sm font-medium">Select a photo</p>
             </div>
           </label>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="w-full bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="w-full bg-app-error-bg border border-app-error text-app-error px-4 py-3 rounded-lg text-sm">
+            {error}
           </div>
         )}
 
@@ -144,7 +141,7 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
           <button
             onClick={handleSkip}
             disabled={uploading}
-            className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2.5 sm:py-3 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
           >
             Skip for now
           </button>
@@ -152,7 +149,7 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
           <button
             onClick={handleUpload}
             disabled={!preview || uploading}
-            className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 px-4 py-2.5 sm:py-3 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 font-semibold"
           >
             {uploading ? (
               <>
