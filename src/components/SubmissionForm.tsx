@@ -90,7 +90,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           <textarea
             id="caption"
             rows={6}
-            className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
+            className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
             placeholder="Share the story behind your photo..."
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
@@ -109,7 +109,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           <button
             type="submit"
             disabled={isSubmissionDisabled}
-            className="bg-primary-600 text-white px-8 py-3 rounded-md font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-800 text-white px-8 py-3 rounded-md font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Response'}
           </button>

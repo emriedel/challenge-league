@@ -109,7 +109,7 @@ export default function VotingInterface({
                     disabled={!hasVoted && getTotalVotes() >= (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER)}
                     className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
                       hasVoted 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                        ? 'bg-gray-800 text-white hover:bg-gray-900' 
                         : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
                     }`}
                   >
@@ -152,7 +152,7 @@ export default function VotingInterface({
           <button
             onClick={handleSubmitVotes}
             disabled={getTotalVotes() !== (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER) || isSubmitting}
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors"
+            className="bg-gray-800 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-900 disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Votes'}
           </button>

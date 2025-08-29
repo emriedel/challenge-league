@@ -32,13 +32,13 @@ export default function CurrentChallenge({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <p className="text-blue-700 font-medium">Voting Phase Active</p>
+                <p className="text-gray-700 font-medium">Voting Phase Active</p>
                 <div className="relative">
                   <button
                     onMouseEnter={() => setShowTooltip(true)}
                     onMouseLeave={() => setShowTooltip(false)}
                     onClick={() => setShowTooltip(!showTooltip)}
-                    className="w-5 h-5 min-w-[20px] min-h-[20px] rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors flex items-center justify-center text-xs font-bold flex-shrink-0"
+                    className="w-5 h-5 min-w-[20px] min-h-[20px] rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center justify-center text-xs font-bold flex-shrink-0"
                     title="Voting instructions"
                   >
                     ?
@@ -49,7 +49,7 @@ export default function CurrentChallenge({
                       <div className="sm:hidden fixed inset-0 z-20" onClick={() => setShowTooltip(false)} />
                       {/* Tooltip */}
                       <div className="fixed sm:absolute top-20 sm:top-6 left-4 right-4 sm:left-0 sm:right-auto z-30 sm:w-80 bg-app-surface-dark border border-app-border-light rounded-lg shadow-lg p-3">
-                        <div className="space-y-1 text-sm text-blue-600">
+                        <div className="space-y-1 text-sm text-gray-600">
                           <p>• You must vote for {leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
                           <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
                         </div>

@@ -42,7 +42,7 @@ export default function ResultsGallery({ responses, prompt, leagueId }: ResultsG
                     <p className="font-medium text-app-text">@{response.user.username}</p>
                   </div>
                   <div className="text-right text-sm">
-                    <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
+                    <div className="text-gray-600 font-medium">{response.totalPoints} pts</div>
                     <div className="text-app-text-muted">#{response.finalRank || '—'}</div>
                   </div>
                 </div>
@@ -54,7 +54,7 @@ export default function ResultsGallery({ responses, prompt, leagueId }: ResultsG
         <div className="text-center mt-6">
           <Link
             href={`/league/${leagueId}/results`}
-            className="text-blue-600 hover:text-blue-700 text-sm"
+            className="text-gray-600 hover:text-gray-700 text-sm"
           >
             View All Completed Rounds →
           </Link>
