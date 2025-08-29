@@ -21,22 +21,6 @@ export default function JoinLeaguePage() {
     league: League;
   } | null>(null);
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-app-bg flex flex-col justify-center px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-app-text-muted">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'unauthenticated') {
-    router.push('/auth/signin');
-    return null;
-  }
-
   useEffect(() => {
     const fetchLeagues = async () => {
       try {
@@ -67,6 +51,22 @@ export default function JoinLeaguePage() {
       fetchLeagues();
     }
   }, [status]);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-app-bg flex flex-col justify-center px-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-app-text-muted">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    router.push('/auth/signin');
+    return null;
+  }
 
   const handleJoinLeague = async (leagueId: string) => {
     setError('');
@@ -230,7 +230,7 @@ export default function JoinLeaguePage() {
               No leagues available
             </h3>
             <p className="text-app-text-secondary mb-4">
-              There are no public leagues available to join right now, or you're already a member of all available leagues.
+              There are no public leagues available to join right now, or you&apos;re already a member of all available leagues.
             </p>
             <Link
               href="/leagues/new"

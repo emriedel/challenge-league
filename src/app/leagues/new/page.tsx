@@ -148,7 +148,7 @@ export default function CreateLeaguePage() {
 
           <div className="mt-6 pt-4 border-t border-app-border">
             <div className="text-xs text-app-text-muted space-y-1 text-center">
-              <p>• You'll get a unique invite code to share</p>
+              <p>• You&apos;ll get a unique invite code to share</p>
               <p>• Create challenges and manage competitions</p>
               <p>• Full administrative control</p>
             </div>
