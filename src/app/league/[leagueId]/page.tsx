@@ -17,7 +17,7 @@ import { useMessages } from '@/hooks/useMessages';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
-import SubmissionSection from '@/components/SubmissionSection';
+import SubmissionForm from '@/components/SubmissionForm';
 import UserSubmissionDisplay from '@/components/UserSubmissionDisplay';
 import ResultsGallery from '@/components/ResultsGallery';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -87,7 +87,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
-        <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="max-w-2xl mx-auto px-4 py-6">
           <div className="space-y-8">
             <SkeletonChallenge />
             {votingLoading ? (
@@ -146,7 +146,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         {/* Current Challenge - with container for non-full-width content */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="max-w-2xl mx-auto px-4 py-6">
           <CurrentChallenge
             votingData={votingData || undefined}
             promptData={promptData && promptData.prompt ? {
@@ -172,17 +172,32 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
-            <SubmissionSection
-              prompt={{
-                id: promptData.prompt.id,
-                text: promptData.prompt.text,
-                phaseStartedAt: promptData.prompt.phaseStartedAt,
-                status: promptData.prompt.status
-              }}
-              onSubmit={handleSubmitResponse}
-              isSubmitting={isSubmittingResponse}
-              message={submissionMessage}
-            />
+            <div className="mb-8">
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                <h2 className="text-xl font-semibold mb-2 text-app-text">Your Submission</h2>
+                
+                {submissionMessage && (
+                  <div className={`mb-4 p-3 rounded-md text-sm ${
+                    submissionMessage.type === 'success' 
+                      ? 'bg-app-success-bg border border-app-success text-app-success' 
+                      : 'bg-app-error-bg border border-app-error text-app-error'
+                  }`}>
+                    {submissionMessage.text}
+                  </div>
+                )}
+                
+                <SubmissionForm
+                  prompt={{
+                    id: promptData.prompt.id,
+                    text: promptData.prompt.text,
+                    phaseStartedAt: promptData.prompt.phaseStartedAt,
+                    status: promptData.prompt.status
+                  }}
+                  onSubmit={handleSubmitResponse}
+                  isSubmitting={isSubmittingResponse}
+                />
+              </div>
+            </div>
           )}
 
           {/* Completed Rounds (when not voting) */}

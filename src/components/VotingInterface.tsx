@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import ProfileAvatar from './ProfileAvatar';
+import PhotoFeedItem from './PhotoFeedItem';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING_CONFIG } from '@/constants/phases';
 import type { VotingInterfaceProps } from '@/types/components';
@@ -94,54 +93,31 @@ export default function VotingInterface({
           {votingData.responses.map((response) => {
             const hasVoted = selectedVotes[response.id] === 1;
             return (
-              <div key={response.id} className="border-t border-gray-200 pt-2">
-                {/* Header */}
-                <div className="px-4 py-3 max-w-2xl mx-auto">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <ProfileAvatar 
-                        username={response.user.username}
-                        profilePhoto={response.user.profilePhoto}
-                        size="md"
-                      />
-                      <div>
-                        <p className="font-medium text-app-text">@{response.user.username}</p>
-                        <p className="text-xs text-app-text-muted">
-                          {new Date(response.submittedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleVoteToggle(response.id)}
-                      disabled={!hasVoted && getTotalVotes() >= (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER)}
-                      className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
-                        hasVoted 
-                          ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                          : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
-                      }`}
-                    >
-                      {hasVoted ? '❤️ Voted' : '🤍 Vote'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Full-width Image */}
-                <div 
-                  className="relative w-full max-w-2xl mx-auto cursor-pointer select-none"
-                  onClick={() => handleImageTap(response.id)}
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                >
-                  <Image
-                    src={response.imageUrl}
-                    alt={response.caption}
-                    width={800}
-                    height={600}
-                    className="w-full h-auto object-contain bg-app-surface-dark"
-                    style={{ maxHeight: '80vh' }}
-                  />
-                  
-                  {/* Heart Animation Overlay */}
-                  {heartAnimation === response.id && (
+              <PhotoFeedItem
+                key={response.id}
+                user={{
+                  username: response.user.username,
+                  profilePhoto: response.user.profilePhoto
+                }}
+                imageUrl={response.imageUrl}
+                caption={response.caption}
+                submittedAt={response.submittedAt}
+                onImageClick={() => handleImageTap(response.id)}
+                headerActions={
+                  <button
+                    onClick={() => handleVoteToggle(response.id)}
+                    disabled={!hasVoted && getTotalVotes() >= (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER)}
+                    className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
+                      hasVoted 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                        : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
+                    }`}
+                  >
+                    {hasVoted ? '❤️ Voted' : '🤍 Vote'}
+                  </button>
+                }
+                imageOverlay={
+                  heartAnimation === response.id && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div 
                         className="text-red-500 transform scale-0 animate-bounce"
@@ -153,17 +129,9 @@ export default function VotingInterface({
                         ❤️
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Caption */}
-                <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
-                  <p className="text-app-text leading-relaxed">
-                    <span className="font-semibold">{response.user.username}</span>{' '}
-                    <span>{response.caption}</span>
-                  </p>
-                </div>
-              </div>
+                  )
+                }
+              />
             );
           })}
         </div>

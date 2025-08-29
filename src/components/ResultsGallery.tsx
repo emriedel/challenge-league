@@ -10,11 +10,11 @@ import type { ResultsGalleryProps } from '@/types/components';
 
 export default function ResultsGallery({ responses, prompt, leagueId }: ResultsGalleryProps) {
   return (
-    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-      <div className="bg-app-surface border border-app-border rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
+    <div className="mb-8">
+      <div className="bg-app-surface border border-app-border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-2">Latest Completed Round</h2>
         <p className="text-app-text-secondary mb-4">{prompt?.text}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {responses.slice(0, 6).map((response) => (
             <div key={response.id} className="border border-app-border rounded-lg overflow-hidden">
               <div className="relative">

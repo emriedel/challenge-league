@@ -6,8 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
-import Image from 'next/image';
-import ProfileAvatar from '@/components/ProfileAvatar';
+import PhotoFeedItem from '@/components/PhotoFeedItem';
 import { getRankBadge } from '@/lib/utils';
 
 
@@ -53,7 +52,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
     return (
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-2xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
             <p className="mt-4 text-app-text-muted">Loading results...</p>
@@ -83,7 +82,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         <div className="bg-app-bg min-h-screen">
           {/* Challenge Selector and Details */}
           <div className="py-4">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mx-auto px-4">
               <div className="relative mb-4" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -157,51 +156,19 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             {selectedRound?.responses && selectedRound.responses.length > 0 ? (
               <div className="space-y-0">
                 {selectedRound.responses.map((response) => (
-                  <div key={response.id} className="border-t border-gray-200 pt-2">
-                    {/* Header with user info and rank */}
-                    <div className="px-4 py-3 max-w-2xl mx-auto">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <ProfileAvatar 
-                            username={response.user.username}
-                            profilePhoto={response.user.profilePhoto}
-                            size="sm"
-                          />
-                          <div>
-                            <p className="font-semibold text-app-text">{response.user.username}</p>
-                          </div>
-                        </div>
-                        {response.finalRank && (
-                          <div className="text-right">
-                            <p className="text-sm text-app-text-muted">
-                              #{response.finalRank} • {response.totalVotes} votes
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Full-width Image */}
-                    <div className="relative w-full max-w-2xl mx-auto">
-                      <Image
-                        src={response.imageUrl}
-                        alt={response.caption}
-                        width={1200}
-                        height={800}
-                        className="w-full h-auto object-contain bg-app-surface-dark"
-                        style={{ maxHeight: '80vh' }}
-                        priority={false}
-                      />
-                    </div>
-                    
-                    {/* Caption */}
-                    <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
-                      <p className="text-app-text leading-relaxed">
-                        <span className="font-semibold">{response.user.username}</span>{' '}
-                        <span>{response.caption}</span>
-                      </p>
-                    </div>
-                  </div>
+                  <PhotoFeedItem
+                    key={response.id}
+                    user={{
+                      username: response.user.username,
+                      profilePhoto: response.user.profilePhoto
+                    }}
+                    imageUrl={response.imageUrl}
+                    caption={response.caption}
+                    metadata={response.finalRank ? {
+                      rank: response.finalRank,
+                      votes: response.totalVotes
+                    } : undefined}
+                  />
                 ))}
               </div>
             ) : (
@@ -214,7 +181,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           </div>
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-2xl mx-auto px-4 py-6">
           <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
             <div className="text-app-text-muted mb-4">
               <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -65,7 +65,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Photo Upload */}
         <div>
           <PhotoUpload
