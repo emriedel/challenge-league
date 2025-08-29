@@ -91,13 +91,13 @@ export default function StandingPage({ params }: StandingPageProps) {
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-2xl font-semibold">League Standings</h2>
+          <div className="px-6 py-4 border-b border-app-border">
+            <h2 className="text-2xl font-semibold text-app-text">League Standings</h2>
           </div>
           
           {standings.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-app-border">
                 <thead className="bg-app-surface-dark">
                   <tr>
                     <th className="px-2 py-3 w-12"></th>
@@ -111,7 +111,7 @@ export default function StandingPage({ params }: StandingPageProps) {
                   {standings.map((entry, index) => (
                     <tr 
                       key={entry.user.id}
-                      className={entry.user.username === session.user.username ? 'bg-blue-50' : ''}
+                      className={entry.user.username === session.user.username ? 'bg-app-surface-light' : ''}
                     >
                       <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-center w-12">
                         <span className="text-app-text-secondary">
