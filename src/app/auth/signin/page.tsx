@@ -61,7 +61,7 @@ export default function SignIn() {
         </div>
 
         {/* Sign In Card */}
-        <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-2xl border border-app-border">
+        <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-xl border border-app-border">
           <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-semibold text-app-text text-center">
               Welcome Back

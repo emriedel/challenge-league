@@ -80,7 +80,7 @@ export default function ProfilePhotoSetup({ username, onComplete, onSkip }: Prof
   };
 
   return (
-    <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-2xl border border-app-border">
+    <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-xl border border-app-border">
       <div className="text-center mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold text-app-text mb-2">Add Profile Photo</h2>
         <p className="text-app-text-secondary text-sm">

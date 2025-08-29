@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import { rubik } from '@/lib/fonts';
 import type { League } from '@/types/league';
 import { CONTENT_LIMITS } from '@/constants/app';
 
@@ -19,8 +21,11 @@ export default function JoinLeaguePage() {
 
   if (status === 'loading') {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="text-center">Loading...</div>
+      <div className="min-h-screen bg-app-bg flex flex-col justify-center px-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-app-text-muted">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -63,47 +68,46 @@ export default function JoinLeaguePage() {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-800 text-sm"
-          >
-            ← Back to Home
-          </Link>
-        </div>
+      <div className="min-h-screen bg-app-bg flex flex-col px-4 pt-8 sm:py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <div className="text-center">
-            <div className="text-green-600 text-4xl mb-4">✓</div>
-            <h1 className="text-2xl font-bold text-green-900 mb-4">
-              Welcome to {success.league.name}!
-            </h1>
-            <p className="text-green-700 mb-6">
-              You&rsquo;ve successfully joined the league. You can now participate in challenges and compete with other members.
-            </p>
-
-            <div className="bg-white border border-green-200 rounded-md p-4 mb-6">
-              <div className="text-sm text-gray-600 space-y-1">
-                <p><strong>League:</strong> {success.league.name}</p>
-                <p><strong>Owner:</strong> @{success.league.owner?.username || 'Unknown'}</p>
-                <p><strong>Members:</strong> {success.league.memberCount}</p>
+          {/* Success Card */}
+          <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-xl border border-app-border">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-500/10 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            </div>
+              <h2 className="text-xl sm:text-2xl font-semibold text-app-text mb-2">
+                Welcome to {success.league.name}!
+              </h2>
+              <p className="text-app-text-secondary text-sm mb-6">
+                You can now participate in challenges and compete with other members
+              </p>
 
-            <div className="space-y-3">
-              <Link
-                href={`/league/${success.league.id}`}
-                className="block w-full bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 text-center"
-              >
-                Go to League Dashboard
-              </Link>
-              <Link
-                href="/"
-                className="block w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 text-center"
-              >
-                Back to Home
-              </Link>
+              <div className="bg-app-surface-dark rounded-xl p-4 mb-6 text-left">
+                <div className="text-sm text-app-text-secondary space-y-1">
+                  <p><span className="text-app-text font-medium">League:</span> {success.league.name}</p>
+                  <p><span className="text-app-text font-medium">Owner:</span> @{success.league.owner?.username || 'Unknown'}</p>
+                  <p><span className="text-app-text font-medium">Members:</span> {success.league.memberCount}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Link
+                  href={`/league/${success.league.id}`}
+                  className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 font-semibold"
+                >
+                  Go to League Dashboard
+                </Link>
+                <Link
+                  href="/"
+                  className="w-full flex justify-center py-2.5 sm:py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
+                >
+                  Back to Home
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -112,79 +116,73 @@ export default function JoinLeaguePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/"
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          ← Back to Home
-        </Link>
-      </div>
+    <div className="min-h-screen bg-app-bg flex flex-col px-4 pt-8 sm:py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Join a League
-        </h1>
-
-        <p className="text-gray-600 mb-6">
-          Enter an invite code to join an existing league. League owners can share their invite codes with friends and family.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700 mb-2">
-              Invite Code *
-            </label>
-            <input
-              type="text"
-              id="inviteCode"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-lg tracking-wider"
-              placeholder={`Enter ${CONTENT_LIMITS.INVITE_CODE_LENGTH}-character invite code`}
-              required
-              minLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
-              maxLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
-              style={{ textTransform: 'uppercase' }}
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Invite codes are 6 characters long and case-insensitive (e.g., ABC123)
+        {/* Join League Card */}
+        <div className="bg-app-surface py-6 sm:py-8 px-6 shadow-xl rounded-xl border border-app-border">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold text-app-text text-center mb-2">
+              Join a League
+            </h2>
+            <p className="text-app-text-secondary text-sm text-center">
+              Enter an invite code to join friends
             </p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="text-sm text-red-700">{error}</div>
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+            <div>
+              <label htmlFor="inviteCode" className="block text-sm font-medium text-app-text-secondary mb-1.5">
+                Invite Code
+              </label>
+              <input
+                type="text"
+                id="inviteCode"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 font-mono text-lg tracking-wider"
+                placeholder={`Enter ${CONTENT_LIMITS.INVITE_CODE_LENGTH}-character code`}
+                required
+                minLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
+                maxLength={CONTENT_LIMITS.INVITE_CODE_LENGTH}
+                style={{ textTransform: 'uppercase' }}
+              />
+              <p className="text-xs text-app-text-muted mt-1">
+                6 characters long (e.g., ABC123)
+              </p>
             </div>
-          )}
 
-          <div className="flex items-center justify-between pt-4">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting || inviteCode.trim().length !== 6}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? 'Joining...' : 'Join League'}
-            </button>
-          </div>
-        </form>
+            {error && (
+              <div className="bg-app-error-bg border border-app-error text-app-error px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-3">
-            Don&rsquo;t have an invite code?
-          </h3>
-          <div className="text-sm text-gray-600 space-y-2">
-            <p>Ask a league owner to share their invite code with you, or:</p>
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={isSubmitting || inviteCode.trim().length !== 6}
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
+              >
+                {isSubmitting ? 'Joining...' : 'Join League'}
+              </button>
+              
+              <Link
+                href="/"
+                className="w-full flex justify-center py-2.5 sm:py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
+              >
+                Cancel
+              </Link>
+            </div>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-app-border text-center">
+            <p className="text-sm text-app-text-secondary mb-2">
+              Don't have an invite code?
+            </p>
             <Link
               href="/leagues/new"
-              className="inline-block text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-500 text-sm font-medium transition-colors"
             >
               Create your own league →
             </Link>

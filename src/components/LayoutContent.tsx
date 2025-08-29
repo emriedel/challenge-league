@@ -13,16 +13,21 @@ interface LayoutContentProps {
 export default function LayoutContent({ children }: LayoutContentProps) {
   const pathname = usePathname();
   const isAuthFlow = pathname?.startsWith('/auth/') || pathname?.startsWith('/profile/setup');
+  const isLeagueSelection = pathname === '/';
+  const isLeagueCreation = pathname === '/leagues/new' || pathname === '/leagues/join';
+  
+  // Hide bottom nav for auth flows, league selection, and league creation
+  const hideBottomNav = isAuthFlow || isLeagueSelection || isLeagueCreation;
 
   return (
     <div className="min-h-screen bg-app-bg">
       {!isAuthFlow && <Navigation />}
-      <main className={isAuthFlow ? '' : 'pb-20 md:pb-0'}>
+      <main className={hideBottomNav ? '' : 'pb-20 md:pb-0'}>
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
       </main>
-      {!isAuthFlow && <BottomNavigation />}
+      {!hideBottomNav && <BottomNavigation />}
       <PWAInstallPrompt />
     </div>
   );
