@@ -112,10 +112,9 @@ export default function Navigation() {
   return (
     <>
     <header 
-      className={`shadow-sm sticky top-0 z-40 transition-transform duration-300 ${
+      className={`sticky top-0 z-40 transition-transform duration-300 bg-app-bg border-b border-app-border ${
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
-      }`} 
-      style={{ backgroundColor: '#2d8cff' }}
+      }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -149,10 +148,10 @@ export default function Navigation() {
                   </button>
                   
                   {isLeaguesOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <div className="absolute top-full left-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
                       <div className="py-1">
                         {loadingLeagues ? (
-                          <div className="px-4 py-2 text-sm text-gray-500">
+                          <div className="px-4 py-2 text-sm text-app-text-muted">
                             Loading leagues...
                           </div>
                         ) : leagues.length > 0 ? (
@@ -161,31 +160,31 @@ export default function Navigation() {
                               <Link
                                 key={league.id}
                                 href={`/league/${league.id}`}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
                                 onClick={() => setIsLeaguesOpen(false)}
                               >
                                 <div className="flex justify-between items-center">
                                   <span>{league.name}</span>
                                   {league.isOwner && (
-                                    <span className="text-xs text-blue-500">Owner</span>
+                                    <span className="text-xs text-app-info">Owner</span>
                                   )}
                                 </div>
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-app-text-muted">
                                   {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
                                 </div>
                               </Link>
                             ))}
-                            <hr className="my-1" />
+                            <hr className="my-1 border-app-border" />
                             <Link
                               href="/leagues/new"
-                              className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                               onClick={() => setIsLeaguesOpen(false)}
                             >
                               + Create New League
                             </Link>
                             <Link
                               href="/leagues/join"
-                              className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                               onClick={() => setIsLeaguesOpen(false)}
                             >
                               + Join League
@@ -193,20 +192,20 @@ export default function Navigation() {
                           </>
                         ) : (
                           <>
-                            <div className="px-4 py-2 text-sm text-gray-500">
+                            <div className="px-4 py-2 text-sm text-app-text-muted">
                               No leagues found
                             </div>
-                            <hr className="my-1" />
+                            <hr className="my-1 border-app-border" />
                             <Link
                               href="/leagues/new"
-                              className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                               onClick={() => setIsLeaguesOpen(false)}
                             >
                               + Create New League
                             </Link>
                             <Link
                               href="/leagues/join"
-                              className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                               onClick={() => setIsLeaguesOpen(false)}
                             >
                               + Join League
@@ -243,7 +242,7 @@ export default function Navigation() {
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-blue-700 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-800"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
                 >
                   Sign up
                 </Link>
@@ -268,10 +267,10 @@ export default function Navigation() {
                   </button>
                 
                 {isLeaguesOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                  <div className="absolute top-full right-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
                     <div className="py-1">
                       {loadingLeagues ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">
+                        <div className="px-4 py-2 text-sm text-neutral-400">
                           Loading leagues...
                         </div>
                       ) : leagues.length > 0 ? (
@@ -280,31 +279,31 @@ export default function Navigation() {
                             <Link
                               key={league.id}
                               href={`/league/${league.id}`}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
                               onClick={() => setIsLeaguesOpen(false)}
                             >
                               <div className="flex justify-between items-center">
                                 <span>{league.name}</span>
                                 {league.isOwner && (
-                                  <span className="text-xs text-blue-500">Owner</span>
+                                  <span className="text-xs text-blue-400">Owner</span>
                                 )}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-neutral-400">
                                 {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
                               </div>
                             </Link>
                           ))}
-                          <hr className="my-1" />
+                          <hr className="my-1 border-neutral-700" />
                           <Link
                             href="/leagues/new"
-                            className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                            className="block px-4 py-2 text-sm text-blue-400 hover:bg-neutral-800"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             + Create New League
                           </Link>
                           <Link
                             href="/leagues/join"
-                            className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                            className="block px-4 py-2 text-sm text-green-400 hover:bg-neutral-800"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             + Join League
@@ -312,20 +311,20 @@ export default function Navigation() {
                         </>
                       ) : (
                         <>
-                          <div className="px-4 py-2 text-sm text-gray-500">
+                          <div className="px-4 py-2 text-sm text-app-text-muted">
                             No leagues found
                           </div>
-                          <hr className="my-1" />
+                          <hr className="my-1 border-neutral-700" />
                           <Link
                             href="/leagues/new"
-                            className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                            className="block px-4 py-2 text-sm text-blue-400 hover:bg-neutral-800"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             + Create New League
                           </Link>
                           <Link
                             href="/leagues/join"
-                            className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100"
+                            className="block px-4 py-2 text-sm text-green-400 hover:bg-neutral-800"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             + Join League

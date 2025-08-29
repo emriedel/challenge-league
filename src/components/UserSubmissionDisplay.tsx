@@ -41,7 +41,7 @@ export default function UserSubmissionDisplay({
   };
 
   return (
-    <div className="space-y-6 mb-8 bg-gray-50">      
+    <div className="space-y-6 mb-8 bg-app-bg">      
       {/* Full-width submission display */}
       <div>
         {/* Header with user info and edit button */}
@@ -54,8 +54,8 @@ export default function UserSubmissionDisplay({
                 size="md"
               />
               <div>
-                <p className="font-semibold text-gray-900">{user.username}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-semibold text-app-text">{user.username}</p>
+                <p className="text-sm text-app-text-muted">
                   Submitted: {new Date(userResponse.submittedAt).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -70,7 +70,7 @@ export default function UserSubmissionDisplay({
             {!isEditingInline && (
               <button
                 onClick={handleStartInlineEdit}
-                className="text-gray-500 hover:text-gray-700 focus:outline-none p-3"
+                className="text-app-text-muted hover:text-app-text-secondary focus:outline-none p-3"
                 title="Edit submission"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,12 +90,12 @@ export default function UserSubmissionDisplay({
                   alt="Your submission"
                   width={800}
                   height={600}
-                  className="w-full h-auto object-contain bg-gray-50"
+                  className="w-full h-auto object-contain bg-app-surface-dark"
                   style={{ maxHeight: '70vh' }}
                   priority={false}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <label className="bg-white text-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <label className="bg-app-surface text-app-text-secondary px-4 py-2 rounded-lg cursor-pointer hover:bg-app-surface-light transition-colors">
                     <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -132,7 +132,7 @@ export default function UserSubmissionDisplay({
         <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
           {isEditingInline ? (
             <div className="space-y-3">
-              <p className="text-gray-800 leading-relaxed">
+              <p className="text-app-text leading-relaxed">
                 <span className="font-semibold">{user.username}</span>{' '}
               </p>
               <textarea
@@ -143,7 +143,7 @@ export default function UserSubmissionDisplay({
                 placeholder="Write a caption..."
                 maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
               />
-              <div className="text-xs text-gray-500 text-right">
+              <div className="text-xs text-app-text-muted text-right">
                 {editedCaption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}
               </div>
             </div>
@@ -157,13 +157,13 @@ export default function UserSubmissionDisplay({
 
         {/* Save/Cancel buttons for inline editing */}
         {isEditingInline && (
-          <div className="border-t border-gray-200 pt-4 bg-white">
+          <div className="border-t border-app-border pt-4 bg-app-surface">
             <div className="max-w-2xl mx-auto px-4">
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={handleCancelInlineEdit}
                   disabled={isUpdating}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+                  className="px-6 py-2 border border-app-border text-app-text-secondary rounded-lg hover:bg-app-surface-light focus:outline-none focus:ring-2 focus:ring-app-border focus:ring-offset-2 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -175,7 +175,7 @@ export default function UserSubmissionDisplay({
                   {isUpdating ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mt-2 text-center">
+              <p className="text-sm text-app-text-muted mt-2 text-center">
                 You can update your submission until the deadline
               </p>
             </div>
@@ -184,7 +184,7 @@ export default function UserSubmissionDisplay({
         
         {/* Success/Error messages */}
         {message && (
-          <div className="bg-white border-t border-gray-200 pt-4">
+          <div className="bg-app-surface border-t border-app-border pt-4">
             <div className="max-w-2xl mx-auto px-4">
               <div className={`p-3 rounded-lg text-sm ${
                 message.type === 'success' 

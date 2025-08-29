@@ -70,7 +70,7 @@ export default function VotingInterface({
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-app-bg">
       <style jsx>{`
         @keyframes heartBeat {
           0% {
@@ -105,8 +105,8 @@ export default function VotingInterface({
                         size="md"
                       />
                       <div>
-                        <p className="font-medium text-gray-900">@{response.user.username}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="font-medium text-app-text">@{response.user.username}</p>
+                        <p className="text-xs text-app-text-muted">
                           {new Date(response.submittedAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -117,7 +117,7 @@ export default function VotingInterface({
                       className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
                         hasVoted 
                           ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                          : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
                       }`}
                     >
                       {hasVoted ? '❤️ Voted' : '🤍 Vote'}
@@ -136,7 +136,7 @@ export default function VotingInterface({
                     alt={response.caption}
                     width={800}
                     height={600}
-                    className="w-full h-auto object-contain bg-gray-100"
+                    className="w-full h-auto object-contain bg-app-surface-dark"
                     style={{ maxHeight: '80vh' }}
                   />
                   
@@ -158,7 +158,7 @@ export default function VotingInterface({
 
                 {/* Caption */}
                 <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
-                  <p className="text-gray-800 leading-relaxed">
+                  <p className="text-app-text leading-relaxed">
                     <span className="font-semibold">{response.user.username}</span>{' '}
                     <span>{response.caption}</span>
                   </p>
@@ -168,13 +168,13 @@ export default function VotingInterface({
           })}
         </div>
       ) : (
-        <div className="bg-white min-h-[50vh] flex items-center justify-center">
+        <div className="bg-app-bg min-h-[50vh] flex items-center justify-center">
           <NoSubmissionsEmptyState />
         </div>
       )}
 
       {/* Submit Votes */}
-      <div className="bg-white border-t border-gray-200 py-6">
+      <div className="bg-app-bg border-t border-app-border py-6">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="mb-4">
             <span className="text-lg font-medium">
@@ -184,7 +184,7 @@ export default function VotingInterface({
           <button
             onClick={handleSubmitVotes}
             disabled={getTotalVotes() !== (leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER) || isSubmitting}
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Votes'}
           </button>

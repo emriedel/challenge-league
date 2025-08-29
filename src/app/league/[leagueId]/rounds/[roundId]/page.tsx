@@ -116,7 +116,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-12">
-          <p className="text-gray-500">Round not found</p>
+          <p className="text-app-text-muted">Round not found</p>
         </div>
       </div>
     );
@@ -146,13 +146,13 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
 
         <div className="space-y-8">
           {/* Round Header */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">            
+          <div className="bg-app-surface border border-app-border rounded-lg p-6">            
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Round Details</h1>
-                <p className="text-gray-600 text-lg">{roundData.text}</p>
+                <p className="text-app-text-secondary text-lg">{roundData.text}</p>
               </div>
-              <div className="text-right text-sm text-gray-500">
+              <div className="text-right text-sm text-app-text-muted">
                 <div>Ended: {new Date(roundData.weekEnd).toLocaleDateString()}</div>
                 <div>{roundData.responses.length} submissions</div>
               </div>
@@ -163,7 +163,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
           {roundData.responses.length > 0 ? (
             <div className="space-y-8">
               {roundData.responses.map((response) => (
-                <div key={response.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div key={response.id} className="bg-app-surface border border-app-border rounded-lg overflow-hidden shadow-sm">
                   {/* Header with user info and rank */}
                   <div className="flex items-center justify-between p-4 pb-3">
                     <div className="flex items-center space-x-3">
@@ -173,9 +173,9 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                         size="md"
                       />
                       <div>
-                        <p className="font-semibold text-gray-900">{response.user.username}</p>
+                        <p className="font-semibold text-app-text">{response.user.username}</p>
                         {response.finalRank && (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-app-text-muted">
                             #{response.finalRank} • {response.totalPoints} points
                           </p>
                         )}
@@ -195,7 +195,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                       alt={response.caption}
                       width={800}
                       height={600}
-                      className="w-full h-auto object-contain bg-gray-50"
+                      className="w-full h-auto object-contain bg-app-surface-dark"
                       style={{ maxHeight: '70vh' }}
                       priority={false}
                     />
@@ -205,7 +205,7 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <p className="text-gray-800 leading-relaxed">
+                        <p className="text-app-text leading-relaxed">
                           <span className="font-semibold">{response.user.username}</span>{' '}
                           <span>{response.caption}</span>
                         </p>
@@ -216,14 +216,14 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
               ))}
             </div>
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-              <div className="text-gray-400 mb-4">
+            <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+              <div className="text-app-text-muted mb-4">
                 <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Submissions</h3>
-              <p className="text-gray-500">
+              <h3 className="text-lg font-medium text-app-text mb-2">No Submissions</h3>
+              <p className="text-app-text-muted">
                 No submissions were made for this round.
               </p>
             </div>

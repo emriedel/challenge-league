@@ -90,7 +90,7 @@ export default function StandingPage({ params }: StandingPageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-2xl font-semibold">League Standings</h2>
           </div>
@@ -98,27 +98,27 @@ export default function StandingPage({ params }: StandingPageProps) {
           {standings.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-app-surface-dark">
                   <tr>
                     <th className="px-2 py-3 w-12"></th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
-                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Challenges</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Player</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Points</th>
+                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Wins</th>
+                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Challenges</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-app-surface divide-y divide-app-border">
                   {standings.map((entry, index) => (
                     <tr 
                       key={entry.user.id}
                       className={entry.user.username === session.user.username ? 'bg-blue-50' : ''}
                     >
                       <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-center w-12">
-                        <span className="text-gray-600">
+                        <span className="text-app-text-secondary">
                           {getRankIcon(entry.stats.leagueRank)}
                         </span>
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text">
                         <div className="flex items-center space-x-2">
                           <ProfileAvatar 
                             username={entry.user.username}
@@ -128,13 +128,13 @@ export default function StandingPage({ params }: StandingPageProps) {
                           <span className="truncate">{entry.user.username}</span>
                         </div>
                       </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium">
                         {entry.stats.totalPoints}
                       </td>
-                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text">
                         {entry.stats.wins}
                       </td>
-                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text">
                         {entry.stats.totalSubmissions}
                       </td>
                     </tr>

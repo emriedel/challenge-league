@@ -114,14 +114,14 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       />
       
       {/* Modal */}
-      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-gray-50 shadow-xl z-[60] transform transition-all duration-300 ease-out ${
+      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-app-surface shadow-xl z-[60] transform transition-all duration-300 ease-out ${
         isOpen 
           ? 'translate-x-0 scale-100 opacity-100' 
           : 'translate-x-full scale-95 opacity-0'
       }`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between pl-6 pr-4 h-16 border-b border-gray-200" style={{ backgroundColor: '#2d8cff' }}>
+        <div className="flex items-center justify-between pl-6 pr-4 h-16 border-b border-app-border bg-app-bg">
           <h2 className="text-xl font-semibold text-white">Profile</h2>
           <button
             onClick={onClose}
@@ -140,15 +140,15 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           {message && (
             <div className={`mb-6 p-4 rounded-lg border ${
               message.type === 'success' 
-                ? 'bg-green-50 border-green-200 text-green-700' 
-                : 'bg-red-50 border-red-200 text-red-700'
+                ? 'bg-app-success-bg border-app-success text-app-success' 
+                : 'bg-app-error-bg border-app-error text-app-error'
             }`}>
               {message.text}
             </div>
           )}
 
           {/* Profile Photo Section */}
-          <div className="bg-white rounded-lg p-6 mb-6 shadow-sm border border-gray-200">
+          <div className="bg-app-surface-dark rounded-lg p-6 mb-6 shadow-sm border border-app-border">
             <div className="text-center">
               <div className="relative inline-block mb-4">
                 <ProfileAvatar 
@@ -162,8 +162,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <button
                   onClick={() => setIsEditingPhoto(!isEditingPhoto)}
                   disabled={isUploading}
-                  className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-lg transition-colors disabled:opacity-50"
-                  style={{ backgroundColor: '#2d8cff', color: 'white' }}
+                  className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700"
                 >
                   {isUploading ? (
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -187,10 +186,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                     accept="image/*"
                     onChange={handleFileSelect}
                     disabled={isUploading}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:text-white disabled:opacity-50"
+                    className="block w-full text-sm text-app-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white disabled:opacity-50"
                     style={{ "--file-bg": "#2d8cff" } as any}
                   />
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-app-text-muted">
                     Upload a new profile photo (JPG, PNG, max 5MB)
                   </p>
                 </div>
@@ -199,16 +198,16 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </div>
 
           {/* User Info */}
-          <div className="bg-white rounded-lg p-6 mb-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Details</h3>
+          <div className="bg-app-surface-dark rounded-lg p-6 mb-6 shadow-sm border border-app-border">
+            <h3 className="text-lg font-semibold text-app-text mb-4">Account Details</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <p className="text-gray-900 font-medium">@{session.user.username}</p>
+                <label className="block text-sm font-medium text-app-text-muted mb-1">Username</label>
+                <p className="text-app-text font-medium">@{session.user.username}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <p className="text-gray-900">{session.user.email}</p>
+                <label className="block text-sm font-medium text-app-text-muted mb-1">Email</label>
+                <p className="text-app-text">{session.user.email}</p>
               </div>
             </div>
           </div>

@@ -17,11 +17,11 @@ export default function CurrentChallenge({
 }: CurrentChallengeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 mx-2 sm:mx-0">
+    <div className="bg-app-surface border border-app-border rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 mx-2 sm:mx-0">
       {showVoting ? (
         <>
           <div className="mb-4">
-            <p className="text-lg text-gray-800 font-bold">{votingData?.prompt?.text}</p>
+            <p className="text-lg text-app-text font-bold">{votingData?.prompt?.text}</p>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="space-y-1">
@@ -42,22 +42,22 @@ export default function CurrentChallenge({
                       {/* Mobile overlay backdrop */}
                       <div className="sm:hidden fixed inset-0 z-20" onClick={() => setShowTooltip(false)} />
                       {/* Tooltip */}
-                      <div className="fixed sm:absolute top-20 sm:top-6 left-4 right-4 sm:left-0 sm:right-auto z-30 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                      <div className="fixed sm:absolute top-20 sm:top-6 left-4 right-4 sm:left-0 sm:right-auto z-30 sm:w-80 bg-app-surface-dark border border-app-border-light rounded-lg shadow-lg p-3">
                         <div className="space-y-1 text-sm text-blue-600">
                           <p>• You must vote for {leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER} submissions, not including your own</p>
                           <p>• <strong>Double tap</strong> any photo to vote, or use the vote button</p>
                         </div>
                         {/* Arrow pointing up - hidden on mobile since we're using fixed positioning */}
-                        <div className="hidden sm:block absolute -top-2 left-2 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+                        <div className="hidden sm:block absolute -top-2 left-2 w-4 h-4 bg-app-surface-dark border-l border-t border-app-border-light transform rotate-45"></div>
                       </div>
                     </>
                   )}
                 </div>
               </div>
-              <p className="text-gray-600">Cast your votes for the best submissions</p>
+              <p className="text-app-text-secondary">Cast your votes for the best submissions</p>
             </div>
             <div className="text-left sm:text-right">
-              <p className="text-sm text-gray-500">Voting deadline:</p>
+              <p className="text-sm text-app-text-muted">Voting deadline:</p>
               <p className="text-lg font-semibold">
                 {votingData?.voteEnd ? new Date(votingData.voteEnd).toLocaleDateString('en-US', {
                   weekday: 'short',
@@ -73,10 +73,10 @@ export default function CurrentChallenge({
       ) : (showSubmission || showSubmitted) && promptData?.prompt ? (
         <>
           <div className="mb-4">
-            <p className="text-lg text-gray-800 font-bold">{promptData.prompt.text}</p>
+            <p className="text-lg text-app-text font-bold">{promptData.prompt.text}</p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-sm text-gray-500">Submissions close:&nbsp;
+            <p className="text-sm text-app-text-muted">Submissions close:&nbsp;
               {(() => {
                 const endTime = getRealisticPhaseEndTime({
                   id: promptData.prompt.id,

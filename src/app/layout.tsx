@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#2d8cff',
+  themeColor: '#000000', // Matches app-bg
 };
 
 export default function RootLayout({
@@ -63,7 +63,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <QueryProvider>
             <SessionProvider>
-              <div className="min-h-screen bg-gray-50">
+              <div className="min-h-screen bg-app-bg">
                 <Navigation />
                 <main className="pb-20 md:pb-0">
                   <ErrorBoundary>

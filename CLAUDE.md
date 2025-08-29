@@ -263,3 +263,44 @@ The following refactoring tasks have been identified as high priority for improv
 - Run `npm run type-check` and `npm run lint` after each refactoring
 - Update component interfaces to use centralized types from `/src/types/`
 - Document breaking changes in git commit messages
+
+## Theme System
+
+### Semantic Color Classes
+The app uses a custom Tailwind theme with semantic color names defined in `tailwind.config.js`. This allows for easy theme changes from a single location.
+
+**Background Colors:**
+- `bg-app-bg` - Main app background (pure black #000000)
+- `bg-app-surface` - Cards, modals, elevated content (#1a1a1a)
+- `bg-app-surface-dark` - Darker surfaces when needed (#0a0a0a)
+- `bg-app-surface-light` - Lighter surfaces for hover states (#262626)
+
+**Border Colors:**
+- `border-app-border` - Primary border color (#404040)
+- `border-app-border-light` - Lighter borders (#525252)
+- `border-app-border-dark` - Darker borders (#262626)
+
+**Text Colors:**
+- `text-app-text` - Primary text (white #ffffff)
+- `text-app-text-secondary` - Secondary text (light gray #a3a3a3)
+- `text-app-text-muted` - Muted text (medium gray #737373)
+- `text-app-text-subtle` - Very subtle text (#525252)
+
+**Interactive & Status Colors:**
+- `bg-app-hover` - White overlay for hover states
+- `bg-app-active` - White overlay for active states
+- `text-app-success`, `bg-app-success-bg` - Success colors
+- `text-app-error`, `bg-app-error-bg` - Error colors
+- `text-app-info` - Info color (blue)
+
+### Changing Themes
+To modify the app's color scheme:
+1. Update the `app` color values in `tailwind.config.js`
+2. All components will automatically use the new colors
+3. No need to search/replace individual utility classes
+
+### Current Theme: Instagram Dark Mode
+- Pure black backgrounds for modern dark aesthetic
+- Subtle gray surfaces for content separation
+- White/light gray text hierarchy for readability
+- Blue accents preserved for interactive elements

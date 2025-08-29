@@ -280,7 +280,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         </div>
       )}
     >
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-app-bg">
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         {/* Mobile-friendly container with proper bottom padding for nav */}
@@ -288,20 +288,20 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-2">
               {isOwner ? 'League Settings' : 'League Information'}
             </h1>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="font-semibold text-gray-900 mb-2">{league?.name}</h2>
+            <div className="bg-app-surface rounded-lg border border-app-border p-4">
+              <h2 className="font-semibold text-app-text mb-2">{league?.name}</h2>
               {league?.description && (
-                <p className="text-gray-600 mb-2">{league.description}</p>
+                <p className="text-app-text-secondary mb-2">{league.description}</p>
               )}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-app-text-muted">
                   {league?.memberCount} members
                 </p>
                 {isOwner && (
-                  <p className="text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
+                  <p className="text-sm text-app-text-muted font-mono bg-app-surface-dark px-2 py-1 rounded">
                     Invite Code: {league?.inviteCode}
                   </p>
                 )}
@@ -310,9 +310,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           </div>
 
           {/* League Configuration Settings */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
+          <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">League Configuration</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text">League Configuration</h2>
               {isOwner && !isEditingSettings && (
                 <button
                   onClick={handleStartEditing}
@@ -327,7 +327,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               <form onSubmit={handleUpdateLeagueSettings} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label htmlFor="submission-days" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="submission-days" className="block text-sm font-medium text-app-text-secondary mb-2">
                       Submission Days
                     </label>
                     <input
@@ -338,11 +338,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                       onChange={(e) => setSubmissionDays(e.target.value)}
                       placeholder="Enter number of days (1-14)"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Days for submission phase (1-14)</p>
+                    <p className="text-xs text-app-text-muted mt-1">Days for submission phase (1-14)</p>
                   </div>
 
                   <div>
-                    <label htmlFor="voting-days" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="voting-days" className="block text-sm font-medium text-app-text-secondary mb-2">
                       Voting Days
                     </label>
                     <input
@@ -353,11 +353,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                       onChange={(e) => setVotingDays(e.target.value)}
                       placeholder="Enter number of days (1-7)"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Days for voting phase (1-7)</p>
+                    <p className="text-xs text-app-text-muted mt-1">Days for voting phase (1-7)</p>
                   </div>
 
                   <div>
-                    <label htmlFor="votes-per-player" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="votes-per-player" className="block text-sm font-medium text-app-text-secondary mb-2">
                       Votes Per Player
                     </label>
                     <input
@@ -368,7 +368,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                       onChange={(e) => setVotesPerPlayer(e.target.value)}
                       placeholder="Enter number of votes (1-10)"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Number of votes each player gets (1-10)</p>
+                    <p className="text-xs text-app-text-muted mt-1">Number of votes each player gets (1-10)</p>
                   </div>
                 </div>
 
@@ -383,7 +383,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   <button
                     type="button"
                     onClick={handleCancelSettingsEdit}
-                    className="w-full sm:w-auto bg-gray-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    className="w-full sm:w-auto bg-app-surface-light text-app-text px-6 py-2 rounded-lg font-medium hover:bg-app-surface focus:outline-none focus:ring-2 focus:ring-app-border focus:ring-offset-2"
                   >
                     Cancel
                   </button>
@@ -391,22 +391,22 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </form>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Submission Phase</h3>
-                  <p className="text-2xl font-bold text-gray-900">{league?.submissionDays || 5} days</p>
-                  <p className="text-xs text-gray-500">Time to submit responses</p>
+                <div className="bg-app-surface-dark rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-app-text-secondary mb-1">Submission Phase</h3>
+                  <p className="text-2xl font-bold text-app-text">{league?.submissionDays || 5} days</p>
+                  <p className="text-xs text-app-text-muted">Time to submit responses</p>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Voting Phase</h3>
-                  <p className="text-2xl font-bold text-gray-900">{league?.votingDays || 2} days</p>
-                  <p className="text-xs text-gray-500">Time to vote on submissions</p>
+                <div className="bg-app-surface-dark rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-app-text-secondary mb-1">Voting Phase</h3>
+                  <p className="text-2xl font-bold text-app-text">{league?.votingDays || 2} days</p>
+                  <p className="text-xs text-app-text-muted">Time to vote on submissions</p>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Votes Per Player</h3>
-                  <p className="text-2xl font-bold text-gray-900">{league?.votesPerPlayer || 3} votes</p>
-                  <p className="text-xs text-gray-500">Each player can cast this many votes</p>
+                <div className="bg-app-surface-dark rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-app-text-secondary mb-1">Votes Per Player</h3>
+                  <p className="text-2xl font-bold text-app-text">{league?.votesPerPlayer || 3} votes</p>
+                  <p className="text-xs text-app-text-muted">Each player can cast this many votes</p>
                 </div>
               </div>
             )}
@@ -435,8 +435,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           {isOwner && (
             <>
               {/* Phase Transition Controls */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Phase Controls</h2>
+              <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Phase Controls</h2>
                 
                 <div className="bg-blue-50 rounded-lg p-4 mb-4">
                   <h3 className="font-medium text-blue-900 mb-2">Current Status</h3>
@@ -493,11 +493,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </div>
 
               {/* Add New Prompt */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Add Challenge</h2>
+              <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Add Challenge</h2>
                 <form onSubmit={handleCreatePrompt} className="space-y-4">
                   <div>
-                    <label htmlFor="prompt-text" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="prompt-text" className="block text-sm font-medium text-app-text-secondary mb-2">
                       Challenge Description
                     </label>
                     <textarea
@@ -528,9 +528,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-green-900 mb-4">Currently Active</h2>
               {queue.active.map((prompt) => (
-                <div key={prompt.id} className="bg-white rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
-                  <div className="text-sm text-gray-600">
+                <div key={prompt.id} className="bg-app-surface-dark rounded-lg p-4">
+                  <h3 className="font-medium text-app-text mb-2">{prompt.text}</h3>
+                  <div className="text-sm text-app-text-secondary">
                     {(() => {
                       const endTime = getRealisticPhaseEndTime({ 
                         id: prompt.id, 
@@ -564,9 +564,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-blue-900 mb-4">Voting Phase Active</h2>
               {queue.voting.map((prompt) => (
-                <div key={prompt.id} className="bg-white rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900 mb-2">{prompt.text}</h3>
-                  <div className="text-sm text-gray-600">
+                <div key={prompt.id} className="bg-app-surface-dark rounded-lg p-4">
+                  <h3 className="font-medium text-app-text mb-2">{prompt.text}</h3>
+                  <div className="text-sm text-app-text-secondary">
                     {(() => {
                       const endTime = getRealisticPhaseEndTime({ 
                         id: prompt.id, 
@@ -596,27 +596,27 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           )}
 
           {/* Upcoming Challenges Queue */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">
               Upcoming Challenges ({queue?.scheduled?.length || 0})
             </h2>
             
             {!queue?.scheduled || queue.scheduled.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-gray-400 mb-2">
+                <div className="text-app-text-muted mb-2">
                   <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <p className="text-gray-500">No upcoming challenges</p>
+                <p className="text-app-text-muted">No upcoming challenges</p>
                 {isOwner && (
-                  <p className="text-gray-400 text-sm mt-1">Add some challenges above to get started!</p>
+                  <p className="text-app-text-muted text-sm mt-1">Add some challenges above to get started!</p>
                 )}
               </div>
             ) : (
               <div className="space-y-3">
                 {queue.scheduled.map((prompt, index) => (
-                  <div key={prompt.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div key={prompt.id} className="border border-app-border rounded-lg p-4 hover:bg-app-surface-light transition-colors">
                     <div className="flex items-start gap-3">
                       {/* Queue Position */}
                       <div className="flex-shrink-0">
@@ -648,14 +648,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                                   setEditingPrompt(null);
                                   setEditText('');
                                 }}
-                                className="px-3 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600"
+                                className="px-3 py-2 bg-app-surface-light text-app-text rounded-lg text-sm hover:bg-app-surface"
                               >
                                 Cancel
                               </button>
                             </div>
                           </div>
                         ) : (
-                          <h3 className="font-medium text-gray-900 text-sm sm:text-base leading-relaxed">
+                          <h3 className="font-medium text-app-text text-sm sm:text-base leading-relaxed">
                             {prompt.text}
                           </h3>
                         )}
@@ -669,7 +669,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'up')}
                               disabled={index === 0 || reorderPromptsMutation.isPending}
-                              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 text-sm"
+                              className="p-1 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-sm"
                               title="Move up"
                             >
                               ↑
@@ -677,7 +677,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'down')}
                               disabled={index === queue.scheduled.length - 1 || reorderPromptsMutation.isPending}
-                              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 text-sm"
+                              className="p-1 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-sm"
                               title="Move down"
                             >
                               ↓
@@ -715,15 +715,15 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
           {/* Completed Challenges */}
           {queue?.completed && queue.completed.length > 0 && (
-            <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4">
+            <div className="bg-app-surface-dark rounded-lg border border-app-border p-4 sm:p-6 mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text-secondary mb-4">
                 Recent Completed Challenges ({Math.min(queue.completed.length, 10)})
               </h2>
               <div className="space-y-2">
                 {queue.completed.slice(-10).reverse().map((prompt) => (
-                  <div key={prompt.id} className="text-sm text-gray-600 p-2 bg-white rounded border">
+                  <div key={prompt.id} className="text-sm text-app-text-secondary p-2 bg-app-surface rounded border border-app-border">
                     <p className="font-medium">{prompt.text}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-app-text-muted mt-1">
                       Completed on {new Date(prompt.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -748,13 +748,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         {/* Transition Confirmation Modal */}
         {showTransitionModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Phase Transition</h3>
+            <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Phase Transition</h3>
               
               <div className="mb-4 space-y-3">
-                <div className="bg-gray-50 p-3 rounded">
-                  <p className="text-sm font-medium text-gray-700">Current:</p>
-                  <p className="text-sm text-gray-600">
+                <div className="bg-app-surface-dark p-3 rounded">
+                  <p className="text-sm font-medium text-app-text-secondary">Current:</p>
+                  <p className="text-sm text-app-text-secondary">
                     {phaseInfo?.currentPhase.type === 'NONE' && 'No active challenges'}
                     {phaseInfo?.currentPhase.type === 'ACTIVE' && `Active: "${phaseInfo.currentPhase.prompt}"`}
                     {phaseInfo?.currentPhase.type === 'VOTING' && `Voting: "${phaseInfo.currentPhase.prompt}"`}
@@ -772,14 +772,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 </div>
               </div>
               
-              <p className="text-sm text-gray-600 mb-6">
+              <p className="text-sm text-app-text-secondary mb-6">
                 This will immediately move to the next phase, regardless of timing. Are you sure?
               </p>
               
               <div className="flex flex-col-reverse sm:flex-row gap-3">
                 <button
                   onClick={() => setShowTransitionModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
                 >
                   Cancel
                 </button>

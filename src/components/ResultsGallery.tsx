@@ -11,19 +11,19 @@ import type { ResultsGalleryProps } from '@/types/components';
 export default function ResultsGallery({ responses, prompt, leagueId }: ResultsGalleryProps) {
   return (
     <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
+      <div className="bg-app-surface border border-app-border rounded-lg p-4 sm:p-6 mx-2 sm:mx-0">
         <h2 className="text-xl font-semibold mb-2">Latest Completed Round</h2>
-        <p className="text-gray-600 mb-4">{prompt?.text}</p>
+        <p className="text-app-text-secondary mb-4">{prompt?.text}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {responses.slice(0, 6).map((response) => (
-            <div key={response.id} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={response.id} className="border border-app-border rounded-lg overflow-hidden">
               <div className="relative">
                 <Image
                   src={response.imageUrl}
                   alt={response.caption}
                   width={400}
                   height={192}
-                  className="w-full h-48 object-contain bg-gray-50"
+                  className="w-full h-48 object-contain bg-app-surface-dark"
                 />
                 {response.finalRank && response.finalRank <= 3 && (
                   <div className="absolute top-2 left-2 bg-primary-500 text-white px-2 py-1 rounded text-sm font-bold">
@@ -39,14 +39,14 @@ export default function ResultsGallery({ responses, prompt, leagueId }: ResultsG
                       profilePhoto={response.user.profilePhoto}
                       size="sm"
                     />
-                    <p className="font-medium text-gray-900">@{response.user.username}</p>
+                    <p className="font-medium text-app-text">@{response.user.username}</p>
                   </div>
                   <div className="text-right text-sm">
                     <div className="text-blue-600 font-medium">{response.totalPoints} pts</div>
-                    <div className="text-gray-500">#{response.finalRank || '—'}</div>
+                    <div className="text-app-text-muted">#{response.finalRank || '—'}</div>
                   </div>
                 </div>
-                <p className="text-gray-700 text-sm">{response.caption}</p>
+                <p className="text-app-text-secondary text-sm">{response.caption}</p>
               </div>
             </div>
           ))}

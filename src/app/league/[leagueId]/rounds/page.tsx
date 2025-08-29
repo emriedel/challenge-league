@@ -56,7 +56,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading results...</p>
+            <p className="mt-4 text-app-text-muted">Loading results...</p>
           </div>
         </div>
       </div>
@@ -80,26 +80,26 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
       {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-app-bg min-h-screen">
           {/* Challenge Selector and Details */}
           <div className="py-4">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="relative mb-4" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-between p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-48 shadow-sm"
+                  className="flex items-center justify-between p-2 bg-app-surface border border-app-border rounded-lg hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
                 >
                   <div className="text-left">
                     {selectedRound ? (
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-app-text">
                         Challenge #{galleryData.rounds.length - (selectedRoundIndex || 0)}
                       </div>
                     ) : (
-                      <div className="text-gray-500">Select a challenge</div>
+                      <div className="text-app-text-muted">Select a challenge</div>
                     )}
                   </div>
                   <svg 
-                    className={`w-4 h-4 text-gray-400 transition-transform ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                    className={`w-4 h-4 text-app-text-muted transition-transform ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -109,7 +109,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto min-w-64">
+                  <div className="absolute top-full left-0 mt-1 bg-app-surface border border-app-border rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto min-w-64">
                     {galleryData.rounds.map((round, index) => (
                       <button
                         key={round.id}
@@ -117,14 +117,14 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                           setSelectedRoundId(round.id);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ${
+                        className={`w-full text-left px-3 py-2 border-b border-app-border-dark last:border-b-0 hover:bg-app-surface-light transition-colors ${
                           selectedRoundId === round.id ? 'bg-blue-50' : ''
                         }`}
                       >
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-app-text">
                           Challenge #{galleryData.rounds.length - index}
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-app-text-secondary mt-1">
                           {truncateText(round.text, 80)}
                         </div>
                       </button>
@@ -135,11 +135,11 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
               {/* Challenge Details */}
               {selectedRound && (
-                <div className="bg-white border border-gray-200 rounded-lg p-4 mb-2 shadow-sm">
-                  <p className="text-lg text-gray-700 mb-3 font-bold">
+                <div className="bg-app-surface border border-app-border rounded-lg p-4 mb-2 shadow-sm">
+                  <p className="text-lg text-app-text mb-3 font-bold">
                     {selectedRound.text}
                   </p>
-                  <div className="flex items-center space-x-6 text-sm text-gray-500">
+                  <div className="flex items-center space-x-6 text-sm text-app-text-muted">
                     <div>
                       Ended: {selectedRound.weekEnd 
                         ? new Date(selectedRound.weekEnd).toLocaleDateString()
@@ -168,12 +168,12 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                             size="md"
                           />
                           <div>
-                            <p className="font-semibold text-gray-900">{response.user.username}</p>
+                            <p className="font-semibold text-app-text">{response.user.username}</p>
                           </div>
                         </div>
                         {response.finalRank && (
                           <div className="text-right">
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-app-text-muted">
                               #{response.finalRank} • {response.totalVotes} votes
                             </p>
                           </div>
@@ -188,7 +188,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                         alt={response.caption}
                         width={1200}
                         height={800}
-                        className="w-full h-auto object-contain bg-gray-100"
+                        className="w-full h-auto object-contain bg-app-surface-dark"
                         style={{ maxHeight: '80vh' }}
                         priority={false}
                       />
@@ -196,7 +196,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                     
                     {/* Caption */}
                     <div className="px-4 pt-3 pb-8 max-w-2xl mx-auto">
-                      <p className="text-gray-800 leading-relaxed">
+                      <p className="text-app-text leading-relaxed">
                         <span className="font-semibold">{response.user.username}</span>{' '}
                         <span>{response.caption}</span>
                       </p>
@@ -205,8 +205,8 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="bg-white min-h-[50vh] flex items-center justify-center">
-                <div className="text-center py-8 text-gray-500">
+              <div className="bg-app-bg min-h-[50vh] flex items-center justify-center">
+                <div className="text-center py-8 text-app-text-muted">
                   <p>No submissions for this challenge</p>
                 </div>
               </div>
@@ -215,14 +215,14 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         </div>
       ) : (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-            <div className="text-gray-400 mb-4">
+          <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+            <div className="text-app-text-muted mb-4">
               <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Completed Rounds Yet</h3>
-            <p className="text-gray-500">Completed rounds will appear here after challenges are completed and voted on.</p>
+            <h3 className="text-lg font-medium text-app-text mb-2">No Completed Rounds Yet</h3>
+            <p className="text-app-text-muted">Completed rounds will appear here after challenges are completed and voted on.</p>
           </div>
         </div>
       )}

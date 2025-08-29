@@ -60,7 +60,7 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your leagues...</p>
+          <p className="mt-4 text-app-text-muted">Loading your leagues...</p>
         </div>
       </div>
     );
@@ -84,19 +84,19 @@ export default function HomePage() {
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Challenge League!</h1>
-        <p className="text-xl text-gray-600">Submit photos to win challenges against your friends</p>
+        <h1 className="text-4xl font-bold text-app-text mb-4">Welcome to Challenge League!</h1>
+        <p className="text-xl text-app-text-secondary">Submit photos to win challenges against your friends</p>
       </div>
 
       {leagues.length === 0 ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+        <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm4 14a6 6 0 006-6V4a2 2 0 00-2-2H6a2 2 0 00-2 2v6a6 6 0 006 6z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get Started</h2>
-          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-semibold text-app-text mb-4">Get Started</h2>
+          <p className="text-app-text-secondary mb-8 max-w-2xl mx-auto">
             Join creative competition leagues to compete in weekly challenges with friends, family, or communities. 
             Submit photos, vote on submissions, and climb the leaderboards!
           </p>
@@ -126,19 +126,19 @@ export default function HomePage() {
       ) : (
         <>
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Leagues</h2>
+            <h2 className="text-2xl font-semibold text-app-text mb-4">Your Leagues</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {leagues.map((league) => (
                 <div
                   key={league.id}
-                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  className="bg-app-surface border border-app-border rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      <h3 className="text-xl font-semibold text-app-text mb-2">
                         {league.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <p className="text-sm text-app-text-muted mb-2">
                         {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} • 
                         Owner: @{league.owner?.username || 'Unknown'}
                       </p>
@@ -151,7 +151,7 @@ export default function HomePage() {
                   </div>
 
                   {league.description && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    <p className="text-app-text-secondary text-sm mb-4 line-clamp-2">
                       {league.description}
                     </p>
                   )}
