@@ -24,16 +24,3 @@ export const getRankBadge = (rank: number) => {
   }
 };
 
-// Simple rank icon utility (used in ResultsGallery component)
-export const getRankIcon = (rank: number) => {
-  switch (rank) {
-    case 1:
-      return '#1';
-    case 2:
-      return '#2';
-    case 3:
-      return '#3';
-    default:
-      return `#${rank}`;
-  }
-};

@@ -47,13 +47,6 @@ export interface CurrentChallengeProps {
   };
 }
 
-// Submission Section component props
-export interface SubmissionSectionProps {
-  prompt: BasePrompt;
-  onSubmit: (data: { photo: File; caption: string }) => Promise<void>;
-  isSubmitting: boolean;
-  message?: Message | null;
-}
 
 // User Submission Display component props
 export interface UserSubmissionDisplayProps {
@@ -64,14 +57,6 @@ export interface UserSubmissionDisplayProps {
   message?: Message | null;
 }
 
-// Results Gallery component props
-export interface ResultsGalleryProps {
-  responses: ResultsResponse[];
-  prompt?: {
-    text: string;
-  };
-  leagueId: string;
-}
 
 // Profile Avatar component props
 export interface ProfileAvatarProps {

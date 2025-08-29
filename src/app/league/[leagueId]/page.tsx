@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { 
   useLeagueQuery, 
   useVotingQuery, 
-  useRoundsQuery, 
   useLeaguePromptQuery,
   useSubmitVotesMutation,
   useSubmitResponseMutation
@@ -19,7 +18,6 @@ import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
 import SubmissionForm from '@/components/SubmissionForm';
 import UserSubmissionDisplay from '@/components/UserSubmissionDisplay';
-import ResultsGallery from '@/components/ResultsGallery';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
@@ -34,7 +32,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
   
   // Mutations for user actions
@@ -122,11 +119,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const leaderboard = leagueData?.leaderboard || [];
   const currentUserEntry = leaderboard.find(entry => entry.user.username === session.user.username);
 
-  // Show voting interface if voting is active, otherwise show submission area or latest results
+  // Three basic states for the Challenge page
   const showVoting = votingData?.canVote && votingData.responses.length > 0;
   const showSubmission = !showVoting && promptData?.prompt && !promptData.userResponse;
   const showSubmitted = !showVoting && promptData?.prompt && promptData.userResponse;
-  const showLatestResults = !showVoting && !showSubmission && !showSubmitted && galleryData?.responses && galleryData.responses.length > 0;
+  const showNoChallenge = !showVoting && !showSubmission && !showSubmitted;
 
   return (
     <ErrorBoundary 
@@ -145,30 +142,33 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
-        {/* Current Challenge - with container for non-full-width content */}
+        {/* Container for challenge content */}
         <div className="max-w-2xl mx-auto px-4 py-6">
-          <CurrentChallenge
-            votingData={votingData || undefined}
-            promptData={promptData && promptData.prompt ? {
-              prompt: {
-                id: promptData.prompt.id,
-                text: promptData.prompt.text,
-                phaseStartedAt: promptData.prompt.phaseStartedAt,
-                status: promptData.prompt.status,
-                queueOrder: 0,
-                createdAt: new Date().toISOString(),
-                leagueId: params.leagueId
-              }
-            } : undefined}
-            showVoting={!!showVoting}
-            showSubmission={!!showSubmission}
-            showSubmitted={!!showSubmitted}
-            leagueSettings={league ? {
-              submissionDays: league.submissionDays,
-              votingDays: league.votingDays,
-              votesPerPlayer: league.votesPerPlayer
-            } : undefined}
-          />
+          {/* Current Challenge - only show when there's an active challenge */}
+          {!showNoChallenge && (
+            <CurrentChallenge
+              votingData={votingData || undefined}
+              promptData={promptData && promptData.prompt ? {
+                prompt: {
+                  id: promptData.prompt.id,
+                  text: promptData.prompt.text,
+                  phaseStartedAt: promptData.prompt.phaseStartedAt,
+                  status: promptData.prompt.status,
+                  queueOrder: 0,
+                  createdAt: new Date().toISOString(),
+                  leagueId: params.leagueId
+                }
+              } : undefined}
+              showVoting={!!showVoting}
+              showSubmission={!!showSubmission}
+              showSubmitted={!!showSubmitted}
+              leagueSettings={league ? {
+                submissionDays: league.submissionDays,
+                votingDays: league.votingDays,
+                votesPerPlayer: league.votesPerPlayer
+              } : undefined}
+            />
+          )}
 
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
@@ -200,21 +200,21 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             </div>
           )}
 
-          {/* Completed Rounds (when not voting) */}
-          {showLatestResults && !showVoting && galleryData?.responses && (
-            <ResultsGallery
-              responses={galleryData.responses.map(response => ({
-                ...response,
-                finalRank: response.finalRank || undefined,
-                user: {
-                  id: (response.user as any).id || `user-${response.user.username}`,
-                  username: response.user.username,
-                  profilePhoto: response.user.profilePhoto
-                }
-              }))}
-              prompt={galleryData.prompt || undefined}
-              leagueId={params.leagueId}
-            />
+          {/* No Active Challenge State */}
+          {showNoChallenge && (
+            <div className="mb-8">
+              <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+                <div className="text-app-text-muted mb-4">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-app-text mb-2">No Active Challenge</h3>
+                <p className="text-app-text-secondary">
+                  There&apos;s no challenge running right now. Check back soon for the next creative prompt!
+                </p>
+              </div>
+            </div>
           )}
         </div>
 
