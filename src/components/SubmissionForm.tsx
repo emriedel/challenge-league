@@ -49,14 +49,14 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
   if (isExpired) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <div className="text-gray-400 mb-4">
+      <div className="bg-app-surface-dark border border-app-border rounded-lg p-8 text-center">
+        <div className="text-app-text-muted mb-4">
           <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Submission Window Closed</h3>
-        <p className="text-gray-600">
+        <h3 className="text-lg font-medium text-app-text mb-2">Submission Window Closed</h3>
+        <p className="text-app-text-secondary">
           The submission period for this prompt has ended. Check back when the next prompt becomes available!
         </p>
       </div>
@@ -68,7 +68,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Photo Upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-app-text-secondary mb-3">
             Upload Your Photo
           </label>
           <PhotoUpload
@@ -87,13 +87,13 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
         {/* Caption Input */}
         <div>
-          <label htmlFor="caption" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="caption" className="block text-sm font-medium text-app-text-secondary mb-2">
             Caption
           </label>
           <textarea
             id="caption"
             rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base"
+            className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
             placeholder="Share the story behind your photo..."
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
@@ -101,7 +101,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             disabled={isSubmitting}
             required
           />
-          <div className="mt-1 flex justify-between text-sm text-gray-500">
+          <div className="mt-1 flex justify-between text-sm text-app-text-muted">
             <span>Tell us about your photo and why you chose it</span>
             <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
           </div>

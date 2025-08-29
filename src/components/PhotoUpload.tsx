@@ -65,13 +65,13 @@ export default function PhotoUpload({
   if (previewUrl) {
     return (
       <div className="relative">
-        <div className="relative rounded-lg overflow-hidden bg-gray-100">
+        <div className="relative rounded-lg overflow-hidden bg-app-surface-dark">
           <Image
             src={previewUrl}
             alt="Preview"
             width={800}
             height={600}
-            className="w-full h-auto object-contain bg-gray-50 max-h-[400px]"
+            className="w-full h-auto object-contain bg-app-surface-dark max-h-[400px]"
           />
           {!disabled && (
             <button
@@ -103,7 +103,7 @@ export default function PhotoUpload({
       <button
         onClick={openFileDialog}
         disabled={disabled}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
