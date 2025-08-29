@@ -111,26 +111,36 @@ export const { GET, POST } = createMethodHandlers({
     
     // Create prompts with sequential queue order
     const promptCreationData = starterPrompts.map((promptText, index) => {
-      const weekStart = new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000); // Each prompt 1 week apart
-      const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000); // 6 days after start
-      const voteStart = weekEnd; // Voting starts when submission ends
-      const voteEnd = new Date(voteStart.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days after vote start
-      
       return {
         text: promptText,
         leagueId: league.id,
         status: 'SCHEDULED' as const,
         queueOrder: index + 1,
-        weekStart,
-        weekEnd,
-        voteStart,
-        voteEnd,
       };
     });
 
     await db.prompt.createMany({
       data: promptCreationData,
     });
+
+    // Immediately activate the first prompt for the new league
+    const firstPrompt = await db.prompt.findFirst({
+      where: {
+        leagueId: league.id,
+        status: 'SCHEDULED',
+      },
+      orderBy: { queueOrder: 'asc' },
+    });
+
+    if (firstPrompt) {
+      await db.prompt.update({
+        where: { id: firstPrompt.id },
+        data: {
+          status: 'ACTIVE',
+          phaseStartedAt: new Date(),
+        },
+      });
+    }
 
     return NextResponse.json({ 
       league: {

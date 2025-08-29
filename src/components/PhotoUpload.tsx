@@ -76,7 +76,7 @@ export default function PhotoUpload({
           {!disabled && (
             <button
               onClick={removePhoto}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="absolute top-2 right-2 bg-gray-800 text-gray-300 rounded-full p-1.5 sm:p-2 aspect-square flex items-center justify-center hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
               title="Remove photo"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

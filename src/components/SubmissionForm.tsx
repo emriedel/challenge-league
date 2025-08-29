@@ -84,9 +84,6 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
         {/* Caption Input */}
         <div>
-          <label htmlFor="caption" className="block text-sm font-medium text-app-text-secondary mb-2">
-            Caption
-          </label>
           <textarea
             id="caption"
             rows={6}
@@ -98,8 +95,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             disabled={isSubmitting}
             required
           />
-          <div className="mt-1 flex justify-between text-sm text-app-text-muted">
-            <span>Tell us about your photo and why you chose it</span>
+          <div className="mt-1 text-right text-sm text-app-text-muted">
             <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
           </div>
         </div>
@@ -111,7 +107,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             disabled={isSubmissionDisabled}
             className="bg-gray-800 text-white px-8 py-3 rounded-md font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Response'}
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       </form>

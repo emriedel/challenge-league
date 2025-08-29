@@ -175,32 +175,43 @@ export async function processPromptQueue() {
       }
     }
 
-    // Step 3: Activate next prompt if no active prompt exists (immediate transition after voting)
-    const currentActivePrompt = await db.prompt.findFirst({
-      where: { status: 'ACTIVE' },
+    // Step 3: For each league, activate next prompt if no active prompt exists
+    const leagues = await db.league.findMany({
+      where: { isActive: true },
+      select: { id: true },
     });
 
-    if (!currentActivePrompt) {
-      // Find the next scheduled prompt
-      const nextPrompt = await db.prompt.findFirst({
-        where: { status: 'SCHEDULED' },
-        orderBy: { queueOrder: 'asc' },
+    for (const league of leagues) {
+      const currentActivePrompt = await db.prompt.findFirst({
+        where: { 
+          status: 'ACTIVE',
+          leagueId: league.id,
+        },
       });
 
-      if (nextPrompt) {
-        // Activate the prompt with current timestamp
-        await db.prompt.update({
-          where: { id: nextPrompt.id },
-          data: {
-            status: 'ACTIVE',
-            phaseStartedAt: now,
+      if (!currentActivePrompt) {
+        // Find the next scheduled prompt for this league
+        const nextPrompt = await db.prompt.findFirst({
+          where: { 
+            status: 'SCHEDULED',
+            leagueId: league.id,
           },
+          orderBy: { queueOrder: 'asc' },
         });
 
-        console.log(`🚀 Activated next task: "${nextPrompt.text}"`);
-        console.log(`   Phase started at: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
-      } else {
-        console.log('⚠️ No scheduled tasks available');
+        if (nextPrompt) {
+          // Activate the prompt with current timestamp
+          await db.prompt.update({
+            where: { id: nextPrompt.id },
+            data: {
+              status: 'ACTIVE',
+              phaseStartedAt: now,
+            },
+          });
+
+          console.log(`🚀 Activated next task for league ${league.id}: "${nextPrompt.text}"`);
+          console.log(`   Phase started at: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+        }
       }
     }
 
