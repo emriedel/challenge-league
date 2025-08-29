@@ -7,38 +7,38 @@ import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
 
-// POST /api/leagues/join - Join league via invite code
+// POST /api/leagues/join - Join league by ID
 const joinLeague = async ({ req, session }: AuthenticatedApiContext) => {
-  const { inviteCode } = await req.json();
+  const { leagueId } = await req.json();
 
-  if (!inviteCode) {
-    throw new ValidationError('Invite code is required');
+  if (!leagueId) {
+    throw new ValidationError('League ID is required');
   }
 
-    // Find the league by invite code
-    const league = await db.league.findUnique({
-      where: { 
-        inviteCode: inviteCode.toUpperCase() 
+  // Find the league by ID
+  const league = await db.league.findUnique({
+    where: { 
+      id: leagueId
+    },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          username: true
+        }
       },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true
-          }
-        },
-        _count: {
-          select: {
-            memberships: {
-              where: { isActive: true }
-            }
+      _count: {
+        select: {
+          memberships: {
+            where: { isActive: true }
           }
         }
       }
-    });
+    }
+  });
 
   if (!league) {
-    throw new NotFoundError('Invalid invite code');
+    throw new NotFoundError('League not found');
   }
 
   if (!league.isActive) {
