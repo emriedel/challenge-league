@@ -170,6 +170,13 @@ workbox-*.js.map
 /playwright-report/
 /playwright/.cache/
 
+# Test debugging files (generated during test development)
+debug-*.png
+debug-*.jpg
+debug-*.jpeg
+*-debug.png
+test-screenshot-*.png
+
 # Local development
 *.local
 /generated/prisma
