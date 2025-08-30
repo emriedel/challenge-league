@@ -16,7 +16,16 @@
     "migrate:prod": "./scripts/migrate-production.sh",
     "postinstall": "prisma generate",
     "db": "node scripts/db-manager.js",
-    "db:help": "node scripts/db-manager.js help"
+    "db:help": "node scripts/db-manager.js help",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:integration": "playwright test",
+    "test:integration:ui": "playwright test --ui",
+    "test:integration:basic": "playwright test --grep \"Simple User Flow\"",
+    "test:integration:comprehensive": "playwright test --grep \"Working User Journey\"",
+    "test:setup": "playwright install",
+    "test:cleanup": "node scripts/cleanup-test-files.js",
+    "test:all": "npm run test:unit && npm run test:integration:basic"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -36,15 +45,19 @@
     "tsx": "^4.20.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^20.17.10",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^5.0.2",
     "autoprefixer": "^10.4.20",
     "dotenv-cli": "^10.0.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.16",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.15",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   }
 }
