@@ -110,6 +110,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           text: newCurrentPrompt.text,
           status: newCurrentPrompt.status,
           phaseStartedAt: newCurrentPrompt.phaseStartedAt,
+          queueOrder: newCurrentPrompt.queueOrder,
         },
         userResponse: userResponse ? {
           id: userResponse.id,
@@ -128,6 +129,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         text: currentPrompt.text,
         status: currentPrompt.status,
         phaseStartedAt: currentPrompt.phaseStartedAt,
+        queueOrder: currentPrompt.queueOrder,
       },
       userResponse: userResponse ? {
         id: userResponse.id,

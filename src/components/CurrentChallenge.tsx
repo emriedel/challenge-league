@@ -82,7 +82,7 @@ export default function CurrentChallenge({
         <>
           <div className="text-center space-y-4 mb-6">
             <div>
-              <p className="text-2xl text-app-text font-bold mb-3">Challenge #</p>
+              <p className="text-2xl text-app-text font-bold mb-3">Challenge #{promptData.prompt.queueOrder + 1}</p>
               <p className="text-xl text-app-text leading-relaxed">{promptData.prompt.text}</p>
             </div>
             <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
