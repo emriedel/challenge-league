@@ -146,15 +146,24 @@ export default function RoundDetailPage({ params }: RoundDetailPageProps) {
 
         <div className="space-y-8">
           {/* Round Header */}
-          <div className="bg-app-surface border border-app-border rounded-lg p-6">            
-            <div className="flex items-center justify-between">
+          <div className="bg-app-surface border border-app-border rounded-lg p-6">
+            <div className="text-center space-y-4">
               <div>
-                <h1 className="text-2xl font-bold mb-2">Round Details</h1>
-                <p className="text-app-text-secondary text-lg">{roundData.text}</p>
+                <p className="text-2xl text-app-text font-bold mb-3">Challenge Results</p>
+                <p className="text-xl text-app-text leading-relaxed">{roundData.text}</p>
               </div>
-              <div className="text-right text-sm text-app-text-muted">
-                <div>Ended: {new Date(roundData.weekEnd).toLocaleDateString()}</div>
-                <div>{roundData.responses.length} submissions</div>
+              <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                <span>Ended: {new Date(roundData.weekEnd).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short', 
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}</span>
               </div>
             </div>
           </div>

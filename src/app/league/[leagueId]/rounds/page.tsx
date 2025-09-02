@@ -134,16 +134,29 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
               {/* Challenge Details */}
               {selectedRound && (
-                <div className="bg-app-surface border border-app-border rounded-lg p-4 mb-2 shadow-sm">
-                  <p className="text-lg text-app-text mb-3 font-bold">
-                    {selectedRound.text}
-                  </p>
-                  <div className="flex items-center space-x-6 text-sm text-app-text-muted">
+                <div className="bg-app-surface border border-app-border rounded-lg p-6 mb-2 shadow-sm">
+                  <div className="text-center space-y-4">
                     <div>
-                      Ended: {selectedRound.weekEnd 
-                        ? new Date(selectedRound.weekEnd).toLocaleDateString()
-                        : 'Date not available'
-                      }
+                      <p className="text-2xl text-app-text font-bold mb-3">Challenge #{galleryData.rounds.length - (selectedRoundIndex || 0)}</p>
+                      <p className="text-xl text-app-text leading-relaxed">{selectedRound.text}</p>
+                    </div>
+                    <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                      </svg>
+                      <span>
+                        Ended: {selectedRound.weekEnd 
+                          ? new Date(selectedRound.weekEnd).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                            })
+                          : 'Date not available'
+                        }
+                      </span>
                     </div>
                   </div>
                 </div>
