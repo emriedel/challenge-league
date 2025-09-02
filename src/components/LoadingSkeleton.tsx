@@ -14,7 +14,7 @@ export function Skeleton({ className = '', width, height }: SkeletonProps) {
 
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${className}`}
+      className={`animate-pulse bg-app-surface-light rounded ${className}`}
       style={style}
     />
   );
@@ -47,7 +47,7 @@ export function SkeletonAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'x
 
 export function SkeletonCard({ className = '' }: { className?: string }) {
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div className={`bg-app-surface border border-app-border rounded-lg p-6 ${className}`}>
       <div className="space-y-4">
         <div className="flex items-center space-x-3">
           <SkeletonAvatar />
@@ -65,9 +65,9 @@ export function SkeletonCard({ className = '' }: { className?: string }) {
 
 export function SkeletonTable({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+      <div className="bg-app-surface-dark px-6 py-3 border-b border-app-border">
         <div className="flex space-x-4">
           {Array.from({ length: columns }).map((_, i) => (
             <Skeleton key={i} className="h-4 w-20" />
@@ -76,7 +76,7 @@ export function SkeletonTable({ rows = 5, columns = 4 }: { rows?: number; column
       </div>
       
       {/* Rows */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-app-border">
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <div key={rowIndex} className="px-6 py-4">
             <div className="flex space-x-4">
@@ -113,7 +113,7 @@ export function SkeletonSubmissionFeed({ count = 3 }: { count?: number }) {
   return (
     <div className="space-y-8">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <div key={i} className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-4 pb-3">
             <div className="flex items-center space-x-3">
@@ -123,22 +123,23 @@ export function SkeletonSubmissionFeed({ count = 3 }: { count?: number }) {
                 <Skeleton className="h-3 w-16" />
               </div>
             </div>
-            <Skeleton className="h-6 w-8 rounded-full" />
+            <Skeleton className="h-8 w-16 rounded-full" />
           </div>
           
           {/* Image */}
-          <Skeleton className="w-full h-64" />
+          <Skeleton className="w-full h-96 aspect-square" />
+          
+          {/* Action buttons */}
+          <div className="p-4 pb-2">
+            <div className="flex space-x-4">
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-6 rounded" />
+            </div>
+          </div>
           
           {/* Caption */}
-          <div className="p-4">
+          <div className="px-4 pb-4">
             <SkeletonText lines={2} />
-            <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100">
-              <div className="flex space-x-4">
-                <Skeleton className="h-3 w-16" />
-                <Skeleton className="h-3 w-16" />
-              </div>
-              <Skeleton className="h-3 w-12" />
-            </div>
           </div>
         </div>
       ))}
@@ -148,10 +149,10 @@ export function SkeletonSubmissionFeed({ count = 3 }: { count?: number }) {
 
 export function SkeletonChallenge() {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+    <div className="bg-app-surface border border-app-border rounded-lg p-6">
       <div className="space-y-4">
         <Skeleton className="h-8 w-48" />
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div className="bg-app-surface-dark border border-app-border-dark rounded-lg p-4">
           <SkeletonText lines={2} />
         </div>
         <div className="flex justify-between items-center">
@@ -162,6 +163,100 @@ export function SkeletonChallenge() {
           <div className="text-right space-y-1">
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonVotingCard() {
+  return (
+    <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center space-x-3">
+          <SkeletonAvatar size="md" />
+          <div>
+            <Skeleton className="h-4 w-24 mb-1" />
+          </div>
+        </div>
+        <Skeleton className="h-8 w-20 rounded-full" />
+      </div>
+      
+      {/* Image */}
+      <div className="relative">
+        <Skeleton className="w-full h-96 aspect-square" />
+        {/* Vote buttons overlay skeleton */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex space-x-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-12 w-12 rounded-full" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Caption */}
+      <div className="p-4">
+        <SkeletonText lines={2} />
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonUserSubmission() {
+  return (
+    <div className="bg-app-surface border border-app-border rounded-lg p-4">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <SkeletonAvatar size="md" />
+            <div>
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+          <Skeleton className="h-8 w-16 rounded" />
+        </div>
+        
+        {/* Image */}
+        <Skeleton className="w-full h-64 rounded-lg" />
+        
+        {/* Caption */}
+        <div className="space-y-2">
+          <SkeletonText lines={2} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonNavigation() {
+  return (
+    <div className="bg-app-bg border-b border-app-border">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo section */}
+          <div className="flex items-center space-x-3">
+            <Skeleton className="h-10 w-10 rounded" />
+            <Skeleton className="h-6 w-40 hidden sm:block" />
+          </div>
+          
+          {/* Desktop Navigation - authenticated state */}
+          <div className="hidden md:flex items-center space-x-8">
+            {/* League selector */}
+            <Skeleton className="h-6 w-32" />
+            {/* Profile avatar */}
+            <SkeletonAvatar size="sm" />
+          </div>
+          
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex items-center space-x-3">
+            {/* League selector */}
+            <Skeleton className="h-6 w-24" />
+            {/* Profile avatar */}
+            <SkeletonAvatar size="sm" />
           </div>
         </div>
       </div>

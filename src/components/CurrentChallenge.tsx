@@ -20,7 +20,7 @@ export default function CurrentChallenge({
     <div className="">
       {showVoting ? (
         <>
-          <div className="text-center space-y-4 mb-6">
+          <div className="text-center space-y-4 mb-4">
             <div>
               <p className="text-2xl text-app-text font-bold mb-3">Challenge #{promptData?.prompt?.queueOrder ? promptData.prompt.queueOrder + 1 : ''}</p>
               <p className="text-xl text-app-text leading-relaxed">{votingData?.prompt?.text}</p>

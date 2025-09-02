@@ -340,7 +340,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-2 text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-4 text-center">
               {isOwner ? 'League Settings' : 'League Information'}
             </h1>
             <div className="bg-app-surface rounded-lg border border-app-border p-4">

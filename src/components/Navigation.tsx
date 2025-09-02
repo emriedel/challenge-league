@@ -133,239 +133,200 @@ export default function Navigation() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {status === 'authenticated' ? (
-              <>
-                {/* Desktop League Selector Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                    className="flex items-center text-white/80 hover:text-white"
-                  >
-                    {currentLeague ? currentLeague.name : 'Select League'}
-                    <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  {isLeaguesOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
-                      <div className="py-1">
-                        {loadingLeagues ? (
-                          <div className="px-4 py-2 text-sm text-app-text-muted">
-                            Loading leagues...
-                          </div>
-                        ) : leagues.length > 0 ? (
-                          <>
-                            {leagues.map((league) => (
-                              <Link
-                                key={league.id}
-                                href={`/league/${league.id}`}
-                                className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
-                                onClick={() => setIsLeaguesOpen(false)}
-                              >
-                                <div className="flex justify-between items-center">
-                                  <span>{league.name}</span>
-                                  {league.isOwner && (
-                                    <span className="text-xs text-app-info">Owner</span>
-                                  )}
-                                </div>
-                                <div className="text-xs text-app-text-muted">
-                                  {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
-                                </div>
-                              </Link>
-                            ))}
-                            <hr className="my-1 border-app-border" />
-                            <Link
-                              href="/leagues/new"
-                              className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
-                              onClick={() => setIsLeaguesOpen(false)}
-                            >
-                              + Create New League
-                            </Link>
-                            <Link
-                              href="/leagues/join"
-                              className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
-                              onClick={() => setIsLeaguesOpen(false)}
-                            >
-                              + Join League
-                            </Link>
-                          </>
-                        ) : (
-                          <>
-                            <div className="px-4 py-2 text-sm text-app-text-muted">
-                              No leagues found
-                            </div>
-                            <hr className="my-1 border-app-border" />
-                            <Link
-                              href="/leagues/new"
-                              className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
-                              onClick={() => setIsLeaguesOpen(false)}
-                            >
-                              + Create New League
-                            </Link>
-                            <Link
-                              href="/leagues/join"
-                              className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
-                              onClick={() => setIsLeaguesOpen(false)}
-                            >
-                              + Join League
-                            </Link>
-                          </>
-                        )}
+            {/* Desktop League Selector Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
+                className="flex items-center text-white/80 hover:text-white"
+              >
+                {currentLeague ? currentLeague.name : 'Select League'}
+                <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isLeaguesOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
+                  <div className="py-1">
+                    {loadingLeagues ? (
+                      <div className="px-4 py-2 text-sm text-app-text-muted">
+                        Loading leagues...
                       </div>
-                    </div>
-                  )}
+                    ) : leagues.length > 0 ? (
+                      <>
+                        {leagues.map((league) => (
+                          <Link
+                            key={league.id}
+                            href={`/league/${league.id}`}
+                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
+                            onClick={() => setIsLeaguesOpen(false)}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span>{league.name}</span>
+                              {league.isOwner && (
+                                <span className="text-xs text-app-info">Owner</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-app-text-muted">
+                              {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                            </div>
+                          </Link>
+                        ))}
+                        <hr className="my-1 border-app-border" />
+                        <Link
+                          href="/leagues/new"
+                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          + Create New League
+                        </Link>
+                        <Link
+                          href="/leagues/join"
+                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          + Join League
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-4 py-2 text-sm text-app-text-muted">
+                          No leagues found
+                        </div>
+                        <hr className="my-1 border-app-border" />
+                        <Link
+                          href="/leagues/new"
+                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          + Create New League
+                        </Link>
+                        <Link
+                          href="/leagues/join"
+                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          + Join League
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
-                
-                <div className="flex items-center space-x-4">
-                  {/* Profile Picture */}
-                  <button 
-                    onClick={() => setIsProfileModalOpen(true)}
-                    className="flex items-center hover:opacity-80 transition-opacity"
-                  >
-                    <ProfileAvatar 
-                      username={session.user.username || session.user.email || 'User'}
-                      profilePhoto={session.user.profilePhoto}
-                      size="sm"
-                      className="ring-2 ring-white/30 w-8 h-8"
-                    />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/auth/signin"
-                  className="text-white/80 hover:text-white"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
-                >
-                  Sign up
-                </Link>
-              </div>
-            )}
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* Profile Picture */}
+              <button 
+                onClick={() => setIsProfileModalOpen(true)}
+                className="flex items-center hover:opacity-80 transition-opacity"
+              >
+                <ProfileAvatar 
+                  username={session?.user?.username || session?.user?.email || 'User'}
+                  profilePhoto={session?.user?.profilePhoto}
+                  size="sm"
+                  className="ring-2 ring-white/30 w-8 h-8"
+                />
+              </button>
+            </div>
           </div>
 
           {/* Mobile Right Section */}
           <div className="md:hidden flex items-center space-x-3">
-            {status === 'authenticated' ? (
-              <>
-                {/* League Selector */}
-                <div className="relative" ref={mobileDropdownRef}>
-                  <button
-                    onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                    className="flex items-center text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">{currentLeague ? currentLeague.name : 'Select League'}</span>
-                    <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                
-                {isLeaguesOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
-                    <div className="py-1">
-                      {loadingLeagues ? (
-                        <div className="px-4 py-2 text-sm text-neutral-400">
-                          Loading leagues...
-                        </div>
-                      ) : leagues.length > 0 ? (
-                        <>
-                          {leagues.map((league) => (
-                            <Link
-                              key={league.id}
-                              href={`/league/${league.id}`}
-                              className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
-                              onClick={() => setIsLeaguesOpen(false)}
-                            >
-                              <div className="flex justify-between items-center">
-                                <span>{league.name}</span>
-                                {league.isOwner && (
-                                  <span className="text-xs text-blue-400">Owner</span>
-                                )}
-                              </div>
-                              <div className="text-xs text-neutral-400">
-                                {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
-                              </div>
-                            </Link>
-                          ))}
-                          <hr className="my-1 border-neutral-700" />
-                          <Link
-                            href="/leagues/new"
-                            className="block px-4 py-2 text-sm text-blue-400 hover:bg-neutral-800"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            + Create New League
-                          </Link>
-                          <Link
-                            href="/leagues/join"
-                            className="block px-4 py-2 text-sm text-green-400 hover:bg-neutral-800"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            + Join League
-                          </Link>
-                        </>
-                      ) : (
-                        <>
-                          <div className="px-4 py-2 text-sm text-app-text-muted">
-                            No leagues found
-                          </div>
-                          <hr className="my-1 border-neutral-700" />
-                          <Link
-                            href="/leagues/new"
-                            className="block px-4 py-2 text-sm text-blue-400 hover:bg-neutral-800"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            + Create New League
-                          </Link>
-                          <Link
-                            href="/leagues/join"
-                            className="block px-4 py-2 text-sm text-green-400 hover:bg-neutral-800"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            + Join League
-                          </Link>
-                        </>
-                      )}
+            {/* League Selector */}
+            <div className="relative" ref={mobileDropdownRef}>
+              <button
+                onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
+                className="flex items-center text-white/80 hover:text-white"
+              >
+                <span className="text-sm">{currentLeague ? currentLeague.name : 'Select League'}</span>
+                <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            
+            {isLeaguesOpen && (
+              <div className="absolute top-full right-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
+                <div className="py-1">
+                  {loadingLeagues ? (
+                    <div className="px-4 py-2 text-sm text-app-text-muted">
+                      Loading leagues...
                     </div>
-                  </div>
-                )}
+                  ) : leagues.length > 0 ? (
+                    <>
+                      {leagues.map((league) => (
+                        <Link
+                          key={league.id}
+                          href={`/league/${league.id}`}
+                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span>{league.name}</span>
+                            {league.isOwner && (
+                              <span className="text-xs text-app-info">Owner</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-app-text-muted">
+                            {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                          </div>
+                        </Link>
+                      ))}
+                      <hr className="my-1 border-app-border" />
+                      <Link
+                        href="/leagues/new"
+                        className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                        onClick={() => setIsLeaguesOpen(false)}
+                      >
+                        + Create New League
+                      </Link>
+                      <Link
+                        href="/leagues/join"
+                        className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                        onClick={() => setIsLeaguesOpen(false)}
+                      >
+                        + Join League
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-4 py-2 text-sm text-app-text-muted">
+                        No leagues found
+                      </div>
+                      <hr className="my-1 border-app-border" />
+                      <Link
+                        href="/leagues/new"
+                        className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                        onClick={() => setIsLeaguesOpen(false)}
+                      >
+                        + Create New League
+                      </Link>
+                      <Link
+                        href="/leagues/join"
+                        className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                        onClick={() => setIsLeaguesOpen(false)}
+                      >
+                        + Join League
+                      </Link>
+                    </>
+                  )}
                 </div>
-                
-                {/* Profile Picture */}
-                <button 
-                  onClick={() => setIsProfileModalOpen(true)}
-                  className="flex items-center hover:opacity-80 transition-opacity"
-                >
-                  <ProfileAvatar 
-                    username={session.user.username || session.user.email || 'User'}
-                    profilePhoto={session.user.profilePhoto}
-                    size="sm"
-                    className="ring-2 ring-white/30 w-8 h-8"
-                  />
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center space-x-2 text-sm">
-                <Link
-                  href="/auth/signin"
-                  className="text-white/80 hover:text-white"
-                >
-                  Sign in
-                </Link>
-                <span className="text-white/40">|</span>
-                <Link
-                  href="/auth/signup"
-                  className="text-white/80 hover:text-white"
-                >
-                  Sign up
-                </Link>
               </div>
             )}
+            </div>
+            
+            {/* Profile Picture */}
+            <button 
+              onClick={() => setIsProfileModalOpen(true)}
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
+              <ProfileAvatar 
+                username={session?.user?.username || session?.user?.email || 'User'}
+                profilePhoto={session?.user?.profilePhoto}
+                size="sm"
+                className="ring-2 ring-white/30 w-8 h-8"
+              />
+            </button>
           </div>
         </div>
 
