@@ -81,9 +81,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       {galleryData?.rounds && galleryData.rounds.length > 0 ? (
         <div className="bg-app-bg min-h-screen">
           {/* Challenge Selector and Details */}
-          <div className="py-4">
+          <div className="py-4 pb-6">
             <div className="max-w-2xl mx-auto px-4">
-              <div className="relative mb-4" ref={dropdownRef}>
+              <div className="relative mb-4 flex justify-center" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center justify-between p-2 bg-app-surface border border-app-border rounded-lg hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
@@ -117,13 +117,13 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                           setIsDropdownOpen(false);
                         }}
                         className={`w-full text-left px-3 py-2 border-b border-app-border-dark last:border-b-0 hover:bg-app-surface-light transition-colors ${
-                          selectedRoundId === round.id ? 'bg-blue-50' : ''
+                          selectedRoundId === round.id ? 'bg-app-surface-light' : ''
                         }`}
                       >
-                        <div className="font-medium text-app-text">
+                        <div className={`font-medium ${selectedRoundId === round.id ? 'text-blue-400' : 'text-app-text'}`}>
                           Challenge #{galleryData.rounds.length - index}
                         </div>
-                        <div className="text-sm text-app-text-secondary mt-1">
+                        <div className={`text-sm mt-1 ${selectedRoundId === round.id ? 'text-blue-300' : 'text-app-text-secondary'}`}>
                           {truncateText(round.text, 80)}
                         </div>
                       </button>
@@ -134,10 +134,8 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
               {/* Challenge Details */}
               {selectedRound && (
-                <div className="bg-app-surface border border-app-border rounded-lg p-6 mb-2 shadow-sm">
                   <div className="text-center space-y-4">
                     <div>
-                      <p className="text-2xl text-app-text font-bold mb-3">Challenge #{galleryData.rounds.length - (selectedRoundIndex || 0)}</p>
                       <p className="text-xl text-app-text leading-relaxed">{selectedRound.text}</p>
                     </div>
                     <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
@@ -159,7 +157,6 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                       </span>
                     </div>
                   </div>
-                </div>
               )}
             </div>
           </div>
