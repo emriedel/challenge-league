@@ -90,23 +90,12 @@ export default function StandingPage({ params }: StandingPageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-app-border">
-            <h2 className="text-2xl font-semibold text-app-text">League Standings</h2>
-          </div>
+          <h2 className="text-2xl font-semibold text-app-text mb-6">League Standings</h2>
           
+        <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
           {standings.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-app-border">
-                <thead className="bg-app-surface-dark">
-                  <tr>
-                    <th className="px-2 py-3 w-12"></th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Player</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Points</th>
-                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Wins</th>
-                    <th className="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-app-text-muted uppercase tracking-wider">Challenges</th>
-                  </tr>
-                </thead>
                 <tbody className="bg-app-surface divide-y divide-app-border">
                   {standings.map((entry, index) => (
                     <tr 
