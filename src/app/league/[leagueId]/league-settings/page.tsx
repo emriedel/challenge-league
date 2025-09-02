@@ -18,6 +18,56 @@ import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
+// CSS for range sliders
+const sliderStyles = `
+  .slider {
+    touch-action: pan-y;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    touch-action: pan-y;
+  }
+  
+  .slider::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    touch-action: pan-y;
+  }
+  
+  .slider::-webkit-slider-track {
+    height: 8px;
+    background: #404040;
+    border-radius: 4px;
+  }
+  
+  .slider::-moz-range-track {
+    height: 8px;
+    background: #404040;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .slider-container {
+    touch-action: pan-y;
+    overflow: hidden;
+  }
+`;
+
 interface LeagueSettingsPageProps {
   params: { leagueId: string };
 }
@@ -267,7 +317,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const isOwner = league?.isOwner || false;
 
   return (
-    <ErrorBoundary 
+    <>
+      <style>{sliderStyles}</style>
+      <ErrorBoundary 
       fallback={({ error, resetError }) => (
         <div>
           <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
@@ -288,7 +340,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-2 text-center">
               {isOwner ? 'League Settings' : 'League Information'}
             </h1>
             <div className="bg-app-surface rounded-lg border border-app-border p-4">
@@ -296,16 +348,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               {league?.description && (
                 <p className="text-app-text-secondary mb-2">{league.description}</p>
               )}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm text-app-text-muted">
-                  {league?.memberCount} members
-                </p>
-                {isOwner && (
-                  <p className="text-sm text-app-text-muted font-mono bg-app-surface-dark px-2 py-1 rounded">
-                    Invite Code: {league?.inviteCode}
-                  </p>
-                )}
-              </div>
+              <p className="text-sm text-app-text-muted text-center">
+                {league?.memberCount} members
+              </p>
             </div>
           </div>
 
@@ -324,51 +369,75 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             </div>
 
             {isEditingSettings && isOwner ? (
-              <form onSubmit={handleUpdateLeagueSettings} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label htmlFor="submission-days" className="block text-sm font-medium text-app-text-secondary mb-2">
-                      Submission Days
+              <form onSubmit={handleUpdateLeagueSettings} className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="slider-container">
+                    <label htmlFor="submission-days" className="block text-sm font-medium text-app-text-secondary mb-3">
+                      Submission Days: {submissionDays}
                     </label>
                     <input
                       id="submission-days"
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="range"
+                      min="1"
+                      max="14"
+                      step="1"
+                      className="w-full h-2 bg-app-surface-dark rounded-lg appearance-none cursor-pointer slider"
                       value={submissionDays}
                       onChange={(e) => setSubmissionDays(e.target.value)}
-                      placeholder="Enter number of days (1-14)"
+                      onTouchStart={(e) => e.stopPropagation()}
+                      onTouchMove={(e) => e.stopPropagation()}
                     />
-                    <p className="text-xs text-app-text-muted mt-1">Days for submission phase (1-14)</p>
+                    <div className="flex justify-between text-xs text-app-text-muted mt-1">
+                      <span>1 day</span>
+                      <span>14 days</span>
+                    </div>
+                    <p className="text-xs text-app-text-muted mt-2">Days for submission phase</p>
                   </div>
 
-                  <div>
-                    <label htmlFor="voting-days" className="block text-sm font-medium text-app-text-secondary mb-2">
-                      Voting Days
+                  <div className="slider-container">
+                    <label htmlFor="voting-days" className="block text-sm font-medium text-app-text-secondary mb-3">
+                      Voting Days: {votingDays}
                     </label>
                     <input
                       id="voting-days"
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="range"
+                      min="1"
+                      max="7"
+                      step="1"
+                      className="w-full h-2 bg-app-surface-dark rounded-lg appearance-none cursor-pointer slider"
                       value={votingDays}
                       onChange={(e) => setVotingDays(e.target.value)}
-                      placeholder="Enter number of days (1-7)"
+                      onTouchStart={(e) => e.stopPropagation()}
+                      onTouchMove={(e) => e.stopPropagation()}
                     />
-                    <p className="text-xs text-app-text-muted mt-1">Days for voting phase (1-7)</p>
+                    <div className="flex justify-between text-xs text-app-text-muted mt-1">
+                      <span>1 day</span>
+                      <span>7 days</span>
+                    </div>
+                    <p className="text-xs text-app-text-muted mt-2">Days for voting phase</p>
                   </div>
 
-                  <div>
-                    <label htmlFor="votes-per-player" className="block text-sm font-medium text-app-text-secondary mb-2">
-                      Votes Per Player
+                  <div className="slider-container">
+                    <label htmlFor="votes-per-player" className="block text-sm font-medium text-app-text-secondary mb-3">
+                      Votes Per Player: {votesPerPlayer}
                     </label>
                     <input
                       id="votes-per-player"
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="range"
+                      min="1"
+                      max="10"
+                      step="1"
+                      className="w-full h-2 bg-app-surface-dark rounded-lg appearance-none cursor-pointer slider"
                       value={votesPerPlayer}
                       onChange={(e) => setVotesPerPlayer(e.target.value)}
-                      placeholder="Enter number of votes (1-10)"
+                      onTouchStart={(e) => e.stopPropagation()}
+                      onTouchMove={(e) => e.stopPropagation()}
                     />
-                    <p className="text-xs text-app-text-muted mt-1">Number of votes each player gets (1-10)</p>
+                    <div className="flex justify-between text-xs text-app-text-muted mt-1">
+                      <span>1 vote</span>
+                      <span>10 votes</span>
+                    </div>
+                    <p className="text-xs text-app-text-muted mt-2">Number of votes each player gets</p>
                   </div>
                 </div>
 
@@ -383,7 +452,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   <button
                     type="button"
                     onClick={handleCancelSettingsEdit}
-                    className="w-full sm:w-auto bg-app-surface-light text-app-text px-6 py-2 rounded-lg font-medium hover:bg-app-surface focus:outline-none focus:ring-2 focus:ring-app-border focus:ring-offset-2"
+                    className="w-full sm:w-auto bg-app-surface-light text-app-text px-6 py-2 rounded-lg font-medium hover:bg-app-surface border border-app-border focus:outline-none focus:ring-2 focus:ring-app-border focus:ring-offset-2"
                   >
                     Cancel
                   </button>
@@ -416,8 +485,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           {message && (
             <div className={`mb-6 px-4 py-3 rounded-lg border ${
               message.type === 'success' 
-                ? 'bg-green-50 border-green-200 text-green-700' 
-                : 'bg-red-50 border-red-200 text-red-700'
+                ? 'bg-green-900 bg-opacity-20 border-green-600 border-opacity-30 text-green-300' 
+                : 'bg-red-900 bg-opacity-20 border-red-600 border-opacity-30 text-red-300'
             }`}>
               <div className="flex justify-between items-start">
                 <span className="text-sm">{message.text}</span>
@@ -434,64 +503,6 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           {/* Admin Controls */}
           {isOwner && (
             <>
-              {/* Phase Transition Controls */}
-              <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Phase Controls</h2>
-                
-                <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                  <h3 className="font-medium text-blue-900 mb-2">Current Status</h3>
-                  {phaseInfo?.currentPhase.type === 'NONE' && (
-                    <p className="text-blue-700 text-sm">No active challenges</p>
-                  )}
-                  {phaseInfo?.currentPhase.type === 'ACTIVE' && (
-                    <div className="text-blue-700 text-sm">
-                      <p className="font-medium">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                      {phaseInfo.currentPhase.endTime && (
-                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}</p>
-                      )}
-                    </div>
-                  )}
-                  {phaseInfo?.currentPhase.type === 'VOTING' && (
-                    <div className="text-blue-700 text-sm">
-                      <p className="font-medium">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                      {phaseInfo.currentPhase.endTime && (
-                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="bg-orange-50 rounded-lg p-4 mb-4">
-                  <h3 className="font-medium text-orange-900 mb-2">Next Action</h3>
-                  <p className="text-orange-700 text-sm">
-                    {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
-                    {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
-                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Will start new challenge: "${phaseInfo.nextPhase.prompt}"`}
-                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && `No scheduled challenges available`}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setShowTransitionModal(true)}
-                  disabled={transitionPhaseMutation.isPending}
-                  className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
-                >
-                  {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Transition to Next Phase'}
-                </button>
-              </div>
-
               {/* Add New Prompt */}
               <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
                 <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Add Challenge</h2>
@@ -503,7 +514,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                     <textarea
                       id="prompt-text"
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                      className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base text-app-text placeholder-app-text-muted"
                       placeholder="e.g., Share a photo that represents your favorite moment from this week"
                       value={newPromptText}
                       onChange={(e) => setNewPromptText(e.target.value)}
@@ -525,8 +536,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
           {/* Current Active Challenge */}
           {queue?.active && queue.active.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-green-900 mb-4">Currently Active</h2>
+            <div className="bg-green-900 bg-opacity-20 border border-green-600 border-opacity-30 rounded-lg p-4 sm:p-6 mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-green-300 mb-4">Currently Active</h2>
               {queue.active.map((prompt) => (
                 <div key={prompt.id} className="bg-app-surface-dark rounded-lg p-4">
                   <h3 className="font-medium text-app-text mb-2">{prompt.text}</h3>
@@ -561,8 +572,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
           {/* Current Voting Phase */}
           {queue?.voting && queue.voting.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-blue-900 mb-4">Voting Phase Active</h2>
+            <div className="bg-blue-900 bg-opacity-20 border border-blue-600 border-opacity-30 rounded-lg p-4 sm:p-6 mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-blue-300 mb-4">Voting Phase Active</h2>
               {queue.voting.map((prompt) => (
                 <div key={prompt.id} className="bg-app-surface-dark rounded-lg p-4">
                   <h3 className="font-medium text-app-text mb-2">{prompt.text}</h3>
@@ -620,7 +631,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                     <div className="flex items-start gap-3">
                       {/* Queue Position */}
                       <div className="flex-shrink-0">
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
+                        <span className="bg-blue-900 bg-opacity-30 text-blue-300 text-xs font-medium px-2 py-1 rounded">
                           #{index + 1}
                         </span>
                       </div>
@@ -631,7 +642,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                           <div className="space-y-3">
                             <textarea
                               rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
                             />
@@ -648,7 +659,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                                   setEditingPrompt(null);
                                   setEditText('');
                                 }}
-                                className="px-3 py-2 bg-app-surface-light text-app-text rounded-lg text-sm hover:bg-app-surface"
+                                className="px-3 py-2 bg-app-surface-light text-app-text rounded-lg text-sm hover:bg-app-surface border border-app-border"
                               >
                                 Cancel
                               </button>
@@ -691,7 +702,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                                 setEditingPrompt(prompt.id);
                                 setEditText(prompt.text);
                               }}
-                              className="px-2 py-1 text-blue-600 hover:text-blue-700 text-xs sm:text-sm rounded hover:bg-blue-50"
+                              className="px-2 py-1 text-blue-400 hover:text-blue-300 text-xs sm:text-sm rounded hover:bg-blue-900 hover:bg-opacity-20"
                             >
                               Edit
                             </button>
@@ -699,7 +710,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             <button
                               onClick={() => handleDeletePrompt(prompt.id)}
                               disabled={deletePromptMutation.isPending}
-                              className="px-2 py-1 text-red-600 hover:text-red-700 text-xs sm:text-sm rounded hover:bg-red-50 disabled:opacity-50"
+                              className="px-2 py-1 text-red-400 hover:text-red-300 text-xs sm:text-sm rounded hover:bg-red-900 hover:bg-opacity-20 disabled:opacity-50"
                             >
                               {deletePromptMutation.isPending ? '...' : 'Delete'}
                             </button>
@@ -713,36 +724,66 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             )}
           </div>
 
-          {/* Completed Challenges */}
-          {queue?.completed && queue.completed.length > 0 && (
-            <div className="bg-app-surface-dark rounded-lg border border-app-border p-4 sm:p-6 mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-app-text-secondary mb-4">
-                Recent Completed Challenges ({Math.min(queue.completed.length, 10)})
-              </h2>
-              <div className="space-y-2">
-                {queue.completed.slice(-10).reverse().map((prompt) => (
-                  <div key={prompt.id} className="text-sm text-app-text-secondary p-2 bg-app-surface rounded border border-app-border">
-                    <p className="font-medium">{prompt.text}</p>
-                    <p className="text-xs text-app-text-muted mt-1">
-                      Completed on {new Date(prompt.createdAt).toLocaleDateString()}
-                    </p>
+
+          {/* Phase Controls - Admin Only - Moved to Bottom */}
+          {isOwner && (
+            <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Phase Controls</h2>
+              
+              <div className="bg-app-surface-dark rounded-lg p-4 mb-4">
+                <h3 className="font-medium text-app-text-secondary mb-2">Current Status</h3>
+                {phaseInfo?.currentPhase.type === 'NONE' && (
+                  <p className="text-app-text-secondary text-sm">No active challenges</p>
+                )}
+                {phaseInfo?.currentPhase.type === 'ACTIVE' && (
+                  <div className="text-app-text-secondary text-sm">
+                    <p className="font-medium text-app-text">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
+                    {phaseInfo.currentPhase.endTime && (
+                      <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}</p>
+                    )}
                   </div>
-                ))}
+                )}
+                {phaseInfo?.currentPhase.type === 'VOTING' && (
+                  <div className="text-app-text-secondary text-sm">
+                    <p className="font-medium text-app-text">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
+                    {phaseInfo.currentPhase.endTime && (
+                      <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}</p>
+                    )}
+                  </div>
+                )}
               </div>
+
+              <div className="bg-orange-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-orange-600 border-opacity-30">
+                <h3 className="font-medium text-orange-300 mb-2">Next Action</h3>
+                <p className="text-orange-200 text-sm">
+                  {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
+                  {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
+                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Will start new challenge: "${phaseInfo.nextPhase.prompt}"`}
+                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && `No scheduled challenges available`}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowTransitionModal(true)}
+                disabled={transitionPhaseMutation.isPending}
+                className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Transition to Next Phase'}
+              </button>
             </div>
           )}
-
-          {/* How It Works */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-            <h3 className="font-semibold text-blue-900 mb-2">How It Works</h3>
-            <div className="text-blue-700 space-y-1">
-              <p>• Challenges automatically activate in queue order</p>
-              <p>• Each challenge runs for {league?.submissionDays || 5} days (submission phase)</p>
-              <p>• Followed by {league?.votingDays || 2} days of voting</p>
-              <p>• Each player gets {league?.votesPerPlayer || 3} votes to cast per challenge</p>
-              <p>• {isOwner ? 'Use "Transition to Next Phase" to manually advance phases' : 'League owners can manually advance phases if needed'}</p>
-            </div>
-          </div>
         </div>
 
         {/* Transition Confirmation Modal */}
@@ -796,5 +837,6 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         )}
       </div>
     </ErrorBoundary>
+    </>
   );
 }

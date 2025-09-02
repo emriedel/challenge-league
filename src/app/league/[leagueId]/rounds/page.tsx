@@ -86,7 +86,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
               <div className="relative mb-4 flex justify-center" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-between p-2 bg-app-surface border border-app-border rounded-lg hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
+                  className="flex items-center justify-between p-2 bg-app-surface border border-app-border rounded-md hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
                 >
                   <div className="text-left">
                     {selectedRound ? (
@@ -108,7 +108,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-app-surface border border-app-border rounded-lg shadow-lg z-40 max-h-96 overflow-y-auto min-w-64">
+                  <div className="absolute top-full left-0 mt-1 bg-app-surface border border-app-border rounded-md shadow-lg z-40 max-h-96 overflow-y-auto min-w-64">
                     {galleryData.rounds.map((round, index) => (
                       <button
                         key={round.id}
