@@ -107,14 +107,11 @@ export default function UserSubmissionDisplay({
           {/* Editing Caption */}
           <div className="px-4 pt-3 pb-6 max-w-2xl mx-auto">
             <div className="space-y-3">
-              <p className="text-app-text leading-relaxed">
-                <span className="font-semibold">{user.username}</span>
-              </p>
               <div className="space-y-2">
                 <textarea
                   value={editedCaption}
                   onChange={(e) => setEditedCaption(e.target.value)}
-                  className="w-full p-3 bg-app-surface border border-app-border text-app-text placeholder-app-text-muted rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
+                  className="w-full p-3 bg-app-surface border border-app-border text-app-text placeholder-app-text-muted rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
                   rows={3}
                   placeholder="Write a caption..."
                   maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
@@ -128,7 +125,7 @@ export default function UserSubmissionDisplay({
         </div>
       ) : (
         /* Display Mode - Use PhotoFeedItem */
-        <div className="border-t border-app-border pt-4">
+        <div className="">
           <PhotoFeedItem
             user={{
               username: user.username,
@@ -154,7 +151,7 @@ export default function UserSubmissionDisplay({
 
       {/* Save/Cancel buttons for inline editing */}
       {isEditingInline && (
-        <div className="border-t border-app-border py-4 bg-app-surface">
+        <div className="py-4 bg-app-surface">
           <div className="max-w-2xl mx-auto px-4">
             <div className="flex justify-center space-x-4">
               <button

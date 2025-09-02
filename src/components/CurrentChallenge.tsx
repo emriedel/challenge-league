@@ -17,10 +17,10 @@ export default function CurrentChallenge({
 }: CurrentChallengeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
-    <div className="mb-8">
+    <div className="">
       {showVoting ? (
         <>
-          <div className="mb-6">
+          <div className="">
             <div className="flex items-start space-x-3 mb-4">
               <svg className="w-8 h-8 text-app-text mt-1 flex-shrink-0" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                 <path d="m2.75 9.25 1.5 2.5 2 1.5m-4.5 0 1 1m1.5-2.5-1.5 1.5m3-1 8.5-8.5v-2h-2l-8.5 8.5"/>
@@ -80,7 +80,7 @@ export default function CurrentChallenge({
         </>
       ) : (showSubmission || showSubmitted) && promptData?.prompt ? (
         <>
-          <div className="text-center space-y-4 mb-6">
+          <div className="text-center space-y-4">
             <div>
               <p className="text-2xl text-app-text font-bold mb-3">Challenge #{promptData.prompt.queueOrder + 1}</p>
               <p className="text-xl text-app-text leading-relaxed">{promptData.prompt.text}</p>
