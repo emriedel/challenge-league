@@ -71,7 +71,7 @@ const BottomNavigation = memo(function BottomNavigation() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-app-bg border-t border-app-border">
-      <div className="flex justify-around items-center py-2 px-4 pb-4">
+      <div className="flex items-center py-2 px-2 pb-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href || 
                          (item.name === 'Challenge' && currentLeagueId && pathname === `/league/${currentLeagueId}`) ||
@@ -83,7 +83,7 @@ const BottomNavigation = memo(function BottomNavigation() {
               key={item.name}
               href={item.href}
               prefetch={true}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
             >
