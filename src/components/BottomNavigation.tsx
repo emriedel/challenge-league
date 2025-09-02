@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 
-export default function BottomNavigation() {
+const BottomNavigation = memo(function BottomNavigation() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [currentLeagueId, setCurrentLeagueId] = useState<string | null>(null);
@@ -82,6 +82,7 @@ export default function BottomNavigation() {
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
@@ -96,4 +97,6 @@ export default function BottomNavigation() {
       </div>
     </nav>
   );
-}
+});
+
+export default BottomNavigation;

@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { memo } from 'react';
 import type { LeagueNavigationProps } from '@/types/components';
 
 
-export default function LeagueNavigation({ leagueId, leagueName, isOwner }: LeagueNavigationProps) {
+const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, isOwner }: LeagueNavigationProps) {
   const pathname = usePathname();
 
   const tabs = [
@@ -25,6 +26,7 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
             <Link
               key={tab.id}
               href={tab.href}
+              prefetch={true}
               className={`${
                 pathname === tab.href
                   ? 'border-blue-500 text-blue-600'
@@ -44,4 +46,6 @@ export default function LeagueNavigation({ leagueId, leagueName, isOwner }: Leag
       </div>
     </div>
   );
-}
+});
+
+export default LeagueNavigation;
