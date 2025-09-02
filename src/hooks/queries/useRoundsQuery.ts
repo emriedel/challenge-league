@@ -93,30 +93,3 @@ export function useRoundsQuery(leagueId?: string) {
   });
 }
 
-/**
- * Hook for a specific round's data
- */
-export function useRoundQuery(roundId?: string) {
-  return useQuery({
-    queryKey: queryKeys.round(roundId!),
-    queryFn: async () => {
-      if (!roundId) {
-        throw new Error('Round ID is required');
-      }
-
-      const response = await fetch(`/api/rounds/${roundId}`);
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Please sign in to view round data');
-        }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to fetch round data');
-      }
-
-      return response.json();
-    },
-    enabled: !!roundId,
-    ...cacheConfig.static, // Individual rounds don't change once completed
-  });
-}

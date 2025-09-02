@@ -19,7 +19,6 @@ export {
 // Rounds/Gallery hooks
 export {
   useRoundsQuery,
-  useRoundQuery,
 } from './useRoundsQuery';
 
 // Prompt hooks

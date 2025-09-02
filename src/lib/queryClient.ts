@@ -41,9 +41,6 @@ export const queryKeys = {
   
   // Voting queries
   votingData: (leagueId: string) => ['voting', leagueId],
-  
-  // Rounds
-  round: (roundId: string) => ['round', roundId],
 } as const;
 
 /**
