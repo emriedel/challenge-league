@@ -28,6 +28,8 @@ interface PhotoFeedItemProps {
   // CSS classes for customization
   className?: string;
   imageClassName?: string;
+  // Whether this is the first image (LCP optimization)
+  priority?: boolean;
 }
 
 export default function PhotoFeedItem({
@@ -41,7 +43,8 @@ export default function PhotoFeedItem({
   footerContent,
   metadata,
   className = '',
-  imageClassName = ''
+  imageClassName = '',
+  priority = false
 }: PhotoFeedItemProps) {
   const formatSubmittedDate = (date: string | Date) => {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -103,7 +106,7 @@ export default function PhotoFeedItem({
           height={600}
           className={`w-full h-auto object-contain bg-app-surface-dark ${imageClassName}`}
           style={{ maxHeight: '80vh' }}
-          priority={false}
+          priority={priority}
         />
         {imageOverlay}
       </div>

@@ -93,7 +93,7 @@ export default function VotingInterface({
       {/* Full-width Voting Feed */}
       {votingData.responses.length > 0 ? (
         <div className="space-y-0">
-          {votingData.responses.map((response) => {
+          {votingData.responses.map((response, index) => {
             const hasVoted = selectedVotes[response.id] === 1;
             return (
               <PhotoFeedItem
@@ -106,6 +106,7 @@ export default function VotingInterface({
                 caption={response.caption}
                 submittedAt={response.submittedAt}
                 onImageClick={() => handleImageTap(response.id)}
+                priority={index === 0}
                 headerActions={
                   <button
                     onClick={() => handleVoteToggle(response.id)}

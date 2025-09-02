@@ -39,7 +39,10 @@ export default function PWAInstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowInstallButton(true);
+      // Only show install button on mobile devices to reduce noise
+      if (mobile) {
+        setShowInstallButton(true);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
