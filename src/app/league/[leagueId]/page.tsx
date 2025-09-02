@@ -233,8 +233,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               })),
               prompt: votingData.prompt ? { text: votingData.prompt.text } : undefined,
               voteEnd: votingData.voteEnd,
-              userHasVoted: false,
-              existingVotes: {}
+              userHasVoted: votingData.existingVotes && votingData.existingVotes.length > 0,
+              existingVotes: votingData.existingVotes ? votingData.existingVotes.reduce((acc: { [responseId: string]: number }, vote: any) => {
+                acc[vote.response.id] = 1; // Since each vote = 1 point in the current system
+                return acc;
+              }, {}) : {}
             }}
             onSubmitVotes={handleSubmitVotes}
             isSubmitting={votingManagement.isSubmitting}
