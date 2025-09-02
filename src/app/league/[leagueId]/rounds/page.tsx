@@ -174,9 +174,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                     }}
                     imageUrl={response.imageUrl}
                     caption={response.caption}
-                    metadata={response.finalRank ? {
+                    metadata={response.finalRank !== null && response.finalRank !== undefined ? {
                       rank: response.finalRank,
-                      votes: response.totalVotes
+                      votes: response.totalVotes ?? 0
                     } : undefined}
                   />
                 ))}

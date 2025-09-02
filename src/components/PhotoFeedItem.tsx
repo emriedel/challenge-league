@@ -79,12 +79,12 @@ export default function PhotoFeedItem({
           
           {/* Right side content - actions or metadata */}
           <div className="flex items-center space-x-4">
-            {metadata && (metadata.rank || metadata.votes) && (
+            {metadata && (metadata.rank !== undefined || metadata.votes !== undefined) && (
               <div className="text-right">
                 <p className="text-sm text-app-text-muted">
-                  {metadata.rank && `#${metadata.rank}`}
-                  {metadata.rank && metadata.votes && ' • '}
-                  {metadata.votes && `${metadata.votes} votes`}
+                  {metadata.rank !== undefined && `#${metadata.rank}`}
+                  {metadata.rank !== undefined && metadata.votes !== undefined && ' • '}
+                  {metadata.votes !== undefined && `${metadata.votes} ${metadata.votes === 1 ? 'vote' : 'votes'}`}
                 </p>
               </div>
             )}
