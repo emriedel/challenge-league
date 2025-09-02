@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import PhotoFeedItem from './PhotoFeedItem';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING_CONFIG } from '@/constants/phases';
+import { getVotingOrder } from '@/lib/ordering';
 import type { VotingInterfaceProps } from '@/types/components';
 import type { VoteMap } from '@/types/vote';
 
@@ -15,11 +17,26 @@ export default function VotingInterface({
   message,
   leagueSettings 
 }: VotingInterfaceProps) {
+  const { data: session } = useSession();
   const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
   const [lastTap, setLastTap] = useState<{ responseId: string; time: number } | null>(null);
   const [heartAnimation, setHeartAnimation] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [hasSubmittedVotes, setHasSubmittedVotes] = useState(false);
+  
+  // Create deterministic user-specific ordering for voting
+  const orderedResponses = useMemo(() => {
+    if (!session?.user?.id || !votingData.prompt) {
+      // Fallback to original order if no session or prompt
+      return votingData.responses;
+    }
+    
+    // Create a unique identifier for this voting context
+    // We'll use a combination of the prompt text and league context to ensure different orderings per round
+    const promptId = votingData.prompt.text || 'default-prompt';
+    
+    return getVotingOrder(votingData.responses, session.user.id, promptId);
+  }, [votingData.responses, votingData.prompt, session?.user?.id]);
   
   // Initialize with existing votes and check if user has already submitted
   useEffect(() => {
@@ -33,7 +50,7 @@ export default function VotingInterface({
   
   // Calculate required votes as minimum of available submissions and max votes allowed
   const maxVotesAllowed = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
-  const requiredVotes = Math.min(votingData.responses.length, maxVotesAllowed);
+  const requiredVotes = Math.min(orderedResponses.length, maxVotesAllowed);
 
   const handleVoteToggle = (responseId: string) => {
     // Prevent vote changes if user has already submitted
@@ -123,9 +140,9 @@ export default function VotingInterface({
       `}</style>
       
       {/* Full-width Voting Feed */}
-      {votingData.responses.length > 0 ? (
+      {orderedResponses.length > 0 ? (
         <div className="space-y-0">
-          {votingData.responses.map((response, index) => {
+          {orderedResponses.map((response, index) => {
             const hasVoted = selectedVotes[response.id] === 1;
             return (
               <PhotoFeedItem
@@ -242,7 +259,7 @@ export default function VotingInterface({
             <div className="mb-4">
               <p className="text-sm text-app-text-muted mb-2">You have voted for {getTotalVotes()} submission{getTotalVotes() !== 1 ? 's' : ''}:</p>
               {Object.keys(selectedVotes).map(responseId => {
-                const response = votingData.responses.find(r => r.id === responseId);
+                const response = orderedResponses.find(r => r.id === responseId);
                 return response ? (
                   <div key={responseId} className="flex items-center space-x-2 text-sm text-app-text-secondary">
                     <span>•</span>
