@@ -5,9 +5,14 @@ import bcrypt from 'bcryptjs';
 import { db } from './db';
 import { validateEmail, validatePassword } from './validations';
 
+// Ensure NEXTAUTH_SECRET is set in production
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('NEXTAUTH_SECRET must be set in production environment');
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
-  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-build',
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -57,6 +62,11 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 365 * 24 * 60 * 60, // 1 year
+    updateAge: 7 * 24 * 60 * 60, // 1 week
+  },
+  jwt: {
+    maxAge: 365 * 24 * 60 * 60, // 1 year - should match session.maxAge
   },
   callbacks: {
     async jwt({ token, user, trigger }) {
@@ -66,8 +76,8 @@ export const authOptions: NextAuthOptions = {
         token.profilePhoto = user.profilePhoto ?? undefined;
       }
       
-      // Refresh user data from database on session update or every request (for development)
-      if (trigger === 'update' || (token.id && !user)) {
+      // Only refresh user data on explicit session update, not on every request
+      if (trigger === 'update' && token.id) {
         try {
           const freshUser = await db.user.findUnique({
             where: { id: token.id as string },
@@ -81,6 +91,7 @@ export const authOptions: NextAuthOptions = {
           
           if (freshUser) {
             token.id = freshUser.id;
+            token.email = freshUser.email;
             token.username = freshUser.username;
             token.profilePhoto = freshUser.profilePhoto ?? undefined;
           }
@@ -102,5 +113,18 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
+  },
+  debug: process.env.NODE_ENV === 'development',
+  // Ensure cookies work across deployments
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
 };

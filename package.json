@@ -17,6 +17,7 @@
     "postinstall": "prisma generate",
     "db": "node scripts/db-manager.js",
     "db:help": "node scripts/db-manager.js help",
+    "auth:generate-secret": "node scripts/generate-auth-secret.js",
     "test": "vitest",
     "test:unit": "vitest run",
     "test:integration": "playwright test",
