@@ -12,9 +12,11 @@ import {
   useTransitionPhaseMutation,
   useUpdateLeagueSettingsMutation
 } from '@/hooks/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
+import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
@@ -84,7 +86,7 @@ interface Prompt {
 export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: settingsData, isLoading: settingsLoading, error: settingsError } = useLeagueSettingsQuery(params.leagueId);
+  const { data: settingsData, isLoading: settingsLoading, error: settingsError, refetch: refetchSettings } = useLeagueSettingsQuery(params.leagueId);
   
   // Mutations
   const createPromptMutation = useCreatePromptMutation(params.leagueId);
@@ -108,6 +110,16 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [votingDays, setVotingDays] = useState('2');
   const [votesPerPlayer, setVotesPerPlayer] = useState('3');
   const [isEditingSettings, setIsEditingSettings] = useState(false);
+
+  // Pull to refresh functionality
+  const handleRefresh = async () => {
+    await refetchSettings();
+  };
+
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: handleRefresh,
+    enabled: true
+  });
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -330,7 +342,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         </div>
       )}
     >
-      <div className="min-h-screen bg-app-bg">
+      <div ref={pullToRefresh.containerRef} className="relative min-h-screen bg-app-bg">
+        <PullToRefreshIndicator
+          pullDistance={pullToRefresh.pullDistance}
+          threshold={pullToRefresh.threshold}
+          isRefreshing={pullToRefresh.isRefreshing}
+          isPulling={pullToRefresh.isPulling}
+        />
+        
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         {/* Mobile-friendly container with proper bottom padding for nav */}

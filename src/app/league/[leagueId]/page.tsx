@@ -13,6 +13,7 @@ import {
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -20,6 +21,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import UserSubmissionDisplay from '@/components/UserSubmissionDisplay';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
+import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
 
 
@@ -30,8 +32,8 @@ interface LeagueHomePageProps {
 export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
-  const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError, refetch: refetchLeague } = useLeagueQuery(params.leagueId);
+  const { data: votingData, isLoading: votingLoading, error: votingError, refetch: refetchVoting } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
   
   // Mutations for user actions
@@ -50,6 +52,20 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const votingManagement = useVotingManagement({
     onSuccess: (message) => setVotingMessage({ type: 'success', text: message }),
     onError: (message) => setVotingMessage({ type: 'error', text: message }),
+  });
+
+  // Pull to refresh functionality
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchLeague(),
+      refetchVoting(),
+      refetchPrompt()
+    ]);
+  };
+
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: handleRefresh,
+    enabled: true
   });
 
   useEffect(() => {
@@ -139,7 +155,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         </div>
       )}
     >
-      <div>
+      <div ref={pullToRefresh.containerRef} className="relative min-h-screen">
+        <PullToRefreshIndicator
+          pullDistance={pullToRefresh.pullDistance}
+          threshold={pullToRefresh.threshold}
+          isRefreshing={pullToRefresh.isRefreshing}
+          isPulling={pullToRefresh.isPulling}
+        />
+        
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         {/* Container for challenge content */}

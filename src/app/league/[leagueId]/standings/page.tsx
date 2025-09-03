@@ -4,10 +4,12 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useLeagueStandingsQuery } from '@/hooks/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
+import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
 import { NoMembersEmptyState } from '@/components/EmptyState';
 
@@ -32,7 +34,17 @@ interface StandingPageProps {
 export default function StandingPage({ params }: StandingPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueStandingsQuery(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading, error: leagueError, refetch: refetchStandings } = useLeagueStandingsQuery(params.leagueId);
+
+  // Pull to refresh functionality
+  const handleRefresh = async () => {
+    await refetchStandings();
+  };
+
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: handleRefresh,
+    enabled: true
+  });
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -86,7 +98,14 @@ export default function StandingPage({ params }: StandingPageProps) {
         </div>
       )}
     >
-      <div>
+      <div ref={pullToRefresh.containerRef} className="relative min-h-screen">
+        <PullToRefreshIndicator
+          pullDistance={pullToRefresh.pullDistance}
+          threshold={pullToRefresh.threshold}
+          isRefreshing={pullToRefresh.isRefreshing}
+          isPulling={pullToRefresh.isPulling}
+        />
+        
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
