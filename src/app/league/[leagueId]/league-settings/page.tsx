@@ -539,62 +539,40 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 )}
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {queue.scheduled.map((prompt, index) => (
                   <div key={prompt.id} className="border border-app-border rounded-lg p-4 hover:bg-app-surface-light transition-colors">
-                    <div className="flex items-start gap-3">
-                      {/* Queue Position */}
-                      <div className="flex-shrink-0">
-                        <span className="bg-blue-900 bg-opacity-30 text-blue-300 text-xs font-medium px-2 py-1 rounded">
-                          #{index + 1}
-                        </span>
-                      </div>
-                      
-                      {/* Prompt Content */}
-                      <div className="flex-1 min-w-0 pr-2">
+                    {/* Header with queue number and prompt text */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <span className="bg-blue-900 bg-opacity-30 text-blue-300 text-xs font-medium px-2 py-1 rounded flex-shrink-0">
+                        #{index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
                         {editingPrompt === prompt.id && isOwner ? (
-                          <div className="space-y-3">
-                            <textarea
-                              rows={2}
-                              className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
-                              value={editText}
-                              onChange={(e) => setEditText(e.target.value)}
-                            />
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <button
-                                onClick={() => handleUpdatePrompt(prompt.id)}
-                                disabled={updatePromptMutation.isPending}
-                                className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-                              >
-                                {updatePromptMutation.isPending ? 'Saving...' : 'Save'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setEditingPrompt(null);
-                                  setEditText('');
-                                }}
-                                className="px-3 py-2 bg-app-surface-light text-app-text rounded-lg text-sm hover:bg-app-surface border border-app-border"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
+                          <textarea
+                            rows={3}
+                            className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted resize-none"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                          />
                         ) : (
-                          <h3 className="font-medium text-app-text text-sm sm:text-base leading-relaxed break-words">
+                          <h3 className="font-medium text-app-text text-base leading-relaxed break-words">
                             {prompt.text}
                           </h3>
                         )}
                       </div>
-                      
-                      {/* Actions */}
-                      {editingPrompt !== prompt.id && isOwner && (
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {/* Move buttons */}
-                          <div className="flex flex-col gap-1">
+                    </div>
+                    
+                    {/* Action buttons row */}
+                    {isOwner && (
+                      <div className="flex items-center justify-between pt-2 border-t border-app-border-dark">
+                        {/* Left: Move buttons */}
+                        {editingPrompt !== prompt.id ? (
+                          <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'up')}
                               disabled={index === 0 || reorderPromptsMutation.isPending}
-                              className="p-2 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-lg hover:bg-app-surface-light rounded"
+                              className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move up"
                             >
                               ↑
@@ -602,46 +580,71 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'down')}
                               disabled={index === queue.scheduled.length - 1 || reorderPromptsMutation.isPending}
-                              className="p-2 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-lg hover:bg-app-surface-light rounded"
+                              className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move down"
                             >
                               ↓
                             </button>
                           </div>
-                          
-                          {/* Edit and Delete buttons - now icons */}
-                          <div className="flex flex-col gap-1">
-                            <button
-                              onClick={() => {
-                                setEditingPrompt(prompt.id);
-                                setEditText(prompt.text);
-                              }}
-                              className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 rounded"
-                              title="Edit"
-                            >
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            
-                            <button
-                              onClick={() => setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text })}
-                              disabled={deletePromptMutation.isPending}
-                              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20 rounded disabled:opacity-50"
-                              title="Delete"
-                            >
-                              {deletePromptMutation.isPending ? (
-                                <div className="w-4 h-4 border border-red-400 border-t-transparent rounded-full animate-spin"></div>
-                              ) : (
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        ) : (
+                          <div></div>
+                        )}
+                        
+                        {/* Right: Edit/Delete or Save/Cancel buttons */}
+                        <div className="flex items-center gap-2">
+                          {editingPrompt === prompt.id ? (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingPrompt(null);
+                                  setEditText('');
+                                }}
+                                className="px-4 py-2 bg-app-surface-light text-app-text rounded-lg text-sm hover:bg-app-surface border border-app-border transition-colors min-h-[40px]"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleUpdatePrompt(prompt.id)}
+                                disabled={updatePromptMutation.isPending}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 transition-colors min-h-[40px]"
+                              >
+                                {updatePromptMutation.isPending ? 'Saving...' : 'Save'}
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingPrompt(prompt.id);
+                                  setEditText(prompt.text);
+                                }}
+                                className="flex items-center justify-center w-10 h-10 text-blue-400 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 rounded-lg transition-colors"
+                                title="Edit challenge"
+                              >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                              )}
-                            </button>
-                          </div>
+                              </button>
+                              
+                              <button
+                                onClick={() => setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text })}
+                                disabled={deletePromptMutation.isPending}
+                                className="flex items-center justify-center w-10 h-10 text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20 rounded-lg disabled:opacity-50 transition-colors"
+                                title="Delete challenge"
+                              >
+                                {deletePromptMutation.isPending ? (
+                                  <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                )}
+                              </button>
+                            </>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
