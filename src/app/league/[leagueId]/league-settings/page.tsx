@@ -10,7 +10,8 @@ import {
   useDeletePromptMutation,
   useReorderPromptsMutation,
   useTransitionPhaseMutation,
-  useUpdateLeagueSettingsMutation
+  useUpdateLeagueSettingsMutation,
+  useLeaveLeagueMutation
 } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -93,6 +94,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const reorderPromptsMutation = useReorderPromptsMutation(params.leagueId);
   const transitionPhaseMutation = useTransitionPhaseMutation(params.leagueId);
   const updateLeagueSettingsMutation = useUpdateLeagueSettingsMutation(params.leagueId);
+  const leaveLeagueMutation = useLeaveLeagueMutation(params.leagueId);
   
   // Local state
   const [newPromptText, setNewPromptText] = useState('');
@@ -102,6 +104,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showAddChallenge, setShowAddChallenge] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ promptId: string; promptText: string } | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   
   // League settings state - use strings for inputs, parse only on submit
   const [submissionDays, setSubmissionDays] = useState('5');
@@ -279,6 +282,21 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       setVotesPerPlayer(settingsData.league.votesPerPlayer.toString());
     }
     setIsEditingSettings(false);
+  };
+
+  const handleLeaveLeague = async () => {
+    try {
+      await leaveLeagueMutation.mutateAsync();
+      setShowLeaveConfirm(false);
+      // Redirect to leagues page after leaving
+      router.push('/leagues');
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to leave league' 
+      });
+      setShowLeaveConfirm(false);
+    }
   };
 
   if (status === 'loading' || settingsLoading) {
@@ -743,7 +761,65 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </button>
             </div>
           )}
+
+          {/* Leave League Section - Non-admins only */}
+          {!isOwner && (
+            <div className="bg-app-surface rounded-lg border border-app-border-dark p-4 sm:p-6 mt-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Leave League</h2>
+              <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
+                <p className="text-red-200 text-sm mb-2">
+                  <strong>Warning:</strong> Leaving this league will permanently remove all submitted content
+                </p>
+                <p className="text-red-200 text-sm mt-3">
+                  This action cannot be undone.
+                </p>
+              </div>
+              
+              <button
+                onClick={() => setShowLeaveConfirm(true)}
+                disabled={leaveLeagueMutation.isPending}
+                className="w-full sm:w-auto bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Leave League Confirmation Modal */}
+        {showLeaveConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Leave League</h3>
+              
+              <div className="mb-4">
+                <p className="text-sm text-app-text-secondary mb-3">
+                  Are you sure you want to leave <strong>{league?.name}</strong>?
+                </p>
+              </div>
+              
+              <p className="text-sm text-app-text-muted mb-6">
+                This action cannot be undone.
+              </p>
+              
+              <div className="flex flex-col-reverse sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowLeaveConfirm(false)}
+                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLeaveLeague}
+                  disabled={leaveLeagueMutation.isPending}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Transition Confirmation Modal */}
         {showTransitionModal && (

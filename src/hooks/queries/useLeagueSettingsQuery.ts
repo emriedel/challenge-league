@@ -311,3 +311,57 @@ export function useUpdateLeagueSettingsMutation(leagueId?: string) {
     },
   });
 }
+
+/**
+ * Mutation for leaving a league
+ */
+export function useLeaveLeagueMutation(leagueId?: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      if (!leagueId) {
+        throw new Error('League ID is required');
+      }
+
+      const response = await fetch(`/api/leagues/${leagueId}/leave`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Please sign in to leave the league');
+        }
+        if (response.status === 403) {
+          throw new Error('League owners cannot leave their own league');
+        }
+        if (response.status === 404) {
+          throw new Error('League not found');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to leave league');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries after successfully leaving
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueSettings(leagueId!) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.league(leagueId!) 
+      });
+      // Clear all league-related data
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.votingData(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.leaguePrompt(leagueId!) 
+      });
+    },
+  });
+}
