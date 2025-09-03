@@ -152,6 +152,8 @@ nbproject
 # Prisma
 # Keep prisma schema and migrations, ignore generated client
 /prisma/migrations/migration_lock.toml
+# Ignore temporary schema files created by db-manager
+/prisma/*.temp.prisma
 
 # Vercel
 .vercel
