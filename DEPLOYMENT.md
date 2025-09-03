@@ -234,17 +234,17 @@ git push              # Automatic deployment via Vercel
 ### Database Commands Reference
 
 **Local Development (SQLite):**
-- `npm run db:setup` - Reset and seed local database (legacy command)
-- `npm run db reset development` - Reset development database
-- `npm run db seed development` - Seed with test data
+- `npm run db reset development --force` - Reset local database  
+- `npm run db seed development` - Add test data
 - `npm run db studio development` - Browse local database
+- `npx prisma migrate dev` - Create and apply new migration
 
-**Production (PostgreSQL) - Industry-Standard Safety:**
-- `npm run db preview production` - **SAFE**: Preview changes before applying
-- `npm run db reset production --force` - Reset production with confirmation required
-- `npm run db seed production --force` - Seed production (destructive, requires --force)
-- `npm run db migrate production --force` - Apply schema changes safely
+**Production (PostgreSQL) - Prisma Best Practices:**
+- `npm run db migrate production --force` - **RECOMMENDED**: Apply pending migrations
+- `npm run db status production` - Check migration status
+- `npm run db seed production --force` - Add test data (destructive, requires --force)
 - `npm run db studio production` - Browse production database (careful!)
+- `npm run db generate production` - Regenerate Prisma client
 
 **Get Help:**
 - `npm run db help` - Complete command reference with examples
@@ -279,129 +279,88 @@ photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet, snapsage,
 
 ## Database Schema Changes and Migrations
 
-When you make changes to your database schema (in `prisma/schema.prisma`), use our industry-standard migration system to apply changes safely to production.
+When you make changes to your database schema (in `prisma/schema.prisma`), use Prisma's official migration system to apply changes safely to production.
 
-### New Safe Migration Workflow
+### ✅ Prisma-Compliant Migration Workflow
 
-**⚠️ IMPORTANT: Always preview changes before applying to production!**
+**Following official Prisma best practices from: https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production**
 
-#### Step 1: Preview Changes (Always Safe)
+#### Step 1: Develop Locally
 
 ```bash
-# Pull latest production environment
-vercel env pull .env.production
+# Make schema changes in prisma/schema.prisma
+# Create migration locally
+npx prisma migrate dev --name your-change-description
 
-# Preview what will happen (NO changes applied)
-npm run db preview production
+# This automatically applies the migration to your local database
 ```
 
-This shows you exactly what will change and **detects data loss** before you commit.
-
-#### Step 2: Apply Safe Changes
+#### Step 2: Deploy to Production  
 
 ```bash
-# Apply migration if preview shows no data loss
+# 1. Push your code (this deploys the app but doesn't change the database)
+git add .
+git commit -m "Add database schema changes"  
+git push
+
+# 2. Apply pending migrations to production (SAFE - only applies new migrations)
 npm run db migrate production --force
-
-# Deploy your updated code
-git add .
-git commit -m "Apply database schema changes"  
-git push
 ```
 
-#### Step 3: Handle Dangerous Changes (Data Loss)
-
-If preview shows data loss warnings:
+#### Step 3: Verify Migration Success
 
 ```bash
-# ONLY if you're certain the data loss is acceptable
-npm run db migrate production --force --accept-data-loss
+# Check migration status
+npm run db status production
 
-# Then deploy
-git add .
-git commit -m "Apply breaking database schema changes"
-git push
+# View database (optional)
+npm run db studio production
 ```
 
-### Migration Safety Features
+### 🛡️ Safety Features
 
-**✅ What You Get:**
-- **Preview system** - See exactly what will happen before changes
-- **Data loss detection** - Warns about dropped columns/tables  
-- **Automatic blocking** - Prevents destructive operations without explicit consent
-- **No file manipulation** - Never modifies your local `.env` files
-- **Clear error messages** - Guides you through any issues
+**What `prisma migrate deploy` does:**
+- ✅ **Only applies new migrations** - Never modifies existing data
+- ✅ **Atomic operations** - All migrations succeed or all fail
+- ✅ **Migration locking** - Prevents concurrent migrations
+- ✅ **Rollback protection** - Warns if migrations were modified
 
-**🔍 Example Preview Output:**
-```bash
-npm run db preview production
-# 🚨 DATA LOSS DETECTED!
-# The migration will cause data loss:
-#   • You are about to drop the column 'oldField' on the 'User' table
-#   • You are about to drop the 'LegacyTable' table
-```
-
-### Legacy Migration Commands (Deprecated)
-
-**⚠️ The following commands use the old unsafe method - use the new system above instead:**
-
-```bash
-# OLD WAY (unsafe file swapping)
-npm run migrate:prod              # Deprecated - use new system
-npm run db:prod-migrate           # Deprecated - use new system
-npm run db:prod-fresh             # Deprecated - use new system
-```
-
-**Why the new system is better:**
-- ✅ **No file swapping** - Never touches your local `.env` files
-- ✅ **Preview functionality** - See changes before applying
-- ✅ **Data loss detection** - Warns about destructive operations
-- ✅ **Industry standard** - Follows production database best practices
+**What it does NOT do:**
+- ❌ Never resets or drops data
+- ❌ Never applies schema drift fixes  
+- ❌ Never modifies applied migrations
 
 ### When Schema Changes Cause Deployment Errors
 
 If you see errors like:
 - "Column doesn't exist"
-- "Prisma client out of sync"
+- "Prisma client out of sync"  
 - "Database schema mismatch"
 
 **Root Cause:** Your code expects the new schema, but production database hasn't been updated yet.
 
-**Solution:** Use the new migration system:
+**Solution:** Apply the pending migration:
 ```bash
-# 1. Preview changes first
-npm run db preview production
-
-# 2. Apply migration
+# Apply migration to sync database with code
 npm run db migrate production --force
-
-# 3. Deploy code
-git push
 ```
 
 ## Common Issues and Solutions
 
 ### Issue: "Database schema mismatch after code changes"
-**Solution**: Use the new safe migration system:
+**Solution**: Apply the pending migration:
 ```bash
-# Use the new industry-standard approach
-vercel env pull .env.production
-npm run db preview production      # Preview changes first
-npm run db migrate production --force  # Apply if safe
+npm run db migrate production --force
 ```
 
-### Issue: "Local database problems or migration errors"
+### Issue: "Local database problems or migration errors"  
 **Solution**: Reset your local environment:
 ```bash
-# New way (recommended)
-npm run db reset development
-
-# Legacy way (still works)
-npm run db:setup
+npm run db reset development --force
 ```
 
 ### Issue: "Build fails with Prisma error"
-**Solution**: Make sure you're using the correct build command (`npm run build:prod`) in Vercel.
+**Solution**: The build should now work automatically with the unified schema approach. Vercel uses `npm run build` which includes `prisma generate`.
 
 ### Issue: "Cannot connect to database in production"
 **Solution**: Verify your PostgreSQL `DATABASE_URL` is correct in Vercel environment variables.

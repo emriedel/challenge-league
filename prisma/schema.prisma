@@ -1,4 +1,4 @@
-// Prisma schema with conditional database provider
+// Prisma schema with environment-based database provider
 // Uses SQLite for development, PostgreSQL for production
 
 generator client {

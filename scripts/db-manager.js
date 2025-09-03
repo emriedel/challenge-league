@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Safe Database Management CLI
- * Industry-standard approach with environment isolation
+ * Prisma-Compliant Database Management CLI
+ * Follows official Prisma best practices for development and production
  */
 
 const { execSync } = require('child_process');
 const fs = require('fs');
-const path = require('path');
 
 // Color output for better UX
 const colors = {
@@ -41,7 +40,7 @@ function warn(message) {
 
 // Validate environment
 function validateEnvironment(env) {
-  const validEnvs = ['development', 'staging', 'production'];
+  const validEnvs = ['development', 'production'];
   if (!validEnvs.includes(env)) {
     error(`Invalid environment: ${env}. Must be one of: ${validEnvs.join(', ')}`);
   }
@@ -53,13 +52,11 @@ function getEnvConfig(env) {
     development: {
       envFile: '.env',
       schema: 'prisma/schema.prisma',
-      provider: 'sqlite',
       description: 'Local SQLite database'
     },
     production: {
-      envFile: '.env.production',
-      schema: 'prisma/schema.production.prisma', 
-      provider: 'postgresql',
+      envFile: '.env.production', 
+      schema: 'prisma/schema.production.prisma',
       description: 'Production PostgreSQL database'
     }
   };
@@ -67,8 +64,8 @@ function getEnvConfig(env) {
   return configs[env];
 }
 
-// Execute command with specific environment and schema
-function execWithEnv(command, env, schemaFile = null) {
+// Execute command with specific environment
+function execWithEnv(command, env) {
   const config = getEnvConfig(env);
   
   // Verify env file exists
@@ -80,9 +77,8 @@ function execWithEnv(command, env, schemaFile = null) {
     }
   }
 
-  // Use provided schema or default
-  const schema = schemaFile || config.schema;
-  const finalCommand = command.includes('--schema=') ? command : `${command} --schema=${schema}`;
+  // Add schema parameter if command supports it
+  const finalCommand = command.includes('--schema=') ? command : `${command} --schema=${config.schema}`;
   
   // Execute with explicit environment
   const envCommand = `dotenv -e ${config.envFile} -- ${finalCommand}`;
@@ -97,43 +93,37 @@ function execWithEnv(command, env, schemaFile = null) {
   }
 }
 
-// Commands
+// Commands following Prisma best practices
 const commands = {
-  // Safe database operations
+  // Development-only: Reset and seed database
   async reset(env, options = {}) {
     validateEnvironment(env);
-    const config = getEnvConfig(env);
     
+    if (env === 'production') {
+      error('Database reset is not allowed in production for safety');
+    }
+    
+    const config = getEnvConfig(env);
     warn(`This will COMPLETELY RESET the ${config.description}`);
     
-    if (env === 'production' && !options.force) {
-      warn('Production reset requires --force flag for safety');
-      info('If you\'re sure, run: npm run db reset production --force');
+    if (!options.force) {
+      warn('Reset requires --force flag for safety');
+      info('If you\'re sure, run: npm run db reset development --force');
       return;
     }
     
     info(`Resetting ${env} database...`);
     
-    // Use appropriate schema temporarily for this operation only
-    const tempSchema = `schema.${env}.temp.prisma`;
-    execSync(`cp ${config.schema} prisma/${tempSchema}`);
-    
     try {
-      // Generate client with correct schema
-      execWithEnv(`prisma generate --schema=prisma/${tempSchema}`, env);
-      
-      // Reset database
-      execWithEnv(`prisma db push --force-reset --schema=prisma/${tempSchema}`, env);
-      
+      // Use Prisma's official reset command
+      execWithEnv('prisma migrate reset --force', env);
       success(`${config.description} reset successfully`);
-    } finally {
-      // Always cleanup temp schema
-      if (fs.existsSync(`prisma/${tempSchema}`)) {
-        fs.unlinkSync(`prisma/${tempSchema}`);
-      }
+    } catch (resetError) {
+      error(`Failed to reset ${env} database: ${resetError.message}`);
     }
   },
 
+  // Seed database with test data
   async seed(env, options = {}) {
     validateEnvironment(env);
     const config = getEnvConfig(env);
@@ -156,12 +146,7 @@ const commands = {
     
     info(`Seeding ${config.description} with test data...`);
     
-    // Generate client with correct schema first
-    const tempSchema = `schema.${env}.temp.prisma`;
-    execSync(`cp ${config.schema} prisma/${tempSchema}`);
-    
     try {
-      execWithEnv('prisma generate', env, `prisma/${tempSchema}`);
       execWithEnv('tsx prisma/seed.ts', env);
       success(`${config.description} seeded successfully`);
       
@@ -170,267 +155,165 @@ const commands = {
       }
     } catch (seedError) {
       error(`Failed to seed ${env} database: ${seedError.message}`);
-      throw seedError;
-    } finally {
-      // Always cleanup temp schema
-      if (fs.existsSync(`prisma/${tempSchema}`)) {
-        fs.unlinkSync(`prisma/${tempSchema}`);
-      }
     }
   },
 
+  // PRODUCTION: Apply pending migrations (Prisma recommended approach)
   async migrate(env, options = {}) {
     validateEnvironment(env);
     const config = getEnvConfig(env);
     
-    const tempSchema = `schema.${env}.temp.prisma`;
-    execSync(`cp ${config.schema} prisma/${tempSchema}`);
+    if (env === 'development') {
+      info('For development, use: npx prisma migrate dev');
+      return;
+    }
+    
+    if (!options.force) {
+      warn('Production migration requires --force flag for safety');
+      info('If you\'re sure, run: npm run db migrate production --force');
+      return;
+    }
+    
+    info(`🚀 Applying pending migrations to ${config.description}...`);
     
     try {
-      // First, always preview the migration
-      info('🔍 Analyzing schema changes...');
-      execWithEnv(`prisma generate --schema=prisma/${tempSchema}`, env);
+      // Use Prisma's official production migration command
+      execWithEnv('prisma migrate deploy', env);
+      success(`Production migrations applied successfully`);
       
-      // Try a dry-run to see what would happen
-      info('📋 Migration preview:');
-      try {
-        execSync(`dotenv -e ${config.envFile} -- prisma db push --schema=prisma/${tempSchema} --preview-feature`, { 
-          stdio: 'pipe'
-        });
-        success('✅ Schema changes appear safe - no data loss detected');
-      } catch (previewError) {
-        const errorOutput = previewError.stderr ? previewError.stderr.toString() : previewError.message;
-        
-        if (errorOutput.includes('data loss') || errorOutput.includes('data will be lost')) {
-          error('🚨 DATA LOSS DETECTED!');
-          warn('The migration will cause data loss:');
-          
-          // Extract specific warnings from Prisma output
-          const lines = errorOutput.split('\n');
-          lines.forEach(line => {
-            if (line.includes('You are about to drop') || 
-                line.includes('data will be lost') ||
-                line.includes('will be lost')) {
-              warn(`  • ${line.trim()}`);
-            }
-          });
-          
-          if (env === 'production' && !options.acceptDataLoss) {
-            error('Production data loss prevention engaged!');
-            warn('To proceed with data loss, run:');
-            warn(`  npm run db migrate ${env} --force --accept-data-loss`);
-            return;
-          }
-        } else {
-          warn('⚠️  Migration may fail due to data conflicts');
-          warn('This usually means existing data doesn\'t match new constraints');
-        }
-      }
+      // Generate client after migration
+      execWithEnv('prisma generate', env);
+      success(`Prisma client regenerated`);
       
-      if (env === 'production') {
-        warn('⚠️  PRODUCTION MIGRATION WARNING');
-        warn('Schema changes can cause:');
-        warn('  • Application downtime during migration'); 
-        warn('  • Failed migration if data conflicts with new constraints');
-        warn('');
-        
-        if (!options.force) {
-          error('Production migrations require --force flag for safety');
-          info('After reviewing the preview above, run:');
-          info('  npm run db migrate production --force');
-          return;
-        }
-        
-        warn('Proceeding with production migration...');
-      }
-      
-      info('Applying schema changes...');
-      
-      const migrationCommand = options.acceptDataLoss 
-        ? `prisma db push --schema=prisma/${tempSchema} --accept-data-loss`
-        : `prisma db push --schema=prisma/${tempSchema}`;
-        
-      execWithEnv(migrationCommand, env);
-      
-      success(`${config.description} migration completed successfully`);
-      
-      if (env === 'production') {
-        info('🎉 Production migration successful!');
-        info('Monitor your application for any issues and be ready to rollback if needed');
-      }
-    } catch (migrationError) {
-      error(`Migration failed: ${migrationError.message}`);
-      
-      if (env === 'production') {
-        error('PRODUCTION MIGRATION FAILED!');
-        warn('Your production database schema may be in an inconsistent state');
-        warn('Consider rolling back or fixing the schema before deploying new code');
-      }
-      
-      throw migrationError;
-    } finally {
-      if (fs.existsSync(`prisma/${tempSchema}`)) {
-        fs.unlinkSync(`prisma/${tempSchema}`);
-      }
+    } catch (migrateError) {
+      error(`Migration failed: ${migrateError.message}`);
+      warn('If you see "Migration failed to apply cleanly", check for:');
+      warn('  • Schema conflicts with existing data');
+      warn('  • Missing foreign key references');
+      warn('  • Database connection issues');
     }
   },
 
-  async preview(env) {
+  // View migration status
+  async status(env) {
     validateEnvironment(env);
     const config = getEnvConfig(env);
     
-    info(`🔍 Previewing schema changes for ${config.description}...`);
-    
-    const tempSchema = `schema.${env}.temp.prisma`;
-    execSync(`cp ${config.schema} prisma/${tempSchema}`);
+    info(`📋 Migration status for ${config.description}...`);
     
     try {
-      execWithEnv(`prisma generate --schema=prisma/${tempSchema}`, env);
-      
-      info('📋 Migration preview (no changes will be applied):');
-      try {
-        const result = execSync(`dotenv -e ${config.envFile} -- prisma db push --schema=prisma/${tempSchema} --preview-feature`, { 
-          stdio: 'pipe',
-          encoding: 'utf8'
-        });
-        
-        success('✅ Schema changes appear safe - no data loss detected');
-        if (result) {
-          info('Changes to be applied:');
-          console.log(result);
-        }
-      } catch (previewError) {
-        const errorOutput = previewError.stderr || previewError.message;
-        
-        if (errorOutput.includes('data loss') || errorOutput.includes('data will be lost')) {
-          error('🚨 DATA LOSS DETECTED!');
-          warn('The following data would be lost:');
-          
-          const lines = errorOutput.split('\n');
-          lines.forEach(line => {
-            if (line.includes('You are about to drop') || 
-                line.includes('data will be lost') ||
-                line.includes('will be lost')) {
-              warn(`  • ${line.trim()}`);
-            }
-          });
-          
-          warn('');
-          warn('To apply this migration with data loss:');
-          warn(`  npm run db migrate ${env} --force --accept-data-loss`);
-        } else {
-          warn('⚠️  Migration preview indicates potential issues:');
-          console.log(errorOutput);
-        }
-      }
-    } finally {
-      if (fs.existsSync(`prisma/${tempSchema}`)) {
-        fs.unlinkSync(`prisma/${tempSchema}`);
-      }
+      execWithEnv('prisma migrate status', env);
+    } catch (statusError) {
+      warn('Could not get migration status. Database may need to be initialized.');
     }
   },
 
+  // Open Prisma Studio
   async studio(env) {
     validateEnvironment(env);
     const config = getEnvConfig(env);
     
-    info(`Opening Prisma Studio for ${config.description}...`);
-    warn('Remember: This is live data! Be careful with any changes.');
+    if (env === 'production') {
+      warn('⚠️  Opening PRODUCTION database in Prisma Studio');
+      warn('Be extremely careful with any data modifications!');
+    }
     
-    const tempSchema = `schema.${env}.temp.prisma`;
-    execSync(`cp ${config.schema} prisma/${tempSchema}`);
+    info(`🔍 Opening ${config.description} in Prisma Studio...`);
     
     try {
-      execWithEnv(`prisma studio --schema=prisma/${tempSchema}`, env);
-    } finally {
-      if (fs.existsSync(`prisma/${tempSchema}`)) {
-        fs.unlinkSync(`prisma/${tempSchema}`);
-      }
+      execWithEnv('prisma studio', env);
+    } catch (studioError) {
+      error(`Failed to open studio: ${studioError.message}`);
     }
   },
 
-  help() {
-    console.log(`
-🗄️  Safe Database Manager
-
-Usage: node scripts/db-manager.js <command> <environment> [options]
-
-Commands:
-  preview <env>            Preview schema changes (safe, no changes applied)
-  reset <env> [--force]    Reset database (destructive!)
-  seed <env> [--force]     Seed with test data (destructive in production!)
-  migrate <env> [--force] [--accept-data-loss]  Apply schema migrations
-  studio <env>             Open database browser (read/write access)
-  help                     Show this help
-
-Environments:
-  development              Local SQLite database
-  production              Production PostgreSQL database
-
-Examples:
-  # Safe preview (recommended before migrations)
-  node scripts/db-manager.js preview production
-  node scripts/db-manager.js preview development
-  
-  # Development (no --force needed)
-  node scripts/db-manager.js reset development
-  node scripts/db-manager.js seed development
-  node scripts/db-manager.js migrate development
-  
-  # Production (--force required for safety)
-  node scripts/db-manager.js reset production --force
-  node scripts/db-manager.js seed production --force
-  node scripts/db-manager.js migrate production --force
-  
-  # Dangerous: migration with data loss
-  node scripts/db-manager.js migrate production --force --accept-data-loss
-
-⚠️  Production Safety:
-  • preview: SAFE - Shows what would happen, no changes applied
-  • reset: WIPES ALL DATA - requires --force
-  • seed: DESTRUCTIVE - clears sessions, may overwrite data - requires --force  
-  • migrate: POTENTIALLY DESTRUCTIVE - previews changes, requires --force
-  • migrate with --accept-data-loss: EXTREMELY DANGEROUS - can destroy data
-  • studio: LIVE DATA ACCESS - be extremely careful
-
-🛡️  Safety Features:
-  ✅ No file swapping or .env modification
-  ✅ Temporary schemas (auto-cleanup)
-  ✅ Environment validation  
-  ✅ Production safety checks with --force flags
-  ✅ Clear warnings about destructive operations
-  ✅ Detailed error messages and recovery guidance
-    `);
+  // Generate Prisma client
+  async generate(env) {
+    validateEnvironment(env);
+    const config = getEnvConfig(env);
+    
+    info(`🔧 Generating Prisma client for ${config.description}...`);
+    
+    try {
+      execWithEnv('prisma generate', env);
+      success(`Prisma client generated successfully`);
+    } catch (generateError) {
+      error(`Failed to generate client: ${generateError.message}`);
+    }
   }
 };
 
-// Parse command line arguments
-const [,, command, environment, ...flags] = process.argv;
+// Help command
+function showHelp() {
+  console.log(`
+🗄️  Prisma-Compliant Database Manager
 
-if (!command) {
-  commands.help();
-  process.exit(0);
+USAGE:
+  npm run db <command> <environment> [options]
+
+ENVIRONMENTS:
+  development    Local SQLite database
+  production     Remote PostgreSQL database
+
+COMMANDS:
+  
+  Development Commands:
+  reset development --force      Reset local database (DESTRUCTIVE)
+  seed development              Add test data to local database
+  
+  Production Commands:
+  migrate production --force    Apply pending migrations (RECOMMENDED)
+  status production            View migration status
+  seed production --force      Add test data (DESTRUCTIVE)
+  
+  Utility Commands:
+  studio <env>                 Open database in Prisma Studio
+  generate <env>               Generate Prisma client
+  help                        Show this help
+
+EXAMPLES:
+  npm run db reset development --force
+  npm run db migrate production --force
+  npm run db status production
+  npm run db studio development
+
+PRISMA BEST PRACTICES:
+  ✅ Use 'migrate production --force' for production deployments
+  ✅ Never use reset commands on production
+  ✅ Always review migrations before applying to production
+  ✅ Use environment-specific commands
+
+For more info: https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production
+`);
 }
 
-if (command === 'help') {
-  commands.help();
-  process.exit(0);
+// Main CLI handler
+async function main() {
+  const args = process.argv.slice(2);
+  
+  if (args.length === 0 || args[0] === 'help') {
+    showHelp();
+    return;
+  }
+  
+  const [command, env, ...flags] = args;
+  const options = {
+    force: flags.includes('--force'),
+    acceptDataLoss: flags.includes('--accept-data-loss')
+  };
+  
+  if (!commands[command]) {
+    error(`Unknown command: ${command}. Run 'npm run db help' for available commands.`);
+  }
+  
+  try {
+    await commands[command](env, options);
+  } catch (err) {
+    error(`Command failed: ${err.message}`);
+  }
 }
 
-if (!environment) {
-  error('Environment required. Use: development, staging, or production');
-}
-
-const options = {
-  force: flags.includes('--force'),
-  acceptDataLoss: flags.includes('--accept-data-loss')
-};
-
-// Execute command
-if (commands[command]) {
-  commands[command](environment, options).catch(err => {
-    error(err.message);
-  });
-} else {
-  error(`Unknown command: ${command}. Run 'help' for available commands.`);
-}
+main().catch(error => {
+  console.error('Unexpected error:', error);
+  process.exit(1);
+});
