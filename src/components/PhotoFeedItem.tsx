@@ -112,7 +112,7 @@ export default function PhotoFeedItem({
       </div>
       
       {/* Caption */}
-      <div className="px-4 pt-3 pb-6 max-w-2xl mx-auto">
+      <div className="px-4 pt-3 pb-2 max-w-2xl mx-auto">
         <p className="text-app-text leading-relaxed">
           <span className="font-semibold">{user.username}</span>{' '}
           <span>{caption}</span>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import PhotoFeedItem from './PhotoFeedItem';
+import CommentSection from './CommentSection';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING_CONFIG } from '@/constants/phases';
 import { getVotingOrder } from '@/lib/ordering';
@@ -201,6 +202,12 @@ export default function VotingInterface({
                       </svg>
                     </div>
                   )
+                }
+                footerContent={
+                  <CommentSection
+                    responseId={response.id}
+                    showInput={true}
+                  />
                 }
               />
             );

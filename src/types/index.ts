@@ -55,6 +55,17 @@ export type {
   VotingSession,
 } from './vote';
 
+// Comment types
+export type {
+  BaseComment,
+  Comment,
+  VotingComment,
+  ResultsComment,
+  CommentCreate,
+  CommentUpdate,
+  CommentWithResponse,
+} from './comment';
+
 // API types
 export type {
   APIResponse,

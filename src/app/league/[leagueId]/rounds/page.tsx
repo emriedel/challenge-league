@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
+import CommentSection from '@/components/CommentSection';
 import { getRankBadge } from '@/lib/utils';
 
 
@@ -178,6 +179,13 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                       rank: response.finalRank,
                       votes: response.totalVotes ?? 0
                     } : undefined}
+                    footerContent={
+                      <CommentSection
+                        responseId={response.id}
+                        showInput={false}
+                        collapsed={true}
+                      />
+                    }
                   />
                 ))}
               </div>

@@ -3,6 +3,7 @@
  */
 
 import type { BaseUser } from './user';
+import type { Comment } from './comment';
 
 // Base response interface with core properties
 export interface BaseResponse {
@@ -25,13 +26,16 @@ export interface Response extends BaseResponse {
 
 // Response during voting phase
 export interface VotingResponse extends BaseResponse {
-  // Only includes data needed for voting interface
+  comments?: Comment[];
+  commentCount?: number;
 }
 
 // Response for results display
 export interface ResultsResponse extends BaseResponse {
   totalPoints: number;
   finalRank?: number;
+  comments?: Comment[];
+  commentCount?: number;
 }
 
 // Response for gallery display with full details
