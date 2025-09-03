@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
-import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import { getRankBadge } from '@/lib/utils';
 
 
@@ -19,8 +17,8 @@ interface ResultsPageProps {
 export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { data: leagueData, isLoading: leagueLoading, refetch: refetchLeague } = useLeagueQuery(params.leagueId);
-  const { data: galleryData, isLoading: galleryLoading, error: galleryError, refetch: refetchRounds } = useRoundsQuery(params.leagueId);
+  const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
+  const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
   const [selectedRoundId, setSelectedRoundId] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -38,19 +36,6 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       setSelectedRoundId(galleryData.rounds[0].id);
     }
   }, [galleryData, selectedRoundId]);
-
-  // Pull to refresh functionality
-  const handleRefresh = async () => {
-    await Promise.all([
-      refetchLeague(),
-      refetchRounds()
-    ]);
-  };
-
-  const pullToRefresh = usePullToRefresh({
-    onRefresh: handleRefresh,
-    enabled: true
-  });
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -90,14 +75,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   };
 
   return (
-    <div ref={pullToRefresh.containerRef} className="relative min-h-screen">
-      <PullToRefreshIndicator
-        pullDistance={pullToRefresh.pullDistance}
-        threshold={pullToRefresh.threshold}
-        isRefreshing={pullToRefresh.isRefreshing}
-        isPulling={pullToRefresh.isPulling}
-      />
-      
+    <div>
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
       
       {galleryData?.rounds && galleryData.rounds.length > 0 ? (
