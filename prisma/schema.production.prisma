@@ -53,6 +53,7 @@ model User {
   sessions Session[]
   responses Response[]
   votes Vote[]
+  comments Comment[]
   leagueMemberships LeagueMembership[]
   ownedLeagues League[] @relation("LeagueOwner")
 
@@ -98,6 +99,7 @@ model Response {
   promptId String
   prompt   Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
   votes    Vote[]
+  comments Comment[]
 
   @@unique([userId, promptId]) // One response per user per prompt
   @@map("responses")
@@ -153,6 +155,21 @@ model Vote {
 
   // No unique constraint - users can give multiple votes to the same response
   @@map("votes")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  responseId String
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@unique([authorId, responseId]) // One comment per user per response (but editable)
+  @@map("comments")
 }
 
 model VerificationToken {
