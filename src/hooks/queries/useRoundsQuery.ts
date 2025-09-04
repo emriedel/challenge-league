@@ -31,6 +31,7 @@ interface CompletedRound {
   text: string;
   weekStart: string;
   weekEnd: string;
+  challengeNumber: number;
   responses: GalleryResponse[];
 }
 

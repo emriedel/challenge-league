@@ -9,7 +9,7 @@ interface PromptData {
     text: string;
     status: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
     phaseStartedAt: string | null;
-    queueOrder: number;
+    challengeNumber: number;
   } | null;
   userResponse?: {
     id: string;

@@ -154,7 +154,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                   text: promptData.prompt.text,
                   phaseStartedAt: promptData.prompt.phaseStartedAt,
                   status: promptData.prompt.status,
-                  queueOrder: promptData.prompt.queueOrder,
+                  challengeNumber: promptData.prompt.challengeNumber,
                   createdAt: new Date().toISOString(),
                   leagueId: params.leagueId
                 }

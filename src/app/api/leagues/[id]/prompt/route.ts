@@ -71,6 +71,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Get count of completed challenges for this league
+    const completedChallengeCount = await db.prompt.count({
+      where: {
+        status: 'COMPLETED',
+        leagueId: league.id,
+      },
+    });
+
     if (!currentPrompt) {
       // Only process queue if no current prompt found - might need to start a new one
       await processPromptQueue();
@@ -110,7 +118,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           text: newCurrentPrompt.text,
           status: newCurrentPrompt.status,
           phaseStartedAt: newCurrentPrompt.phaseStartedAt,
-          queueOrder: newCurrentPrompt.queueOrder,
+          challengeNumber: completedChallengeCount + 1,
         },
         userResponse: userResponse ? {
           id: userResponse.id,
@@ -129,7 +137,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         text: currentPrompt.text,
         status: currentPrompt.status,
         phaseStartedAt: currentPrompt.phaseStartedAt,
-        queueOrder: currentPrompt.queueOrder,
+        challengeNumber: completedChallengeCount + 1,
       },
       userResponse: userResponse ? {
         id: userResponse.id,

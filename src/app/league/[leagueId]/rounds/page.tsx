@@ -92,7 +92,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                   <div className="text-left">
                     {selectedRound ? (
                       <div className="font-medium text-app-text">
-                        Challenge #{galleryData.rounds.length - (selectedRoundIndex || 0)}
+                        Challenge #{selectedRound.challengeNumber}
                       </div>
                     ) : (
                       <div className="text-app-text-muted">Select a challenge</div>
@@ -122,7 +122,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                         }`}
                       >
                         <div className={`font-medium ${selectedRoundId === round.id ? 'text-blue-400' : 'text-app-text'}`}>
-                          Challenge #{galleryData.rounds.length - index}
+                          Challenge #{round.challengeNumber}
                         </div>
                         <div className={`text-sm mt-1 ${selectedRoundId === round.id ? 'text-blue-300' : 'text-app-text-secondary'}`}>
                           {truncateText(round.text, 80)}

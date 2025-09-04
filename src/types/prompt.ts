@@ -12,7 +12,7 @@ export interface BasePrompt {
 
 // Full prompt with status and metadata
 export interface Prompt extends BasePrompt {
-  queueOrder: number;
+  challengeNumber: number;
   createdAt: string;
   leagueId?: string;
 }

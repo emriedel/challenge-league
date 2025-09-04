@@ -78,17 +78,23 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
     orderBy: { updatedAt: 'desc' } // Most recent rounds first
   });
 
-  // Add calculated dates to completed prompts
-  const roundsWithDates = completedPrompts.map(prompt => {
+  // Add calculated dates and challenge numbers to completed prompts
+  const roundsWithDates = completedPrompts.map((prompt, index) => {
     // For completed prompts, calculate when the submission phase ended
     const submissionEndDate = prompt.phaseStartedAt 
       ? calculatePhaseEndTime(new Date(prompt.phaseStartedAt), 'ACTIVE')
       : null;
 
+    // Calculate challenge number based on completion order
+    // Since rounds are ordered by updatedAt DESC, the most recent is index 0
+    // So the challenge number is (total completed - current index)
+    const challengeNumber = completedPrompts.length - index;
+
     return {
       ...prompt,
       weekEnd: submissionEndDate ? submissionEndDate.toISOString() : null,
-      weekStart: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt).toISOString() : null
+      weekStart: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt).toISOString() : null,
+      challengeNumber
     };
   });
 
