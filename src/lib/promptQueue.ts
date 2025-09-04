@@ -177,7 +177,10 @@ export async function processPromptQueue() {
 
     // Step 3: For each league, activate next prompt if no active prompt exists
     const leagues = await db.league.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        isStarted: true // Only process leagues that have been started by their owners
+      },
       select: { id: true },
     });
 

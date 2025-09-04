@@ -1,48 +1,71 @@
 # Deployment Guide - Challenge League
 
-This guide covers deploying Challenge League with proper Prisma-compliant database management using SQLite for development and PostgreSQL for production.
+This guide covers deploying Challenge League with PostgreSQL for both development and production using Prisma's recommended migration workflow.
 
 ## Database Strategy
 
-- **Local Development**: SQLite (zero setup, fast, perfect for development)
-- **Production**: PostgreSQL (persistent, reliable, cloud-ready)
+- **Local Development**: PostgreSQL in Docker (consistent with production)
+- **Production**: PostgreSQL on Vercel (persistent, reliable, cloud-ready)
 
 ## Prerequisites
 
+- Docker Desktop installed locally
 - GitHub account (for code hosting)
 - Vercel account (for app hosting) - sign up at [vercel.com](https://vercel.com)
 
-## Step 1: Prepare Your Code for Deployment
+## Step 1: Local Development Setup
 
-### 1.1 Local Development Setup
-
-**For development, reset your local database:**
+### 1.1 Set Up Local PostgreSQL
 
 ```bash
-# Reset and seed your local database (SQLite)
-npm run db reset development --force
+# Start PostgreSQL container
+docker compose up -d
+
+# Set up database with initial migration
+npx prisma migrate dev --name init
+
+# Seed database with test data
+npm run db:seed
+
+# Start development server
+npm run dev
 ```
 
-This creates a local SQLite database (`dev.db`) with test data.
+This creates a local PostgreSQL database with test data accessible at http://localhost:3000.
 
-### 1.2 Commit Your Code to GitHub
+### 1.2 Database Development Workflow
+
+When making schema changes:
 
 ```bash
-# Add all files
+# 1. Edit prisma/schema.prisma
+# 2. Create and apply migration locally
+npx prisma migrate dev --name describe-your-change
+
+# 3. Test your changes
+npm run dev
+
+# 4. Commit migration files (IMPORTANT!)
+git add prisma/migrations/
+git commit -m "Add feature: describe-your-change"
+```
+
+## Step 2: Deploy to Production
+
+### 2.1 Commit Your Code to GitHub
+
+```bash
+# Add all files including migration files
 git add .
 
 # Commit your changes
 git commit -m "Prepare Challenge League for production deployment"
 
-# Create a new repository on GitHub, then:
-git remote add origin https://github.com/YOUR_USERNAME/challenge-league.git
-git branch -M main
-git push -u origin main
+# Push to GitHub
+git push
 ```
 
-## Step 2: Set Up Vercel Postgres Database
-
-### 2.1 Create Vercel Postgres Database
+### 2.2 Set Up Vercel Postgres Database
 
 1. Go to [vercel.com](https://vercel.com) and log in
 2. Go to your dashboard
@@ -52,17 +75,17 @@ git push -u origin main
 6. Select your region
 7. Click "Create"
 
-### 2.2 Get Database Connection String
+### 2.3 Get Database Connection String
 
 1. After creating the database, click on it
 2. Go to ".env.local" tab
 3. Copy the `POSTGRES_URL` value (this is your `DATABASE_URL`)
 
-## Step 3: Deploy to Vercel
+## Step 3: Deploy Application to Vercel
 
 ### 3.1 Connect GitHub to Vercel
 
-1. Back in Vercel dashboard, click "New Project"
+1. In Vercel dashboard, click "New Project"
 2. Import your GitHub repository
 3. Vercel will auto-detect it's a Next.js project
 
@@ -83,7 +106,7 @@ openssl rand -hex 32
 In the Vercel project setup, go to "Environment Variables" and add:
 
 ```bash
-# Database (PostgreSQL from Step 2.2)
+# Database (PostgreSQL from Step 2.3)
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 
 # NextAuth (use generated secret from Step 3.2)
@@ -97,13 +120,6 @@ CRON_SECRET=your-generated-cron-secret-here
 BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
 ```
 
-**Important Notes:**
-- `DATABASE_URL`: Use the PostgreSQL connection string from Step 2.2
-- `NEXTAUTH_SECRET`: Use the generated secret from Step 3.2
-- `NEXTAUTH_URL`: Will be your actual Vercel URL (update after first deploy)
-- `CRON_SECRET`: Use the generated secret from Step 3.2
-- `BLOB_READ_WRITE_TOKEN`: **OPTIONAL** - App will work without it
-
 ### 3.4 Deploy
 
 1. Click "Deploy" in Vercel
@@ -112,67 +128,132 @@ BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
 
 ## Step 4: Initialize Production Database
 
-**For first-time production setup:**
+**Apply migrations to production database:**
 
 ```bash
-# Install Vercel CLI if you haven't
-npm i -g vercel && vercel login && vercel link
+# Install Vercel CLI if needed
+npm i -g vercel
 
-# Pull production environment variables
-vercel env pull .env.production
+# Link to your project
+vercel link
 
-# Check database status
-npm run db status production
+# Apply all migrations to production
+npx prisma migrate deploy
 
-# Initialize production database with schema and test data
-npm run db migrate production --force
-npm run db seed production --force
+# Optionally seed production with test data
+npm run db:seed
 ```
 
-🛡️ **Safety System**: Our Prisma-compliant database manager prevents accidental production access and requires explicit `--force` flags for destructive operations.
+🛡️ **Safety**: `prisma migrate deploy` only applies new migrations and never modifies existing data.
 
-## Step 5: Set Up Photo Uploads (Optional)
+## Step 5: Update Final Configuration
 
-### 5.1 Option A: Default Setup (Recommended)
+### 5.1 Update NEXTAUTH_URL
 
-Your app works immediately with built-in photo handling. **No additional setup required!**
-
-### 5.2 Option B: Vercel Blob Storage
-
-If you want external blob storage:
-
-1. Go to Vercel Dashboard → Storage → Create Database → Blob
-2. Name it "challenge-league-uploads"
-3. Get the access token from Settings → Access Tokens
-4. Add to environment variables:
-   ```
-   BLOB_READ_WRITE_TOKEN=vercel_blob_rw_your_token_here
-   ```
-5. Redeploy your application
-
-## Step 6: Final Configuration
-
-### 6.1 Update NEXTAUTH_URL
-
-1. Copy your Vercel app URL (something like `https://challenge-league-abc123.vercel.app`)
+1. Copy your Vercel app URL (e.g., `https://challenge-league-abc123.vercel.app`)
 2. Go to Vercel project settings → Environment Variables
 3. Update `NEXTAUTH_URL` to your actual URL
 4. Redeploy the app
 
-### 6.2 Test Your Deployment
+### 5.2 Verify Deployment
 
 1. Visit your deployed app
-2. Test competition features:
-   - Create a new account or use test credentials
-   - Verify auto-assignment to Main League
-   - Check league dashboard functionality
-   - Test photo submission and voting
+2. Test key features:
+   - User registration and league auto-assignment
+   - League dashboard functionality
+   - Photo submission and voting
+   - League startup feature
 
-## Step 7: Set Up Automated Competition Cycles
+## Ongoing Development & Deployment
 
-### 7.1 Verify Cron Configuration
+### Making Schema Changes
 
-Your `vercel.json` is already configured for automatic competition management:
+Follow this workflow for any database changes:
+
+#### Step 1: Develop Locally
+
+```bash
+# 1. Edit prisma/schema.prisma
+# 2. Create migration
+npx prisma migrate dev --name your-feature-description
+
+# 3. Test changes
+npm run dev
+
+# 4. Update any affected code
+```
+
+#### Step 2: Deploy Code
+
+```bash
+# Commit everything including migration files
+git add .
+git commit -m "Add feature: your-feature-description"
+
+# Push to trigger Vercel deployment
+git push
+```
+
+#### Step 3: Apply Database Changes to Production
+
+```bash
+# Apply migrations to production database
+npx prisma migrate deploy
+```
+
+### Common Commands
+
+#### Local Development
+```bash
+# Start/stop PostgreSQL
+docker compose up -d
+docker compose down
+
+# Reset local database (removes all data)
+npx prisma migrate reset
+
+# View database
+npx prisma studio
+
+# Generate Prisma client
+npx prisma generate
+```
+
+#### Production Database
+```bash
+# Check migration status
+npx prisma migrate status
+
+# Apply pending migrations
+npx prisma migrate deploy
+
+# Reset production (DESTRUCTIVE - use with extreme caution)
+npx prisma migrate reset
+```
+
+## Database Migration Safety
+
+### ✅ Safe Operations
+- `npx prisma migrate dev` - Local development migrations
+- `npx prisma migrate deploy` - Production deployment (only applies new migrations)
+- `npx prisma studio` - Database browsing
+- `npx prisma generate` - Generate client
+
+### ⚠️ Destructive Operations
+- `npx prisma migrate reset` - Wipes entire database
+- `npx prisma db push` - Bypasses migration system
+
+### Migration Best Practices
+
+1. **Always commit migration files** - Never let Vercel auto-generate migrations
+2. **Test locally first** - Create and test migrations in development
+3. **Use `migrate deploy` in production** - Never use `migrate dev` or `db push`
+4. **Review migration SQL** - Check generated SQL before applying to production
+5. **Backup before major changes** - Download database backup for significant schema changes
+
+## Automated Competition Management
+
+Your `vercel.json` configures automatic competition cycles:
 
 ```json
 {
@@ -185,205 +266,55 @@ Your `vercel.json` is already configured for automatic competition management:
 }
 ```
 
-This runs daily at noon UTC to manage competition phases.
+This runs daily at noon UTC to manage competition phases automatically.
 
-## Database Management - Prisma Best Practices
+## Troubleshooting
 
-Following official Prisma documentation: https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production
-
-### Local Development Commands
-
+### "Database schema out of sync"
 ```bash
-# Start development server
-npm run dev
-
-# Reset local database (SQLite) - removes all data and reseeds
-npm run db reset development --force
-
-# Seed local database with test data
-npm run db seed development
-
-# Open database browser for local database
-npm run db studio development
-
-# Create new migration during development
-npx prisma migrate dev --name your-feature-description
-
-# Generate Prisma client
-npm run db generate development
+# Apply pending migrations
+npx prisma migrate deploy
 ```
 
-### Production Database Commands
-
-```bash
-# Check migration status (always run first)
-npm run db status production
-
-# Apply pending migrations to production (RECOMMENDED for schema changes)
-npm run db migrate production --force
-
-# Seed production with test data (DESTRUCTIVE - use with caution)
-npm run db seed production --force
-
-# Open database browser for production (be careful!)
-npm run db studio production
-
-# Generate Prisma client for production schema
-npm run db generate production
-
-# Get help with all available commands
-npm run db help
-```
-
-### Schema Change Workflow
-
-When you make changes to `prisma/schema.prisma` or `prisma/schema.production.prisma`:
-
-#### Step 1: Develop and Test Locally
-
-```bash
-# Make your schema changes in prisma/schema.prisma
-
-# Create and apply migration locally
-npx prisma migrate dev --name describe-your-change
-
-# Test your changes locally
-npm run dev
-```
-
-#### Step 2: Deploy Code Changes
-
-```bash
-# Commit your changes (including migration files)
-git add .
-git commit -m "Add new database feature: describe-your-change"
-
-# Push to GitHub (triggers Vercel deployment)
-git push
-```
-
-#### Step 3: Apply Database Changes to Production
-
+### "Migration failed"
 ```bash
 # Check what migrations are pending
-npm run db status production
+npx prisma migrate status
 
-# Apply the new migrations to production database
-npm run db migrate production --force
+# Review the failed migration file in prisma/migrations/
+# Fix any issues and run again
+npx prisma migrate deploy
 ```
 
-### Safety Features
-
-**What `prisma migrate deploy` does:**
-- ✅ **Only applies new migrations** - Never modifies existing data
-- ✅ **Atomic operations** - All migrations succeed or all fail
-- ✅ **Migration locking** - Prevents concurrent migrations
-- ✅ **Rollback protection** - Warns if migrations were modified
-
-**What it does NOT do:**
-- ❌ Never resets or drops existing data
-- ❌ Never applies schema drift fixes  
-- ❌ Never modifies previously applied migrations
-
-## Common Issues and Solutions
-
-### Issue: "Database schema mismatch after code changes"
-
-Your code expects the new schema, but production database hasn't been updated yet.
-
-**Solution**: Apply the pending migration:
+### "Local development issues"
 ```bash
-npm run db migrate production --force
+# Reset local database
+npx prisma migrate reset
+
+# Restart Docker if needed
+docker compose down && docker compose up -d
 ```
 
-### Issue: "Local database problems or migration errors"  
+### "Deployment fails"
+Ensure:
+1. Migration files are committed to GitHub
+2. `DATABASE_URL` is correctly set in Vercel
+3. Production database is accessible
 
-**Solution**: Reset your local environment:
-```bash
-npm run db reset development --force
-```
+## Test Accounts
 
-### Issue: "Build fails with Prisma error"
+After seeding, use these test accounts:
 
-**Solution**: Make sure you've committed your migration files and the Prisma client is generated:
-```bash
-npx prisma generate
-npm run build
-```
-
-### Issue: "Cannot connect to database in production"
-
-**Solution**: Verify your PostgreSQL `DATABASE_URL` is correct in Vercel environment variables.
-
-### Issue: "Photos not uploading"
-
-**Solution**: The app works without Blob storage. If you want external storage, set up Vercel Blob as described in Step 5.
-
-### Issue: "Migration fails with data loss warning"
-
-**Solution**: Prisma is protecting your data. Review the migration carefully and ensure you understand what data changes will occur.
-
-## Test User Accounts
-
-The database seed creates test users across leagues with competition history:
-
-**Primary Test Accounts:**
-- **Main League Users**: player1@example.com, player2@example.com, etc.
-- **All passwords**: `password123`
-
-**Features Included:**
-- Test leagues with different themes
-- Completed competition rounds with voting history  
-- Active rounds with submissions
-- Scheduled future rounds
-
-## Deployment Safety Summary
-
-### ✅ Always Safe Operations
-
-These commands never modify your production data:
-
-```bash
-git push                           # Deploys code changes only
-npm run db status production       # Check migration status
-npm run db studio production       # Browse database (read-only intent)
-npm run db generate production     # Generate Prisma client
-npm run dev                       # Local development
-```
-
-### ⚠️ Production Operations (Require --force)
-
-These commands can modify production data and require explicit confirmation:
-
-```bash
-# Safe migration deployment (recommended)
-npm run db migrate production --force
-
-# Destructive operations (use with extreme caution)
-npm run db reset production --force     # Wipes entire database
-npm run db seed production --force      # May overwrite user data
-```
-
-### 📋 Complete Schema Change Workflow
-
-1. **Make schema changes** in `prisma/schema.prisma`
-2. **Test locally**: `npx prisma migrate dev --name your-change`
-3. **Commit and deploy**: `git push`
-4. **Apply to production**: `npm run db migrate production --force`
-5. **Verify success**: `npm run db status production`
+- **Email**: photophoenix@example.com, craftycaptain@example.com, etc.
+- **Password**: password123
+- **Features**: Pre-populated leagues, competitions, and voting history
 
 ## Environment Summary
 
-You'll have:
-- **Local Development**: SQLite database with fast, zero-setup development
-- **Production**: PostgreSQL database on Vercel with persistent, reliable data
-- **Version Control**: Code on GitHub with automated deployments
-- **Automation**: Cron jobs managing competition phases
-- **Admin Interface**: Challenge management at `/admin`
-- **File Storage**: Intelligent photo handling (works with or without Blob storage)
+- **Local Development**: PostgreSQL in Docker with hot reload
+- **Production**: PostgreSQL on Vercel with automated deployments
+- **Database Migrations**: Prisma-managed with version control
+- **Competition Cycles**: Automated via Vercel Cron
+- **Photo Storage**: Works with/without Vercel Blob
 
-Congratulations! Your Challenge League is now deployed with Prisma-compliant database management! 🏆
-
----
-
-**Ready to compete?** Your app uses industry-standard database practices and deploys safely with proper migration controls.
+Your Challenge League is now deployed with industry-standard practices! 🏆

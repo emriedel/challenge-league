@@ -10,6 +10,7 @@ export interface League {
   description?: string;
   memberCount: number;
   isOwner: boolean;
+  isStarted?: boolean; // Whether the league has been started by the owner
   inviteCode?: string; // Only shown to owners
   owner?: {
     id: string;

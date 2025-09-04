@@ -1,12 +1,12 @@
-// Prisma schema with environment-based database provider
-// Uses SQLite for development, PostgreSQL for production
+// Production Prisma schema for PostgreSQL
+// This is used for deployment to production environments
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -112,6 +112,7 @@ model League {
   description String
   inviteCode  String    @unique // Code for users to join
   isActive    Boolean   @default(true)
+  isStarted   Boolean   @default(false) // Whether the league has been started by owner
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

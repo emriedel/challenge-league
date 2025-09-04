@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: challenge_league
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: challenge_league_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

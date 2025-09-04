@@ -57,16 +57,20 @@ src/
 - `npm run lint` - Check code style
 - `npm run type-check` - TypeScript type checking
 
-### Database
-- `npx prisma migrate dev` - Create and apply migrations
+### Database (PostgreSQL with Docker)
+- `docker compose up -d` - Start local PostgreSQL database
+- `docker compose down` - Stop local PostgreSQL database  
+- `npx prisma migrate dev --name feature-name` - Create and apply migrations locally
+- `npx prisma migrate deploy` - Apply migrations to production (safe)
+- `npx prisma migrate reset` - Reset local database (removes all data)
 - `npx prisma generate` - Generate Prisma client
 - `npx prisma studio` - Open database browser
-- `npx prisma db seed` - Seed database with test data
+- `npm run db:seed` - Seed database with test data
 
-### Deployment
-- `vercel` - Deploy to Vercel
-- `vercel --prod` - Deploy to production
-- `vercel dev` - Local development with Vercel functions
+### Deployment (Prisma Migration Workflow)
+- `git push` - Deploy code to Vercel (triggers build)
+- `npx prisma migrate deploy` - Apply database migrations to production
+- `npx prisma migrate status` - Check migration status
 
 ## Core App Specifications
 
@@ -230,6 +234,101 @@ src/
 - Complete competition cycle examples
 
 This transformed Challenge League into a engaging creative competition platform that encourages regular participation, creativity, and friendly competition among players!
+
+## Database Development Workflow
+
+Challenge League uses **PostgreSQL for both development and production** with Prisma's recommended migration workflow for safe, version-controlled database changes.
+
+### Local Development Setup
+
+```bash
+# Start PostgreSQL container
+docker compose up -d
+
+# Set up database with initial schema
+npx prisma migrate dev --name init
+
+# Seed with test data
+npm run db:seed
+
+# Start development server
+npm run dev
+```
+
+### Making Database Schema Changes
+
+Follow this **3-step workflow** for any database changes:
+
+#### Step 1: Develop and Test Locally
+
+```bash
+# 1. Edit prisma/schema.prisma
+# 2. Create migration locally
+npx prisma migrate dev --name describe-your-change
+
+# 3. Test your changes thoroughly
+npm run dev
+
+# 4. Update any affected TypeScript types/code
+```
+
+#### Step 2: Deploy Code Changes  
+
+```bash
+# Commit ALL files including migration files
+git add .
+git commit -m "Add feature: describe-your-change"
+
+# Push to GitHub (triggers Vercel deployment)
+git push
+```
+
+#### Step 3: Apply Database Changes to Production
+
+```bash
+# Apply migrations to production database (SAFE)
+npx prisma migrate deploy
+```
+
+### Important Migration Rules
+
+**✅ ALWAYS commit migration files** - Never let production auto-generate migrations  
+**✅ Use `migrate deploy` for production** - Only applies new migrations, never modifies existing data  
+**✅ Test locally first** - Create and test all changes in development  
+**❌ Never use `db push` or `migrate dev` in production** - These bypass the migration system  
+
+### Common Database Commands
+
+```bash
+# Local development
+docker compose up -d              # Start PostgreSQL
+npx prisma migrate reset          # Reset local DB (removes all data)
+npx prisma studio                 # Browse database
+npx prisma generate              # Generate Prisma client
+
+# Production (SAFE operations)
+npx prisma migrate status        # Check pending migrations
+npx prisma migrate deploy        # Apply pending migrations
+```
+
+### Database Schema Structure
+
+The application uses these key models:
+- **User**: Authentication and profile information
+- **League**: Competition groups with configurable settings
+- **LeagueMembership**: Many-to-many relationship between users and leagues
+- **Prompt**: Creative challenges with 2-phase timing (ACTIVE → VOTING → COMPLETED)
+- **Response**: User submissions with photos, captions, and voting results
+- **Vote**: Individual votes cast by users (1 point each)
+- **Comment**: User comments on responses
+
+### New League Startup Feature
+
+Added `isStarted` boolean field to League model:
+- New leagues start with `isStarted: false`
+- League owners must manually start their leagues
+- Only started leagues process prompt queues automatically
+- Provides proper onboarding and control for league creators
 
 ## High Priority Refactoring Tasks
 

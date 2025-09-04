@@ -18,6 +18,7 @@ import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
 import SubmissionForm from '@/components/SubmissionForm';
 import UserSubmissionDisplay from '@/components/UserSubmissionDisplay';
+import WaitingToStartState from '@/components/WaitingToStartState';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
@@ -118,6 +119,21 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const league = leagueData?.league;
   const leaderboard = leagueData?.leaderboard || [];
   const currentUserEntry = leaderboard.find(entry => entry.user.username === session.user.username);
+
+  // Check if league hasn't started yet
+  if (league && league.isStarted === false) {
+    return (
+      <WaitingToStartState
+        league={{
+          id: league.id,
+          name: league.name,
+          description: league.description || '',
+          owner: league.owner
+        }}
+        isOwner={league.isOwner}
+      />
+    );
+  }
 
   // Three basic states for the Challenge page
   const showVoting = votingData?.canVote && votingData.responses.length > 0;
