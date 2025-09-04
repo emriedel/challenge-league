@@ -153,7 +153,7 @@ test.describe('Working User Journey', () => {
       expect(loadTime).toBeLessThan(10000);
       
       // Check page loads without obvious errors
-      const hasError = await page.locator('text=500', 'text=404').first().isVisible().catch(() => false);
+      const hasError = await page.locator('text=500').first().isVisible().catch(() => false);
       expect(hasError).toBe(false);
       
       console.log(`✅ ${pageTest.name} page loads correctly (${loadTime}ms)`);

@@ -10,6 +10,7 @@ export interface LeagueWithMembership {
   ownerId: string;
   inviteCode: string;
   isActive: boolean;
+  isStarted: boolean;
   createdAt: Date;
   updatedAt: Date;
   // Configurable league settings

@@ -87,7 +87,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
                 </h3>
                 <p className="text-app-text-secondary text-sm mb-4">
                   Your league has been created and members can join using the invite code. 
-                  When you're ready, click the button below to begin the first creative challenge!
+                  When you&apos;re ready, click the button below to begin the first creative challenge!
                 </p>
                 <p className="text-app-text-muted text-xs mb-6">
                   Once started, your league will begin its first creative challenge and members 
@@ -130,11 +130,11 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
                   Waiting for League to Start
                 </h3>
                 <p className="text-app-text-secondary text-sm mb-4">
-                  This league hasn't started yet. The league owner ({league.owner?.username}) 
+                  This league hasn&apos;t started yet. The league owner ({league.owner?.username}) 
                   needs to start the first challenge.
                 </p>
                 <p className="text-app-text-muted text-xs">
-                  You'll be notified when the league begins and you can start participating 
+                  You&apos;ll be notified when the league begins and you can start participating 
                   in creative challenges!
                 </p>
               </div>

@@ -16,7 +16,7 @@ test.describe('Simple User Flow', () => {
     // Should either show auth redirect or have sign in elements
     const url = page.url();
     const hasAuthRedirect = url.includes('/auth/');
-    const hasSignInUI = await page.locator('text=Sign In', 'text=Sign Up', 'a[href*="/auth/"]').first().isVisible().catch(() => false);
+    const hasSignInUI = await page.locator('text=Sign In').first().isVisible().catch(() => false);
     
     expect(hasAuthRedirect || hasSignInUI).toBe(true);
     console.log('✅ Homepage handles unauthenticated access correctly');
@@ -37,7 +37,7 @@ test.describe('Simple User Flow', () => {
     await page.click('button[type="submit"]');
     
     // Should show some validation (HTML5 or custom)
-    const hasValidation = await page.locator(':invalid', 'text=required', 'text=error').first().isVisible().catch(() => false);
+    const hasValidation = await page.locator(':invalid').first().isVisible().catch(() => false);
     
     expect(hasValidation).toBe(true);
     console.log('✅ Sign up form has proper validation');
@@ -70,7 +70,7 @@ test.describe('Simple User Flow', () => {
       await page.waitForTimeout(1500);
       
       const currentUrl = page.url();
-      const isProtected = currentUrl.includes('/auth/') || currentUrl !== `${page.context().options.baseURL}${route}`;
+      const isProtected = currentUrl.includes('/auth/') || !currentUrl.includes(route);
       
       expect(isProtected).toBe(true);
       console.log(`✅ ${route} is properly protected`);
@@ -125,7 +125,7 @@ test.describe('Simple User Flow', () => {
       await page.waitForTimeout(1000);
       
       // Check for obvious error indicators
-      const hasErrorPage = await page.locator('text=500', 'text=404', 'text=Error').first().isVisible().catch(() => false);
+      const hasErrorPage = await page.locator('text=500').first().isVisible().catch(() => false);
       expect(hasErrorPage).toBe(false);
     }
     
