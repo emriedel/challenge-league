@@ -30,5 +30,10 @@
     * {
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
     }
+    
+    /* Prevent zoom on input focus for PWA behavior */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
 }
