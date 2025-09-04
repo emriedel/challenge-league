@@ -226,16 +226,16 @@ export default function HomePage() {
             </div>
 
             <div className="text-center">
-              <div className="space-x-4">
+              <div className="space-y-3 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
                 <Link
                   href="/leagues/join"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200"
+                  className="block w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200"
                 >
                   Join A League
                 </Link>
                 <Link
                   href="/leagues/new"
-                  className="bg-app-surface-dark text-app-text-secondary hover:bg-app-surface-light px-4 py-2 rounded-xl font-medium transition-all duration-200"
+                  className="block w-full sm:w-auto bg-app-surface-dark text-app-text-secondary hover:bg-app-surface-light px-4 py-2 rounded-xl font-medium transition-all duration-200"
                 >
                   Create New League
                 </Link>
