@@ -66,7 +66,7 @@ export default function SignUp() {
         <div className="flex flex-col items-center mb-4 sm:mb-8">
           <div className="bg-app-surface-dark rounded-full p-2 sm:p-3 shadow-lg mb-3 sm:mb-4">
             <Image
-              src="/challenge-league-logo.png"
+              src="/logo.png"
               alt="Challenge League"
               width={48}
               height={48}

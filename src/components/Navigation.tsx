@@ -120,7 +120,7 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80">
             <Image
-              src="/challenge-league-logo.png"
+              src="/logo.png"
               alt="Challenge League"
               width={40}
               height={40}
