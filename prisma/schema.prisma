@@ -56,6 +56,7 @@ model User {
   comments Comment[]
   leagueMemberships LeagueMembership[]
   ownedLeagues League[] @relation("LeagueOwner")
+  pushSubscriptions PushSubscription[]
 
   @@map("users")
 }
@@ -179,4 +180,20 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String
+  p256dh    String   // Public key for encryption
+  auth      String   // Auth secret for encryption
+  userAgent String?  // Optional: to identify the device/browser
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint]) // One subscription per user per device/browser
+  @@map("push_subscriptions")
 }

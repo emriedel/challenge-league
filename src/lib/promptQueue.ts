@@ -3,6 +3,7 @@ import { isPhaseExpired, getNextPhase } from './phaseCalculations';
 import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
+import { sendNotificationToLeague, createNotificationData } from './pushNotifications';
 
 async function cleanupOldPhotos() {
   try {
@@ -149,6 +150,19 @@ export async function processPromptQueue() {
         });
 
         console.log(`🗳️ Started voting for: "${prompt.text}" (${publishedCount.count} responses published)`);
+
+        // Send notification to league members that voting is now available
+        try {
+          const notificationData = createNotificationData('voting-available', {
+            promptText: prompt.text,
+            leagueName: 'Your League' // TODO: Get actual league name
+          });
+          
+          await sendNotificationToLeague(prompt.leagueId, notificationData);
+          console.log(`📱 Sent voting notification for prompt: "${prompt.text}"`);
+        } catch (notificationError) {
+          console.error('❌ Failed to send voting notification:', notificationError);
+        }
       }
     }
 
@@ -214,6 +228,19 @@ export async function processPromptQueue() {
 
           console.log(`🚀 Activated next task for league ${league.id}: "${nextPrompt.text}"`);
           console.log(`   Phase started at: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+
+          // Send notification to league members about the new prompt
+          try {
+            const notificationData = createNotificationData('new-prompt-available', {
+              promptText: nextPrompt.text,
+              leagueName: 'Your League' // TODO: Get actual league name
+            });
+            
+            await sendNotificationToLeague(league.id, notificationData);
+            console.log(`📱 Sent new prompt notification: "${nextPrompt.text}"`);
+          } catch (notificationError) {
+            console.error('❌ Failed to send new prompt notification:', notificationError);
+          }
         }
       }
     }

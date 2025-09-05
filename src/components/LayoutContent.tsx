@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import BottomNavigation from '@/components/BottomNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import NotificationDebugPanel from '@/components/NotificationDebugPanel';
 
 interface LayoutContentProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       </main>
       {!hideBottomNav && <BottomNavigation />}
       <PWAInstallPrompt />
+      <NotificationDebugPanel />
     </div>
   );
 }

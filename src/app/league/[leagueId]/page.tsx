@@ -13,6 +13,7 @@ import {
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
+import { useAutoNotifications } from '@/hooks/useAutoNotifications';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -34,6 +35,9 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
+  
+  // Auto-enable notifications for logged-in users
+  useAutoNotifications();
   
   // Mutations for user actions
   const submitVotesMutation = useSubmitVotesMutation(params.leagueId);

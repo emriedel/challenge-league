@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import ProfileAvatar from '@/components/ProfileAvatar';
+import NotificationSettings from '@/components/NotificationSettings';
 import { useMessages } from '@/hooks/useMessages';
 
 interface ProfileModalProps {
@@ -114,14 +115,14 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       />
       
       {/* Modal */}
-      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-app-surface shadow-xl z-[60] transform transition-all duration-300 ease-out ${
+      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-app-surface shadow-xl z-[60] transform transition-all duration-300 ease-out flex flex-col ${
         isOpen 
           ? 'translate-x-0 scale-100 opacity-100' 
           : 'translate-x-full scale-95 opacity-0'
       }`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between pl-6 pr-4 h-16 border-b border-app-border bg-app-bg">
+        <div className="flex items-center justify-between pl-6 pr-4 h-16 border-b border-app-border bg-app-bg flex-shrink-0">
           <h2 className="text-xl font-semibold text-white">Profile</h2>
           <button
             onClick={onClose}
@@ -134,7 +135,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
           
           {/* Message Display */}
           {message && (
@@ -210,6 +211,11 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <p className="text-app-text">{session.user.email}</p>
               </div>
             </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="mb-6">
+            <NotificationSettings />
           </div>
 
           {/* Actions */}

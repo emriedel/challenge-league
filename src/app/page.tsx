@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
+import { useAutoNotifications } from '@/hooks/useAutoNotifications';
 import type { League } from '@/types/league';
 
 
@@ -15,6 +16,9 @@ export default function HomePage() {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Auto-enable notifications for logged-in users
+  useAutoNotifications();
 
   const fetchLeagues = useCallback(async () => {
     try {
