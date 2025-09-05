@@ -67,10 +67,10 @@ src/
 - `npx prisma studio` - Open database browser
 - `npm run db:seed` - Seed database with test data
 
-### Deployment (Prisma Migration Workflow)
-- `git push` - Deploy code to Vercel (triggers build)
-- `npx prisma migrate deploy` - Apply database migrations to production
-- `npx prisma migrate status` - Check migration status
+### Deployment (Automated CI/CD Pipeline)
+- `git push` - Deploy code and apply migrations automatically
+- Database migrations run automatically during Vercel build process
+- No manual migration steps required - fully automated!
 
 ## Core App Specifications
 
@@ -272,30 +272,25 @@ npm run dev
 # 4. Update any affected TypeScript types/code
 ```
 
-#### Step 2: Deploy Code Changes  
+#### Step 2: Deploy Everything Automatically
 
 ```bash
 # Commit ALL files including migration files
 git add .
 git commit -m "Add feature: describe-your-change"
 
-# Push to GitHub (triggers Vercel deployment)
+# Push to deploy code AND database changes automatically
 git push
 ```
 
-#### Step 3: Apply Database Changes to Production
-
-```bash
-# Apply migrations to production database (SAFE)
-npx prisma migrate deploy
-```
+**That's it!** Migrations are applied automatically during the build process. No manual steps needed.
 
 ### Important Migration Rules
 
 **✅ ALWAYS commit migration files** - Never let production auto-generate migrations  
-**✅ Use `migrate deploy` for production** - Only applies new migrations, never modifies existing data  
+**✅ Automated migrations** - CI/CD pipeline applies migrations safely during build  
 **✅ Test locally first** - Create and test all changes in development  
-**❌ Never use `db push` or `migrate dev` in production** - These bypass the migration system  
+**❌ Never manually run migrations in production** - Let the automated pipeline handle it  
 
 ### Common Database Commands
 
@@ -306,9 +301,9 @@ npx prisma migrate reset          # Reset local DB (removes all data)
 npx prisma studio                 # Browse database
 npx prisma generate              # Generate Prisma client
 
-# Production (SAFE operations)
-npx prisma migrate status        # Check pending migrations
-npx prisma migrate deploy        # Apply pending migrations
+# Production (rarely needed - migrations are automated!)
+npx prisma migrate status        # Check migration status (debugging only)
+# Note: Migrations are applied automatically during deployment
 ```
 
 ### Database Schema Structure
