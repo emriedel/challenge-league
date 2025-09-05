@@ -107,14 +107,14 @@ export default function NotificationSettings() {
 
         {permission === 'denied' && (
           <p className="text-app-text-muted text-xs">
-            You've blocked notifications. To enable them, click the lock icon in your browser's address bar and allow notifications.
+            You&apos;ve blocked notifications. To enable them, click the lock icon in your browser&apos;s address bar and allow notifications.
           </p>
         )}
 
         {isSubscribed && (
           <>
             <div className="text-app-text-muted text-xs space-y-1">
-              <p>You'll be notified about:</p>
+              <p>You&apos;ll be notified about:</p>
               <ul className="list-disc list-inside space-y-0.5 ml-2">
                 <li>New challenges when they become available</li>
                 <li>24-hour reminders to submit your response</li>
