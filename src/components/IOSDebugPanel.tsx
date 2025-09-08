@@ -149,6 +149,19 @@ export default function IOSDebugPanel() {
           }
         } else {
           addLog('warning', '🔧 Attempting manual SW registration...');
+          
+          // Try to fetch the service worker file first to debug the issue
+          try {
+            const swResponse = await fetch('/sw.js');
+            addLog(swResponse.ok ? 'success' : 'error', `📡 SW File Status: ${swResponse.status} ${swResponse.statusText}`);
+            if (!swResponse.ok) {
+              addLog('error', `❌ Service worker file not accessible at ${window.location.origin}/sw.js`);
+              addLog('warning', '🚨 This is likely a deployment issue - SW file missing from production');
+            }
+          } catch (fetchError) {
+            addLog('error', `❌ Cannot fetch SW file: ${fetchError instanceof Error ? fetchError.message : 'Unknown'}`);
+          }
+          
           try {
             const newRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
             addLog('success', `✅ Manual SW registration successful: ${newRegistration.scope}`);
@@ -165,6 +178,7 @@ export default function IOSDebugPanel() {
               addLog('info', '• Service workers may need network connectivity');
               addLog('info', '• Check if Safari > Settings > Advanced > Web Inspector shows errors');
               addLog('info', '• PWA mode may have stricter security policies than Safari');
+              addLog('info', '• Verify service worker file exists in production deployment');
             }
           }
         }
