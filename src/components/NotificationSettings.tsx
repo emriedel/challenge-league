@@ -65,14 +65,17 @@ export default function NotificationSettings() {
               {permission === 'granted' && isSubscribed && (
                 <span className="text-app-success text-sm">✅ Enabled</span>
               )}
-              {permission === 'granted' && !isSubscribed && (
-                <span className="text-yellow-400 text-sm">⚠️ Available</span>
+              {permission === 'granted' && !isSubscribed && !isLoading && (
+                <span className="text-yellow-400 text-sm">⚠️ Permission granted, not subscribed</span>
               )}
               {permission === 'denied' && (
                 <span className="text-app-error text-sm">❌ Blocked</span>
               )}
               {permission === 'default' && (
                 <span className="text-app-text-subtle text-sm">🔔 Not set</span>
+              )}
+              {isLoading && (
+                <span className="text-app-text-muted text-sm">⏳ Loading...</span>
               )}
             </div>
             <span className="text-app-text-muted text-sm">
@@ -91,7 +94,7 @@ export default function NotificationSettings() {
                     : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 disabled:opacity-50'
                 }`}
               >
-                {isLoading ? 'Enabling...' : 'Enable'}
+                {isLoading ? 'Enabling...' : permission === 'granted' ? 'Retry Subscribe' : 'Enable'}
               </button>
             ) : (
               <button
@@ -109,6 +112,22 @@ export default function NotificationSettings() {
           <p className="text-app-text-muted text-xs">
             You&apos;ve blocked notifications. To enable them, click the lock icon in your browser&apos;s address bar and allow notifications.
           </p>
+        )}
+
+        {permission === 'granted' && !isSubscribed && !isLoading && (
+          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-2">
+            <p className="text-yellow-400 text-xs">
+              <strong>Permission granted but subscription failed.</strong> This can happen due to:
+            </p>
+            <ul className="text-yellow-400 text-xs mt-1 ml-3 list-disc">
+              <li>Network connectivity issues</li>
+              <li>Service worker registration problems</li>
+              <li>VAPID key configuration issues</li>
+            </ul>
+            <p className="text-yellow-400 text-xs mt-1">
+              Check browser console for detailed error messages, then click &quot;Retry Subscribe&quot;.
+            </p>
+          </div>
         )}
 
         {isSubscribed && (
