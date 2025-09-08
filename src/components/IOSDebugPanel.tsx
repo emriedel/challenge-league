@@ -151,6 +151,15 @@ export default function IOSDebugPanel() {
       addLog('error', `❌ SW Check Failed: ${swError instanceof Error ? swError.message : 'Unknown'}`);
     }
 
+    // iOS-specific guidance
+    if (!isSupported && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      addLog('warning', '📱 iOS Push Notification Limitations Detected:');
+      addLog('info', '• iOS 16.4+ required for web push support');
+      addLog('info', '• PWA support may differ from Safari web');
+      addLog('info', '• Try opening in Safari browser instead of PWA');
+      addLog('info', '• Service worker registration may be blocked in PWA mode');
+    }
+
     addLog('info', '✅ Diagnostics Complete');
   };
 
