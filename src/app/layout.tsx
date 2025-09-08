@@ -68,10 +68,17 @@ export default function RootLayout({
                           console.log('🔧 SW state:', registration.installing ? 'installing' : 
                                        registration.waiting ? 'waiting' : 
                                        registration.active ? 'active' : 'unknown');
+                          
+                          // Listen for service worker updates
+                          registration.addEventListener('updatefound', function() {
+                            console.log('🔄 SW update found, installing new version');
+                          });
                         })
                         .catch(function(registrationError) {
                           console.error('❌ SW registration failed:', registrationError);
-                          console.error('❌ Error details:', registrationError.message);
+                          console.error('❌ Error name:', registrationError.name);
+                          console.error('❌ Error message:', registrationError.message);
+                          console.error('❌ Error stack:', registrationError.stack);
                         });
                     } else {
                       console.log('✅ Service worker already registered:', registration);
