@@ -48,15 +48,46 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                });
+                // iOS PWA-friendly service worker registration
+                function registerServiceWorker() {
+                  // Check if service worker is already registered to avoid conflicts
+                  navigator.serviceWorker.getRegistration().then(function(registration) {
+                    if (!registration) {
+                      console.log('📱 Registering service worker for PWA...');
+                      
+                      // More aggressive options for iOS PWA compatibility
+                      var options = { 
+                        scope: '/',
+                        updateViaCache: 'none' // Force fresh fetches for updates
+                      };
+                      
+                      navigator.serviceWorker.register('/sw.js', options)
+                        .then(function(registration) {
+                          console.log('✅ SW registered successfully:', registration);
+                          console.log('🔧 SW scope:', registration.scope);
+                          console.log('🔧 SW state:', registration.installing ? 'installing' : 
+                                       registration.waiting ? 'waiting' : 
+                                       registration.active ? 'active' : 'unknown');
+                        })
+                        .catch(function(registrationError) {
+                          console.error('❌ SW registration failed:', registrationError);
+                          console.error('❌ Error details:', registrationError.message);
+                        });
+                    } else {
+                      console.log('✅ Service worker already registered:', registration);
+                      console.log('🔧 Existing SW scope:', registration.scope);
+                    }
+                  }).catch(function(error) {
+                    console.error('❌ Failed to check SW registration:', error);
+                  });
+                }
+
+                // Try immediate registration for iOS PWA, fallback to load event
+                if (document.readyState === 'loading') {
+                  window.addEventListener('load', registerServiceWorker);
+                } else {
+                  setTimeout(registerServiceWorker, 100);
+                }
               }
             `,
           }}

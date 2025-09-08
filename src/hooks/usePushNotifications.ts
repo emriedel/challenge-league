@@ -156,16 +156,28 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         }
       }
 
-      // Register service worker if needed
+      // Get or register service worker
       let registration: ServiceWorkerRegistration;
       try {
-        registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('🔧 Service worker registered:', registration);
+        // First try to get existing registration
+        const existingRegistration = await navigator.serviceWorker.getRegistration();
+        
+        if (!existingRegistration) {
+          console.log('🔧 No existing service worker found, registering...');
+          registration = await navigator.serviceWorker.register('/sw.js', { 
+            scope: '/' 
+          });
+          console.log('🔧 Service worker registered:', registration);
+        } else {
+          registration = existingRegistration;
+          console.log('🔧 Using existing service worker registration:', registration);
+        }
+        
         await navigator.serviceWorker.ready;
         console.log('✅ Service worker ready');
       } catch (error) {
-        console.error('❌ Service worker registration failed:', error);
-        throw new Error('Failed to register service worker');
+        console.error('❌ Service worker registration/retrieval failed:', error);
+        throw new Error(`Failed to register service worker: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
 
       // Subscribe to push manager

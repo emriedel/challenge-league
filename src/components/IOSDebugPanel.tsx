@@ -135,8 +135,10 @@ export default function IOSDebugPanel() {
         addLog(registration ? 'success' : 'warning', `🔧 SW Registration: ${registration ? 'Found' : 'Not found'}`);
         
         if (registration) {
-          addLog('info', `🔧 SW State: ${registration.active?.state || 'Unknown'}`);
+          const state = registration.installing?.state || registration.waiting?.state || registration.active?.state || 'Unknown';
+          addLog('info', `🔧 SW State: ${state}`);
           addLog('info', `🔧 SW Scope: ${registration.scope}`);
+          addLog('info', `🔧 SW Update Method: ${typeof registration.update === 'function' ? 'Available' : 'Missing'}`);
           
           // Check push subscription
           const subscription = await registration.pushManager.getSubscription();
@@ -144,6 +146,26 @@ export default function IOSDebugPanel() {
           
           if (subscription) {
             addLog('info', `📡 Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
+          }
+        } else {
+          addLog('warning', '🔧 Attempting manual SW registration...');
+          try {
+            const newRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            addLog('success', `✅ Manual SW registration successful: ${newRegistration.scope}`);
+          } catch (manualError) {
+            addLog('error', `❌ Manual SW registration failed: ${manualError instanceof Error ? manualError.message : 'Unknown'}`);
+            
+            // iOS-specific troubleshooting
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+            
+            if (isIOS && isPWA) {
+              addLog('warning', '🍎 iOS PWA Detected - Special considerations:');
+              addLog('info', '• Try closing and reopening the PWA app');
+              addLog('info', '• Service workers may need network connectivity');
+              addLog('info', '• Check if Safari > Settings > Advanced > Web Inspector shows errors');
+              addLog('info', '• PWA mode may have stricter security policies than Safari');
+            }
           }
         }
       }
