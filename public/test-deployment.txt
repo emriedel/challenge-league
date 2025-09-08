@@ -1,0 +1,1 @@
+This file tests if public directory deploys correctly to production.
