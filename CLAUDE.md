@@ -94,7 +94,7 @@ src/
 - Players cannot vote for their own submissions
 - Each player gets exactly 3 votes to cast (1 vote per submission, each vote = 1 point)
 - Double-tap photos or use vote buttons to cast votes
-- Photos automatically deleted after each cycle (no permanent history)
+- Photos preserved indefinitely in results gallery for viewing past competitions
 - Rankings based on total vote points received
 - No grace period for submission or voting deadlines
 
@@ -217,7 +217,7 @@ src/
 - Automatically moves ACTIVE prompts to VOTING when submission deadline passes
 - Calculates vote results and moves VOTING prompts to COMPLETED
 - Activates next scheduled prompt when no active prompt exists
-- Cleans up old photos from completed challenges
+- Handles automatic phase transitions (no photo cleanup - photos preserved permanently)
 
 ### Admin Interface
 - Creative task management with categories and difficulty
