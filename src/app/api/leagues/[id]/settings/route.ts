@@ -70,10 +70,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     // Organize prompts by status
+    // For leagues that haven't started, treat ACTIVE prompts as scheduled/upcoming
     const queue = {
-      active: prompts.filter(p => p.status === 'ACTIVE'),
+      active: league.isStarted ? prompts.filter(p => p.status === 'ACTIVE') : [],
       voting: prompts.filter(p => p.status === 'VOTING'),
-      scheduled: prompts.filter(p => p.status === 'SCHEDULED'),
+      scheduled: league.isStarted 
+        ? prompts.filter(p => p.status === 'SCHEDULED')
+        : prompts.filter(p => p.status === 'SCHEDULED' || p.status === 'ACTIVE'),
       completed: prompts.filter(p => p.status === 'COMPLETED'),
     };
 
@@ -81,7 +84,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let currentPhase: any = { type: 'NONE' };
     let nextPhase: any = { type: 'NEW_ACTIVE' };
 
-    if (queue.active.length > 0) {
+    // For leagues that haven't started, don't show any active phases
+    if (league.isStarted && queue.active.length > 0) {
       const activePrompt = queue.active[0];
       const endTime = getRealisticPhaseEndTime({
         id: activePrompt.id,
