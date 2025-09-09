@@ -161,8 +161,8 @@ nbproject
 # Sentry
 .sentryclirc
 
-# PWA
-sw.js
+# PWA (auto-generated files, but allow custom sw.js)
+# sw.js - commenting out to allow custom service worker
 sw.js.map
 workbox-*.js
 workbox-*.js.map
