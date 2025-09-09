@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryClient';
 
 interface WaitingToStartStateProps {
   league: {
@@ -20,6 +22,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleStartLeague = async () => {
     if (!isOwner) return;
@@ -41,6 +44,10 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
         throw new Error(data.error || 'Failed to start league');
       }
 
+      // Invalidate relevant caches to force refetch of league data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.league(league.id) });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.leaguePrompt(league.id) });
+      
       // Refresh the page to show the started state
       router.refresh();
     } catch (err) {
