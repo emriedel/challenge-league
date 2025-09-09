@@ -166,13 +166,13 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <Link
-                    href="/app/leagues/join"
+                    href="/app/join"
                     className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 font-semibold"
                   >
                     Join a League
                   </Link>
                   <Link
-                    href="/app/leagues/new"
+                    href="/app/new"
                     className="w-full flex justify-center py-2.5 sm:py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
                   >
                     Create a League
@@ -232,13 +232,13 @@ export default function HomePage() {
             <div className="text-center">
               <div className="space-y-3 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
                 <Link
-                  href="/app/leagues/join"
+                  href="/app/join"
                   className="block w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200"
                 >
                   Join A League
                 </Link>
                 <Link
-                  href="/app/leagues/new"
+                  href="/app/new"
                   className="block w-full sm:w-auto bg-app-surface-dark text-app-text-secondary hover:bg-app-surface-light px-4 py-2 rounded-xl font-medium transition-all duration-200"
                 >
                   Create New League

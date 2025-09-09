@@ -292,7 +292,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       await leaveLeagueMutation.mutateAsync();
       setShowLeaveConfirm(false);
       // Redirect to leagues page after leaving
-      router.push('/app/leagues');
+      router.push('/app');
     } catch (error) {
       setMessage({ 
         type: 'error', 
@@ -307,7 +307,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       await deleteLeagueMutation.mutateAsync();
       setShowDeleteLeagueConfirm(false);
       // Redirect to leagues page after deleting
-      router.push('/app/leagues');
+      router.push('/app');
     } catch (error) {
       setMessage({ 
         type: 'error', 
