@@ -365,3 +365,64 @@ export function useLeaveLeagueMutation(leagueId?: string) {
     },
   });
 }
+
+/**
+ * Mutation for deleting a league (owner only)
+ */
+export function useDeleteLeagueMutation(leagueId?: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      if (!leagueId) {
+        throw new Error('League ID is required');
+      }
+
+      const response = await fetch(`/api/leagues/${leagueId}/delete`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Please sign in to delete the league');
+        }
+        if (response.status === 403) {
+          throw new Error('Only league owners can delete leagues');
+        }
+        if (response.status === 404) {
+          throw new Error('League not found');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete league');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      // Clear all league-related data from cache after deletion
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.leagueSettings(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.league(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.votingData(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.leaguePrompt(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.leagueRounds(leagueId!) 
+      });
+      queryClient.removeQueries({ 
+        queryKey: queryKeys.leagueStandings(leagueId!) 
+      });
+      
+      // Refresh leagues list since a league was deleted
+      queryClient.invalidateQueries({ 
+        queryKey: ['leagues'] 
+      });
+    },
+  });
+}

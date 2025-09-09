@@ -38,4 +38,5 @@ export {
   useTransitionPhaseMutation,
   useUpdateLeagueSettingsMutation,
   useLeaveLeagueMutation,
+  useDeleteLeagueMutation,
 } from './useLeagueSettingsQuery';

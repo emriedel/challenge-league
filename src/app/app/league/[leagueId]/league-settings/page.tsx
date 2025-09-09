@@ -11,7 +11,8 @@ import {
   useReorderPromptsMutation,
   useTransitionPhaseMutation,
   useUpdateLeagueSettingsMutation,
-  useLeaveLeagueMutation
+  useLeaveLeagueMutation,
+  useDeleteLeagueMutation
 } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -95,6 +96,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const transitionPhaseMutation = useTransitionPhaseMutation(params.leagueId);
   const updateLeagueSettingsMutation = useUpdateLeagueSettingsMutation(params.leagueId);
   const leaveLeagueMutation = useLeaveLeagueMutation(params.leagueId);
+  const deleteLeagueMutation = useDeleteLeagueMutation(params.leagueId);
   
   // Local state
   const [newPromptText, setNewPromptText] = useState('');
@@ -105,6 +107,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [showAddChallenge, setShowAddChallenge] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ promptId: string; promptText: string } | null>(null);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showDeleteLeagueConfirm, setShowDeleteLeagueConfirm] = useState(false);
   
   // League settings state - use strings for inputs, parse only on submit
   const [submissionDays, setSubmissionDays] = useState('5');
@@ -296,6 +299,21 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         text: error instanceof Error ? error.message : 'Failed to leave league' 
       });
       setShowLeaveConfirm(false);
+    }
+  };
+
+  const handleDeleteLeague = async () => {
+    try {
+      await deleteLeagueMutation.mutateAsync();
+      setShowDeleteLeagueConfirm(false);
+      // Redirect to leagues page after deleting
+      router.push('/app/leagues');
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to delete league' 
+      });
+      setShowDeleteLeagueConfirm(false);
     }
   };
 
@@ -765,6 +783,35 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             </div>
           )}
 
+          {/* Delete League Section - Owners only */}
+          {isOwner && (
+            <div className="bg-app-surface rounded-lg border border-red-600 border-opacity-30 p-4 sm:p-6 mt-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Danger Zone</h2>
+              <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
+                <p className="text-red-200 text-sm mb-2">
+                  <strong>Warning:</strong> Deleting this league will permanently remove:
+                </p>
+                <ul className="text-red-200 text-sm space-y-1 ml-4">
+                  <li>• All challenges and submissions</li>
+                  <li>• All photos and voting data</li>
+                  <li>• All member data for this league</li>
+                  <li>• League settings and history</li>
+                </ul>
+                <p className="text-red-200 text-sm mt-3">
+                  <strong>This action cannot be undone.</strong>
+                </p>
+              </div>
+              
+              <button
+                onClick={() => setShowDeleteLeagueConfirm(true)}
+                disabled={deleteLeagueMutation.isPending}
+                className="w-full sm:w-auto bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
+              </button>
+            </div>
+          )}
+
           {/* Leave League Section - Non-admins only */}
           {!isOwner && (
             <div className="bg-app-surface rounded-lg border border-app-border-dark p-4 sm:p-6 mt-6">
@@ -874,7 +921,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Challenge Confirmation Modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
@@ -906,6 +953,53 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
                 >
                   {deletePromptMutation.isPending ? 'Deleting...' : 'Delete Challenge'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete League Confirmation Modal */}
+        {showDeleteLeagueConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-app-surface rounded-lg max-w-lg w-full p-6">
+              <h3 className="text-lg font-semibold text-app-text mb-4">Delete League</h3>
+              
+              <div className="mb-4">
+                <p className="text-sm text-app-text-secondary mb-3">
+                  Are you sure you want to permanently delete <strong className="text-app-text">{league?.name}</strong>?
+                </p>
+                
+                <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
+                  <p className="text-red-200 text-sm mb-2">
+                    <strong>This will permanently delete:</strong>
+                  </p>
+                  <ul className="text-red-200 text-sm space-y-1 ml-4">
+                    <li>• All challenges and submissions from {league?.memberCount} members</li>
+                    <li>• All photos and voting data</li>
+                    <li>• All league history and statistics</li>
+                    <li>• League settings and configurations</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <p className="text-sm text-app-text-muted mb-6">
+                <strong>This action cannot be undone.</strong> All data will be permanently removed from our servers.
+              </p>
+              
+              <div className="flex flex-col-reverse sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowDeleteLeagueConfirm(false)}
+                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteLeague}
+                  disabled={deleteLeagueMutation.isPending}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
                 </button>
               </div>
             </div>
