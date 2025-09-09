@@ -20,28 +20,22 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
       .then(async (cache) => {
-        console.log('Caching static assets');
-        
         // Cache assets individually to avoid failing on missing files
         const cachePromises = STATIC_ASSETS.map(async (asset) => {
           try {
             await cache.add(asset);
-            console.log(`✅ Cached: ${asset}`);
           } catch (error) {
-            console.warn(`⚠️ Failed to cache ${asset}:`, error);
-            // Continue with other assets even if one fails
+            console.warn(`Failed to cache ${asset}:`, error);
           }
         });
         
         await Promise.all(cachePromises);
-        console.log('✅ Static asset caching complete');
       })
       .catch((error) => {
-        console.error('❌ Failed to open cache:', error);
+        console.error('Failed to open cache:', error);
       })
   );
   self.skipWaiting();
@@ -49,7 +43,6 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -203,8 +196,6 @@ async function staleWhileRevalidate(request) {
 
 // Push notification event handler
 self.addEventListener('push', (event) => {
-  console.log('🔔 Push notification received:', event);
-  
   let notificationData = {
     title: 'Challenge League',
     body: 'New activity in your league!',
@@ -219,18 +210,15 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       const data = event.data.json();
-      console.log('📝 Parsed notification data:', data);
       notificationData = {
         ...notificationData,
         ...data
       };
     } catch (error) {
-      console.error('❌ Error parsing push data:', error);
+      console.error('Error parsing push data:', error);
       notificationData.body = event.data.text() || notificationData.body;
     }
   }
-
-  console.log('📱 Showing notification:', notificationData.title, notificationData.body);
 
   const notificationOptions = {
     body: notificationData.body,
@@ -246,11 +234,8 @@ self.addEventListener('push', (event) => {
   };
 
   const showNotificationPromise = self.registration.showNotification(notificationData.title, notificationOptions)
-    .then(() => {
-      console.log('✅ Notification displayed successfully');
-    })
     .catch((error) => {
-      console.error('❌ Failed to show notification:', error);
+      console.error('Failed to show notification:', error);
     });
 
   event.waitUntil(showNotificationPromise);
@@ -258,7 +243,6 @@ self.addEventListener('push', (event) => {
 
 // Notification click event handler
 self.addEventListener('notificationclick', (event) => {
-  console.log('Notification clicked:', event);
   
   event.notification.close();
   

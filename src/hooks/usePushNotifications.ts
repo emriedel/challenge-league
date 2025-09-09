@@ -38,11 +38,6 @@ export function usePushNotifications(): PushNotificationState & PushNotification
           'Notification' in window;
 
         if (!isSupported) {
-          console.log('❌ Push notifications not supported:', {
-            serviceWorker: 'serviceWorker' in navigator,
-            pushManager: 'PushManager' in window,
-            notification: 'Notification' in window
-          });
           setState(prev => ({
             ...prev,
             isSupported: false,
@@ -54,28 +49,17 @@ export function usePushNotifications(): PushNotificationState & PushNotification
 
         // Get current permission state
         const permission = Notification.permission;
-        console.log('🔐 Notification permission:', permission);
 
         // Check if currently subscribed
         let isSubscribed = false;
-        let subscriptionDetails = null;
         if (permission === 'granted') {
           try {
             const registration = await navigator.serviceWorker.ready;
-            console.log('🔧 Service worker ready:', registration);
             const subscription = await registration.pushManager.getSubscription();
             isSubscribed = subscription !== null;
-            subscriptionDetails = subscription;
-            console.log('📋 Push subscription status:', {
-              isSubscribed,
-              endpoint: subscription?.endpoint?.substring(0, 50) + '...',
-              keys: subscription?.toJSON()?.keys ? 'Present' : 'Missing'
-            });
           } catch (error) {
-            console.error('❌ Error checking subscription status:', error);
+            console.error('Error checking subscription status:', error);
           }
-        } else {
-          console.log('ℹ️ Cannot check subscription - permission not granted');
         }
 
         setState(prev => ({
@@ -88,7 +72,7 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         }));
 
       } catch (error) {
-        console.error('❌ Error checking push notification support:', error);
+        console.error('Error checking push notification support:', error);
         setState(prev => ({
           ...prev,
           isSupported: false,
@@ -163,43 +147,32 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         const existingRegistration = await navigator.serviceWorker.getRegistration();
         
         if (!existingRegistration) {
-          console.log('🔧 No existing service worker found, registering...');
           registration = await navigator.serviceWorker.register('/sw.js', { 
             scope: '/' 
           });
-          console.log('🔧 Service worker registered:', registration);
         } else {
           registration = existingRegistration;
-          console.log('🔧 Using existing service worker registration:', registration);
         }
         
         await navigator.serviceWorker.ready;
-        console.log('✅ Service worker ready');
       } catch (error) {
-        console.error('❌ Service worker registration/retrieval failed:', error);
+        console.error('Service worker registration failed:', error);
         throw new Error(`Failed to register service worker: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
 
       // Subscribe to push manager
-      console.log('🔐 Subscribing with VAPID key:', VAPID_PUBLIC_KEY?.substring(0, 20) + '...');
-      
       let subscription;
       try {
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
         });
-        console.log('📋 Push subscription created:', {
-          endpoint: subscription.endpoint.substring(0, 50) + '...',
-          keys: subscription.toJSON().keys ? 'Present' : 'Missing'
-        });
       } catch (subscribeError) {
-        console.error('❌ Failed to subscribe to push manager:', subscribeError);
+        console.error('Push subscription failed:', subscribeError);
         throw new Error(`Push subscription failed: ${subscribeError instanceof Error ? subscribeError.message : 'Unknown error'}`);
       }
 
       // Send subscription to server
-      console.log('💾 Saving subscription to server...');
       const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: {

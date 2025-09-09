@@ -53,8 +53,6 @@ export default function RootLayout({
                   // Check if service worker is already registered to avoid conflicts
                   navigator.serviceWorker.getRegistration().then(function(registration) {
                     if (!registration) {
-                      console.log('📱 Registering service worker for PWA...');
-                      
                       // More aggressive options for iOS PWA compatibility
                       var options = { 
                         scope: '/',
@@ -63,29 +61,16 @@ export default function RootLayout({
                       
                       navigator.serviceWorker.register('/sw.js', options)
                         .then(function(registration) {
-                          console.log('✅ SW registered successfully:', registration);
-                          console.log('🔧 SW scope:', registration.scope);
-                          console.log('🔧 SW state:', registration.installing ? 'installing' : 
-                                       registration.waiting ? 'waiting' : 
-                                       registration.active ? 'active' : 'unknown');
-                          
-                          // Listen for service worker updates
-                          registration.addEventListener('updatefound', function() {
-                            console.log('🔄 SW update found, installing new version');
-                          });
+                          // Service worker registered successfully
                         })
                         .catch(function(registrationError) {
-                          console.error('❌ SW registration failed:', registrationError);
-                          console.error('❌ Error name:', registrationError.name);
-                          console.error('❌ Error message:', registrationError.message);
-                          console.error('❌ Error stack:', registrationError.stack);
+                          console.error('Service worker registration failed:', registrationError);
                         });
                     } else {
-                      console.log('✅ Service worker already registered:', registration);
-                      console.log('🔧 Existing SW scope:', registration.scope);
+                      // Service worker already registered
                     }
                   }).catch(function(error) {
-                    console.error('❌ Failed to check SW registration:', error);
+                    console.error('Failed to check SW registration:', error);
                   });
                 }
 
