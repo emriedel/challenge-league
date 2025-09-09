@@ -2,12 +2,12 @@
   "name": "Challenge",
   "short_name": "Challenge",
   "description": "Creative competition leagues for friends and communities",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/app/",
   "lang": "en",
   "dir": "ltr",
   "categories": ["photography", "social", "entertainment"],
@@ -78,7 +78,7 @@
       "name": "Submit Response",
       "short_name": "Submit",
       "description": "Submit your response to the current challenge",
-      "url": "/?tab=submit",
+      "url": "/app?tab=submit",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
@@ -90,7 +90,7 @@
       "name": "Vote",
       "short_name": "Vote",
       "description": "Vote on challenge submissions",
-      "url": "/?tab=vote",
+      "url": "/app?tab=vote",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",

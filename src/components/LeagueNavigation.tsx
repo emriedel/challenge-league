@@ -10,10 +10,10 @@ const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, 
   const pathname = usePathname();
 
   const tabs = [
-    { id: 'home', name: 'Current Challenge', href: `/league/${leagueId}` },
-    { id: 'rounds', name: 'Challenge Results', href: `/league/${leagueId}/rounds` },
-    { id: 'standings', name: 'Standings', href: `/league/${leagueId}/standings` },
-    ...(isOwner ? [{ id: 'league-settings', name: 'League Settings', href: `/league/${leagueId}/league-settings` }] : []),
+    { id: 'home', name: 'Current Challenge', href: `/app/league/${leagueId}` },
+    { id: 'rounds', name: 'Challenge Results', href: `/app/league/${leagueId}/rounds` },
+    { id: 'standings', name: 'Standings', href: `/app/league/${leagueId}/standings` },
+    ...(isOwner ? [{ id: 'league-settings', name: 'League Settings', href: `/app/league/${leagueId}/league-settings` }] : []),
   ];
 
   return (

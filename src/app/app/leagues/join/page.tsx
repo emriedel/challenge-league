@@ -64,7 +64,7 @@ export default function JoinLeaguePage() {
   }
 
   if (status === 'unauthenticated') {
-    router.push('/auth/signin');
+    router.push('/app/auth/signin');
     return null;
   }
 
@@ -143,13 +143,13 @@ export default function JoinLeaguePage() {
 
               <div className="space-y-3">
                 <Link
-                  href={`/league/${success.league.id}`}
+                  href={`/app/league/${success.league.id}`}
                   className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 font-semibold"
                 >
                   Go to League Dashboard
                 </Link>
                 <Link
-                  href="/"
+                  href="/app"
                   className="w-full flex justify-center py-2.5 sm:py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
                 >
                   Back to Home
@@ -233,7 +233,7 @@ export default function JoinLeaguePage() {
               There are no public leagues available to join right now, or you&apos;re already a member of all available leagues.
             </p>
             <Link
-              href="/leagues/new"
+              href="/app/leagues/new"
               className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200"
             >
               Create Your Own League
@@ -244,13 +244,13 @@ export default function JoinLeaguePage() {
         {/* Navigation */}
         <div className="mt-8 text-center space-y-3 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
           <Link
-            href="/"
+            href="/app"
             className="block sm:inline-block px-6 py-2.5 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
           >
             Back to Home
           </Link>
           <Link
-            href="/leagues/new"
+            href="/app/leagues/new"
             className="block sm:inline-block px-6 py-2.5 text-blue-600 hover:text-blue-500 font-medium transition-colors"
           >
             Create Your Own League →

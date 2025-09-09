@@ -12,9 +12,9 @@ interface LayoutContentProps {
 
 export default function LayoutContent({ children }: LayoutContentProps) {
   const pathname = usePathname();
-  const isAuthFlow = pathname?.startsWith('/auth/') || pathname?.startsWith('/profile/setup');
-  const isLeagueSelection = pathname === '/';
-  const isLeagueCreation = pathname === '/leagues/new' || pathname === '/leagues/join';
+  const isAuthFlow = pathname?.startsWith('/app/auth/') || pathname?.startsWith('/app/profile/setup');
+  const isLeagueSelection = pathname === '/app';
+  const isLeagueCreation = pathname === '/app/leagues/new' || pathname === '/app/leagues/join';
   
   // Hide bottom nav for auth flows, league selection, and league creation
   const hideBottomNav = isAuthFlow || isLeagueSelection || isLeagueCreation;

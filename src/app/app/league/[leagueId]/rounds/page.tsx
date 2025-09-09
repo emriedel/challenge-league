@@ -27,7 +27,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/app/auth/signin');
     }
   }, [session, status, router]);
 

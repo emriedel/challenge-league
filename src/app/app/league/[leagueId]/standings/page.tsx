@@ -37,7 +37,7 @@ export default function StandingPage({ params }: StandingPageProps) {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/app/auth/signin');
     }
   }, [session, status, router]);
 

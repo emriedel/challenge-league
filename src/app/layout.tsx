@@ -1,13 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import SessionProvider from '@/components/SessionProvider';
-import QueryProvider from '@/components/QueryProvider';
-import Navigation from '@/components/Navigation';
-import BottomNavigation from '@/components/BottomNavigation';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import PWAInstallPrompt from '@/components/PWAInstallPrompt';
-import LayoutContent from '@/components/LayoutContent';
 import { inter } from '@/lib/fonts';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'Challenge League',
@@ -87,13 +81,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <QueryProvider>
-            <SessionProvider>
-              <LayoutContent>
-                {children}
-              </LayoutContent>
-            </SessionProvider>
-          </QueryProvider>
+          {children}
         </ErrorBoundary>
       </body>
     </html>

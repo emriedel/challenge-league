@@ -30,7 +30,7 @@ export default function CreateLeaguePage() {
   }
 
   if (status === 'unauthenticated') {
-    router.push('/auth/signin');
+    router.push('/app/auth/signin');
     return null;
   }
 
@@ -59,7 +59,7 @@ export default function CreateLeaguePage() {
       // Show success message and redirect to the newly created league
       addMessage('creation', { type: 'success', text: 'League created successfully!' });
       setTimeout(() => {
-        router.push(`/league/${data.league.id}`);
+        router.push(`/app/league/${data.league.id}`);
       }, UI_TIMEOUTS.REDIRECT_DELAY_MS);
     } catch (err) {
       addMessage('creation', { type: 'error', text: err instanceof Error ? err.message : 'An error occurred' });
@@ -138,7 +138,7 @@ export default function CreateLeaguePage() {
               </button>
               
               <Link
-                href="/"
+                href="/app"
                 className="w-full flex justify-center py-2.5 sm:py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
               >
                 Cancel

@@ -69,7 +69,7 @@ export function NoLeaguesEmptyState() {
       description="You haven't joined any leagues yet. Create your own league or ask for an invitation code to join one."
       action={{
         label: "Create League",
-        href: "/leagues/new"
+        href: "/app/leagues/new"
       }}
     />
   );

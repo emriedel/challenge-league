@@ -16,7 +16,7 @@ export default function LeaguesPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/signin');
+      router.push('/app/auth/signin');
       return;
     }
 
@@ -80,13 +80,13 @@ export default function LeaguesPage() {
         </h2>
         <div className="space-x-3">
           <Link
-            href="/leagues/join"
+            href="/app/leagues/join"
             className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm"
           >
             Join League
           </Link>
           <Link
-            href="/leagues/new"
+            href="/app/leagues/new"
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
           >
             Create League
@@ -105,13 +105,13 @@ export default function LeaguesPage() {
           </p>
           <div className="space-x-3">
             <Link
-              href="/leagues/join"
+              href="/app/leagues/join"
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
             >
               Join League
             </Link>
             <Link
-              href="/leagues/new"
+              href="/app/leagues/new"
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
             >
               Create League
@@ -150,7 +150,7 @@ export default function LeaguesPage() {
 
               <div className="space-y-3">
                 <Link
-                  href={`/league/${league.id}`}
+                  href={`/app/league/${league.id}`}
                   className="block w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-center text-sm"
                 >
                   View League

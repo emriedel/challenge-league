@@ -60,7 +60,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/app/auth/signin');
     }
   }, [session, status, router]);
 

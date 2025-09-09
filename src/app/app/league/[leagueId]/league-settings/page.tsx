@@ -115,7 +115,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/signin');
+      router.push('/app/auth/signin');
     }
   }, [session, status, router]);
 
@@ -289,7 +289,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
       await leaveLeagueMutation.mutateAsync();
       setShowLeaveConfirm(false);
       // Redirect to leagues page after leaving
-      router.push('/leagues');
+      router.push('/app/leagues');
     } catch (error) {
       setMessage({ 
         type: 'error', 

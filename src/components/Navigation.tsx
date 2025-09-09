@@ -47,10 +47,10 @@ export default function Navigation() {
 
   // Detect current league from pathname
   useEffect(() => {
-    if (pathname?.startsWith('/league/') && leagues.length > 0) {
+    if (pathname?.startsWith('/app/league/') && leagues.length > 0) {
       const pathParts = pathname.split('/');
-      if (pathParts.length >= 3) {
-        const leagueId = pathParts[2];
+      if (pathParts.length >= 4) {
+        const leagueId = pathParts[3];
         const found = leagues.find(league => league.id === leagueId);
         setCurrentLeague(found || null);
       }
@@ -118,7 +118,7 @@ export default function Navigation() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80">
+          <Link href="/app" className="flex items-center space-x-3 hover:opacity-80">
             <Image
               src="/logo.png"
               alt="Challenge League"
@@ -157,7 +157,7 @@ export default function Navigation() {
                         {leagues.map((league) => (
                           <Link
                             key={league.id}
-                            href={`/league/${league.id}`}
+                            href={`/app/league/${league.id}`}
                             className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
@@ -174,14 +174,14 @@ export default function Navigation() {
                         ))}
                         <hr className="my-1 border-app-border" />
                         <Link
-                          href="/leagues/new"
+                          href="/app/leagues/new"
                           className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Create New League
                         </Link>
                         <Link
-                          href="/leagues/join"
+                          href="/app/leagues/join"
                           className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
@@ -195,14 +195,14 @@ export default function Navigation() {
                         </div>
                         <hr className="my-1 border-app-border" />
                         <Link
-                          href="/leagues/new"
+                          href="/app/leagues/new"
                           className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Create New League
                         </Link>
                         <Link
-                          href="/leagues/join"
+                          href="/app/leagues/join"
                           className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
@@ -257,7 +257,7 @@ export default function Navigation() {
                       {leagues.map((league) => (
                         <Link
                           key={league.id}
-                          href={`/league/${league.id}`}
+                          href={`/app/league/${league.id}`}
                           className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
@@ -274,14 +274,14 @@ export default function Navigation() {
                       ))}
                       <hr className="my-1 border-app-border" />
                       <Link
-                        href="/leagues/new"
+                        href="/app/leagues/new"
                         className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                         onClick={() => setIsLeaguesOpen(false)}
                       >
                         + Create New League
                       </Link>
                       <Link
-                        href="/leagues/join"
+                        href="/app/leagues/join"
                         className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                         onClick={() => setIsLeaguesOpen(false)}
                       >
@@ -295,14 +295,14 @@ export default function Navigation() {
                       </div>
                       <hr className="my-1 border-app-border" />
                       <Link
-                        href="/leagues/new"
+                        href="/app/leagues/new"
                         className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
                         onClick={() => setIsLeaguesOpen(false)}
                       >
                         + Create New League
                       </Link>
                       <Link
-                        href="/leagues/join"
+                        href="/app/leagues/join"
                         className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
                         onClick={() => setIsLeaguesOpen(false)}
                       >
