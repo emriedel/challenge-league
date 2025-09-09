@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, memo } from 'react';
 
 const BottomNavigation = memo(function BottomNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [currentLeagueId, setCurrentLeagueId] = useState<string | null>(null);
 
@@ -22,6 +23,20 @@ const BottomNavigation = memo(function BottomNavigation() {
       setCurrentLeagueId(null);
     }
   }, [pathname]);
+
+  // Handle tab click - refresh if clicking current tab, otherwise navigate
+  const handleTabClick = (href: string, isActive: boolean, e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (isActive) {
+      // Refresh current page by forcing a router refresh and reload
+      router.refresh();
+      window.location.reload();
+    } else {
+      // Navigate to new tab
+      router.push(href);
+    }
+  };
 
   // Don't show on auth pages or if not authenticated
   if (pathname?.startsWith('/auth/') || status !== 'authenticated') {
@@ -79,10 +94,9 @@ const BottomNavigation = memo(function BottomNavigation() {
                          (item.name === 'Standings' && pathname?.includes('/standings')) ||
                          (item.name === 'League' && pathname?.includes('/league-settings'));
           return (
-            <Link
+            <button
               key={item.name}
-              href={item.href}
-              prefetch={true}
+              onClick={(e) => handleTabClick(item.href, isActive, e)}
               className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
@@ -91,7 +105,7 @@ const BottomNavigation = memo(function BottomNavigation() {
               <span className={`text-xs mt-1 ${isActive ? 'text-white font-medium' : 'text-white/70'}`}>
                 {item.name}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
