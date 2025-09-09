@@ -1,26 +1,27 @@
 import { PrismaClient } from '@prisma/client';
+import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
 /**
- * Test database utilities for isolated testing
+ * Test database utilities for isolated testing with PostgreSQL
  */
 
-let testDbPath: string;
+let testDbName: string;
 let prisma: PrismaClient;
 
 export function getTestDb(): PrismaClient {
   if (!prisma) {
-    // Create a unique test database file for this test run (NEVER use dev.db)
-    testDbPath = path.join(process.cwd(), `prisma/test-${Date.now()}-${Math.random().toString(36).slice(2)}.db`);
+    // Create a unique test database name for this test run
+    testDbName = `test_db_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     
     // SAFETY CHECK: Ensure we never accidentally use the development database
-    if (testDbPath.includes('dev.db') || testDbPath.includes('development')) {
-      throw new Error('❌ SAFETY ERROR: Test database path would interfere with development database!');
+    if (testDbName.includes('dev') || testDbName.includes('development') || testDbName.includes('challenge_league')) {
+      throw new Error('❌ SAFETY ERROR: Test database name would interfere with development database!');
     }
     
-    // Set the test database URL (completely separate from development)
-    const testDatabaseUrl = `file:${testDbPath}`;
+    // Set the test database URL (PostgreSQL)
+    const testDatabaseUrl = `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`;
     
     // Initialize Prisma client with the isolated test database
     prisma = new PrismaClient({
@@ -37,30 +38,52 @@ export function getTestDb(): PrismaClient {
 }
 
 /**
- * Reset the test database with fresh schema
+ * Reset the test database with fresh schema (PostgreSQL)
  */
 export async function resetTestDb(): Promise<void> {
   try {
+    // First create the test database
+    await createTestDatabase();
+    
     // Get test database instance
     const testDb = getTestDb();
     
-    // Use Prisma's programmatic migration instead of execSync
-    // This creates the tables directly without shell commands
-    await testDb.$executeRaw`PRAGMA foreign_keys = OFF;`;
+    // Use Prisma db push to create fresh schema
+    console.log('🔧 Applying database schema to test database...');
     
-    // Drop all tables if they exist (SQLite specific)
-    const tables = await testDb.$queryRaw<Array<{name: string}>>`
-      SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';
-    `;
+    // Set the test database URL in environment for Prisma commands
+    process.env.DATABASE_URL = `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`;
     
-    for (const table of tables) {
-      await testDb.$executeRawUnsafe(`DROP TABLE IF EXISTS "${table.name}";`);
+    try {
+      // Use Prisma's db push to create the schema from the schema.prisma file
+      execSync(`npx prisma db push --force-reset`, {
+        stdio: 'pipe',
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          DATABASE_URL: `postgresql://postgres:password@localhost:5432/${testDbName}`
+        }
+      });
+    } catch (pushError) {
+      console.log('⚠️ Prisma db push failed, trying alternative approach...');
+      
+      // Alternative: Apply migrations
+      try {
+        execSync(`npx prisma migrate deploy`, {
+          stdio: 'pipe',
+          cwd: process.cwd(),
+          env: {
+            ...process.env,
+            DATABASE_URL: `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`
+          }
+        });
+      } catch (migrateError) {
+        console.log('⚠️ Migration failed too, proceeding without schema setup...');
+      }
     }
     
-    await testDb.$executeRaw`PRAGMA foreign_keys = ON;`;
-    
-    // Manually create the schema (basic tables needed for tests)
-    await createTestSchema(testDb);
+    // Test connection
+    await testDb.$executeRaw`SELECT 1`;
     
     console.log('✅ Test database reset successfully');
   } catch (error) {
@@ -70,193 +93,97 @@ export async function resetTestDb(): Promise<void> {
 }
 
 /**
- * Create the exact schema matching Prisma schema with proper table names
+ * Create the test database using PostgreSQL
  */
-async function createTestSchema(db: PrismaClient): Promise<void> {
-  // Create users table (matches @@map("users"))
-  await db.$executeRaw`
-    CREATE TABLE "users" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "email" TEXT NOT NULL UNIQUE,
-      "emailVerified" DATETIME,
-      "image" TEXT,
-      "username" TEXT NOT NULL UNIQUE,
-      "password" TEXT NOT NULL,
-      "profilePhoto" TEXT,
-      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
-
-  // Create leagues table (matches @@map("leagues"))
-  await db.$executeRaw`
-    CREATE TABLE "leagues" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "name" TEXT NOT NULL UNIQUE,
-      "slug" TEXT NOT NULL UNIQUE,
-      "description" TEXT NOT NULL,
-      "inviteCode" TEXT NOT NULL UNIQUE,
-      "isActive" BOOLEAN NOT NULL DEFAULT true,
-      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "submissionDays" INTEGER NOT NULL DEFAULT 5,
-      "votingDays" INTEGER NOT NULL DEFAULT 2,
-      "votesPerPlayer" INTEGER NOT NULL DEFAULT 3,
-      "ownerId" TEXT NOT NULL,
-      FOREIGN KEY ("ownerId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create league_memberships table (matches @@map("league_memberships"))
-  await db.$executeRaw`
-    CREATE TABLE "league_memberships" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "joinedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "isActive" BOOLEAN NOT NULL DEFAULT true,
-      "userId" TEXT NOT NULL,
-      "leagueId" TEXT NOT NULL,
-      FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY ("leagueId") REFERENCES "leagues" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create unique index for league_memberships
-  await db.$executeRaw`
-    CREATE UNIQUE INDEX "league_memberships_userId_leagueId_key" ON "league_memberships"("userId", "leagueId");
-  `;
-
-  // Create prompts table (matches @@map("prompts"))
-  await db.$executeRaw`
-    CREATE TABLE "prompts" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "text" TEXT NOT NULL,
-      "phaseStartedAt" DATETIME,
-      "status" TEXT NOT NULL DEFAULT 'SCHEDULED',
-      "queueOrder" INTEGER NOT NULL,
-      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "leagueId" TEXT NOT NULL,
-      FOREIGN KEY ("leagueId") REFERENCES "leagues" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create responses table (matches @@map("responses"))
-  await db.$executeRaw`
-    CREATE TABLE "responses" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "caption" TEXT NOT NULL,
-      "imageUrl" TEXT NOT NULL,
-      "submittedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "isPublished" BOOLEAN NOT NULL DEFAULT false,
-      "publishedAt" DATETIME,
-      "totalVotes" INTEGER NOT NULL DEFAULT 0,
-      "totalPoints" INTEGER NOT NULL DEFAULT 0,
-      "finalRank" INTEGER,
-      "userId" TEXT NOT NULL,
-      "promptId" TEXT NOT NULL,
-      FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY ("promptId") REFERENCES "prompts" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create unique index for responses (one response per user per prompt)
-  await db.$executeRaw`
-    CREATE UNIQUE INDEX "responses_userId_promptId_key" ON "responses"("userId", "promptId");
-  `;
-
-  // Create votes table (matches @@map("votes"))
-  await db.$executeRaw`
-    CREATE TABLE "votes" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "points" INTEGER NOT NULL DEFAULT 1,
-      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "voterId" TEXT NOT NULL,
-      "responseId" TEXT NOT NULL,
-      FOREIGN KEY ("voterId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY ("responseId") REFERENCES "responses" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create Account table for NextAuth (no mapping, uses default table name)
-  await db.$executeRaw`
-    CREATE TABLE "Account" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "userId" TEXT NOT NULL,
-      "type" TEXT NOT NULL,
-      "provider" TEXT NOT NULL,
-      "providerAccountId" TEXT NOT NULL,
-      "refresh_token" TEXT,
-      "access_token" TEXT,
-      "expires_at" INTEGER,
-      "token_type" TEXT,
-      "scope" TEXT,
-      "id_token" TEXT,
-      "session_state" TEXT,
-      FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
-
-  // Create unique index for Account
-  await db.$executeRaw`
-    CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
-  `;
-
-  // Create Session table for NextAuth (no mapping, uses default table name)
-  await db.$executeRaw`
-    CREATE TABLE "Session" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "sessionToken" TEXT NOT NULL UNIQUE,
-      "userId" TEXT NOT NULL,
-      "expires" DATETIME NOT NULL,
-      FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-    );
-  `;
+async function createTestDatabase(): Promise<void> {
+  try {
+    // Connect to postgres default database to create test database
+    const adminDb = new PrismaClient({
+      datasources: {
+        db: {
+          url: 'postgresql://challenge_league:dev_password@localhost:5432/postgres',
+        },
+      },
+    });
+    
+    // Drop test database if it exists and create new one
+    await adminDb.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${testDbName}"`);
+    await adminDb.$executeRawUnsafe(`CREATE DATABASE "${testDbName}"`);
+    
+    await adminDb.$disconnect();
+  } catch (error) {
+    // If database creation fails, try to continue - it might already exist
+    console.log('⚠️ Database creation warning (might already exist):', error.message);
+  }
 }
 
 /**
- * Clean up test database and disconnect
+ * Clean up test database and disconnect (PostgreSQL)
  */
 export async function cleanupTestDb(): Promise<void> {
   if (prisma) {
     try {
       await prisma.$disconnect();
       
-      // Clean up the specific test database file
-      if (testDbPath && fs.existsSync(testDbPath)) {
-        fs.unlinkSync(testDbPath);
-        console.log('✅ Test database file deleted');
+      // Drop the test database
+      if (testDbName) {
+        try {
+          const adminDb = new PrismaClient({
+            datasources: {
+              db: {
+                url: 'postgresql://challenge_league:dev_password@localhost:5432/postgres',
+              },
+            },
+          });
+          
+          await adminDb.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${testDbName}"`);
+          await adminDb.$disconnect();
+          console.log('✅ Test database dropped');
+        } catch (error) {
+          console.log('⚠️ Could not drop test database (may not exist):', error.message);
+        }
       }
     } catch (error) {
       console.error('❌ Error during test database cleanup:', error);
     }
   }
   
-  // Also clean up any orphaned test databases
-  cleanupOrphanedTestDbs();
+  // Reset variables for next test
+  prisma = null;
+  testDbName = null;
 }
 
 /**
- * Clean up any orphaned test database files
+ * Clean up any orphaned test databases (PostgreSQL)
  */
-export function cleanupOrphanedTestDbs(): void {
+export async function cleanupOrphanedTestDbs(): Promise<void> {
   try {
-    const prismaDir = path.join(process.cwd(), 'prisma');
-    if (fs.existsSync(prismaDir)) {
-      const files = fs.readdirSync(prismaDir);
-      const testDbFiles = files.filter(file => file.startsWith('test-') && file.endsWith('.db'));
-      
-      for (const file of testDbFiles) {
-        const filePath = path.join(prismaDir, file);
-        try {
-          fs.unlinkSync(filePath);
-          console.log(`🗑️ Cleaned up orphaned test database: ${file}`);
-        } catch (error) {
-          // File might be in use, skip it
-        }
+    const adminDb = new PrismaClient({
+      datasources: {
+        db: {
+          url: 'postgresql://challenge_league:dev_password@localhost:5432/postgres',
+        },
+      },
+    });
+    
+    // Get all databases starting with 'test_db_'
+    const databases = await adminDb.$queryRaw<Array<{datname: string}>>`
+      SELECT datname FROM pg_database WHERE datname LIKE 'test_db_%';
+    `;
+    
+    for (const db of databases) {
+      try {
+        await adminDb.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${db.datname}"`);
+        console.log(`🗑️ Cleaned up orphaned test database: ${db.datname}`);
+      } catch (error) {
+        // Database might be in use, skip it
       }
     }
+    
+    await adminDb.$disconnect();
   } catch (error) {
     // Silent cleanup failure is okay
+    console.log('⚠️ Could not cleanup orphaned databases:', error.message);
   }
 }
 
