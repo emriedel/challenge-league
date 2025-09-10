@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, memo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryClient';
 
 const BottomNavigation = memo(function BottomNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [currentLeagueId, setCurrentLeagueId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Extract league ID from current path
   useEffect(() => {
@@ -25,13 +28,37 @@ const BottomNavigation = memo(function BottomNavigation() {
   }, [pathname]);
 
   // Handle tab click - refresh if clicking current tab, otherwise navigate
-  const handleTabClick = (href: string, isActive: boolean, e: React.MouseEvent) => {
+  const handleTabClick = (href: string, isActive: boolean, tabName: string, e: React.MouseEvent) => {
     e.preventDefault();
     
-    if (isActive) {
-      // Refresh current page by forcing a router refresh and reload
-      router.refresh();
-      window.location.reload();
+    if (isActive && currentLeagueId) {
+      // Refresh only the current tab's data by invalidating relevant queries
+      switch (tabName) {
+        case 'Challenge':
+          // Invalidate prompt/challenge data
+          queryClient.invalidateQueries({ 
+            queryKey: queryKeys.leaguePrompt(currentLeagueId) 
+          });
+          break;
+        case 'Results':
+          // Invalidate rounds/gallery data
+          queryClient.invalidateQueries({ 
+            queryKey: queryKeys.leagueRounds(currentLeagueId) 
+          });
+          break;
+        case 'Standings':
+          // Invalidate league standings data
+          queryClient.invalidateQueries({ 
+            queryKey: queryKeys.league(currentLeagueId) 
+          });
+          break;
+        case 'League':
+          // Invalidate league settings data
+          queryClient.invalidateQueries({ 
+            queryKey: queryKeys.leagueSettings(currentLeagueId) 
+          });
+          break;
+      }
     } else {
       // Navigate to new tab
       router.push(href);
@@ -96,7 +123,7 @@ const BottomNavigation = memo(function BottomNavigation() {
           return (
             <button
               key={item.name}
-              onClick={(e) => handleTabClick(item.href, isActive, e)}
+              onClick={(e) => handleTabClick(item.href, isActive, item.name, e)}
               className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
