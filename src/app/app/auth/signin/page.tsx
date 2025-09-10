@@ -31,7 +31,7 @@ export default function SignIn() {
       } else if (result?.ok) {
         // Refresh session
         await getSession();
-        router.push('/');
+        router.push('/app');
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
