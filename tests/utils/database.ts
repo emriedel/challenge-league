@@ -113,7 +113,7 @@ async function createTestDatabase(): Promise<void> {
     await adminDb.$disconnect();
   } catch (error) {
     // If database creation fails, try to continue - it might already exist
-    console.log('⚠️ Database creation warning (might already exist):', error.message);
+    console.log('⚠️ Database creation warning (might already exist):', error instanceof Error ? error.message : String(error));
   }
 }
 
