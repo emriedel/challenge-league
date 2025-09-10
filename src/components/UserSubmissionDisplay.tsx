@@ -63,6 +63,7 @@ export default function UserSubmissionDisplay({
                     day: 'numeric',
                     hour: 'numeric',
                     minute: '2-digit',
+                    timeZoneName: 'short',
                   })}
                 </p>
               </div>

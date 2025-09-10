@@ -124,28 +124,29 @@ export function calculatePhaseEndTime(phaseStartedAt: Date, status: 'ACTIVE' | '
 }
 
 /**
- * Get the next cron execution time at 12 PM PT
+ * Get the next cron execution time at 12 PM PT (19:00 UTC)
  */
 function getNextCronExecution(fromDate: Date = new Date()): Date {
-  // Create a date object in PT timezone
-  const ptDate = new Date(fromDate.toLocaleString("en-US", { timeZone: CRON_CONFIG.PROCESSING_TIMEZONE }));
-  const utcDate = new Date(fromDate.toUTCString());
+  // Cron runs at 19:00 UTC daily (which is 12:00 PM PDT / 11:00 AM PST)
+  const today = new Date(fromDate);
+  const todayCronTime = new Date(Date.UTC(
+    today.getUTCFullYear(),
+    today.getUTCMonth(), 
+    today.getUTCDate(),
+    19, // 19:00 UTC = 12:00 PM PDT
+    0,
+    0,
+    0
+  ));
   
-  // Calculate timezone offset
-  const offsetMs = utcDate.getTime() - ptDate.getTime();
-  
-  // Start with today at 12 PM PT
-  const today12PM = new Date(fromDate);
-  today12PM.setHours(CRON_CONFIG.PROCESSING_HOUR + (offsetMs / (1000 * 60 * 60)), 0, 0, 0);
-  
-  // If we're past today's 12 PM PT, move to tomorrow
-  if (fromDate >= today12PM) {
-    const tomorrow12PM = new Date(today12PM);
-    tomorrow12PM.setDate(tomorrow12PM.getDate() + 1);
-    return tomorrow12PM;
+  // If we're past today's cron time, move to tomorrow
+  if (fromDate >= todayCronTime) {
+    const tomorrowCronTime = new Date(todayCronTime);
+    tomorrowCronTime.setUTCDate(tomorrowCronTime.getUTCDate() + 1);
+    return tomorrowCronTime;
   }
   
-  return today12PM;
+  return todayCronTime;
 }
 
 /**

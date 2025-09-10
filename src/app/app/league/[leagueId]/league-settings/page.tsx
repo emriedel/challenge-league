@@ -743,6 +743,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                         day: 'numeric',
                         hour: 'numeric',
                         minute: '2-digit',
+                        timeZoneName: 'short',
                       })}</p>
                     )}
                   </div>
@@ -757,6 +758,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                         day: 'numeric',
                         hour: 'numeric',
                         minute: '2-digit',
+                        timeZoneName: 'short',
                       })}</p>
                     )}
                   </div>

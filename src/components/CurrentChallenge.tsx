@@ -36,6 +36,7 @@ export default function CurrentChallenge({
                   day: 'numeric',
                   hour: 'numeric',
                   minute: '2-digit',
+                  timeZoneName: 'short',
                 }) : 'TBD'}
               </p>
             </div>
@@ -66,7 +67,8 @@ export default function CurrentChallenge({
                   day: 'numeric',
                   hour: 'numeric',
                   minute: '2-digit',
-                }) + ' PT' : 'TBD';
+                  timeZoneName: 'short',
+                }) : 'TBD';
               })()}
               </span>
             </div>

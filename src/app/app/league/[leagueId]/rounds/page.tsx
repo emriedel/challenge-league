@@ -152,6 +152,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                               day: 'numeric',
                               hour: 'numeric',
                               minute: '2-digit',
+                              timeZoneName: 'short',
                             })
                           : 'Date not available'
                         }
