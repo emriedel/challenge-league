@@ -1,5 +1,5 @@
 import { db } from './db';
-import { isPhaseExpired, getNextPhase } from './phaseCalculations';
+import { isPhaseExpired, getNextPhase, willPhaseExpireInNextCronRun } from './phaseCalculations';
 import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -116,11 +116,114 @@ async function calculateVoteResults(promptId: string) {
   }
 }
 
+/**
+ * Send 24-hour warning notifications for phases that will expire in the next cron run
+ */
+async function send24HourWarningNotifications() {
+  console.log('📢 Checking for 24-hour warning notifications...');
+  
+  try {
+    // Get all ACTIVE and VOTING prompts that haven't already sent warnings
+    const activePrompts = await db.prompt.findMany({
+      where: {
+        status: 'ACTIVE',
+        submissionWarningNotificationSent: false,
+      },
+      include: {
+        league: true,
+      },
+    });
+
+    const votingPrompts = await db.prompt.findMany({
+      where: {
+        status: 'VOTING',
+        votingWarningNotificationSent: false,
+      },
+      include: {
+        league: true,
+      },
+    });
+
+    // Check ACTIVE prompts for submission deadline warnings
+    for (const prompt of activePrompts) {
+      const leagueSettings = {
+        submissionDays: prompt.league.submissionDays,
+        votingDays: prompt.league.votingDays,
+        votesPerPlayer: prompt.league.votesPerPlayer,
+      };
+
+      if (willPhaseExpireInNextCronRun(prompt, leagueSettings)) {
+        console.log(`⚠️ Sending 24h submission warning for: "${prompt.text}"`);
+        
+        try {
+          const notificationData = createNotificationData('submission-deadline-24h', {
+            promptText: prompt.text,
+            leagueName: prompt.league.name,
+            leagueId: prompt.leagueId,
+          });
+          
+          await sendNotificationToLeague(prompt.leagueId, notificationData);
+          
+          // Mark warning as sent
+          await db.prompt.update({
+            where: { id: prompt.id },
+            data: { submissionWarningNotificationSent: true },
+          });
+          
+          console.log(`📱 Sent submission deadline warning for: "${prompt.text}"`);
+        } catch (notificationError) {
+          console.error(`❌ Failed to send submission warning for "${prompt.text}":`, notificationError);
+        }
+      }
+    }
+
+    // Check VOTING prompts for voting deadline warnings
+    for (const prompt of votingPrompts) {
+      const leagueSettings = {
+        submissionDays: prompt.league.submissionDays,
+        votingDays: prompt.league.votingDays,
+        votesPerPlayer: prompt.league.votesPerPlayer,
+      };
+
+      if (willPhaseExpireInNextCronRun(prompt, leagueSettings)) {
+        console.log(`⚠️ Sending 24h voting warning for: "${prompt.text}"`);
+        
+        try {
+          const notificationData = createNotificationData('voting-deadline-24h', {
+            promptText: prompt.text,
+            leagueName: prompt.league.name,
+            leagueId: prompt.leagueId,
+          });
+          
+          await sendNotificationToLeague(prompt.leagueId, notificationData);
+          
+          // Mark warning as sent
+          await db.prompt.update({
+            where: { id: prompt.id },
+            data: { votingWarningNotificationSent: true },
+          });
+          
+          console.log(`📱 Sent voting deadline warning for: "${prompt.text}"`);
+        } catch (notificationError) {
+          console.error(`❌ Failed to send voting warning for "${prompt.text}":`, notificationError);
+        }
+      }
+    }
+    
+    console.log('✅ 24-hour warning notifications check completed');
+  } catch (error) {
+    console.error('❌ Error checking 24-hour warning notifications:', error);
+  }
+}
+
 export async function processPromptQueue() {
   const now = new Date();
   
   try {
     console.log('🔄 Processing 2-phase prompt queue...');
+
+    // Step 0: Send 24-hour warning notifications before phase transitions
+    await send24HourWarningNotifications();
 
     // Step 1: Move ACTIVE prompts to VOTING when submission window ends
     const activePrompts = await db.prompt.findMany({
@@ -155,7 +258,8 @@ export async function processPromptQueue() {
         try {
           const notificationData = createNotificationData('voting-available', {
             promptText: prompt.text,
-            leagueName: 'Your League' // TODO: Get actual league name
+            leagueName: 'Your League', // TODO: Get actual league name
+            leagueId: prompt.leagueId
           });
           
           await sendNotificationToLeague(prompt.leagueId, notificationData);
@@ -233,7 +337,8 @@ export async function processPromptQueue() {
           try {
             const notificationData = createNotificationData('new-prompt-available', {
               promptText: nextPrompt.text,
-              leagueName: 'Your League' // TODO: Get actual league name
+              leagueName: 'Your League', // TODO: Get actual league name
+              leagueId: league.id
             });
             
             await sendNotificationToLeague(league.id, notificationData);

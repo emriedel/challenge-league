@@ -22,6 +22,7 @@ const testNotification = async ({ req, session }: AuthenticatedApiContext) => {
     const notificationData = createNotificationData(type, {
       promptText: promptText || 'This is a test notification for the Challenge League app!',
       leagueName: 'Test League',
+      leagueId: 'test-league-id',
       hoursLeft: 24
     });
 

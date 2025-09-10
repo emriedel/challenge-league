@@ -196,84 +196,63 @@ export function createNotificationData(
   context: {
     promptText?: string;
     leagueName?: string;
+    leagueId?: string;
     hoursLeft?: number;
   }
 ): NotificationData {
-  const { promptText, leagueName, hoursLeft } = context;
+  const { promptText, leagueName, leagueId, hoursLeft } = context;
 
   switch (type) {
     case 'new-prompt-available':
       return {
-        title: '🎯 New Challenge Available!',
-        body: promptText 
-          ? `"${promptText}" - Submit your response now!`
-          : 'A new creative challenge is ready for you!',
+        title: 'A New Challenge Is Available!',
+        body: promptText || 'A new creative challenge is ready for you!',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'new-prompt',
         data: { 
-          url: '/?tab=submit',
+          url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'new-prompt'
-        },
-        actions: [
-          { action: 'submit', title: 'Submit Response' },
-          { action: 'view', title: 'View Challenge' }
-        ]
+        }
       };
 
     case 'submission-deadline-24h':
       return {
-        title: '⏰ 24 Hours Left to Submit!',
-        body: promptText 
-          ? `Don't forget to submit your response to "${promptText}"`
-          : 'Submission deadline is approaching - submit your response now!',
+        title: '24 Hours Left to Submit!',
+        body: promptText || 'Submission deadline is approaching - submit your response now!',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'submission-reminder',
         data: { 
-          url: '/?tab=submit',
+          url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'submission-reminder'
-        },
-        actions: [
-          { action: 'submit', title: 'Submit Now' }
-        ]
+        }
       };
 
     case 'voting-available':
       return {
-        title: '🗳️ Voting is Open!',
-        body: promptText 
-          ? `Vote on responses for "${promptText}"`
-          : 'Vote on the latest challenge submissions!',
+        title: 'Voting is Open!',
+        body: promptText || 'Vote on the latest challenge submissions!',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-open',
         data: { 
-          url: '/?tab=vote',
+          url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'voting-open'
-        },
-        actions: [
-          { action: 'vote', title: 'Vote Now' },
-          { action: 'view', title: 'View Submissions' }
-        ]
+        }
       };
 
     case 'voting-deadline-24h':
       return {
-        title: '⏰ 24 Hours Left to Vote!',
-        body: promptText 
-          ? `Cast your votes for "${promptText}" before time runs out!`
-          : 'Voting deadline is approaching - make sure to vote!',
+        title: '24 Hours Left to Vote!',
+        body: promptText || 'Voting deadline is approaching - make sure to vote!',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-reminder',
         data: { 
-          url: '/?tab=vote',
+          url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'voting-reminder'
-        },
-        actions: [
-          { action: 'vote', title: 'Vote Now' }
-        ]
+        }
       };
 
     default:

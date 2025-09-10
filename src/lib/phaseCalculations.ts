@@ -160,3 +160,17 @@ export function getRealisticPhaseEndTime(prompt: PromptWithPhase, leagueSettings
   // Find the next cron execution after the theoretical end time
   return getNextCronExecution(theoreticalEndTime);
 }
+
+/**
+ * Check if a phase will expire in the next cron run (24 hours)
+ * Used to determine when to send 24-hour warning notifications
+ */
+export function willPhaseExpireInNextCronRun(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): boolean {
+  const nextCronTime = getNextCronExecution();
+  const phaseEndTime = getPhaseEndTime(prompt, leagueSettings);
+  
+  if (!phaseEndTime) return false;
+  
+  // Phase will expire if its end time is before or at the next cron run
+  return phaseEndTime <= nextCronTime;
+}

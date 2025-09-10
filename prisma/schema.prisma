@@ -69,6 +69,10 @@ model Prompt {
   queueOrder     Int          // Order in the queue (lower numbers = sooner)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  
+  // 24-hour warning notification tracking
+  submissionWarningNotificationSent Boolean @default(false)
+  votingWarningNotificationSent     Boolean @default(false)
 
   leagueId    String
   league      League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
