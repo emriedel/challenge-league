@@ -3,7 +3,7 @@ import { isPhaseExpired, getNextPhase, willPhaseExpireInNextCronRun } from './ph
 import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import { sendNotificationToLeague, createNotificationData } from './pushNotifications';
+import { sendNotificationToLeague, sendNotificationToUser, createNotificationData } from './pushNotifications';
 
 async function cleanupOldPhotos() {
   try {
@@ -117,7 +117,38 @@ async function calculateVoteResults(promptId: string) {
 }
 
 /**
+ * Send targeted notifications to users who haven't completed required actions
+ */
+async function sendTargetedNotificationToUsers(
+  leagueId: string,
+  userIds: string[],
+  notificationData: any
+) {
+  if (userIds.length === 0) {
+    console.log('No users need to be notified');
+    return;
+  }
+
+  let totalSent = 0;
+  let totalFailed = 0;
+
+  for (const userId of userIds) {
+    try {
+      const result = await sendNotificationToUser(userId, notificationData);
+      totalSent += result.sent;
+      totalFailed += result.failed;
+    } catch (error) {
+      console.error(`Failed to send notification to user ${userId}:`, error);
+      totalFailed++;
+    }
+  }
+
+  console.log(`📱 Targeted notification summary: ${totalSent} sent, ${totalFailed} failed to ${userIds.length} users`);
+}
+
+/**
  * Send 24-hour warning notifications for phases that will expire in the next cron run
+ * Only sends to users who haven't completed the required action
  */
 async function send24HourWarningNotifications() {
   console.log('📢 Checking for 24-hour warning notifications...');
@@ -156,21 +187,51 @@ async function send24HourWarningNotifications() {
         console.log(`⚠️ Sending 24h submission warning for: "${prompt.text}"`);
         
         try {
-          const notificationData = createNotificationData('submission-deadline-24h', {
-            promptText: prompt.text,
-            leagueName: prompt.league.name,
-            leagueId: prompt.leagueId,
+          // Get league members who haven't submitted yet
+          const leagueMembers = await db.leagueMembership.findMany({
+            where: {
+              leagueId: prompt.leagueId,
+              isActive: true,
+            },
+            include: {
+              user: true,
+            },
           });
+
+          // Find users who haven't submitted to this prompt
+          const usersWhoSubmitted = await db.response.findMany({
+            where: {
+              promptId: prompt.id,
+            },
+            select: {
+              userId: true,
+            },
+          });
+
+          const submittedUserIds = new Set(usersWhoSubmitted.map(r => r.userId));
+          const usersWhoNeedToSubmit = leagueMembers
+            .filter(member => !submittedUserIds.has(member.userId))
+            .map(member => member.userId);
+
+          if (usersWhoNeedToSubmit.length > 0) {
+            const notificationData = createNotificationData('submission-deadline-24h', {
+              promptText: prompt.text,
+              leagueName: prompt.league.name,
+              leagueId: prompt.leagueId,
+            });
+            
+            await sendTargetedNotificationToUsers(prompt.leagueId, usersWhoNeedToSubmit, notificationData);
+            console.log(`📱 Sent submission deadline warning to ${usersWhoNeedToSubmit.length} users who haven't submitted for: "${prompt.text}"`);
+          } else {
+            console.log(`ℹ️ All users have already submitted for: "${prompt.text}" - no notifications sent`);
+          }
           
-          await sendNotificationToLeague(prompt.leagueId, notificationData);
-          
-          // Mark warning as sent
+          // Mark warning as sent regardless (to prevent repeated processing)
           await db.prompt.update({
             where: { id: prompt.id },
             data: { submissionWarningNotificationSent: true },
           });
           
-          console.log(`📱 Sent submission deadline warning for: "${prompt.text}"`);
         } catch (notificationError) {
           console.error(`❌ Failed to send submission warning for "${prompt.text}":`, notificationError);
         }
@@ -189,21 +250,58 @@ async function send24HourWarningNotifications() {
         console.log(`⚠️ Sending 24h voting warning for: "${prompt.text}"`);
         
         try {
-          const notificationData = createNotificationData('voting-deadline-24h', {
-            promptText: prompt.text,
-            leagueName: prompt.league.name,
-            leagueId: prompt.leagueId,
+          // Get league members who haven't completed their voting yet
+          const leagueMembers = await db.leagueMembership.findMany({
+            where: {
+              leagueId: prompt.leagueId,
+              isActive: true,
+            },
+            include: {
+              user: true,
+            },
           });
+
+          // Find users who haven't used all their votes for this prompt
+          const maxVotesPerUser = prompt.league.votesPerPlayer;
+          const userVoteCounts = await db.vote.groupBy({
+            by: ['voterId'],
+            where: {
+              response: {
+                promptId: prompt.id,
+              },
+            },
+            _count: {
+              id: true,
+            },
+          });
+
+          const userVoteMap = new Map(userVoteCounts.map(v => [v.voterId, v._count.id]));
+          const usersWhoNeedToVote = leagueMembers
+            .filter(member => {
+              const votesUsed = userVoteMap.get(member.userId) || 0;
+              return votesUsed < maxVotesPerUser;
+            })
+            .map(member => member.userId);
+
+          if (usersWhoNeedToVote.length > 0) {
+            const notificationData = createNotificationData('voting-deadline-24h', {
+              promptText: prompt.text,
+              leagueName: prompt.league.name,
+              leagueId: prompt.leagueId,
+            });
+            
+            await sendTargetedNotificationToUsers(prompt.leagueId, usersWhoNeedToVote, notificationData);
+            console.log(`📱 Sent voting deadline warning to ${usersWhoNeedToVote.length} users who haven't completed voting for: "${prompt.text}"`);
+          } else {
+            console.log(`ℹ️ All users have completed their voting for: "${prompt.text}" - no notifications sent`);
+          }
           
-          await sendNotificationToLeague(prompt.leagueId, notificationData);
-          
-          // Mark warning as sent
+          // Mark warning as sent regardless (to prevent repeated processing)
           await db.prompt.update({
             where: { id: prompt.id },
             data: { votingWarningNotificationSent: true },
           });
           
-          console.log(`📱 Sent voting deadline warning for: "${prompt.text}"`);
         } catch (notificationError) {
           console.error(`❌ Failed to send voting warning for "${prompt.text}":`, notificationError);
         }
