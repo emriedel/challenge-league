@@ -172,14 +172,14 @@ test.describe('Complete User Journey - Full App Flow', () => {
         await castVotes(page1, leagueId);
         console.log('✅ Admin cast votes');
       } catch (error) {
-        console.log(`⚠️ Admin voting: ${error.message}`);
+        console.log(`⚠️ Admin voting: ${error instanceof Error ? error.message : String(error)}`);
       }
       
       try {
         await castVotes(page2, leagueId);
         console.log('✅ Member cast votes');
       } catch (error) {
-        console.log(`⚠️ Member voting: ${error.message}`);
+        console.log(`⚠️ Member voting: ${error instanceof Error ? error.message : String(error)}`);
       }
       
       // === STEP 10: Transition to next prompt (results processing) ===

@@ -668,7 +668,7 @@ export async function checkForConsoleErrors(page: Page): Promise<string[]> {
   });
   
   page.on('pageerror', (error) => {
-    errors.push(`Page error: ${error.message}`);
+    errors.push(`Page error: ${error instanceof Error ? error.message : String(error)}`);
   });
   
   return errors;

@@ -140,7 +140,7 @@ export async function cleanupTestDb(): Promise<void> {
           await adminDb.$disconnect();
           console.log('✅ Test database dropped');
         } catch (error) {
-          console.log('⚠️ Could not drop test database (may not exist):', error.message);
+          console.log('⚠️ Could not drop test database (may not exist):', error instanceof Error ? error.message : String(error));
         }
       }
     } catch (error) {
@@ -183,7 +183,7 @@ export async function cleanupOrphanedTestDbs(): Promise<void> {
     await adminDb.$disconnect();
   } catch (error) {
     // Silent cleanup failure is okay
-    console.log('⚠️ Could not cleanup orphaned databases:', error.message);
+    console.log('⚠️ Could not cleanup orphaned databases:', error instanceof Error ? error.message : String(error));
   }
 }
 

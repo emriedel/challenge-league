@@ -114,7 +114,7 @@ test.describe('Simple User Flow', () => {
     });
     
     page.on('pageerror', (error) => {
-      errors.push(`Page error: ${error.message}`);
+      errors.push(`Page error: ${error instanceof Error ? error.message : String(error)}`);
     });
     
     // Visit key pages
