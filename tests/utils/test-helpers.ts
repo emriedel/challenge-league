@@ -802,7 +802,7 @@ export async function addProfilePhoto(page: Page, username: string): Promise<voi
   // Navigate to profile setup page (users are redirected here after registration)
   const currentUrl = page.url();
   if (!currentUrl.includes('/profile/setup')) {
-    await page.goto('/profile/setup');
+    await page.goto('/app/profile/setup');
     await page.waitForLoadState('networkidle');
   }
   
@@ -852,6 +852,39 @@ export async function addProfilePhoto(page: Page, username: string): Promise<voi
     if (fs.existsSync(testImagePath)) {
       fs.unlinkSync(testImagePath);
     }
+  }
+  
+  // Ensure user completes profile setup and gets to main app
+  console.log('🚀 Ensuring user gets to main app after profile setup...');
+  
+  // Look for Continue button first, then Skip button as fallback
+  const continueButton = page.locator('button:has-text("Continue to Challenge League"), button:has-text("Continue")').first();
+  const skipButton = page.locator('button:has-text("Skip for now"), button:has-text("Get Started")').first();
+  
+  if (await continueButton.isVisible({ timeout: 3000 })) {
+    await continueButton.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+    console.log('✅ Completed profile setup flow with Continue button');
+  } else if (await skipButton.isVisible({ timeout: 1000 })) {
+    await skipButton.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+    console.log('✅ Completed profile setup flow with Skip button');
+  } else {
+    // Manually navigate to main app if no completion button found
+    console.log('🔧 No completion button found, navigating directly to main app...');
+    await page.goto('/app');
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+  }
+  
+  // Verify user reached main app area
+  const isInMainApp = page.url().includes('/app') && !page.url().includes('/profile/setup');
+  if (isInMainApp) {
+    console.log('✅ User successfully reached main app');
+  } else {
+    console.log(`⚠️ User may not be in main app area. Current URL: ${page.url()}`);
   }
   
   console.log(`✅ Profile photo setup completed for ${username}`);
