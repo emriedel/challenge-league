@@ -112,7 +112,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/app/auth/signin',
   },
   debug: process.env.NODE_ENV === 'development',
   // Ensure cookies work across deployments

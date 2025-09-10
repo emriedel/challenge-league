@@ -24,13 +24,13 @@ export default function LandingPage() {
             </div>
             <div className="flex space-x-4">
               <Link
-                href="/auth/signin"
+                href="/app/auth/signin"
                 className="px-4 py-2 text-app-text hover:text-app-text-secondary transition-colors"
               >
                 Sign in
               </Link>
               <Link
-                href="/auth/signup"
+                href="/app/auth/signup"
                 className="px-4 py-2 bg-[#3a8e8c] hover:bg-[#2d726f] text-white rounded-lg transition-colors"
               >
                 Sign up
