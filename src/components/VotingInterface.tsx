@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import PhotoFeedItem from './PhotoFeedItem';
 import CommentSection from './CommentSection';
+import FloatingVoteCounter from './FloatingVoteCounter';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING_CONFIG } from '@/constants/phases';
 import { getVotingOrder } from '@/lib/ordering';
@@ -24,6 +25,8 @@ export default function VotingInterface({
   const [heartAnimation, setHeartAnimation] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [hasSubmittedVotes, setHasSubmittedVotes] = useState(false);
+  const [showFloatingCounter, setShowFloatingCounter] = useState(false);
+  const bottomSectionRef = useRef<HTMLDivElement>(null);
   
   // Create deterministic user-specific ordering for voting
   const orderedResponses = useMemo(() => {
@@ -48,6 +51,31 @@ export default function VotingInterface({
       setHasSubmittedVotes(false);
     }
   }, [votingData.existingVotes]);
+  
+  // Intersection Observer to detect when bottom section is visible
+  useEffect(() => {
+    const currentBottomSection = bottomSectionRef.current;
+    if (!currentBottomSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show floating counter when bottom section is NOT visible
+        setShowFloatingCounter(!entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of bottom section is visible
+        rootMargin: '0px 0px -50px 0px' // Add some margin to trigger earlier
+      }
+    );
+
+    observer.observe(currentBottomSection);
+
+    return () => {
+      if (currentBottomSection) {
+        observer.unobserve(currentBottomSection);
+      }
+    };
+  }, []);
   
   // Calculate required votes as minimum of available submissions and max votes allowed
   const maxVotesAllowed = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
@@ -220,7 +248,7 @@ export default function VotingInterface({
       )}
 
       {/* Submit Votes */}
-      <div className="bg-app-bg border-t border-app-border py-6 pb-8">
+      <div ref={bottomSectionRef} className="bg-app-bg border-t border-app-border py-6 pb-8">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="mb-4">
             <span className="text-lg font-medium text-app-text">
@@ -294,6 +322,13 @@ export default function VotingInterface({
           </div>
         </div>
       )}
+      
+      {/* Floating Vote Counter */}
+      <FloatingVoteCounter
+        votesCount={getTotalVotes()}
+        maxVotes={requiredVotes}
+        isVisible={showFloatingCounter}
+      />
     </div>
   );
 }
