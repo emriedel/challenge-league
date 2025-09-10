@@ -4,7 +4,7 @@
   "description": "Creative competition leagues for friends and communities",
   "start_url": "/app",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#3a8e8c",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
   "scope": "/app/",
@@ -21,6 +21,12 @@
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
