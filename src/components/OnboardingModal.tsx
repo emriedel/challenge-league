@@ -284,7 +284,7 @@ export default function OnboardingModal({ isOpen, onClose, onComplete, isNewUser
       
       {/* Modal */}
       <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-        <div className="bg-app-surface border border-app-border rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="bg-app-surface border border-app-border rounded-2xl shadow-2xl w-full max-w-lg h-[80vh] flex flex-col overflow-hidden">
           
           {/* Header */}
           <div className="flex items-center justify-center p-6 border-b border-app-border bg-app-bg flex-shrink-0">
