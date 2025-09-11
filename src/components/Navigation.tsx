@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { League } from '@/types/league';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileModal from './ProfileModal';
+import OnboardingModal from './OnboardingModal';
 import { rubik } from '@/lib/fonts';
 
 
@@ -20,6 +21,7 @@ export default function Navigation() {
   const [currentLeague, setCurrentLeague] = useState<League | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -118,18 +120,29 @@ export default function Navigation() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/app" className="flex items-center space-x-3 hover:opacity-80">
-            <Image
-              src="/logo.png"
-              alt="Challenge League"
-              width={40}
-              height={40}
-              className="w-10 h-10"
-            />
-            <span className={`text-2xl font-medium text-white ${rubik.className} sm:block hidden`}>
-              Challenge League
-            </span>
-          </Link>
+          <div className="flex items-center space-x-3">
+            <Link href="/app" className="flex items-center space-x-3 hover:opacity-80">
+              <Image
+                src="/logo.png"
+                alt="Challenge League"
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
+              <span className={`text-2xl font-medium text-white ${rubik.className} sm:block hidden`}>
+                Challenge League
+              </span>
+            </Link>
+            <button
+              onClick={() => setIsOnboardingModalOpen(true)}
+              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+              title="View onboarding guide"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'translateY(-0.5px)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -337,6 +350,12 @@ export default function Navigation() {
     <ProfileModal 
       isOpen={isProfileModalOpen} 
       onClose={() => setIsProfileModalOpen(false)} 
+    />
+    
+    {/* Onboarding Modal */}
+    <OnboardingModal 
+      isOpen={isOnboardingModalOpen} 
+      onClose={() => setIsOnboardingModalOpen(false)} 
     />
   </>
   );
