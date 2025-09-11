@@ -25,6 +25,7 @@ export default function HomePage() {
   // Handle onboarding for new users
   const {
     showOnboarding,
+    isNewUserFlow,
     markOnboardingComplete,
     closeOnboarding,
   } = useOnboarding();
@@ -214,6 +215,7 @@ export default function HomePage() {
         isOpen={showOnboarding} 
         onClose={closeOnboarding}
         onComplete={markOnboardingComplete}
+        isNewUserFlow={isNewUserFlow}
       />
     </>
   );

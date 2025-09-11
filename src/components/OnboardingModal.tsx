@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface OnboardingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
+  isNewUserFlow?: boolean;
 }
 
 const ONBOARDING_STEPS = [
@@ -204,8 +206,9 @@ const ONBOARDING_STEPS = [
   }
 ];
 
-export default function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModalProps) {
+export default function OnboardingModal({ isOpen, onClose, onComplete, isNewUserFlow = false }: OnboardingModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const { requestPermission, subscribe } = usePushNotifications();
 
   // Close modal on ESC key
   useEffect(() => {
@@ -239,11 +242,27 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Mark onboarding as completed in localStorage
     localStorage.setItem('onboardingCompleted', 'true');
     onComplete?.();
     onClose();
+    
+    // For new users, trigger notifications and PWA install prompt
+    if (isNewUserFlow) {
+      // Small delay to let the modal close first
+      setTimeout(async () => {
+        try {
+          // Request push notification permission and subscribe
+          const granted = await requestPermission();
+          if (granted) {
+            await subscribe();
+          }
+        } catch (error) {
+          console.log('Failed to setup notifications:', error);
+        }
+      }, 500);
+    }
   };
 
   // Reset to first step when modal opens

@@ -355,7 +355,8 @@ export default function Navigation() {
     {/* Onboarding Modal */}
     <OnboardingModal 
       isOpen={isOnboardingModalOpen} 
-      onClose={() => setIsOnboardingModalOpen(false)} 
+      onClose={() => setIsOnboardingModalOpen(false)}
+      isNewUserFlow={false}
     />
   </>
   );
