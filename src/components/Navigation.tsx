@@ -121,7 +121,7 @@ export default function Navigation() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            <Link href="/app" className="flex items-center space-x-3 hover:opacity-80">
+            <Link href="/app" className="flex items-center space-x-3 hover:opacity-80 select-none">
               <Image
                 src="/logo.png"
                 alt="Challenge League"
@@ -129,13 +129,13 @@ export default function Navigation() {
                 height={40}
                 className="w-10 h-10"
               />
-              <span className={`text-2xl font-medium text-white ${rubik.className} sm:block hidden`}>
+              <span className={`text-2xl font-medium text-white ${rubik.className} sm:block hidden select-none`}>
                 Challenge League
               </span>
             </Link>
             <button
               onClick={() => setIsOnboardingModalOpen(true)}
-              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors select-none touch-manipulation"
               title="View onboarding guide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'translateY(-0.5px)' }}>
@@ -150,7 +150,7 @@ export default function Navigation() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                className="flex items-center text-white/80 hover:text-white"
+                className="flex items-center text-white/80 hover:text-white select-none touch-manipulation"
               >
                 {currentLeague ? currentLeague.name : 'Select League'}
                 <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,16 +171,16 @@ export default function Navigation() {
                           <Link
                             key={league.id}
                             href={`/app/league/${league.id}`}
-                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
+                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <div className="flex justify-between items-center">
-                              <span>{league.name}</span>
+                              <span className="select-none">{league.name}</span>
                               {league.isOwner && (
-                                <span className="text-xs text-app-info">Owner</span>
+                                <span className="text-xs text-app-info select-none">Owner</span>
                               )}
                             </div>
-                            <div className="text-xs text-app-text-muted">
+                            <div className="text-xs text-app-text-muted select-none">
                               {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
                             </div>
                           </Link>
@@ -188,14 +188,14 @@ export default function Navigation() {
                         <hr className="my-1 border-app-border" />
                         <Link
                           href="/app"
-                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light select-none touch-manipulation"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Create New League
                         </Link>
                         <Link
                           href="/app"
-                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light select-none touch-manipulation"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Join League
@@ -209,14 +209,14 @@ export default function Navigation() {
                         <hr className="my-1 border-app-border" />
                         <Link
                           href="/app"
-                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light"
+                          className="block px-4 py-2 text-sm text-app-info hover:bg-app-surface-light select-none touch-manipulation"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Create New League
                         </Link>
                         <Link
                           href="/app"
-                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light"
+                          className="block px-4 py-2 text-sm text-app-success hover:bg-app-surface-light select-none touch-manipulation"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           + Join League
@@ -232,7 +232,7 @@ export default function Navigation() {
               {/* Profile Picture */}
               <button 
                 onClick={() => setIsProfileModalOpen(true)}
-                className="flex items-center hover:opacity-80 transition-opacity"
+                className="flex items-center hover:opacity-80 transition-opacity select-none touch-manipulation"
               >
                 <ProfileAvatar 
                   username={session?.user?.username || session?.user?.email || 'User'}
@@ -250,9 +250,9 @@ export default function Navigation() {
             <div className="relative" ref={mobileDropdownRef}>
               <button
                 onClick={() => setIsLeaguesOpen(!isLeaguesOpen)}
-                className="flex items-center text-white/80 hover:text-white"
+                className="flex items-center text-white/80 hover:text-white select-none touch-manipulation"
               >
-                <span className="text-sm">{currentLeague ? currentLeague.name : 'Select League'}</span>
+                <span className="text-sm select-none">{currentLeague ? currentLeague.name : 'Select League'}</span>
                 <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -271,7 +271,7 @@ export default function Navigation() {
                         <Link
                           key={league.id}
                           href={`/app/league/${league.id}`}
-                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light"
+                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <div className="flex justify-between items-center">
@@ -331,7 +331,7 @@ export default function Navigation() {
             {/* Profile Picture */}
             <button 
               onClick={() => setIsProfileModalOpen(true)}
-              className="flex items-center hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity select-none touch-manipulation"
             >
               <ProfileAvatar 
                 username={session?.user?.username || session?.user?.email || 'User'}

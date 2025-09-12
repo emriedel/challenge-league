@@ -124,12 +124,12 @@ const BottomNavigation = memo(function BottomNavigation() {
             <button
               key={item.name}
               onClick={(e) => handleTabClick(item.href, isActive, item.name, e)}
-              className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 ${
+              className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 select-none touch-manipulation ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
             >
               {item.icon(isActive)}
-              <span className={`text-xs mt-1 ${isActive ? 'text-white font-medium' : 'text-white/70'}`}>
+              <span className={`text-xs mt-1 select-none ${isActive ? 'text-white font-medium' : 'text-white/70'}`}>
                 {item.name}
               </span>
             </button>
