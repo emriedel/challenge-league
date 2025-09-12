@@ -247,7 +247,7 @@ export function useTransitionPhaseMutation(leagueId?: string) {
       return response.json();
     },
     onSuccess: () => {
-      // Refresh multiple queries since phase transition affects various data
+      // Phase transitions affect everything - invalidate all queries for this league
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.leagueSettings(leagueId!) 
       });
@@ -259,6 +259,12 @@ export function useTransitionPhaseMutation(leagueId?: string) {
       });
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.votingData(leagueId!) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueRounds(leagueId!) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueStandings(leagueId!) 
       });
     },
   });
@@ -292,21 +298,24 @@ export function useUpdateLeagueSettingsMutation(leagueId?: string) {
       return response.json();
     },
     onSuccess: () => {
-      // Refresh league settings data
+      // Invalidate ALL league-related queries to ensure UI consistency
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.leagueSettings(leagueId!) 
       });
-      // Refresh main league data since settings are part of league data
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.league(leagueId!) 
       });
-      // Also refresh voting data since votesPerPlayer might have changed
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.votingData(leagueId!) 
       });
-      // Refresh league prompt data since phase calculations use the settings
       queryClient.invalidateQueries({ 
         queryKey: queryKeys.leaguePrompt(leagueId!) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueRounds(leagueId!) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.leagueStandings(leagueId!) 
       });
     },
   });

@@ -49,10 +49,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Get current prompt (ACTIVE or VOTING) for this league first
+    // Important: Only show ACTIVE prompts for started leagues
     const currentPrompt = await db.prompt.findFirst({
       where: {
         status: {
-          in: ['ACTIVE', 'VOTING']
+          in: league.isStarted ? ['ACTIVE', 'VOTING'] : ['VOTING'] // Only VOTING for unstarted leagues
         },
         leagueId: league.id,
       },
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       const newCurrentPrompt = await db.prompt.findFirst({
         where: {
           status: {
-            in: ['ACTIVE', 'VOTING']
+            in: league.isStarted ? ['ACTIVE', 'VOTING'] : ['VOTING'] // Only VOTING for unstarted leagues
           },
           leagueId: league.id,
         },
