@@ -135,7 +135,7 @@ export default function Navigation() {
             </Link>
             <button
               onClick={() => setIsOnboardingModalOpen(true)}
-              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors select-none touch-manipulation"
+              className="w-7 h-7 min-w-7 min-h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors select-none touch-manipulation flex-shrink-0"
               title="View onboarding guide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'translateY(-0.5px)' }}>
