@@ -78,6 +78,9 @@ model Prompt {
   league      League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   responses   Response[]
 
+  // Database constraint: Partial unique index prevents multiple ACTIVE/VOTING prompts per league
+  // See migration: 20250912012903_prevent_multiple_active_prompts
+  // CREATE UNIQUE INDEX "idx_one_active_prompt_per_league" ON "prompts" ("leagueId") WHERE "status" IN ('ACTIVE', 'VOTING')
   @@map("prompts")
 }
 
