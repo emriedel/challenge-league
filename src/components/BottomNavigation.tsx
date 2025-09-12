@@ -113,7 +113,7 @@ const BottomNavigation = memo(function BottomNavigation() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-app-bg border-t border-app-border">
-      <div className="flex items-center py-2 px-2 pb-4">
+      <div className="flex items-center py-1 px-1 pb-6">
         {navItems.map((item) => {
           const isActive = pathname === item.href || 
                          (item.name === 'Challenge' && currentLeagueId && pathname === `/app/league/${currentLeagueId}`) ||
@@ -124,7 +124,7 @@ const BottomNavigation = memo(function BottomNavigation() {
             <button
               key={item.name}
               onClick={(e) => handleTabClick(item.href, isActive, item.name, e)}
-              className={`flex flex-col items-center py-2 px-1 rounded-lg transition-colors flex-1 select-none touch-manipulation ${
+              className={`flex flex-col items-center py-2 px-0.5 rounded-lg transition-colors flex-1 select-none touch-manipulation ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
               }`}
             >
