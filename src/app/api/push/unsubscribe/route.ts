@@ -25,15 +25,14 @@ const unsubscribe = async ({ req, session }: AuthenticatedApiContext) => {
       }
     });
 
-    if (deleted.count === 0) {
-      const error = new Error('Subscription not found');
-      (error as any).status = 404;
-      throw error;
-    }
-
+    // Return success regardless of whether a subscription was found
+    // This makes the operation idempotent - unsubscribing when already unsubscribed is a no-op
     return NextResponse.json({ 
       success: true,
-      message: 'Push subscription removed successfully'
+      message: deleted.count > 0 
+        ? 'Push subscription removed successfully'
+        : 'No subscription found to remove',
+      removed: deleted.count
     });
 
   } catch (error) {

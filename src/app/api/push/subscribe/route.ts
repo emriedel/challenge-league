@@ -24,6 +24,19 @@ const subscribe = async ({ req, session }: AuthenticatedApiContext) => {
   }
 
   try {
+    // First verify the user exists to avoid foreign key constraint violations
+    const userExists = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true }
+    });
+
+    if (!userExists) {
+      console.error('User not found in database:', session.user.id);
+      const error = new Error('User not found. Please sign in again.');
+      (error as any).status = 401;
+      throw error;
+    }
+
     // Create or update push subscription
     await db.pushSubscription.upsert({
       where: {
@@ -54,6 +67,19 @@ const subscribe = async ({ req, session }: AuthenticatedApiContext) => {
 
   } catch (error) {
     console.error('Error saving push subscription:', error);
+    
+    // Handle specific error types
+    if (error instanceof Error && (error as any).status) {
+      throw error; // Re-throw errors with status codes
+    }
+    
+    // Check if it's a foreign key constraint violation
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
+      const apiError = new Error('User session is invalid. Please sign in again.');
+      (apiError as any).status = 401;
+      throw apiError;
+    }
+    
     const apiError = new Error('Failed to save push subscription');
     (apiError as any).status = 500;
     throw apiError;

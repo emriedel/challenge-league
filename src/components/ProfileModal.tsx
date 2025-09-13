@@ -163,7 +163,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <button
                   onClick={() => setIsEditingPhoto(!isEditingPhoto)}
                   disabled={isUploading}
-                  className="absolute -bottom-1 -right-1 p-2 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700"
+                  className="absolute -bottom-1 -right-1 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-[#3a8e8c] text-white hover:bg-[#2f7371] w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] flex items-center justify-center p-0"
                 >
                   {isUploading ? (
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           <div className="space-y-3">
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors font-medium shadow-sm"
+              className="w-full flex items-center justify-center px-4 py-3 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] focus:outline-none focus:ring-2 focus:ring-[#8b4444] focus:ring-offset-2 transition-colors font-medium shadow-sm"
             >
               <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

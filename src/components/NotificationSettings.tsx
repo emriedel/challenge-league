@@ -34,7 +34,7 @@ export default function NotificationSettings() {
   if (!isSupported) {
     return (
       <div className="bg-app-surface-dark rounded-lg p-6 shadow-sm border border-app-border">
-        <h3 className="text-lg font-medium text-app-text mb-2">🔔 Push Notifications</h3>
+        <h3 className="text-lg font-medium text-app-text mb-2">Push Notifications</h3>
         <p className="text-app-text-muted text-sm">
           Push notifications are not supported in your browser.
         </p>
@@ -44,7 +44,7 @@ export default function NotificationSettings() {
 
   return (
     <div className="bg-app-surface-dark rounded-lg p-6 shadow-sm border border-app-border">
-      <h3 className="text-lg font-medium text-app-text mb-2">🔔 Push Notifications</h3>
+      <h3 className="text-lg font-medium text-app-text mb-2">Push Notifications</h3>
       
       <div className="space-y-4">
         <p className="text-app-text-muted text-sm">
@@ -52,37 +52,35 @@ export default function NotificationSettings() {
         </p>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {isSubscribed ? (
-              <span className="text-app-success text-sm">✅ Enabled</span>
-            ) : permission === 'denied' ? (
-              <span className="text-app-error text-sm">❌ Blocked</span>
+          <span className="text-app-text text-sm font-medium">Notifications</span>
+          
+          <div className="flex items-center space-x-3">
+            {permission === 'denied' ? (
+              <span className="text-app-error text-sm">Blocked</span>
             ) : (
-              <span className="text-app-text-subtle text-sm">🔔 Disabled</span>
-            )}
-          </div>
-
-          <div className="flex space-x-2">
-            {!isSubscribed ? (
-              <button
-                onClick={handleEnableNotifications}
-                disabled={isLoading || permission === 'denied'}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                  permission === 'denied' 
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
-                }`}
-              >
-                {isLoading ? 'Enabling...' : 'Enable'}
-              </button>
-            ) : (
-              <button
-                onClick={handleDisableNotifications}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm rounded-md border border-app-border text-app-text-muted hover:text-app-text hover:border-app-border-light transition-colors disabled:opacity-50"
-              >
-                {isLoading ? 'Disabling...' : 'Disable'}
-              </button>
+              <>
+                <span className={`text-sm ${
+                  isSubscribed ? 'text-app-text-muted' : 'text-app-text'
+                }`}>Off</span>
+                
+                <button
+                  onClick={isSubscribed ? handleDisableNotifications : handleEnableNotifications}
+                  disabled={isLoading}
+                  className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
+                    isSubscribed ? 'bg-[#3a8e8c]' : 'bg-app-border'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 shrink-0 transform rounded-full bg-white transition-transform ${
+                      isSubscribed ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+                
+                <span className={`text-sm ${
+                  isSubscribed ? 'text-app-text' : 'text-app-text-muted'
+                }`}>On</span>
+              </>
             )}
           </div>
         </div>
@@ -93,17 +91,6 @@ export default function NotificationSettings() {
           </p>
         )}
 
-        {isSubscribed && (
-          <div className="text-app-text-muted text-xs space-y-2 pt-2 border-t border-app-border">
-            <p>You&apos;ll be notified about:</p>
-            <ul className="list-disc list-inside space-y-0.5 ml-2">
-              <li>New challenges when they become available</li>
-              <li>Reminders to submit your response</li>
-              <li>When voting opens for a challenge</li>
-              <li>Reminders to cast your votes</li>
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );

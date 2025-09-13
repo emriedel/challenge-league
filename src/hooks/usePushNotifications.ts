@@ -185,9 +185,27 @@ export function usePushNotifications(): PushNotificationState & PushNotification
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Server failed to save subscription:', response.status, errorText);
-        throw new Error(`Failed to save subscription to server: ${response.status} ${errorText}`);
+        let errorMessage = `Failed to save subscription to server: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch {
+          // If response isn't JSON, try to get text
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage += ` ${errorText}`;
+            }
+          } catch {
+            // Ignore parsing errors
+          }
+        }
+        
+        console.error('❌ Server failed to save subscription:', response.status, errorMessage);
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -241,7 +259,9 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         });
 
         if (!response.ok) {
-          console.warn('Failed to remove subscription from server');
+          console.warn('Failed to remove subscription from server:', response.status);
+          // Don't throw an error here - unsubscribe from browser succeeded, 
+          // server cleanup failure shouldn't block the UI update
         }
       }
 

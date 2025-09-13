@@ -372,6 +372,9 @@ The app uses a custom Tailwind theme with semantic color names defined in `tailw
 - `text-app-error`, `bg-app-error-bg` - Error colors
 - `text-app-info` - Info color (blue)
 
+**Destructive Actions:**
+- **Muted Red**: `#8b4444` (background), `#7a3d3d` (hover) - Used for sign out buttons and other destructive actions that need to fit the app's muted aesthetic
+
 **Brand Colors:**
 - **Secondary Color**: `#3a8e8c` - App logo color, used for accent elements and calls-to-action
 - **Primary Brand**: Black/white with secondary teal accents
