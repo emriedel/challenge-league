@@ -1,253 +1,144 @@
-# 🏆 Challenge League - Creative Competition Platform
+# 🏆 Challenge League
 
-> A Taskmaster-inspired creative competition platform where players compete in weekly challenges, submit photo responses, and vote on each other's creativity.
+A Taskmaster-inspired creative competition platform where players compete in weekly challenges, submit photo responses, and vote on each other's creativity.
+
+![Challenge League](https://img.shields.io/badge/status-MVP%20Complete-brightgreen)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue)
 
 ## ✨ What is Challenge League?
 
-Challenge League transforms creative expression into an engaging competition platform. Instead of endless scrolling, players participate in structured weekly challenges that encourage creativity, skill-building, and friendly competition.
+Challenge League brings the creative spirit of Taskmaster to your friend group. Join leagues, tackle weekly creative challenges, and compete for the top spot on the leaderboard.
 
 ### 🎯 How it Works
 
-1. **Weekly Challenges** - Creative tasks like "Submit a photo of a beautiful dinner you made" or "Create something artistic with household items"
-2. **Submit & Compete** - Players have 7 days to complete the challenge and submit their photo response
-3. **Vote & Rank** - After submissions close, players distribute 3 equal-value votes among submissions
-4. **Winners & Glory** - Results are revealed with full rankings and leaderboard updates
+1. **Join a League** - Create or join a league with your friends
+2. **Get Creative** - Each week brings a new challenge to test your creativity  
+3. **Snap & Submit** - Take your best photo during the submission window
+4. **Vote & Compete** - Vote for your favorites when the voting phase opens
+5. **Climb the Leaderboard** - Earn points and track your progress over time
 
-### 🏅 Key Features
-
-- **League System**: Join the Main League and compete with everyone
-- **Diverse Challenges**: Wide variety of creative prompts covering cooking, photography, art, adventure, DIY, and more
-- **Fair Voting**: Anonymous equal-value voting system (3 votes per player)
-- **Comprehensive Stats**: Track wins, podium finishes, and total points
-- **Automatic Cycles**: Seamless progression from submission → voting → results (every 24 hours)
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
+- Docker (for PostgreSQL)
 - Git
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd challenge-league
-   ```
+```bash
+# Clone and install
+git clone <repository-url>
+cd challenge-league
+npm install
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Start PostgreSQL database
+docker compose up -d
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+# Set up database with initial migration and test data
+npm run db:init
 
-4. **Set up the database**
-   ```bash
-   npx prisma db push
-   npm run db:seed
-   ```
+# Start development server
+npm run dev
+```
 
-5. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Open your browser**
-   Navigate to `http://localhost:3000`
+Open [http://localhost:3000](http://localhost:3000) to start competing!
 
 ## 🧪 Test Accounts
 
-The seeded database includes test players for immediate exploration:
+All test accounts use password `password123`:
 
-| Email | Password | Role |
-|-------|----------|------|
-| player1@example.com | password123 | Admin |
-| player2@example.com | password123 | Player |
-| player3@example.com | password123 | Player |
-| player4@example.com | password123 | Player |
-| player5@example.com | password123 | Player |
-| player6@example.com | password123 | Player |
+- `photophoenix@example.com` - Main League Owner
+- `craftycaptain@example.com` - Photography Masters Owner  
+- `pixelpioneer@example.com` - Crafty Creators Owner
+- `artisticace@example.com` - Multi-league member
+- `creativecomet@example.com` - Multi-league member
 
-**Admin Access**: Use `player1@example.com` to access admin features at `/admin`
-
-## 🎮 Using the App
+## 🎮 Features
 
 ### For Players
+- **Creative Challenges** - Weekly prompts across categories like cooking, photography, art, and adventure
+- **Photo Submissions** - Upload photos with captions during 7-day submission windows
+- **Voting System** - Rank your top 3 favorites during 2-day voting periods
+- **Leaderboards** - Track your progress and compete for the top spot
+- **Results Gallery** - View past challenge winners and submissions
 
-1. **Sign up or log in** - Create your account and automatically join the Main League
-2. **Check the dashboard** - See current challenges, your stats, and the leaderboard
-3. **Submit responses** - Upload photos and captions for active challenges
-4. **Vote on submissions** - Rank your top 3 favorite responses when voting opens
-5. **View results** - See rankings and celebrate winners
-6. **Track progress** - Monitor your league position and performance stats
+### For League Owners
+- **League Management** - Create leagues and manage members
+- **Challenge Curation** - Add custom challenges with categories and difficulty levels
+- **Admin Controls** - Manual phase transitions and league settings
+- **Real-time Monitoring** - Track participation and engagement
 
-### For Admins
+## 🛠️ Tech Stack
 
-1. **Access admin panel** - Go to `/admin` (requires admin permissions)
-2. **Create challenges** - Add new tasks with categories and difficulty levels
-3. **Manage queue** - Reorder upcoming challenges
-4. **Monitor system** - Check prompt status and manually trigger cycles if needed
-
-## 🏗️ Technical Architecture
-
-### Tech Stack
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Backend**: Next.js API routes, NextAuth.js
-- **Database**: SQLite (dev) / PostgreSQL (prod) with Prisma ORM
+- **Backend**: Next.js API routes, NextAuth.js authentication
+- **Database**: PostgreSQL with Prisma ORM
 - **Storage**: Vercel Blob for photo uploads
-- **Deployment**: Vercel with automatic deployments
+- **Deployment**: Vercel with automated CI/CD
 
-### Key Components
-
-- **3-Phase Cycle System**: Automated progression through submission → voting → results phases (24-hour cycles)
-- **League Management**: Comprehensive player rankings and statistics
-- **Voting Engine**: Equal-value voting system with automatic rank calculation
-- **Admin Interface**: Full challenge management and system monitoring
-- **Real-time Updates**: Live status tracking and countdown timers
-
-### Database Schema Highlights
+## 📁 Project Structure
 
 ```
-Users → League Memberships → Leagues
-Users → Responses → Prompts
-Users → Votes → Responses
+src/
+├── app/                 # Next.js app router pages and API routes
+├── components/          # Reusable React components
+├── hooks/              # Custom React hooks
+├── lib/                # Database utilities and core logic
+├── types/              # TypeScript type definitions
+└── constants/          # App configuration and constants
 ```
 
-The voting system prevents self-voting and ensures fair equal-value scoring (each vote = 1 point).
+## 🔄 Competition Cycle
 
-## 🛠️ Development
+The app automatically manages 2-phase competition cycles:
 
-### Available Scripts
+- **Submission Phase** (7 days): Players submit creative photo responses
+- **Voting Phase** (2 days): Players vote for their top 3 favorites
+- **Results**: Winners announced, leaderboard updated, next challenge begins
+
+Automated cron jobs handle phase transitions every 12 hours.
+
+## 🚀 Development
+
+### Essential Commands
 
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript checks
-npm run db:seed      # Seed database with test data
+npm run lint         # Check code style
+npm run type-check   # TypeScript validation
+npm run db:reset     # Reset database with fresh migrations and test data
 ```
 
-### Database Commands
+### Database Management
 
 ```bash
-npx prisma studio       # Open database browser
-npx prisma db push      # Push schema to database
-npx prisma generate     # Regenerate Prisma client
-npm run db:seed         # Reseed with test data
+docker compose up -d     # Start PostgreSQL
+npx prisma studio        # Database browser
+npx prisma migrate dev   # Apply schema changes
+npm run db:seed         # Seed test data
 ```
 
-### Project Structure
+## 📖 Documentation
 
-```
-src/
-├── app/                 # Next.js app router pages
-│   ├── api/            # API endpoints
-│   ├── auth/           # Authentication pages
-│   ├── admin/          # Admin interface
-│   └── league/         # League pages
-├── components/         # Reusable UI components
-├── hooks/              # Custom React hooks
-├── lib/                # Utilities and database
-└── types/              # TypeScript definitions (centralized)
-```
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment instructions.
-
-**Quick Start:**
-1. **Connect repository** to Vercel
-2. **Set environment variables** in Vercel dashboard:
-   ```bash
-   DATABASE_URL="postgresql://..."           # From Neon
-   NEXTAUTH_SECRET="your-secret-key"        # Generated secret
-   NEXTAUTH_URL="https://your-app.vercel.app"
-   BLOB_READ_WRITE_TOKEN="vercel_blob_..."  # From Vercel Blob
-   CRON_SECRET="your-cron-secret"           # Generated secret
-   ```
-3. **Deploy** - Automatic deployments on push to main
-
-### Automated Competition Cycles
-
-The app includes automated cron jobs that run every 24 hours to:
-- Transition active prompts to voting phase
-- Calculate voting results and rankings  
-- Activate next scheduled challenges
-
-Configuration in `vercel.json`:
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/prompt-cycle",
-      "schedule": "0 */24 * * *"
-    }
-  ]
-}
-```
-
-## 🎨 Customization
-
-### Adding New Challenge Categories
-
-1. Update the categories list in admin components
-2. Add corresponding icons/colors in the UI components
-3. Update seed data with new category examples
-
-### Modifying Competition Rules
-
-- **Voting Duration**: Update `voteEnd` calculation in prompt queue system
-- **Point Values**: Each vote equals 1 point in the current system
-- **Cycle Timing**: Adjust cron schedule in `vercel.json` (currently 24 hours)
-
-## 🔧 Code Quality & Architecture
-
-### Type System
-- Centralized TypeScript definitions in `/src/types/`
-- Strict type checking with `npm run type-check`
-- Barrel exports for clean imports
-
-### Refactoring Roadmap
-See [CLAUDE.md](./CLAUDE.md) for high-priority refactoring tasks and architecture improvements.
+- **[Development Guide](docs/DEVELOPMENT.md)** - Detailed setup and development workflow
+- **[CLAUDE.md](CLAUDE.md)** - Complete project context for AI assistance
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🎯 Roadmap
-
-### Phase 2: Enhanced Features
-- [ ] Multiple league support
-- [ ] Achievement system and badges
-- [ ] PWA capabilities with push notifications
-- [ ] Advanced photo editing tools
-- [ ] Social sharing features
-
-### Phase 3: Mobile App
-- [ ] React Native mobile app
-- [ ] Native camera integration
-- [ ] Offline submission drafts
-- [ ] Enhanced mobile voting interface
+This project is private and proprietary.
 
 ---
 
-**Made with ❤️ for creative competition and friendly rivalry**
-
-Transform your creative energy into engaging competition with Challenge League! 🏆
+**Ready to compete?** Start your creative journey with Challenge League! 🎨📸

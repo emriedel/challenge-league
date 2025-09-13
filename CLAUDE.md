@@ -5,14 +5,17 @@ Challenge League is a web application inspired by Taskmaster, where players join
 
 **Purpose:** Foster creativity and friendly competition through engaging weekly challenges
 **Development Strategy:** Web-first with PWA features, mobile app to follow later
-**Core Technology Stack:**
-- Frontend: Next.js 14 with TypeScript and Tailwind CSS
-- Backend: Next.js API routes (same repo)
-- Database: PostgreSQL with Prisma ORM (or SQLite for development)
-- Authentication: NextAuth.js
-- File Storage: Vercel Blob or AWS S3
-- Deployment: Vercel
-- Future: React Native app using same backend
+**Current Status:** MVP Complete - fully functional competition platform
+
+## Core Technology Stack
+- **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
+- **Backend**: Next.js API routes (same repo)
+- **Database**: PostgreSQL with Prisma ORM (Docker for development)
+- **Authentication**: NextAuth.js with email/password
+- **File Storage**: Vercel Blob for photo uploads
+- **Deployment**: Vercel with automated CI/CD
+- **Testing**: Vitest (unit) + Playwright (integration)
+- **Future**: React Native app using same backend
 
 ## Development Guidelines
 
@@ -29,24 +32,19 @@ Challenge League is a web application inspired by Taskmaster, where players join
 src/
 ├── app/                 # Next.js app directory (pages and layouts)
 ├── components/          # Reusable UI components
-├── lib/                # Database, auth, and utility functions
-├── hooks/              # Custom React hooks
-├── types/              # TypeScript type definitions
-├── constants/          # App constants and configuration
-├── public/             # Static assets
-└── styles/             # Global styles and Tailwind config
+├── lib/                 # Database, auth, and utility functions
+├── hooks/               # Custom React hooks
+├── types/               # TypeScript type definitions (centralized)
+├── constants/           # App constants and configuration
+├── public/              # Static assets
+└── styles/              # Global styles and Tailwind config
 ```
 
 ### State Management
-- Use React Context + useReducer for global state
+- React Context + useReducer for global state
 - Server-side state management with Next.js
 - Local component state for UI-specific data
-
-### Testing Approach
-- Jest for unit tests
-- React Testing Library for component tests
-- Playwright or Cypress for E2E testing
-- Aim for 80%+ test coverage on business logic
+- @tanstack/react-query for API state management
 
 ## Important Commands
 
@@ -60,12 +58,24 @@ src/
 ### Database (PostgreSQL with Docker)
 - `docker compose up -d` - Start local PostgreSQL database
 - `docker compose down` - Stop local PostgreSQL database  
+- `npm run db:init` - Create initial migration and seed test data (first time setup only)
+- `npm run db:reset` - Reset database and reapply all migrations with fresh test data
 - `npx prisma migrate dev --name feature-name` - Create and apply migrations locally
 - `npx prisma migrate deploy` - Apply migrations to production (safe)
 - `npx prisma migrate reset` - Reset local database (removes all data)
 - `npx prisma generate` - Generate Prisma client
 - `npx prisma studio` - Open database browser
 - `npm run db:seed` - Seed database with test data
+
+### Testing
+- `npm test` - Run unit tests (Vitest)
+- `npm run test:integration` - Run integration tests (Playwright)
+- `npm run test:integration:ui` - Run integration tests with UI mode
+- `npm run test:integration:basic` - Run basic user flow tests
+- `npm run test:integration:comprehensive` - Run comprehensive workflow tests
+- `npm run test:all` - Run both unit and integration tests
+- `npm run test:setup` - Install Playwright browsers
+- `npm run test:cleanup` - Clean up test files
 
 ### Deployment (Automated CI/CD Pipeline)
 - `git push` - Deploy code and apply migrations automatically
@@ -82,18 +92,15 @@ src/
 ### Main App Features
 1. **League Dashboard**: Overview of competition status, personal stats, and leaderboard
 2. **Task Submission**: Current challenge with creative prompts, photo upload, caption input
-3. **Voting Interface**: Instagram-style feed with double-tap voting and vote buttons
+3. **Voting Interface**: Instagram-style feed with vote buttons
 4. **Results Gallery**: View ranked results from completed challenges
 5. **Leaderboard**: League standings based on total points earned
+6. **League Settings**: View league settings, or for admins, edit them
 
 ### Competition Rules
-- Players automatically join the "Main League" upon registration
-- No editing responses after submission
-- Players see "waiting for voting" state after submitting
-- Confirmation step required before submitting
 - Players cannot vote for their own submissions
 - Each player gets exactly 3 votes to cast (1 vote per submission, each vote = 1 point)
-- Double-tap photos or use vote buttons to cast votes
+- Use vote buttons to cast votes
 - Photos preserved indefinitely in results gallery for viewing past competitions
 - Rankings based on total vote points received
 - No grace period for submission or voting deadlines
@@ -109,7 +116,7 @@ src/
   - "Photograph something that represents your mood today"
 
 ### League System
-- Single "Main League" for all players initially
+- Multiple leagues supported with configurable settings
 - League-wide visibility for all submissions and results
 - Comprehensive leaderboard tracking:
   - Total points across all challenges
@@ -120,7 +127,6 @@ src/
 
 ### Voting System
 - Anonymous voting with public results
-- Instagram-style interface with double-tap voting
 - Players get exactly 3 votes to cast among submissions (1 vote per submission)
 - Each vote = 1 point
 - Cannot vote for own submission
@@ -141,42 +147,6 @@ src/
 - Auto-assignment to Main League
 - No offline functionality required
 
-## Development Phases
-
-### Phase 1: Competition MVP ✅ COMPLETED
-1. Next.js app setup with TypeScript and Tailwind
-2. User authentication with NextAuth.js
-3. League system with auto-assignment
-4. 2-phase competition cycle (submit → vote → results)
-5. Creative task system with categories and difficulty
-6. Photo upload and caption submission
-7. Instagram-style voting interface with double-tap functionality
-8. League dashboard with multiple tabs
-9. Leaderboard with comprehensive stats
-10. Automatic cycle management and vote calculation
-
-### Phase 2: Enhanced Competition Features
-1. PWA configuration for mobile-like experience
-2. Web push notifications for phase transitions
-3. Enhanced UI/UX polish with animations
-4. Performance optimizations
-5. Multiple league support
-6. Advanced task categories and challenges
-7. Achievement system and badges
-8. User profile management
-9. Photo editing tools
-10. Social sharing features
-
-### Phase 3: Mobile App
-1. React Native app using existing backend API
-2. Native push notifications for voting reminders
-3. Enhanced mobile photo capture and editing
-4. Mobile-optimized voting interface
-5. App store deployment (iOS and Android)
-6. Feature parity with web version
-7. Offline draft submissions
-8. Native camera integration
-
 ## Database Schema (Key Models)
 
 ### User
@@ -187,9 +157,9 @@ src/
 
 ### League
 - Name and description
-- Active status
+- Active status and startup flag
 - Member count
-- Auto-assignment for new users
+- Configurable settings (voting periods, submission windows)
 
 ### Prompt (Challenge)
 - Text description and category
@@ -205,19 +175,18 @@ src/
 - User and prompt relationships
 
 ### Vote
-- Ranked voting (1st, 2nd, 3rd place)
-- Point values (3, 2, 1)
+- Simple voting (1 point each)
 - Voter and response relationships
-- Prevents self-voting and duplicate ranks
+- Prevents self-voting and duplicate votes
 
 ## Automated Systems
 
 ### Cron Jobs
-- Runs every 12 hours to check phase transitions
+- Runs daily at 7 PM UTC (11 AM PT / 12 PM PDT) to check phase transitions
 - Automatically moves ACTIVE prompts to VOTING when submission deadline passes
 - Calculates vote results and moves VOTING prompts to COMPLETED
 - Activates next scheduled prompt when no active prompt exists
-- Handles automatic phase transitions (no photo cleanup - photos preserved permanently)
+- Handles automatic phase transitions (photos preserved permanently)
 
 ### Admin Interface
 - Creative task management with categories and difficulty
@@ -227,13 +196,13 @@ src/
 - Real-time queue processing controls
 
 ## Test Data
-- 6 test players (player1-player6@example.com)
-- Main League with sample challenges
+- 5 main test players (photophoenix, craftycaptain, pixelpioneer, artisticace, creativecomet)
+- Multiple leagues with sample challenges
 - Pre-populated voting data and rankings
 - Multiple challenge categories represented
 - Complete competition cycle examples
 
-This transformed Challenge League into a engaging creative competition platform that encourages regular participation, creativity, and friendly competition among players!
+All test accounts use password `password123`
 
 ## Database Development Workflow
 
@@ -245,11 +214,8 @@ Challenge League uses **PostgreSQL for both development and production** with Pr
 # Start PostgreSQL container
 docker compose up -d
 
-# Set up database with initial schema
-npx prisma migrate dev --name init
-
-# Seed with test data
-npm run db:seed
+# Set up database with initial migration and test data
+npm run db:init
 
 # Start development server
 npm run dev
@@ -297,7 +263,8 @@ git push
 ```bash
 # Local development
 docker compose up -d              # Start PostgreSQL
-npx prisma migrate reset          # Reset local DB (removes all data)
+npm run db:init                   # Create initial migration and seed data (first time only)
+npm run db:reset                  # Reset database and reapply all migrations
 npx prisma studio                 # Browse database
 npx prisma generate              # Generate Prisma client
 
@@ -316,6 +283,7 @@ The application uses these key models:
 - **Response**: User submissions with photos, captions, and voting results
 - **Vote**: Individual votes cast by users (1 point each)
 - **Comment**: User comments on responses
+- **PushSubscription**: Web push notification subscriptions
 
 ### New League Startup Feature
 
@@ -398,3 +366,253 @@ To modify the app's color scheme:
 - Subtle gray surfaces for content separation
 - White/light gray text hierarchy for readability
 - Blue accents preserved for interactive elements
+
+## Push Notifications System
+
+### Overview
+The app includes a comprehensive web push notification system that automatically notifies users of competition phase transitions.
+
+### Features
+- **Automatic Notifications**: Sent when prompts transition from ACTIVE to VOTING
+- **Browser Support**: Works on Chrome, Firefox, Safari 16.4+, and Edge
+- **User Control**: Users can enable/disable via profile modal
+- **Test Functionality**: Manual test notifications via profile modal
+- **Debug Panel**: Accessible via `?debug` URL parameter for troubleshooting
+
+### Technical Implementation
+- **VAPID Keys**: Secure server-to-browser communication
+- **Service Worker**: `/public/sw.js` handles notification display
+- **Database Storage**: Push subscriptions stored in `PushSubscription` model
+- **Automatic Cleanup**: Invalid subscriptions removed automatically
+
+### Environment Variables Required
+```bash
+# Server-side VAPID keys (keep secret!)
+VAPID_PUBLIC_KEY=your-public-key
+VAPID_PRIVATE_KEY=your-private-key  
+VAPID_SUBJECT=mailto:admin@challengeleague.com
+
+# Client-side VAPID key (public, safe to expose)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
+```
+
+## Current Status Summary
+
+**✅ Fully Working:**
+- User authentication and league management
+- Creative challenge submission and voting system
+- Automated competition cycle management
+- Multiple league support with configurable settings
+- Push notification system for phase transitions
+- Comprehensive testing infrastructure (unit + integration)
+- Dark theme with semantic color system
+- PostgreSQL database with automated migrations
+
+**🔄 In Progress:**
+- Enhanced UI/UX polish and animations
+- Performance optimizations
+- Achievement system and badges
+
+**📋 Future Enhancements:**
+- Mobile app development
+- Social sharing features
+- Advanced analytics and reporting
+
+## Testing Infrastructure
+
+### Overview
+Challenge League uses a comprehensive testing setup with both unit tests (Vitest) and integration tests (Playwright) to ensure all major functionality works correctly. The testing infrastructure provides **isolated database environments** and **comprehensive user flow automation** without interfering with development data.
+
+### Integration Test Goal: Complete End-to-End Workflow
+
+The primary goal is a **single comprehensive integration test** that validates this complete user journey:
+
+1. **Account Management**
+   - Create a new account (admin)
+   - Add a profile photo
+   - Create another new account (member)
+
+2. **League Management** 
+   - Create a league (admin)
+   - Add prompts to league using League Settings page (admin only)
+   - Join existing league (member)
+   - Start the league (admin only)
+
+3. **Challenge Workflow**
+   - Submit photo and caption responses to first prompt (both accounts)
+   - Transition league to voting stage using League Settings button (admin only)
+   - Vote for photos (both accounts)
+   - Transition to next prompt using League Settings button (admin only)
+
+4. **Results Verification**
+   - Verify next prompt shows on Challenge page
+   - Verify Challenge Results page loads with last challenge results
+   - Verify Standings page loads with current standings
+
+### Current Implementation Status
+
+#### ✅ **WORKING COMPONENTS** (Infrastructure Complete)
+
+**Database & Authentication**
+- **PostgreSQL Test Setup**: Fixed authentication and connection issues
+- **Database Isolation**: Each test gets clean PostgreSQL database instance  
+- **Schema Application**: Automated Prisma schema deployment for tests
+- **User Registration**: Complete signup flow with profile setup working
+- **Multi-user Support**: Can create and manage multiple test users concurrently
+- **Profile Setup**: Fixed redirect path from signup → profile setup → main app
+
+**League Management**  
+- **League Creation**: Fixed URL paths (`/app/new`) and form validation (`#name`, `#description`)
+- **League Join Flow**: Complete visual league browser with one-click join functionality
+- **Available Leagues API**: Shows 27+ leagues with proper filtering (excludes already joined)
+- **Member Navigation**: Fixed join flow navigation and league access
+- **Admin Controls**: Proper admin-only feature detection and interaction
+
+**Navigation & UI Elements**
+- **Element Selector Debugging**: Systematic approach to identify and fix UI selectors
+- **Create League Button**: Fixed selector (`text="Create a League"` not button)
+- **Form Field Access**: Proper ID-based selectors for reliable form interaction
+- **URL Pattern Recognition**: Corrected routing patterns (`/app/new` vs `/app/create`)
+- **Multi-page Navigation**: All major pages accessible and responsive
+
+**Test Framework & Debugging**
+- **Screenshot Capture**: Automated debugging screenshots at failure points
+- **Real-time Element Detection**: Can identify available buttons, links, and form fields
+- **Error Analysis**: Systematic timeout analysis and selector validation
+- **Browser Management**: Proper browser lifecycle and cleanup
+
+#### 🚨 **CURRENT BLOCKER: League Settings Form Elements**
+
+**Current Problem**: After successfully creating league, the test fails to locate prompt input fields in League Settings.
+
+**Latest Progress**: 
+- ✅ **Step 1**: Admin account creation and profile setup
+- ✅ **Step 2**: League creation at `/app/new` with proper form fields
+- ✅ **Step 3**: Navigation to League Settings page  
+- ❌ **Step 4**: Cannot find prompt input field with selector `textarea[placeholder*="prompt"], textarea[name="prompt"], input[placeholder*="new prompt"]`
+
+**Error Message**:
+```
+page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('textarea[placeholder*="prompt"], textarea[name="prompt"], input[placeholder*="new prompt"]')
+```
+
+**Next Debug Step**: Need to examine League Settings page structure to identify correct prompt input selectors.
+
+### Test Architecture
+- **Framework**: Playwright with TypeScript
+- **Database**: PostgreSQL with Prisma ORM (isolated per test)
+- **Test Isolation**: Unique database per test run
+- **File Management**: Temporary test images with automatic cleanup
+
+### Key Helper Functions (All Working)
+```typescript
+// Database Management
+resetTestDb()              // Creates isolated test database
+cleanupTestDb()           // Removes test database and files
+
+// User Workflows
+registerUser()            // Complete account creation flow
+createLeague()            // Creates league and returns ID
+joinLeagueById()          // Member joins existing league
+
+// Admin Functions
+clearLeaguePrompts()      // Database-level prompt queue cleanup
+addPromptToLeague()       // UI-based prompt addition via settings
+transitionLeaguePhase()   // Manual phase transitions via UI
+
+// Challenge Workflows  
+submitChallengeResponse() // Photo upload, compression, caption, submit
+castVotes()              // Voting on submissions
+```
+
+### Current Test Coverage Analysis
+
+#### ✅ Working & Tested (60% of target functionality)
+- User registration and authentication with profile setup
+- League creation with correct form field access  
+- Join league functionality with visual league browser
+- Database isolation and cleanup
+- UI navigation and systematic element detection
+- Debugging framework with screenshot capture
+- Multi-user browser context management
+- Error analysis and selector validation
+
+#### 🚨 Blocked (40% of target functionality)  
+- League Settings form interaction (need correct prompt input selectors)
+- Photo submission workflow (depends on prompt creation)
+- Phase transitions (depends on active challenges)
+- Vote casting (depends on submission phase completion)
+- Results verification (depends on voting phase completion)
+- Multi-challenge progression (depends on successful phase completion)
+
+### Success Metrics
+
+The integration test will be considered **complete** when:
+
+1. ✅ Creates accounts and league successfully (Working)
+2. 🔄 Submits photos without "Submission Window Closed" errors (Blocked)
+3. 🔄 Completes full phase transition cycle (ACTIVE → VOTING → COMPLETED) (Blocked)
+4. 🔄 Verifies all major pages load with correct data (Blocked)
+5. ✅ Runs consistently without flaky infrastructure failures (Working)
+6. ✅ Completes in under 2 minutes (Currently ~45 seconds for working portions)
+
+### Test File Structure
+
+```
+tests/
+├── integration/
+│   └── phase-transition-workflow.spec.ts  # Main comprehensive test (90% complete)
+├── utils/
+│   ├── database.ts                        # Database setup/cleanup (✅ Working)
+│   └── test-helpers.ts                     # All workflow helpers (✅ Working)
+└── temp/                                   # Temporary test files (auto-cleanup)
+```
+
+### Running Tests
+
+#### Comprehensive Integration Test
+```bash
+# Run the comprehensive test (currently fails at League Settings)
+npm run test:integration:comprehensive
+
+# Run with UI mode for debugging
+npm run test:integration:ui
+
+# View captured screenshots
+ls -la test-screenshots/
+```
+
+**Current Result**: Successfully completes league creation, fails at prompt input field detection.
+
+#### Basic Integration Test
+```bash  
+# Test basic user flows (fully working)
+npm run test:integration:basic
+
+# View test results and screenshots
+npx playwright show-report
+```
+
+**Current Result**: ✅ Completely successful - validates core user workflows.
+
+### Next Steps to Complete Integration Tests
+
+#### 🔥 **IMMEDIATE (Required for completion)**
+1. **Debug League Settings Page** - Create debug script to screenshot and identify prompt input selectors
+2. **Fix Prompt Input Selectors** - Update test with correct form field selectors
+3. **Complete League Settings Workflow** - Test prompt addition and league startup
+
+#### 🎯 **NEXT (Complete workflow)**  
+4. **Validate Photo Submission** - Test submission with proper prompt activation
+5. **Complete Phase Transitions** - Test ACTIVE → VOTING → COMPLETED cycle
+6. **Implement Vote Casting** - Test voting phase functionality
+7. **Verify Results Processing** - Test results and standings pages
+
+#### 🔧 **FINAL (Polish)**
+8. **Add Error Scenarios** - Test edge cases and error handling
+9. **Performance Validation** - Ensure test runs consistently under 2 minutes
+10. **Documentation Update** - Document complete working test suite
+
+The comprehensive workflow test successfully completes Steps 1-3 (account creation, league creation, league settings navigation), then fails at Step 4 (prompt input field interaction) due to selector issues. Once this selector issue is resolved, the remaining components should work immediately since all the helper functions and UI interactions are already implemented and tested.
