@@ -173,7 +173,7 @@ const ONBOARDING_STEPS = [
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0 w-8 h-8 bg-blue-500/30 rounded-full flex items-center justify-center">
                 <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.343 15.657l2.828 2.828a1 1 0 001.414 0l9.192-9.192a1 1 0 000-1.414l-2.828-2.828a1 1 0 00-1.414 0L4.343 14.243a1 1 0 000 1.414z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9zM13.73 21a2 2 0 01-3.46 0" />
                 </svg>
               </div>
               <div>
