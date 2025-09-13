@@ -75,8 +75,11 @@ npm start
 docker compose up -d
 docker compose down
 
-# Reset database with fresh test data (if needed)
+# Nuclear reset: drop database, reapply migrations, fresh data (if needed)
 npm run db:reset
+
+# Refresh test data only (lighter option)
+npm run db:seed
 
 # Browse database in your browser
 npx prisma studio
@@ -135,33 +138,6 @@ git push
 - ✅ **Automated migrations** - Production migrations happen during build
 - ✅ **Rollback capable** - Migration history tracked in git
 
-## 🎮 Testing Features
-
-### Competition Flow Testing
-1. **Sign in** with `photophoenix@example.com` (admin account)
-2. **Go to** `/app/settings` to manage challenges
-3. **Submit** responses to active challenges
-4. **Vote** on submissions (3 votes to distribute)
-5. **View results** and leaderboard updates
-
-### Admin Features Testing
-1. **Sign in** as `photophoenix@example.com`
-2. **Create challenges** using League Settings page
-3. **Manage queue** with drag-and-drop reordering
-4. **Trigger** manual cycle processing for testing
-5. **Monitor** real-time competition status
-
-### Multi-User Testing
-- Use multiple browser profiles or incognito tabs
-- Sign in as different users to simulate competition
-- Test voting, submissions, and league interactions
-
-### Photo Upload Testing
-- **Local Development**: Photos stored via Vercel Blob (or memory if no token)
-- **Drag & Drop**: Upload interface supports drag and drop
-- **File Types**: JPG, PNG, GIF, WebP (max 10MB)
-- **Preview**: Image preview before submission
-
 ## 🔧 Environment Variables
 
 Create `.env` file (most are optional for development):
@@ -192,12 +168,12 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY="your-vapid-public-key"
 ```bash
 # "Database connection failed" or migration errors
 docker compose down && docker compose up -d
-npm run db:setup
+npm run db:reset
 
 # "Schema out of sync"
 npx prisma generate
 npx prisma migrate reset  # Nuclear option - removes all data
-npm run db:setup
+npm run db:reset
 ```
 
 ### Authentication Issues
@@ -265,7 +241,7 @@ challenge-league/
 ## 🎯 Development Tips
 
 ### Working with the Database
-- Always use `npm run db:setup` for fresh starts
+- Use `npm run db:reset` for fresh starts (existing projects) or `npm run db:init` (first time only)
 - Use `npx prisma studio` to visualize data
 - Migration files are auto-generated - don't edit them manually
 - Test schema changes locally before pushing
@@ -297,9 +273,8 @@ challenge-league/
 - **Queue Processing**: Next challenge activated automatically
 
 ### Push Notifications
-- **Auto-enable**: New users prompted after 3-4 seconds
-- **Phase Notifications**: Automatic notifications for voting phase
-- **Manual Testing**: Test button in profile modal
+- **Auto-enable**: New users prompted to enable notifications in onboarding flow
+- **Phase Notifications**: Automatic notifications for new prompt available, voting phase starting, as well as 24-hour submission reminders
 - **Debug Mode**: Access via `?debug` URL parameter
 
 ### Error Handling
@@ -361,6 +336,6 @@ CRON_SECRET="your-cron-secret"
 
 ---
 
-**Ready to develop?** Run `npm run db:setup && npm run dev` and start coding! 🚀
+**Ready to develop?** Run `npm run db:init && npm run dev` and start coding! 🚀
 
 The development environment is designed to be as frictionless as possible - everything works out of the box with minimal configuration required.

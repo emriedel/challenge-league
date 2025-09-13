@@ -1,9 +1,9 @@
 # Challenge League - Creative Competition Platform
 
 ## Project Overview
-Challenge League is a web application inspired by Taskmaster, where players join leagues to compete in weekly challenges. Players submit photo responses to specific tasks, then vote on each other's submissions to determine winners and rankings.
+Challenge League is a web application inspired by Taskmaster, where players join leagues to compete in weekly challenges. Players submit photo responses to specific challenges, then vote on each other's submissions to determine winners and rankings.
 
-**Purpose:** Foster creativity and friendly competition through engaging weekly challenges
+**Purpose:** Foster creativity and friendly competition through weekly challenges
 **Development Strategy:** Web-first with PWA features, mobile app to follow later
 **Current Status:** MVP Complete - fully functional competition platform
 
@@ -59,13 +59,13 @@ src/
 - `docker compose up -d` - Start local PostgreSQL database
 - `docker compose down` - Stop local PostgreSQL database  
 - `npm run db:init` - Create initial migration and seed test data (first time setup only)
-- `npm run db:reset` - Reset database and reapply all migrations with fresh test data
+- `npm run db:reset` - Nuclear reset: drop database, reapply all migrations, seed fresh data
 - `npx prisma migrate dev --name feature-name` - Create and apply migrations locally
 - `npx prisma migrate deploy` - Apply migrations to production (safe)
 - `npx prisma migrate reset` - Reset local database (removes all data)
 - `npx prisma generate` - Generate Prisma client
 - `npx prisma studio` - Open database browser
-- `npm run db:seed` - Seed database with test data
+- `npm run db:seed` - Refresh test data only (keeps schema and migrations intact)
 
 ### Testing
 - `npm test` - Run unit tests (Vitest)
@@ -85,9 +85,8 @@ src/
 ## Core App Specifications
 
 ### 2-Phase Competition Cycle
-- **Submission Phase**: 7 days to submit creative responses
-- **Voting Phase**: 2 days to vote on submissions
-- **Results**: Winners announced immediately after voting ends, next challenge begins
+- **Submission Phase**: X days to submit creative responses (configured by league admin)
+- **Voting Phase**: Y days to vote on submissions (configured by legue admin)
 
 ### Main App Features
 1. **League Dashboard**: Overview of competition status, personal stats, and leaderboard
@@ -99,21 +98,21 @@ src/
 
 ### Competition Rules
 - Players cannot vote for their own submissions
-- Each player gets exactly 3 votes to cast (1 vote per submission, each vote = 1 point)
+- Each player gets exactly X votes to cast (configurd by league admin)
 - Use vote buttons to cast votes
 - Photos preserved indefinitely in results gallery for viewing past competitions
-- Rankings based on total vote points received
+- Rankings based on total votes received
 - No grace period for submission or voting deadlines
 
 ### Creative Challenge System
-- **Diverse Prompts**: Wide variety of creative tasks covering cooking, photography, art, adventure, and more
+- **Diverse Prompts**: Wide variety of creative tasks
 - **Sample Tasks**:
-  - "Submit a photo of a beautiful dinner you made this week"
-  - "Create something artistic with household items and share the result"
-  - "Capture an interesting shadow or reflection in your daily life"
-  - "Visit somewhere you've never been before and document it"
-  - "Show us your workspace or favorite creative corner"
-  - "Photograph something that represents your mood today"
+   - "Take a photo that could be an album cover"
+   - "Find the strangest street name"
+   - "Cook the most beautiful meal for yourself"
+   - "Find the weirdest statue"
+   - "Find the most interesting grocery item from the store"
+   - "Take the most dramatic photo of something completely ordinary"
 
 ### League System
 - Multiple leagues supported with configurable settings
@@ -144,40 +143,62 @@ src/
 ### Authentication
 - Email and password based account creation
 - Basic onboarding flow explaining the competition
-- Auto-assignment to Main League
+- Multiple league support with configurable settings
 - No offline functionality required
 
 ## Database Schema (Key Models)
 
 ### User
-- Standard authentication fields
+- Standard authentication fields (email, password, profile photo)
 - Username (unique identifier)
-- League memberships (many-to-many)
-- Responses and votes
+- League memberships (many-to-many via LeagueMembership)
+- Responses, votes, comments, and push subscriptions
+- Can own multiple leagues
 
 ### League
-- Name and description
-- Active status and startup flag
-- Member count
-- Configurable settings (voting periods, submission windows)
+- Name, slug, and description (all unique)
+- Invite code for joining
+- Active status and startup flag (`isStarted`)
+- Configurable settings:
+  - `submissionDays` (default: 5 days)
+  - `votingDays` (default: 2 days) 
+  - `votesPerPlayer` (default: 3 votes)
+- Owner relationship and member count via LeagueMembership
 
 ### Prompt (Challenge)
-- Text description and category
-- Difficulty level (1-3)
-- 2-phase timing (submit, vote)
+- Text description only (no categories or difficulty)
+- Phase timing with `phaseStartedAt` timestamp
 - Status: SCHEDULED → ACTIVE → VOTING → COMPLETED
 - Queue order for automatic progression
+- Notification tracking (24-hour warnings)
+- Database constraint: Only one ACTIVE/VOTING prompt per league
 
 ### Response (Submission)
-- Photo URL and caption
-- Vote tracking (total votes, points, final rank)
-- Publication status
-- User and prompt relationships
+- Image URL and caption
+- Publication status (`isPublished`) and timestamp
+- Vote tracking (total votes, total points, final rank)
+- One response per user per prompt (unique constraint)
 
 ### Vote
-- Simple voting (1 point each)
+- Simple voting (1 point each, no ranking system)
 - Voter and response relationships
-- Prevents self-voting and duplicate votes
+- No constraints on duplicate votes (users can vote multiple times for same response)
+
+### LeagueMembership
+- Many-to-many relationship between Users and Leagues
+- Join timestamp and active status
+- Unique constraint: one membership per user per league
+
+### Comment
+- Text comments on responses
+- One comment per user per response (editable)
+- Author and response relationships
+
+### PushSubscription
+- Web push notification endpoints
+- Encryption keys (p256dh, auth)
+- User agent tracking for device identification
+- Unique per user per device/browser
 
 ## Automated Systems
 
@@ -189,8 +210,7 @@ src/
 - Handles automatic phase transitions (photos preserved permanently)
 
 ### Admin Interface
-- Creative task management with categories and difficulty
-- Queue reordering and editing
+- Challenge queue adding, reordering, and editing
 - Manual cycle processing for testing
 - Comprehensive prompt status overview
 - Real-time queue processing controls
@@ -223,7 +243,7 @@ npm run dev
 
 ### Making Database Schema Changes
 
-Follow this **3-step workflow** for any database changes:
+Follow this **2-step workflow** for any database changes:
 
 #### Step 1: Develop and Test Locally
 
@@ -264,7 +284,8 @@ git push
 # Local development
 docker compose up -d              # Start PostgreSQL
 npm run db:init                   # Create initial migration and seed data (first time only)
-npm run db:reset                  # Reset database and reapply all migrations
+npm run db:reset                  # Nuclear reset: drop database, reapply all migrations, seed fresh data
+npm run db:seed                   # Refresh test data only (lighter option)
 npx prisma studio                 # Browse database
 npx prisma generate              # Generate Prisma client
 
@@ -296,10 +317,6 @@ Added `isStarted` boolean field to League model:
 ## High Priority Refactoring Tasks
 
 The following refactoring tasks have been identified as high priority for improving code quality, maintainability, and developer experience:
-
-### ✅ Completed Refactorings
-- **Type Consolidation** - Centralized all TypeScript type definitions into `/src/types/` directory with proper organization and barrel exports. Eliminated duplicate types across 15+ files.
-- **Standardize API Route Error Handling** - Created consistent error response format across all API endpoints with centralized `ApiError` classes, proper status codes, and structured error responses. Enhanced `createApiHandler` to use standardized error handling.
 
 ### 🔥 High Priority (Next Phase)
 1. **Extract Database Query Patterns** - Create a data access layer to centralize common Prisma queries. Many components duplicate similar database operations (user lookups, league queries, etc.).
@@ -355,17 +372,22 @@ The app uses a custom Tailwind theme with semantic color names defined in `tailw
 - `text-app-error`, `bg-app-error-bg` - Error colors
 - `text-app-info` - Info color (blue)
 
+**Brand Colors:**
+- **Secondary Color**: `#3a8e8c` - App logo color, used for accent elements and calls-to-action
+- **Primary Brand**: Black/white with secondary teal accents
+
 ### Changing Themes
 To modify the app's color scheme:
 1. Update the `app` color values in `tailwind.config.js`
 2. All components will automatically use the new colors
 3. No need to search/replace individual utility classes
 
-### Current Theme: Instagram Dark Mode
+### Current Theme: Dark Mode with Teal Accents
 - Pure black backgrounds for modern dark aesthetic
 - Subtle gray surfaces for content separation
 - White/light gray text hierarchy for readability
-- Blue accents preserved for interactive elements
+- Teal secondary color (#3a8e8c) for branding and accent elements
+- Blue preserved for interactive elements and info states
 
 ## Push Notifications System
 
@@ -376,7 +398,6 @@ The app includes a comprehensive web push notification system that automatically
 - **Automatic Notifications**: Sent when prompts transition from ACTIVE to VOTING
 - **Browser Support**: Works on Chrome, Firefox, Safari 16.4+, and Edge
 - **User Control**: Users can enable/disable via profile modal
-- **Test Functionality**: Manual test notifications via profile modal
 - **Debug Panel**: Accessible via `?debug` URL parameter for troubleshooting
 
 ### Technical Implementation
@@ -404,19 +425,15 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 - Automated competition cycle management
 - Multiple league support with configurable settings
 - Push notification system for phase transitions
-- Comprehensive testing infrastructure (unit + integration)
 - Dark theme with semantic color system
 - PostgreSQL database with automated migrations
 
 **🔄 In Progress:**
 - Enhanced UI/UX polish and animations
-- Performance optimizations
-- Achievement system and badges
+- Integration testing
 
 **📋 Future Enhancements:**
 - Mobile app development
-- Social sharing features
-- Advanced analytics and reporting
 
 ## Testing Infrastructure
 

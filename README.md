@@ -2,6 +2,8 @@
 
 A Taskmaster-inspired creative competition platform where players compete in weekly challenges, submit photo responses, and vote on each other's creativity.
 
+Available at [www.challenge-league.app](www.challenge-league.app)
+
 ![Challenge League](https://img.shields.io/badge/status-MVP%20Complete-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
@@ -9,7 +11,7 @@ A Taskmaster-inspired creative competition platform where players compete in wee
 
 ## ✨ What is Challenge League?
 
-Challenge League brings the creative spirit of Taskmaster to your friend group. Join leagues, tackle weekly creative challenges, and compete for the top spot on the leaderboard.
+Challenge League brings the creative spirit of Taskmaster to your friend group. Join leagues, tackle weekly challenges, and compete for the top spot on the leaderboard.
 
 ### 🎯 How it Works
 
@@ -59,17 +61,17 @@ All test accounts use password `password123`:
 ## 🎮 Features
 
 ### For Players
-- **Creative Challenges** - Weekly prompts across categories like cooking, photography, art, and adventure
-- **Photo Submissions** - Upload photos with captions during 7-day submission windows
-- **Voting System** - Rank your top 3 favorites during 2-day voting periods
+- **Multiple leagues** - Ability to join multiple leagues with different members and administrators
+- **Creative Challenges** - Weekly creative photography prompts
+- **Photo Submissions** - Upload photos with captions during submission window
+- **Voting System** - Vote for your favorites during voting period
 - **Leaderboards** - Track your progress and compete for the top spot
 - **Results Gallery** - View past challenge winners and submissions
 
 ### For League Owners
 - **League Management** - Create leagues and manage members
-- **Challenge Curation** - Add custom challenges with categories and difficulty levels
-- **Admin Controls** - Manual phase transitions and league settings
-- **Real-time Monitoring** - Track participation and engagement
+- **Challenge Curation** - Add custom challenges
+- **Admin Controls** - Manual control of league settings
 
 ## 🛠️ Tech Stack
 
@@ -83,8 +85,8 @@ All test accounts use password `password123`:
 
 ```
 src/
-├── app/                 # Next.js app router pages and API routes
-├── components/          # Reusable React components
+├── app/                # Next.js app router pages and API routes
+├── components/         # Reusable React components
 ├── hooks/              # Custom React hooks
 ├── lib/                # Database utilities and core logic
 ├── types/              # TypeScript type definitions
@@ -95,11 +97,10 @@ src/
 
 The app automatically manages 2-phase competition cycles:
 
-- **Submission Phase** (7 days): Players submit creative photo responses
-- **Voting Phase** (2 days): Players vote for their top 3 favorites
-- **Results**: Winners announced, leaderboard updated, next challenge begins
+- **Submission Phase**: Players submit creative photo responses
+- **Voting Phase**: Players vote for their favorites
 
-Automated cron jobs handle phase transitions every 12 hours.
+Automated cron jobs handle phase transitions daily at 7 PM UTC.
 
 ## 🚀 Development
 
@@ -110,7 +111,8 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run lint         # Check code style
 npm run type-check   # TypeScript validation
-npm run db:reset     # Reset database with fresh migrations and test data
+npm run db:reset     # Nuclear reset: drop database, reapply migrations, fresh data
+npm run db:seed      # Refresh test data only (lighter option)
 ```
 
 ### Database Management
@@ -119,7 +121,7 @@ npm run db:reset     # Reset database with fresh migrations and test data
 docker compose up -d     # Start PostgreSQL
 npx prisma studio        # Database browser
 npx prisma migrate dev   # Apply schema changes
-npm run db:seed         # Seed test data
+npm run db:seed          # Refresh test data only (keeps schema)
 ```
 
 ## 📖 Documentation
