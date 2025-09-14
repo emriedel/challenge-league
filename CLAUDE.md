@@ -617,22 +617,95 @@ npx playwright show-report
 
 **Current Result**: ✅ Completely successful - validates core user workflows.
 
-### Next Steps to Complete Integration Tests
+### Integration Test Progress (Updated 2025-01-14)
 
-#### 🔥 **IMMEDIATE (Required for completion)**
-1. **Debug League Settings Page** - Create debug script to screenshot and identify prompt input selectors
-2. **Fix Prompt Input Selectors** - Update test with correct form field selectors
-3. **Complete League Settings Workflow** - Test prompt addition and league startup
+#### 🎯 **CURRENT STATUS: Major Database Issues Identified & Partially Fixed**
 
-#### 🎯 **NEXT (Complete workflow)**  
-4. **Validate Photo Submission** - Test submission with proper prompt activation
-5. **Complete Phase Transitions** - Test ACTIVE → VOTING → COMPLETED cycle
-6. **Implement Vote Casting** - Test voting phase functionality
-7. **Verify Results Processing** - Test results and standings pages
+**✅ RESOLVED ISSUES:**
+1. **Database Schema Creation** - Fixed table name verification (was checking for `User` instead of `users`)
+2. **Test Infrastructure** - All 5 core tables now properly created in test database
+3. **Test Workflow Logic** - Improved prompt activation and phase transition handling  
+4. **Debugging Tools** - Added comprehensive database state debugging with `debugLeagueState()` function
+5. **UI Selectors** - Confirmed correct selectors for League Settings page elements:
+   - `button:has-text("+ Add Challenge")` - Add new challenge button
+   - `textarea#prompt-text` - Challenge description textarea
+   - `button:has-text("Add to Queue")` - Submit new challenge
+   - `button:has-text("Transition to Next Phase")` - Phase transition button
+   - `button:has-text("Confirm Transition")` - Confirmation modal button
 
-#### 🔧 **FINAL (Polish)**
-8. **Add Error Scenarios** - Test edge cases and error handling
-9. **Performance Validation** - Ensure test runs consistently under 2 minutes
-10. **Documentation Update** - Document complete working test suite
+**🚨 CURRENT BLOCKER: Database Isolation Issue**  
+- ✅ Test database has correct schema (5/5 tables verified)
+- ✅ UI interactions work (users can click buttons, navigate pages)
+- ❌ **Next.js app and test use different databases** - When test creates leagues/prompts through UI, the data goes to dev database but test debugging reads from isolated test database
 
-The comprehensive workflow test successfully completes Steps 1-3 (account creation, league creation, league settings navigation), then fails at Step 4 (prompt input field interaction) due to selector issues. Once this selector issue is resolved, the remaining components should work immediately since all the helper functions and UI interactions are already implemented and tested.
+#### 🔧 **Key Technical Discoveries**
+
+1. **Root Cause**: Next.js dev server uses regular `DATABASE_URL` while tests create isolated test databases
+2. **Schema Fixed**: Updated verification query to use correct lowercase table names (`users`, `leagues`, `prompts`, `responses`, `votes`)
+3. **Test Pattern**: Created comprehensive workflow test in `tests/integration/fixed-workflow.spec.ts`
+4. **Debug Tools**: Added `debugLeagueState()` function to inspect database state during tests
+
+#### 📋 **Next Steps to Complete Integration Tests**
+
+**🔥 IMMEDIATE (Required for functionality):**
+1. **Fix Database Isolation** - Configure Next.js app to use test database during test runs
+   - Option A: Set `DATABASE_URL` env var for test server process
+   - Option B: Create test-specific database configuration
+   - Option C: Use single shared test database for both processes
+2. **Test Database Coordination** - Ensure both test process and app process share same database instance
+
+**🎯 NEXT (Complete workflow once isolation fixed):**
+3. **Validate Full End-to-End Flow** - The existing test should work once database isolation is resolved:
+   - Account creation and profile setup ✅
+   - League creation and member joining ✅  
+   - Prompt addition via League Settings UI ✅
+   - Phase transitions (SCHEDULED → ACTIVE → VOTING → COMPLETED) ⏳
+   - Photo submissions with proper upload handling ⏳
+   - Voting interface and vote casting ⏳
+   - Results processing and standings verification ⏳
+
+**🔧 FINAL (Polish and validation):**
+4. **Add Console Error Monitoring** - Check browser console for JavaScript errors during tests
+5. **Performance Validation** - Ensure tests complete within 3 minutes consistently
+6. **Error Scenario Testing** - Test edge cases and error handling paths
+
+#### 🛠 **Test Infrastructure Status**
+
+**✅ FULLY WORKING:**
+- Database schema creation and table verification
+- User registration with profile photo setup  
+- League creation with proper form handling
+- Member joining and league navigation
+- UI element detection and interaction
+- Image upload processing and compression
+- Comprehensive error debugging and logging
+- Test database cleanup and isolation setup
+
+**🔄 PARTIALLY WORKING (blocked by database isolation):**
+- Prompt creation and activation via UI
+- Phase transition workflow
+- Challenge submission interface  
+- Voting system interaction
+- Results and standings verification
+
+**⚙️ TEST COMMANDS:**
+```bash
+# Run the comprehensive workflow test
+npx playwright test fixed-workflow --timeout=180000
+
+# Run with UI mode for debugging
+npm run test:integration:ui
+
+# Run basic working tests
+npm run test:integration:basic
+```
+
+**Current Test Result**: Successfully completes account creation, league setup, and prompt addition via UI, but fails at submission phase due to database isolation preventing proper prompt activation.
+
+#### 🏗 **Test Files Created/Updated**
+
+- `tests/integration/fixed-workflow.spec.ts` - Comprehensive end-to-end test
+- `tests/utils/test-helpers.ts` - Enhanced with debugging, improved submissions, and better error handling
+- `tests/utils/database.ts` - Fixed schema verification and added table existence checking
+
+Once database isolation is resolved, the integration test infrastructure should provide full end-to-end validation of the Challenge League platform, ensuring all major user flows work correctly and no regressions occur.

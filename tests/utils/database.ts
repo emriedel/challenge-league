@@ -56,16 +56,17 @@ export async function resetTestDb(): Promise<void> {
     
     try {
       // Use Prisma's db push to create the schema from the schema.prisma file
-      execSync(`npx prisma db push --force-reset`, {
+      const pushResult = execSync(`npx prisma db push --force-reset`, {
         stdio: 'pipe',
         cwd: process.cwd(),
         env: {
           ...process.env,
-          DATABASE_URL: `postgresql://postgres:password@localhost:5432/${testDbName}`
+          DATABASE_URL: `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`
         }
       });
+      console.log('✅ Prisma db push completed successfully');
     } catch (pushError) {
-      console.log('⚠️ Prisma db push failed, trying alternative approach...');
+      console.log('⚠️ Prisma db push failed:', pushError instanceof Error ? pushError.message : String(pushError));
       
       // Alternative: Apply migrations
       try {
@@ -82,8 +83,24 @@ export async function resetTestDb(): Promise<void> {
       }
     }
     
-    // Test connection
+    // Test connection and verify schema
     await testDb.$executeRaw`SELECT 1`;
+    
+    // Verify tables exist
+    try {
+      const tableCount = await testDb.$queryRaw<Array<{count: bigint}>>`
+        SELECT COUNT(*) as count FROM information_schema.tables 
+        WHERE table_schema = 'public' AND table_name IN ('users', 'leagues', 'prompts', 'responses', 'votes');
+      `;
+      const count = Number(tableCount[0]?.count || 0);
+      console.log(`🔍 Schema verification: ${count}/5 core tables found`);
+      
+      if (count < 5) {
+        console.log('⚠️ Warning: Missing database tables, schema may not be properly applied');
+      }
+    } catch (verifyError) {
+      console.log('⚠️ Could not verify schema:', verifyError instanceof Error ? verifyError.message : String(verifyError));
+    }
     
     console.log('✅ Test database reset successfully');
   } catch (error) {

@@ -443,8 +443,44 @@ export async function submitChallengeResponse(page: Page, leagueId: string, capt
       console.log('🏁 League needs to be started - clicking Start League button');
       await startLeagueButton.click();
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000); // Wait for phase transition to complete
+      await page.waitForTimeout(3000); // Wait for phase transition to complete
       console.log('✅ League started successfully');
+    }
+    
+    // Check if we need to manually activate a prompt using League Settings
+    const noActiveChallenge = page.locator('text=No active challenge');
+    const waitingMessage = page.locator('text=Waiting');
+    if (await noActiveChallenge.isVisible({ timeout: 2000 }) || await waitingMessage.isVisible({ timeout: 2000 })) {
+      console.log('⚠️ No active challenge found - attempting to activate prompt via League Settings');
+      
+      const leagueIdFromUrl = page.url().match(/\/league\/([^\/]+)/)?.[1];
+      if (leagueIdFromUrl) {
+        await page.goto(`/app/league/${leagueIdFromUrl}/league-settings`);
+        await page.waitForLoadState('networkidle');
+        
+        // Look for transition button and click it
+        const transitionButton = page.locator('button:has-text("Transition to Next Phase")');
+        if (await transitionButton.isVisible({ timeout: 5000 })) {
+          console.log('🔄 Found transition button - activating prompt');
+          await transitionButton.click();
+          
+          // Handle confirmation modal if it appears
+          await page.waitForTimeout(1000);
+          const confirmButton = page.locator('button:has-text("Confirm Transition")');
+          if (await confirmButton.isVisible({ timeout: 3000 })) {
+            await confirmButton.click();
+          }
+          
+          await page.waitForTimeout(2000);
+          console.log('✅ Prompt activation attempted');
+          
+          // Navigate back to challenge page
+          await page.goto(`/app/league/${leagueIdFromUrl}`);
+          await page.waitForLoadState('networkidle');
+        } else {
+          console.log('⚠️ No transition button found - prompt may already be active');
+        }
+      }
     }
     
     // Check if submission window is closed and we need to activate a prompt manually
@@ -486,11 +522,33 @@ export async function submitChallengeResponse(page: Page, leagueId: string, capt
     if (!(await uploadButton.isVisible({ timeout: 5000 }))) {
       console.log('⚠️ Upload Photo button not found - challenge may not be in active submission phase');
       
+      // Debug what the user is seeing
+      const pageContent = await page.textContent('body');
+      console.log('🔍 Debugging submission failure:');
+      console.log(`   - Current URL: ${page.url()}`);
+      console.log(`   - Page contains "Current Challenge": ${pageContent?.includes('Current Challenge') || false}`);
+      console.log(`   - Page contains "Upload": ${pageContent?.includes('Upload') || false}`);
+      console.log(`   - Page contains "Submit": ${pageContent?.includes('Submit') || false}`);
+      console.log(`   - Page contains "No active": ${pageContent?.includes('No active') || false}`);
+      console.log(`   - Page contains "Submission": ${pageContent?.includes('Submission') || false}`);
+      console.log(`   - Page contains "Voting": ${pageContent?.includes('Voting') || false}`);
+      console.log(`   - Page contains "workspace": ${pageContent?.includes('workspace') || false}`);
+      console.log(`   - Page contains "league is not started": ${pageContent?.includes('league is not started') || false}`);
+      
       // Try to find any file input as fallback
       const fileInput = page.locator('input[type="file"]').first();
       if (await fileInput.isVisible({ timeout: 2000 })) {
+        console.log('✅ Found fallback file input - using it');
         await fileInput.setInputFiles(testImagePath);
       } else {
+        console.log('❌ No file input found at all');
+        
+        // Check if there's a "Start League" button that needs to be clicked
+        const startButton = page.locator('button:has-text("Start League")');
+        if (await startButton.isVisible({ timeout: 2000 })) {
+          console.log('⚠️ Found Start League button - user may need to start league');
+        }
+        
         throw new Error('No photo upload interface found - challenge may not be active or user may not have access');
       }
     } else {
@@ -661,7 +719,18 @@ export async function transitionLeaguePhase(page: Page): Promise<void> {
       console.log('⚠️ Confirmation modal not found, phase may have transitioned directly');
     }
   } else {
-    console.log('⚠️ "Transition to Next Phase" button not found - may not be available in current phase');
+    console.log('⚠️ "Transition to Next Phase" button not found - checking if league needs to be started');
+    
+    // Check if league needs to be started by looking for Start League button
+    const startLeagueButton = page.locator('button:has-text("Start League")');
+    if (await startLeagueButton.isVisible({ timeout: 3000 })) {
+      console.log('🏁 Found Start League button - starting league');
+      await startLeagueButton.click();
+      await page.waitForTimeout(3000);
+      console.log('✅ League started successfully');
+    } else {
+      console.log('⚠️ No transition options available - league may be in a state that doesn\'t allow transitions');
+    }
     
     // Try fallback approach - look for any transition-related buttons
     const fallbackButtons = [
@@ -888,6 +957,52 @@ export async function addProfilePhoto(page: Page, username: string): Promise<voi
   }
   
   console.log(`✅ Profile photo setup completed for ${username}`);
+}
+
+/**
+ * Check the database state of a league's prompts for debugging
+ */
+export async function debugLeagueState(leagueId: string): Promise<void> {
+  try {
+    const { getTestDb } = await import('./database');
+    const testDb = getTestDb();
+    
+    // Get league info
+    const league = await testDb.league.findUnique({
+      where: { id: leagueId },
+      select: { name: true, isStarted: true }
+    });
+    
+    // Get all prompts for this league
+    const prompts = await testDb.prompt.findMany({
+      where: { leagueId: leagueId },
+      select: { 
+        id: true, 
+        text: true, 
+        status: true, 
+        queueOrder: true, 
+        phaseStartedAt: true,
+        createdAt: true 
+      },
+      orderBy: { queueOrder: 'asc' }
+    });
+    
+    console.log('🔍 Database State Debug:');
+    console.log(`   League: ${league?.name || 'Not found'}`);
+    console.log(`   League Started: ${league?.isStarted || false}`);
+    console.log(`   Total Prompts: ${prompts.length}`);
+    
+    prompts.forEach((prompt, index) => {
+      console.log(`   Prompt ${index + 1}:`);
+      console.log(`     - Status: ${prompt.status}`);
+      console.log(`     - Queue Order: ${prompt.queueOrder}`);
+      console.log(`     - Text: ${prompt.text.substring(0, 50)}...`);
+      console.log(`     - Phase Started: ${prompt.phaseStartedAt ? 'Yes' : 'No'}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Error checking database state:', error);
+  }
 }
 
 /**
