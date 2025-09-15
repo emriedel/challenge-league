@@ -62,5 +62,5 @@ export interface AuthResponse {
 // Vote submission response
 export interface VoteSubmissionResponse extends APIResponse {
   votesSubmitted: number;
-  totalPoints: number;
+  totalVotes: number;
 }

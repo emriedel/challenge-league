@@ -255,7 +255,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               voteEnd: votingData.voteEnd,
               userHasVoted: votingData.existingVotes && votingData.existingVotes.length > 0,
               existingVotes: votingData.existingVotes ? votingData.existingVotes.reduce((acc: { [responseId: string]: number }, vote: any) => {
-                acc[vote.response.id] = 1; // Since each vote = 1 point in the current system
+                acc[vote.response.id] = 1; // Each response can receive 1 vote per voter
                 return acc;
               }, {}) : {}
             }}

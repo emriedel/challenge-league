@@ -98,8 +98,7 @@ model Response {
   submittedAt DateTime  @default(now())
   isPublished Boolean   @default(false) // Published when submission window closes
   publishedAt DateTime?
-  totalVotes  Int       @default(0) // Total number of votes received
-  totalPoints Int       @default(0) // Total weighted points from votes
+  totalVotes  Int       @default(0) // Total number of votes received (1 vote = 1 point)
   finalRank   Int?      // Final ranking position (1st, 2nd, 3rd, etc.)
 
   userId   String
@@ -154,7 +153,6 @@ model LeagueMembership {
 
 model Vote {
   id        String   @id @default(cuid())
-  points    Int      @default(1) // Each vote is worth 1 point
   createdAt DateTime @default(now())
 
   voterId    String

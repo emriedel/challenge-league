@@ -238,46 +238,40 @@ async function main() {
       console.log(`📸 Created ${createdResponses.length} submissions for completed round`);
       
       // Create votes from league members (everyone gets 3 votes)
-      const voters = leagueMembers.filter(member => 
+      const voters = leagueMembers.filter(member =>
         !createdResponses.some(r => r.userId === member.id)
       ); // Non-participants vote
-      
+
       for (const voter of voters) {
-        // Each voter gives 3 votes (can be distributed as 3-0-0, 2-1-0, or 1-1-1)
-        const voteDistributions = [
-          [3, 0, 0], [2, 1, 0], [1, 1, 1], [2, 0, 1]
-        ];
-        const distribution = voteDistributions[Math.floor(Math.random() * voteDistributions.length)];
-        
-        // Shuffle responses and assign votes
+        // Each voter gives 3 individual votes (distributed randomly among responses)
         const shuffledResponses = [...createdResponses].sort(() => Math.random() - 0.5);
-        
-        for (let voteIndex = 0; voteIndex < distribution.length && voteIndex < shuffledResponses.length; voteIndex++) {
-          const votes = distribution[voteIndex];
-          if (votes > 0) {
-            await prisma.vote.create({
-              data: {
-                voterId: voter.id,
-                responseId: shuffledResponses[voteIndex].id,
-                points: votes,
-              },
-            });
-          }
+        const votesToCast = Math.min(3, shuffledResponses.length); // Cast up to 3 votes
+
+        // Randomly select which responses to vote for
+        const selectedResponses = shuffledResponses.slice(0, votesToCast);
+
+        // Create individual votes
+        for (const response of selectedResponses) {
+          await prisma.vote.create({
+            data: {
+              voterId: voter.id,
+              responseId: response.id,
+            },
+          });
         }
       }
       
       // Calculate and update final rankings
       for (const response of createdResponses) {
-        const totalVotes = await prisma.vote.aggregate({
+        const totalVotes = await prisma.vote.count({
           where: { responseId: response.id },
-          _sum: { points: true },
         });
-        
+
         await prisma.response.update({
           where: { id: response.id },
-          data: { 
-            totalVotes: totalVotes._sum.points || 0,
-            isPublished: true 
+          data: {
+            totalVotes,
+            isPublished: true
           },
         });
       }

@@ -70,7 +70,7 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
         },
         orderBy: [
           { finalRank: 'asc' }, // Show ranked results first
-          { totalPoints: 'desc' },
+          { totalVotes: 'desc' },
           { submittedAt: 'desc' }
         ]
       }

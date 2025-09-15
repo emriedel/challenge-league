@@ -222,7 +222,7 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     }
   });
 
-  // Create new votes - each vote is worth POINTS_PER_VOTE
+  // Create new votes - each vote counts as 1
   const createdVotes = [];
   for (const [responseId, count] of Object.entries(votes)) {
     const voteCount = count as number;
@@ -230,8 +230,7 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
       const vote = await db.vote.create({
         data: {
           voterId: session.user.id,
-          responseId: responseId,
-          points: VOTING_CONFIG.POINTS_PER_VOTE
+          responseId: responseId
         }
       });
       createdVotes.push(vote);

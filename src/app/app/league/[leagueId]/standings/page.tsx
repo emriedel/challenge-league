@@ -118,7 +118,7 @@ export default function StandingPage({ params }: StandingPageProps) {
                         </div>
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium">
-                        {entry.stats.totalPoints}
+                        {entry.stats.totalVotes}
                       </td>
                       <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text">
                         {entry.stats.wins}

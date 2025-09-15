@@ -76,7 +76,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         }
       });
 
-      // 2. Keep votes cast by this user to preserve other players' point totals
+      // 2. Keep votes cast by this user to preserve other players' vote totals
       // (We don't delete votes they cast - only votes they received)
 
       // 3. Delete all votes received by this user's responses in this league

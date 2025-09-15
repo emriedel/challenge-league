@@ -11,7 +11,7 @@ interface LeagueUser {
 }
 
 interface LeagueStats {
-  totalPoints: number;
+  totalVotes: number;
   totalSubmissions: number;
   wins: number;
   podiumFinishes: number;
@@ -32,7 +32,7 @@ interface RecentActivity {
     id: string;
     caption: string;
     imageUrl: string;
-    totalPoints: number;
+    totalVotes: number;
     finalRank: number;
     user: {
       username: string;

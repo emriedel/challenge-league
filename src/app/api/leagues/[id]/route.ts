@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { session, league } = accessResult.context;
 
-    // Get league standings - calculate total points across all completed prompts in this league
+    // Get league standings - calculate total votes across all completed prompts in this league
     const leaderboard = await Promise.all(
       (league.memberships || []).map(async (membership) => {
         const userResponses = await db.response.findMany({
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             }
           },
           select: {
-            totalPoints: true,
+            totalVotes: true,
             finalRank: true,
             prompt: {
               select: {
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           }
         });
 
-        const totalPoints = userResponses.reduce((sum, response) => sum + response.totalPoints, 0);
+        const totalVotes = userResponses.reduce((sum, response) => sum + response.totalVotes, 0);
         const totalSubmissions = userResponses.length;
         const wins = userResponses.filter(r => r.finalRank === 1).length;
         const podiumFinishes = userResponses.filter(r => r.finalRank && r.finalRank <= 3).length;
@@ -56,20 +56,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         return {
           user: membership.user,
           stats: {
-            totalPoints,
+            totalVotes,
             totalSubmissions,
             wins,
             podiumFinishes,
-            averageRank: totalSubmissions > 0 
-              ? userResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / totalSubmissions 
+            averageRank: totalSubmissions > 0
+              ? userResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / totalSubmissions
               : 0
           }
         };
       })
     );
 
-    // Sort by total points descending
-    leaderboard.sort((a, b) => b.stats.totalPoints - a.stats.totalPoints);
+    // Sort by total votes descending
+    leaderboard.sort((a, b) => b.stats.totalVotes - a.stats.totalVotes);
 
     // Add league rank
     leaderboard.forEach((entry, index) => {

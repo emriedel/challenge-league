@@ -22,7 +22,6 @@ interface VotingPrompt {
 interface ExistingVote {
   id: string;
   rank: number;
-  points: number;
   response: {
     id: string;
   };

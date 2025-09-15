@@ -19,7 +19,6 @@ export interface Response extends BaseResponse {
   isPublished: boolean;
   publishedAt?: string | null;
   totalVotes: number;
-  totalPoints: number;
   finalRank?: number | null;
   promptId: string;
 }
@@ -32,7 +31,7 @@ export interface VotingResponse extends BaseResponse {
 
 // Response for results display
 export interface ResultsResponse extends BaseResponse {
-  totalPoints: number;
+  totalVotes: number;
   finalRank?: number;
   comments?: Comment[];
   commentCount?: number;
@@ -43,7 +42,6 @@ export interface GalleryResponse extends Response {
   publishedAt: string | null;
   votes: Array<{
     userId: string;
-    points: number;
   }>;
 }
 

@@ -9,7 +9,6 @@ interface GalleryResponse {
   submittedAt: string;
   publishedAt: string | null;
   totalVotes: number;
-  totalPoints: number;
   finalRank: number | null;
   user: {
     username: string;
@@ -18,7 +17,7 @@ interface GalleryResponse {
   votes?: {
     id: string;
     rank: number;
-    points: number;
+    
     voter: {
       username: string;
     };

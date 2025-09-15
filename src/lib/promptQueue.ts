@@ -80,14 +80,13 @@ async function calculateVoteResults(promptId: string) {
       }
     });
 
-    // Calculate vote counts and points for each response
+    // Calculate vote counts for each response
     for (const response of responses) {
       const totalVotes = response.votes.length;
-      const totalPoints = response.votes.reduce((sum, vote) => sum + vote.points, 0);
 
       await db.response.update({
         where: { id: response.id },
-        data: { totalVotes, totalPoints }
+        data: { totalVotes }
       });
     }
 
@@ -95,7 +94,6 @@ async function calculateVoteResults(promptId: string) {
     const responsesByPoints = await db.response.findMany({
       where: { promptId },
       orderBy: [
-        { totalPoints: 'desc' },
         { totalVotes: 'desc' },
         { submittedAt: 'asc' }, // Tiebreaker: earlier submission wins
       ],

@@ -7,7 +7,6 @@ export interface BaseVote {
   id: string;
   userId: string;
   responseId: string;
-  points: number;
 }
 
 // Full vote with metadata
@@ -16,7 +15,7 @@ export interface Vote extends BaseVote {
   promptId: string;
 }
 
-// Vote submission map (responseId -> points)
+// Vote submission map (responseId -> vote count, should always be 1)
 export interface VoteMap {
   [responseId: string]: number;
 }
@@ -24,13 +23,11 @@ export interface VoteMap {
 // Existing user vote for a prompt
 export interface ExistingVote {
   responseId: string;
-  points: number;
 }
 
 // Vote summary for a response
 export interface VoteSummary {
   totalVotes: number;
-  totalPoints: number;
   voterUsernames: string[];
 }
 

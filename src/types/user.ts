@@ -18,7 +18,7 @@ export interface User extends BaseUser {
 
 // User statistics for leaderboards and profiles
 export interface UserStats {
-  totalPoints: number;
+  totalVotes: number;
   totalSubmissions: number;
   wins: number;
   podiumFinishes: number;
