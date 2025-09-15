@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
-import { processPromptQueue } from '@/lib/promptQueue';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import { calculatePhaseEndTime } from '@/lib/phaseCalculations';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
@@ -104,9 +103,6 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
 };
 
 const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
-  // Process prompt queue to ensure current state is correct
-  await processPromptQueue();
-
   const { promptId, photoUrl, caption, leagueId } = await req.json();
 
   // Validate required fields

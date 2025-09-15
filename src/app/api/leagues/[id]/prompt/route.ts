@@ -81,53 +81,58 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!currentPrompt) {
-      // Only process queue if no current prompt found - might need to start a new one
-      await processPromptQueue();
-      
-      // Try to find current prompt again after processing
-      const newCurrentPrompt = await db.prompt.findFirst({
-        where: {
-          status: {
-            in: league.isStarted ? ['ACTIVE', 'VOTING'] : ['VOTING'] // Only VOTING for unstarted leagues
-          },
-          leagueId: league.id,
-        },
-        include: {
-          responses: {
-            where: {
-              userId: session.user.id,
+      // Only process queue if the league has been started and no current prompt found
+      if (league.isStarted) {
+        await processPromptQueue();
+
+        // Try to find current prompt again after processing
+        const newCurrentPrompt = await db.prompt.findFirst({
+          where: {
+            status: {
+              in: ['ACTIVE', 'VOTING']
             },
-            select: {
-              id: true,
-              submittedAt: true,
-              imageUrl: true,
-              caption: true,
+            leagueId: league.id,
+          },
+          include: {
+            responses: {
+              where: {
+                userId: session.user.id,
+              },
+              select: {
+                id: true,
+                submittedAt: true,
+                imageUrl: true,
+                caption: true,
+              },
             },
           },
-        },
-      });
-      
-      if (!newCurrentPrompt) {
-        return NextResponse.json({ error: 'No active prompt found for this league' }, { status: 404 });
+        });
+
+        if (!newCurrentPrompt) {
+          return NextResponse.json({ error: 'No active prompt found for this league' }, { status: 404 });
+        }
+
+        const userResponse = newCurrentPrompt.responses[0];
+
+        return NextResponse.json({
+          prompt: {
+            id: newCurrentPrompt.id,
+            text: newCurrentPrompt.text,
+            status: newCurrentPrompt.status,
+            phaseStartedAt: newCurrentPrompt.phaseStartedAt,
+            challengeNumber: completedChallengeCount + 1,
+          },
+          userResponse: userResponse ? {
+            id: userResponse.id,
+            submittedAt: userResponse.submittedAt,
+            imageUrl: userResponse.imageUrl,
+            caption: userResponse.caption,
+          } : null,
+        });
+      } else {
+        // League hasn't been started yet - return appropriate message
+        return NextResponse.json({ error: 'League has not been started yet' }, { status: 404 });
       }
-      
-      const userResponse = newCurrentPrompt.responses[0];
-      
-      return NextResponse.json({
-        prompt: {
-          id: newCurrentPrompt.id,
-          text: newCurrentPrompt.text,
-          status: newCurrentPrompt.status,
-          phaseStartedAt: newCurrentPrompt.phaseStartedAt,
-          challengeNumber: completedChallengeCount + 1,
-        },
-        userResponse: userResponse ? {
-          id: userResponse.id,
-          submittedAt: userResponse.submittedAt,
-          imageUrl: userResponse.imageUrl,
-          caption: userResponse.caption,
-        } : null,
-      });
     }
 
     const userResponse = currentPrompt.responses[0];
