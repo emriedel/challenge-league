@@ -1,5 +1,5 @@
 import { db } from './db';
-import { isPhaseExpired, getNextPhase, willPhaseExpireInNextCronRun } from './phaseCalculations';
+import { isPhaseExpired, getNextPhase, willPhaseExpireInNextCronRun, getPhaseEndTime } from './phaseCalculations';
 import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -323,133 +323,186 @@ export async function processPromptQueue() {
     // Step 0: Send 24-hour warning notifications before phase transitions
     await send24HourWarningNotifications();
 
-    // Step 1: Move ACTIVE prompts to VOTING when submission window ends
-    const activePrompts = await db.prompt.findMany({
-      where: {
-        status: 'ACTIVE',
-      },
-    });
-
-    for (const prompt of activePrompts) {
-      // Check if the active phase has expired
-      if (isPhaseExpired(prompt)) {
-        // Mark responses as published and move to voting phase
-        const publishedCount = await db.response.updateMany({
-          where: { promptId: prompt.id },
-          data: { 
-            isPublished: true,
-            publishedAt: now,
-          },
-        });
-
-        await db.prompt.update({
-          where: { id: prompt.id },
-          data: { 
-            status: 'VOTING',
-            phaseStartedAt: now, // Update phase start time for voting phase
-          },
-        });
-
-        console.log(`🗳️ Started voting for: "${prompt.text}" (${publishedCount.count} responses published)`);
-
-        // Send notification to league members that voting is now available
-        try {
-          const notificationData = createNotificationData('voting-available', {
-            promptText: prompt.text,
-            leagueName: 'Your League', // TODO: Get actual league name
-            leagueId: prompt.leagueId
-          });
-          
-          await sendNotificationToLeague(prompt.leagueId, notificationData);
-          console.log(`📱 Sent voting notification for prompt: "${prompt.text}"`);
-        } catch (notificationError) {
-          console.error('❌ Failed to send voting notification:', notificationError);
-        }
-      }
-    }
-
-    // Step 2: Complete VOTING prompts when voting window ends
-    const votingPrompts = await db.prompt.findMany({
-      where: {
-        status: 'VOTING',
-      },
-    });
-
-    for (const prompt of votingPrompts) {
-      // Check if the voting phase has expired
-      if (isPhaseExpired(prompt)) {
-        // Calculate final results
-        await calculateVoteResults(prompt.id);
-
-        // Mark prompt as completed (no need to update phaseStartedAt for completed)
-        await db.prompt.update({
-          where: { id: prompt.id },
-          data: { status: 'COMPLETED' },
-        });
-
-        console.log(`🏆 Completed voting for: "${prompt.text}"`);
-      }
-    }
-
-    // Step 3: For each league, activate next prompt if no active prompt exists
+    // Process each league individually to ensure proper state management
     const leagues = await db.league.findMany({
       where: { 
         isActive: true,
         isStarted: true // Only process leagues that have been started by their owners
       },
-      select: { id: true },
+      include: { 
+        prompts: {
+          where: {
+            status: { in: ['ACTIVE', 'VOTING', 'SCHEDULED'] }
+          },
+          orderBy: { queueOrder: 'asc' }
+        }
+      },
     });
 
+    console.log(`🏟️ Processing ${leagues.length} active started leagues...`);
+
     for (const league of leagues) {
-      const currentActivePrompt = await db.prompt.findFirst({
-        where: { 
-          status: 'ACTIVE',
-          leagueId: league.id,
-        },
-      });
+      console.log(`\n🔍 Processing league: ${league.name} (${league.id})`);
+      
+      const leagueSettings = {
+        submissionDays: league.submissionDays,
+        votingDays: league.votingDays,
+        votesPerPlayer: league.votesPerPlayer,
+      };
 
-      if (!currentActivePrompt) {
-        // Find the next scheduled prompt for this league
-        const nextPrompt = await db.prompt.findFirst({
-          where: { 
-            status: 'SCHEDULED',
-            leagueId: league.id,
-          },
-          orderBy: { queueOrder: 'asc' },
-        });
+      // Get prompts from preloaded data
+      const activePrompt = league.prompts.find(p => p.status === 'ACTIVE');
+      const votingPrompt = league.prompts.find(p => p.status === 'VOTING');
+      const nextScheduledPrompt = league.prompts.find(p => p.status === 'SCHEDULED');
 
-        if (nextPrompt) {
+      console.log(`   📊 League status: ACTIVE=${activePrompt ? '✓' : '✗'}, VOTING=${votingPrompt ? '✓' : '✗'}, SCHEDULED=${nextScheduledPrompt ? '✓' : '✗'}`);
+
+      // Step 1: Check for ACTIVE prompts and expire if needed
+      if (activePrompt) {
+        const phaseEndTime = getPhaseEndTime(activePrompt, leagueSettings);
+        const isExpired = isPhaseExpired(activePrompt, leagueSettings);
+        
+        console.log(`   📋 ACTIVE prompt: "${activePrompt.text}"`);
+        console.log(`      Started: ${activePrompt.phaseStartedAt?.toISOString()}`);
+        console.log(`      Should end: ${phaseEndTime?.toISOString()}`);
+        console.log(`      Submission days: ${leagueSettings.submissionDays}, Is expired: ${isExpired}`);
+        
+        if (isExpired) {
+          console.log(`   ⏰ ACTIVE prompt expired, transitioning to VOTING...`);
+          
+          // Mark responses as published and move to voting phase
+          const publishedCount = await db.response.updateMany({
+            where: { promptId: activePrompt.id },
+            data: { 
+              isPublished: true,
+              publishedAt: now,
+            },
+          });
+
+          await db.prompt.update({
+            where: { id: activePrompt.id },
+            data: { 
+              status: 'VOTING',
+              phaseStartedAt: now, // Update phase start time for voting phase
+            },
+          });
+
+          console.log(`   🗳️ Started voting for: "${activePrompt.text}" (${publishedCount.count} responses published)`);
+
+          // Send notification to league members that voting is now available
+          try {
+            const notificationData = createNotificationData('voting-available', {
+              promptText: activePrompt.text,
+              leagueName: league.name,
+              leagueId: league.id
+            });
+            
+            await sendNotificationToLeague(league.id, notificationData);
+            console.log(`   📱 Sent voting notification for prompt: "${activePrompt.text}"`);
+          } catch (notificationError) {
+            console.error(`   ❌ Failed to send voting notification: ${notificationError}`);
+          }
+        } else {
+          console.log(`   ✅ ACTIVE prompt still valid, continuing...`);
+        }
+        
+        // If there's an active prompt (expired or not), skip to next league
+        // We don't want to process VOTING prompts while ACTIVE exists
+        continue;
+      }
+
+      // Step 2: Check for VOTING prompts and expire if needed, then activate next
+      if (votingPrompt) {
+        const phaseEndTime = getPhaseEndTime(votingPrompt, leagueSettings);
+        const isExpired = isPhaseExpired(votingPrompt, leagueSettings);
+        
+        console.log(`   🗳️ VOTING prompt: "${votingPrompt.text}"`);
+        console.log(`      Started: ${votingPrompt.phaseStartedAt?.toISOString()}`);
+        console.log(`      Should end: ${phaseEndTime?.toISOString()}`);
+        console.log(`      Voting days: ${leagueSettings.votingDays}, Is expired: ${isExpired}`);
+        
+        if (isExpired) {
+          console.log(`   ⏰ VOTING prompt expired, completing and activating next...`);
+          
+          // Calculate final results
+          await calculateVoteResults(votingPrompt.id);
+
+          // Mark prompt as completed
+          await db.prompt.update({
+            where: { id: votingPrompt.id },
+            data: { status: 'COMPLETED' },
+          });
+
+          console.log(`   🏆 Completed voting for: "${votingPrompt.text}"`);
+
+          // Now activate the next prompt (fall through to Step 3)
+        } else {
+          console.log(`   ✅ VOTING prompt still valid, continuing...`);
+          // If voting is still active, skip to next league
+          continue;
+        }
+      }
+
+      // Step 3: If no ACTIVE or VOTING prompts (or voting just expired), activate next scheduled prompt
+      console.log(`   🔍 Looking for next scheduled prompt to activate...`);
+      
+      if (nextScheduledPrompt) {
+        console.log(`   ✅ Found next scheduled prompt: "${nextScheduledPrompt.text}"`);
+        console.log(`   🚀 Activating prompt (ID: ${nextScheduledPrompt.id})...`);
+        
+        try {
           // Activate the prompt with current timestamp
           await db.prompt.update({
-            where: { id: nextPrompt.id },
+            where: { id: nextScheduledPrompt.id },
             data: {
               status: 'ACTIVE',
               phaseStartedAt: now,
             },
           });
 
-          console.log(`🚀 Activated next task for league ${league.id}: "${nextPrompt.text}"`);
-          console.log(`   Phase started at: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+          console.log(`   🎉 Successfully activated: "${nextScheduledPrompt.text}"`);
+          console.log(`      Phase started at: ${now.toISOString()}`);
 
           // Send notification to league members about the new prompt
           try {
             const notificationData = createNotificationData('new-prompt-available', {
-              promptText: nextPrompt.text,
-              leagueName: 'Your League', // TODO: Get actual league name
+              promptText: nextScheduledPrompt.text,
+              leagueName: league.name,
               leagueId: league.id
             });
             
             await sendNotificationToLeague(league.id, notificationData);
-            console.log(`📱 Sent new prompt notification: "${nextPrompt.text}"`);
+            console.log(`   📱 Sent new prompt notification: "${nextScheduledPrompt.text}"`);
           } catch (notificationError) {
-            console.error('❌ Failed to send new prompt notification:', notificationError);
+            console.error(`   ❌ Failed to send new prompt notification: ${notificationError}`);
           }
+        } catch (updateError) {
+          console.error(`   ❌ Failed to activate prompt "${nextScheduledPrompt.text}":`);
+          console.error(`      Error: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
+          console.error(`      This should not happen with the new logic!`);
+          
+          // Log current database state for debugging - this indicates a bug in our logic
+          console.error(`      🔍 Current league prompt states:`);
+          league.prompts.forEach(p => {
+            console.error(`        - ${p.status}: "${p.text}" (ID: ${p.id}, Started: ${p.phaseStartedAt?.toISOString()})`);
+          });
+          
+          throw updateError; // Re-throw to maintain error handling flow
         }
+      } else {
+        console.log(`   ℹ️ No scheduled prompts available for activation`);
       }
     }
 
     // Run photo cleanup periodically
     await cleanupOldPhotos();
+
+    const endTime = new Date();
+    const processingTime = endTime.getTime() - now.getTime();
+    console.log(`\n✅ Prompt queue processing completed in ${processingTime}ms`);
+    console.log(`📊 Summary:`);
+    console.log(`   - Leagues processed: ${leagues.length}`);
+    console.log(`   - Processing completed at: ${endTime.toISOString()}`);
 
     return { success: true };
   } catch (error) {
