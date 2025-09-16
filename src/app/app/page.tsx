@@ -8,20 +8,20 @@ import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
 import { useAutoNotifications } from '@/hooks/useAutoNotifications';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useLeagueActions } from '@/hooks/useLeagueActions';
 import OnboardingModal from '@/components/OnboardingModal';
+import NotificationDot from '@/components/NotificationDot';
 import type { League } from '@/types/league';
 
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Auto-enable notifications for logged-in users
   useAutoNotifications();
-  
+
   // Handle onboarding for new users
   const {
     showOnboarding,
@@ -30,46 +30,29 @@ export default function HomePage() {
     closeOnboarding,
   } = useOnboarding();
 
-  const fetchLeagues = useCallback(async () => {
-    try {
-      const response = await fetch('/api/leagues');
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch leagues');
-      }
-
-      const userLeagues = data.leagues || [];
-      setLeagues(userLeagues);
-
-      // Auto-redirect logic based on league count
-      if (userLeagues.length === 0) {
-        // No leagues - stay on home page to show league creation/joining options
-        setLoading(false);
-      } else if (userLeagues.length === 1) {
-        // Single league - auto-redirect
-        router.push(`/app/league/${userLeagues[0].id}`);
-      } else {
-        // Multiple leagues - show selection dashboard
-        setLoading(false);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setLoading(false);
-    }
-  }, [router]);
+  // Use new hook to fetch leagues with action status
+  const { leagues, loading, error: leagueError } = useLeagueActions();
 
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session) {
       router.push('/app/auth/signin');
       return;
     }
 
-    // Fetch user's leagues
-    fetchLeagues();
-  }, [session, status, router, fetchLeagues]);
+    // Auto-redirect logic based on league count
+    if (!loading && leagues.length === 1) {
+      // Single league - auto-redirect
+      router.push(`/app/league/${leagues[0].id}`);
+    }
+  }, [session, status, router, loading, leagues]);
+
+  useEffect(() => {
+    if (leagueError) {
+      setError(leagueError);
+    }
+  }, [leagueError]);
 
   if (status === 'loading' || loading) {
     return (
@@ -154,20 +137,34 @@ export default function HomePage() {
                 {leagues.map((league) => (
                   <div
                     key={league.id}
-                    className="bg-app-surface border border-app-border rounded-lg p-6 hover:shadow-md transition-shadow"
+                    className="bg-app-surface border border-app-border rounded-lg p-6 hover:shadow-md transition-shadow relative"
                   >
+                    {league.needsAction && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                        <span className="text-xs text-red-400 font-medium">
+                          {league.actionType === 'submission' ? 'Submit Required' : 'Vote Required'}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-app-text mb-2">
-                          {league.name}
-                        </h3>
+                      <div className="flex-1 pr-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold text-app-text">
+                            {league.name}
+                          </h3>
+                          {league.needsAction && (
+                            <NotificationDot show={true} size="md" className="relative top-0 right-0" />
+                          )}
+                        </div>
                         <p className="text-sm text-app-text-muted mb-2">
-                          {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} • 
+                          {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} •
                           Owner: @{league.owner?.username || 'Unknown'}
                         </p>
                       </div>
                       {league.isOwner && (
-                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex-shrink-0">
                           Owner
                         </span>
                       )}
@@ -181,9 +178,13 @@ export default function HomePage() {
 
                     <Link
                       href={`/app/league/${league.id}`}
-                      className="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-center font-semibold transition-all duration-200"
+                      className={`block w-full px-4 py-2 rounded-xl text-center font-semibold transition-all duration-200 ${
+                        league.needsAction
+                          ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white'
+                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                      }`}
                     >
-                      Enter League
+                      {league.needsAction ? 'Action Required' : 'Enter League'}
                     </Link>
                   </div>
                 ))}

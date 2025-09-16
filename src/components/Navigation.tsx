@@ -9,6 +9,8 @@ import type { League } from '@/types/league';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileModal from './ProfileModal';
 import OnboardingModal from './OnboardingModal';
+import NotificationDot from './NotificationDot';
+import { useLeagueActions } from '@/hooks/useLeagueActions';
 import { rubik } from '@/lib/fonts';
 
 
@@ -16,8 +18,6 @@ export default function Navigation() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isLeaguesOpen, setIsLeaguesOpen] = useState(false);
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [currentLeague, setCurrentLeague] = useState<League | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -27,25 +27,8 @@ export default function Navigation() {
   const lastScrollY = useRef(0);
   const scrollThreshold = 10; // minimum scroll distance to trigger hide/show
 
-  // Fetch user's leagues when authenticated
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
-      setLoadingLeagues(true);
-      fetch('/api/leagues')
-        .then(res => res.json())
-        .then(data => {
-          if (data.leagues) {
-            setLeagues(data.leagues);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching leagues:', error);
-        })
-        .finally(() => {
-          setLoadingLeagues(false);
-        });
-    }
-  }, [status, session]);
+  // Use new hook to fetch leagues with action status
+  const { leagues, loading: loadingLeagues, hasAnyActions } = useLeagueActions();
 
   // Detect current league from pathname
   useEffect(() => {
@@ -153,7 +136,12 @@ export default function Navigation() {
                 className="flex items-center text-white/80 hover:text-white select-none touch-manipulation"
               >
                 {currentLeague ? currentLeague.name : 'Select League'}
-                <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg
+                  className={`ml-1 h-4 w-4 ${hasAnyActions ? 'text-red-400' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -171,11 +159,16 @@ export default function Navigation() {
                           <Link
                             key={league.id}
                             href={`/app/league/${league.id}`}
-                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation"
+                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <div className="flex justify-between items-center">
-                              <span className="select-none">{league.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="select-none">{league.name}</span>
+                                {league.needsAction && (
+                                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </div>
                               {league.isOwner && (
                                 <span className="text-xs text-app-info select-none">Owner</span>
                               )}
@@ -253,7 +246,12 @@ export default function Navigation() {
                 className="flex items-center text-white/80 hover:text-white select-none touch-manipulation"
               >
                 <span className="text-sm select-none">{currentLeague ? currentLeague.name : 'Select League'}</span>
-                <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg
+                  className={`ml-1 h-4 w-4 ${hasAnyActions ? 'text-red-400' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -271,11 +269,16 @@ export default function Navigation() {
                         <Link
                           key={league.id}
                           href={`/app/league/${league.id}`}
-                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation"
+                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <div className="flex justify-between items-center">
-                            <span>{league.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span>{league.name}</span>
+                              {league.needsAction && (
+                                <div className="w-2 h-2 bg-red-500 rounded-full" />
+                              )}
+                            </div>
                             {league.isOwner && (
                               <span className="text-xs text-app-info">Owner</span>
                             )}

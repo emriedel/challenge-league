@@ -22,6 +22,9 @@ export interface League {
   votesPerPlayer: number;
   createdAt?: Date;
   updatedAt?: Date;
+  // Action status
+  needsAction?: boolean;
+  actionType?: 'submission' | 'voting' | null;
 }
 
 // Extended league type with additional member information
