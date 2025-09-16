@@ -200,7 +200,8 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
     });
   }
 
-  return NextResponse.json({
+  // Refresh PWA badge since user action completed
+  const responseData = NextResponse.json({
     success: true,
     response: {
       id: response.id,
@@ -211,6 +212,11 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
       prompt: response.prompt
     }
   });
+
+  // Set a custom header to trigger badge refresh on client
+  responseData.headers.set('X-Refresh-PWA-Badge', 'true');
+
+  return responseData;
 };
 
 export const { GET, POST } = createMethodHandlers({

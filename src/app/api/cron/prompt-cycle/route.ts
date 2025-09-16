@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createPublicMethodHandlers } from '@/lib/apiMethods';
 import { processPromptQueue } from '@/lib/promptQueue';
+import { sendBadgeRefreshNotificationToAllUsers } from '@/lib/pushNotifications';
 import type { ApiContext } from '@/lib/apiHandler';
 
 // Dynamic export is handled by the API handler
@@ -18,13 +19,21 @@ const processCronJob = async ({ req }: ApiContext) => {
   }
 
   console.log('⏰ Cron job triggered: Processing prompt queue');
-  
+
   const result = await processPromptQueue();
-  
+
   if (result.success) {
-    return NextResponse.json({ 
-      success: true, 
+    // Send badge refresh notifications to all users since league states may have changed
+    console.log('🔔 Sending badge refresh notifications to all users');
+    const badgeResult = await sendBadgeRefreshNotificationToAllUsers();
+
+    return NextResponse.json({
+      success: true,
       message: 'Prompt queue processed successfully',
+      badgeNotifications: {
+        sent: badgeResult.totalSent,
+        failed: badgeResult.totalFailed
+      },
       timestamp: new Date().toISOString()
     });
   } else {

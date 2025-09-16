@@ -194,6 +194,27 @@ async function staleWhileRevalidate(request) {
   return cachedResponse || networkResponsePromise;
 }
 
+// Helper function to refresh PWA badge
+async function refreshPWABadge() {
+  if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
+    try {
+      const response = await fetch('/api/leagues/actions');
+      const data = await response.json();
+
+      if (response.ok && data.leagues) {
+        const actionCount = data.leagues.filter(league => league.needsAction).length;
+        if (actionCount > 0) {
+          navigator.setAppBadge(actionCount);
+        } else {
+          navigator.clearAppBadge();
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to refresh PWA badge in service worker:', error);
+    }
+  }
+}
+
 // Push notification event handler
 self.addEventListener('push', (event) => {
   let notificationData = {
@@ -218,6 +239,13 @@ self.addEventListener('push', (event) => {
       console.error('Error parsing push data:', error);
       notificationData.body = event.data.text() || notificationData.body;
     }
+  }
+
+  // Handle badge refresh notifications (silent notifications)
+  if (notificationData.data?.type === 'badge-refresh') {
+    const refreshPromise = refreshPWABadge();
+    event.waitUntil(refreshPromise);
+    return; // Don't show a visual notification for badge refresh
   }
 
   const notificationOptions = {

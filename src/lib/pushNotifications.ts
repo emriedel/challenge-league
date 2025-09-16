@@ -30,11 +30,12 @@ export interface NotificationData {
   }>;
 }
 
-export type NotificationType = 
+export type NotificationType =
   | 'new-prompt-available'
   | 'submission-deadline-24h'
-  | 'voting-available' 
-  | 'voting-deadline-24h';
+  | 'voting-available'
+  | 'voting-deadline-24h'
+  | 'badge-refresh';
 
 /**
  * Send push notification to a specific user
@@ -189,6 +190,78 @@ export async function sendNotificationToLeague(
 }
 
 /**
+ * Send silent badge refresh notification to all users
+ */
+export async function sendBadgeRefreshNotificationToAllUsers(): Promise<{ success: boolean; totalSent: number; totalFailed: number }> {
+  try {
+    // Get all active users with push subscriptions
+    const users = await db.user.findMany({
+      include: {
+        pushSubscriptions: true
+      }
+    });
+
+    if (users.length === 0) {
+      console.log('No users with push subscriptions found');
+      return { success: true, totalSent: 0, totalFailed: 0 };
+    }
+
+    let totalSent = 0;
+    let totalFailed = 0;
+    const promises: Promise<void>[] = [];
+
+    const notificationData = createNotificationData('badge-refresh', {});
+
+    for (const user of users) {
+      if (user.pushSubscriptions.length === 0) {
+        continue;
+      }
+
+      for (const subscription of user.pushSubscriptions) {
+        const pushSubscription = {
+          endpoint: subscription.endpoint,
+          keys: {
+            p256dh: subscription.p256dh,
+            auth: subscription.auth
+          }
+        };
+
+        const promise = webpush
+          .sendNotification(pushSubscription, JSON.stringify(notificationData))
+          .then(() => {
+            console.log(`✅ Badge refresh notification sent to ${user.username}`);
+            totalSent++;
+          })
+          .catch(async (error: any) => {
+            console.error(`❌ Failed to send badge refresh notification to ${user.username}:`, error);
+            totalFailed++;
+
+            // Remove invalid subscriptions
+            if (error.statusCode === 410 || error.statusCode === 404) {
+              console.log(`🗑️ Removing invalid subscription for ${user.username}`);
+              await db.pushSubscription.delete({
+                where: { id: subscription.id }
+              });
+            }
+          });
+
+        promises.push(promise);
+      }
+    }
+
+    // Wait for all notifications to complete
+    await Promise.allSettled(promises);
+
+    console.log(`🔔 Badge refresh notification summary: ${totalSent} sent, ${totalFailed} failed to ${users.length} users`);
+    return { success: true, totalSent, totalFailed };
+
+  } catch (error) {
+    console.error('Error sending badge refresh notifications:', error);
+    return { success: false, totalSent: 0, totalFailed: 0 };
+  }
+}
+
+/**
  * Create notification data based on type
  */
 export function createNotificationData(
@@ -249,9 +322,22 @@ export function createNotificationData(
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-reminder',
-        data: { 
+        data: {
           url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'voting-reminder'
+        }
+      };
+
+    case 'badge-refresh':
+      return {
+        title: 'Challenge League',
+        body: 'League status updated',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: 'badge-refresh',
+        data: {
+          type: 'badge-refresh',
+          silent: true // This will be a silent notification just to trigger badge refresh
         }
       };
 
