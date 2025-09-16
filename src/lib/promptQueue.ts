@@ -313,7 +313,17 @@ async function send24HourWarningNotifications() {
 }
 
 export async function processPromptQueue() {
+  // Always normalize to exact cron hour (7 PM UTC = 11 AM PT / 12 PM PDT)
   const now = new Date();
+  const normalizedNow = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    19, // 19:00 UTC = cron execution time
+    0,
+    0,
+    0
+  ));
   
   try {
     console.log('🔄 Processing 2-phase prompt queue...');
@@ -371,17 +381,17 @@ export async function processPromptQueue() {
           // Mark responses as published and move to voting phase
           const publishedCount = await db.response.updateMany({
             where: { promptId: activePrompt.id },
-            data: { 
+            data: {
               isPublished: true,
-              publishedAt: now,
+              publishedAt: normalizedNow,
             },
           });
 
           await db.prompt.update({
             where: { id: activePrompt.id },
-            data: { 
+            data: {
               status: 'VOTING',
-              phaseStartedAt: now, // Update phase start time for voting phase
+              phaseStartedAt: normalizedNow, // Update phase start time for voting phase
             },
           });
 
@@ -449,17 +459,17 @@ export async function processPromptQueue() {
         console.log(`   🚀 Activating prompt (ID: ${nextScheduledPrompt.id})...`);
         
         try {
-          // Activate the prompt with current timestamp
+          // Activate the prompt with normalized timestamp
           await db.prompt.update({
             where: { id: nextScheduledPrompt.id },
             data: {
               status: 'ACTIVE',
-              phaseStartedAt: now,
+              phaseStartedAt: normalizedNow,
             },
           });
 
           console.log(`   🎉 Successfully activated: "${nextScheduledPrompt.text}"`);
-          console.log(`      Phase started at: ${now.toISOString()}`);
+          console.log(`      Phase started at: ${normalizedNow.toISOString()}`);
 
           // Send notification to league members about the new prompt
           try {
@@ -501,6 +511,7 @@ export async function processPromptQueue() {
     console.log(`📊 Summary:`);
     console.log(`   - Leagues processed: ${leagues.length}`);
     console.log(`   - Processing completed at: ${endTime.toISOString()}`);
+    console.log(`   - All phase timestamps normalized to: ${normalizedNow.toISOString()}`);
 
     return { success: true };
   } catch (error) {
@@ -547,7 +558,17 @@ export async function getPromptQueue() {
  * This bypasses the normal timing constraints
  */
 export async function manualPhaseTransition(leagueId: string) {
+  // Always normalize to exact cron hour for consistency
   const now = new Date();
+  const normalizedNow = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    19, // 19:00 UTC = cron execution time
+    0,
+    0,
+    0
+  ));
   
   try {
     console.log('⚡ Manual phase transition requested...');
@@ -575,10 +596,10 @@ export async function manualPhaseTransition(leagueId: string) {
           where: { id: nextPrompt.id },
           data: {
             status: 'ACTIVE',
-            phaseStartedAt: now,
+            phaseStartedAt: normalizedNow,
           },
         });
-        
+
         console.log(`⚡ Manually activated: "${nextPrompt.text}"`);
         return { success: true, action: 'activated', prompt: nextPrompt.text };
       } else {
@@ -595,17 +616,17 @@ export async function manualPhaseTransition(leagueId: string) {
       // Transition from ACTIVE to VOTING
       const publishedCount = await db.response.updateMany({
         where: { promptId: currentPrompt.id },
-        data: { 
+        data: {
           isPublished: true,
-          publishedAt: now,
+          publishedAt: normalizedNow,
         },
       });
 
       await db.prompt.update({
         where: { id: currentPrompt.id },
-        data: { 
+        data: {
           status: 'VOTING',
-          phaseStartedAt: now,
+          phaseStartedAt: normalizedNow,
         },
       });
 
@@ -638,14 +659,14 @@ export async function manualPhaseTransition(leagueId: string) {
           where: { id: nextPrompt.id },
           data: {
             status: 'ACTIVE',
-            phaseStartedAt: now,
+            phaseStartedAt: normalizedNow,
           },
         });
-        
+
         console.log(`⚡ Manually activated next prompt: "${nextPrompt.text}"`);
-        return { 
-          success: true, 
-          action: 'completed_and_started_next', 
+        return {
+          success: true,
+          action: 'completed_and_started_next',
           completedPrompt: currentPrompt.text,
           newPrompt: nextPrompt.text
         };

@@ -124,40 +124,75 @@ export function calculatePhaseEndTime(phaseStartedAt: Date, status: 'ACTIVE' | '
 }
 
 /**
- * Get the next cron execution time at 12 PM PT (19:00 UTC)
+ * Get the next cron execution time at exact hour boundary (19:00 UTC)
  */
 function getNextCronExecution(fromDate: Date = new Date()): Date {
   // Cron runs at 19:00 UTC daily (which is 12:00 PM PDT / 11:00 AM PST)
   const today = new Date(fromDate);
   const todayCronTime = new Date(Date.UTC(
     today.getUTCFullYear(),
-    today.getUTCMonth(), 
+    today.getUTCMonth(),
     today.getUTCDate(),
-    19, // 19:00 UTC = 12:00 PM PDT
+    19, // 19:00 UTC = exact cron hour
     0,
     0,
     0
   ));
-  
+
   // If we're past today's cron time, move to tomorrow
   if (fromDate >= todayCronTime) {
     const tomorrowCronTime = new Date(todayCronTime);
     tomorrowCronTime.setUTCDate(tomorrowCronTime.getUTCDate() + 1);
     return tomorrowCronTime;
   }
-  
+
   return todayCronTime;
+}
+
+/**
+ * Normalize a timestamp to the nearest cron execution hour (19:00 UTC)
+ * This ensures all phase times align with actual cron execution times
+ */
+function normalizeToCronHour(timestamp: Date): Date {
+  return new Date(Date.UTC(
+    timestamp.getUTCFullYear(),
+    timestamp.getUTCMonth(),
+    timestamp.getUTCDate(),
+    19, // Always normalize to 19:00 UTC (cron execution time)
+    0,
+    0,
+    0
+  ));
 }
 
 /**
  * Calculate when the phase will ACTUALLY end (next cron run after theoretical end time)
  * This is what should be displayed to users since phases only process during cron runs
+ * Now always returns times at exact hour boundaries
  */
 export function getRealisticPhaseEndTime(prompt: PromptWithPhase, leagueSettings?: LeagueSettings): Date | null {
-  const theoreticalEndTime = getPhaseEndTime(prompt, leagueSettings);
-  if (!theoreticalEndTime) return null;
-  
-  // Find the next cron execution after the theoretical end time
+  if (!prompt.phaseStartedAt) return null;
+
+  // Normalize the phase start time to cron hour boundary
+  const normalizedStart = normalizeToCronHour(new Date(prompt.phaseStartedAt));
+
+  let phaseDurationDays: number;
+  switch (prompt.status) {
+    case 'ACTIVE':
+      phaseDurationDays = leagueSettings?.submissionDays ?? (PHASE_DURATIONS_MS.SUBMISSION_PHASE / (24 * 60 * 60 * 1000));
+      break;
+    case 'VOTING':
+      phaseDurationDays = leagueSettings?.votingDays ?? (PHASE_DURATIONS_MS.VOTING_PHASE / (24 * 60 * 60 * 1000));
+      break;
+    default:
+      return null;
+  }
+
+  // Calculate end time based on normalized start + duration
+  const phaseDurationMs = phaseDurationDays * 24 * 60 * 60 * 1000;
+  const theoreticalEndTime = new Date(normalizedStart.getTime() + phaseDurationMs);
+
+  // Find the next cron execution after the theoretical end time (will be at exact hour)
   return getNextCronExecution(theoreticalEndTime);
 }
 

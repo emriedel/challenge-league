@@ -3,7 +3,7 @@ import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
-import { getPhaseEndTime, isPhaseExpired } from '@/lib/phaseCalculations';
+import { getPhaseEndTime, isPhaseExpired, getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 import { VOTING_CONFIG } from '@/constants/phases';
 
 // Dynamic export is handled by the API handler
@@ -76,14 +76,15 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
 
   // Check if voting window is still open using dynamic calculation
   const voteEndTime = getPhaseEndTime(votingPrompt, leagueSettings);
+  const realisticVoteEndTime = getRealisticPhaseEndTime(votingPrompt, leagueSettings);
   const votingExpired = isPhaseExpired(votingPrompt, leagueSettings);
-  
+
   if (votingExpired || !voteEndTime) {
     return NextResponse.json({
       prompt: votingPrompt,
       responses: votingPrompt.responses,
       canVote: false,
-      voteEnd: voteEndTime?.toISOString(),
+      voteEnd: realisticVoteEndTime?.toISOString(),
       message: 'Voting window has closed'
     });
   }
@@ -115,7 +116,7 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     responses: votableResponses,
     existingVotes: existingVotes,
     canVote: true,
-    voteEnd: voteEndTime.toISOString()
+    voteEnd: realisticVoteEndTime?.toISOString()
   });
 };
 
