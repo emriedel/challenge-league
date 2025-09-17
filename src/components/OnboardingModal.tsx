@@ -317,8 +317,14 @@ export default function OnboardingModal({ isOpen, onClose, onComplete, isNewUser
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto min-h-0">
-            <div className="p-4">
-              {currentStepData.content}
+            <div className={`${currentStep === 0 ? 'h-full flex items-center' : 'p-4'}`}>
+              {currentStep === 0 ? (
+                <div className="w-full px-4">
+                  {currentStepData.content}
+                </div>
+              ) : (
+                currentStepData.content
+              )}
             </div>
           </div>
 

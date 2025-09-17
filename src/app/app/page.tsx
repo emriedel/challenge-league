@@ -159,7 +159,6 @@ export default function HomePage() {
                           )}
                         </div>
                         <p className="text-sm text-app-text-muted mb-2">
-                          {league.memberCount} member{league.memberCount !== 1 ? 's' : ''} •
                           Owner: @{league.owner?.username || 'Unknown'}
                         </p>
                       </div>
