@@ -178,6 +178,11 @@ debug-*.jpg
 debug-*.jpeg
 *-debug.png
 test-screenshot-*.png
+*test-image*.jpg
+*test-image*.png
+test-*.js
+debug-*.js
+comprehensive-integration-test.js
 
 # Local development
 *.local

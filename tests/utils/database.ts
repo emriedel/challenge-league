@@ -12,18 +12,13 @@ let prisma: PrismaClient;
 
 export function getTestDb(): PrismaClient {
   if (!prisma) {
-    // Create a unique test database name for this test run
-    testDbName = `test_db_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    
-    // SAFETY CHECK: Ensure we never accidentally use the development database
-    if (testDbName.includes('dev') || testDbName.includes('development') || testDbName.includes('challenge_league')) {
-      throw new Error('❌ SAFETY ERROR: Test database name would interfere with development database!');
-    }
-    
-    // Set the test database URL (PostgreSQL)
-    const testDatabaseUrl = `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`;
-    
-    // Initialize Prisma client with the isolated test database
+    // Use fixed test database name that matches Docker container
+    testDbName = 'challenge_league_test';
+
+    // Set the test database URL (different port from dev)
+    const testDatabaseUrl = `postgresql://challenge_league:test_password@localhost:5433/${testDbName}`;
+
+    // Initialize Prisma client with the test database
     prisma = new PrismaClient({
       datasources: {
         db: {
@@ -33,62 +28,90 @@ export function getTestDb(): PrismaClient {
       log: [], // No logging for tests
     });
   }
-  
+
   return prisma;
 }
 
 /**
  * Reset the test database with fresh schema (PostgreSQL)
+ * Uses dedicated test database on port 5433
  */
 export async function resetTestDb(): Promise<void> {
   try {
-    // First create the test database
-    await createTestDatabase();
-    
-    // Get test database instance
-    const testDb = getTestDb();
-    
-    // Use Prisma db push to create fresh schema
-    console.log('🔧 Applying database schema to test database...');
-    
-    // Set the test database URL in environment for Prisma commands
-    process.env.DATABASE_URL = `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`;
-    
+    // Use fixed test database (not unique per test run)
+    testDbName = 'challenge_league_test';
+
+    const testDatabaseUrl = `postgresql://challenge_league:test_password@localhost:5433/${testDbName}`;
+
+    // Initialize Prisma client with the shared test database
+    if (prisma) {
+      await prisma.$disconnect();
+    }
+
+    prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: testDatabaseUrl,
+        },
+      },
+      log: [], // No logging for tests
+    });
+
+    // Clear all data from existing tables
+    console.log('🧹 Clearing test database data...');
     try {
-      // Use Prisma's db push to create the schema from the schema.prisma file
-      const pushResult = execSync(`npx prisma db push --force-reset`, {
-        stdio: 'pipe',
-        cwd: process.cwd(),
-        env: {
-          ...process.env,
-          DATABASE_URL: `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`
-        }
-      });
-      console.log('✅ Prisma db push completed successfully');
-    } catch (pushError) {
-      console.log('⚠️ Prisma db push failed:', pushError instanceof Error ? pushError.message : String(pushError));
-      
-      // Alternative: Apply migrations
+      // Clear data in the correct order to respect foreign key constraints
+      await prisma.$executeRaw`TRUNCATE TABLE "Vote" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "Comment" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "Response" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "Prompt" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "LeagueMembership" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "League" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "PushSubscription" CASCADE`;
+      await prisma.$executeRaw`TRUNCATE TABLE "User" CASCADE`;
+      console.log('✅ Test database data cleared');
+    } catch (clearError) {
+      console.log('⚠️ Could not clear existing data (tables may not exist yet)');
+
+      // Apply schema if tables don't exist
+      console.log('🔧 Applying database schema to test database...');
+
       try {
-        execSync(`npx prisma migrate deploy`, {
+        // Use Prisma's db push to create the schema from the schema.prisma file
+        execSync(`npx prisma db push --force-reset`, {
           stdio: 'pipe',
           cwd: process.cwd(),
           env: {
             ...process.env,
-            DATABASE_URL: `postgresql://challenge_league:dev_password@localhost:5432/${testDbName}`
+            DATABASE_URL: testDatabaseUrl
           }
         });
-      } catch (migrateError) {
-        console.log('⚠️ Migration failed too, proceeding without schema setup...');
+        console.log('✅ Prisma db push completed successfully');
+      } catch (pushError) {
+        console.log('⚠️ Prisma db push failed:', pushError instanceof Error ? pushError.message : String(pushError));
+
+        // Alternative: Apply migrations
+        try {
+          execSync(`npx prisma migrate deploy`, {
+            stdio: 'pipe',
+            cwd: process.cwd(),
+            env: {
+              ...process.env,
+              DATABASE_URL: testDatabaseUrl
+            }
+          });
+        } catch (migrateError) {
+          console.log('⚠️ Migration failed too, proceeding without schema setup...');
+        }
       }
     }
     
     // Test connection and verify schema
-    await testDb.$executeRaw`SELECT 1`;
+    await prisma.$executeRaw`SELECT 1`;
     
     // Verify tables exist
     try {
-      const tableCount = await testDb.$queryRaw<Array<{count: bigint}>>`
+      const tableCount = await prisma.$queryRaw<Array<{count: bigint}>>`
         SELECT COUNT(*) as count FROM information_schema.tables 
         WHERE table_schema = 'public' AND table_name IN ('users', 'leagues', 'prompts', 'responses', 'votes');
       `;
@@ -110,28 +133,11 @@ export async function resetTestDb(): Promise<void> {
 }
 
 /**
- * Create the test database using PostgreSQL
+ * Create the test database using PostgreSQL (not needed for Docker setup)
  */
 async function createTestDatabase(): Promise<void> {
-  try {
-    // Connect to postgres default database to create test database
-    const adminDb = new PrismaClient({
-      datasources: {
-        db: {
-          url: 'postgresql://challenge_league:dev_password@localhost:5432/postgres',
-        },
-      },
-    });
-    
-    // Drop test database if it exists and create new one
-    await adminDb.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${testDbName}"`);
-    await adminDb.$executeRawUnsafe(`CREATE DATABASE "${testDbName}"`);
-    
-    await adminDb.$disconnect();
-  } catch (error) {
-    // If database creation fails, try to continue - it might already exist
-    console.log('⚠️ Database creation warning (might already exist):', error instanceof Error ? error.message : String(error));
-  }
+  // Database is created by Docker container, no need to create it manually
+  console.log('✅ Test database managed by Docker container');
 }
 
 /**
@@ -140,31 +146,14 @@ async function createTestDatabase(): Promise<void> {
 export async function cleanupTestDb(): Promise<void> {
   if (prisma) {
     try {
+      // Just disconnect, don't drop the database (it's managed by Docker)
       await prisma.$disconnect();
-      
-      // Drop the test database
-      if (testDbName) {
-        try {
-          const adminDb = new PrismaClient({
-            datasources: {
-              db: {
-                url: 'postgresql://challenge_league:dev_password@localhost:5432/postgres',
-              },
-            },
-          });
-          
-          await adminDb.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${testDbName}"`);
-          await adminDb.$disconnect();
-          console.log('✅ Test database dropped');
-        } catch (error) {
-          console.log('⚠️ Could not drop test database (may not exist):', error instanceof Error ? error.message : String(error));
-        }
-      }
+      console.log('✅ Disconnected from test database');
     } catch (error) {
       console.error('❌ Error during test database cleanup:', error);
     }
   }
-  
+
   // Reset variables for next test
   prisma = null;
   testDbName = null;

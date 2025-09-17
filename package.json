@@ -18,11 +18,14 @@
     "test:unit": "vitest run",
     "test:integration": "playwright test",
     "test:integration:ui": "playwright test --ui",
-    "test:integration:basic": "playwright test --grep \"Simple User Flow\"",
-    "test:integration:comprehensive": "playwright test --grep \"Working User Journey\"",
+    "test:integration:basic": "playwright test tests/integration/basic-user-flow.spec.ts",
     "test:setup": "playwright install",
     "test:cleanup": "node scripts/cleanup-test-files.js",
-    "test:all": "npm run test:unit && npm run test:integration:basic"
+    "test:all": "npm run test:unit && npm run test:integration:basic",
+    "test:db:start": "docker compose -f docker-compose.test.yml up -d",
+    "test:db:stop": "docker compose -f docker-compose.test.yml down",
+    "test:db:reset": "docker compose -f docker-compose.test.yml down -v && docker compose -f docker-compose.test.yml up -d",
+    "test:integration:isolated": "node scripts/run-integration-tests.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

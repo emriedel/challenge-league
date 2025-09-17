@@ -1,0 +1,17 @@
+services:
+  postgres-test:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: challenge_league
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: challenge_league_test
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts with dev DB
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    # Faster startup for tests
+    command: postgres -c shared_preload_libraries='' -c max_connections=100
+
+volumes:
+  postgres_test_data:
