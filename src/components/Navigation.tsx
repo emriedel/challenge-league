@@ -147,7 +147,7 @@ export default function Navigation() {
               </button>
               
               {isLeaguesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
+                <div className="absolute top-full right-0 mt-1 w-80 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
                   <div className="py-1">
                     {loadingLeagues ? (
                       <div className="px-4 py-2 text-sm text-app-text-muted">
@@ -159,22 +159,40 @@ export default function Navigation() {
                           <Link
                             key={league.id}
                             href={`/app/league/${league.id}`}
-                            className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
+                            className="block px-4 py-3 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <span className="select-none">{league.name}</span>
-                                {league.needsAction && (
-                                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium select-none truncate">{league.name}</span>
+                                  {league.needsAction && (
+                                    <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
+                                  )}
+                                </div>
+                                <div className="text-xs text-app-text-muted select-none mb-1">
+                                  {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                                </div>
+                                {league.currentPrompt && (
+                                  <div className="text-xs text-app-text-secondary select-none">
+                                    Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                  </div>
+                                )}
+                                {league.needsAction && league.actionType && (
+                                  <div className="mt-1">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium select-none ${
+                                      league.actionType === 'submission'
+                                        ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50'
+                                        : 'bg-green-900/30 text-green-400 border border-green-800/50'
+                                    }`}>
+                                      {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                    </span>
+                                  </div>
                                 )}
                               </div>
                               {league.isOwner && (
-                                <span className="text-xs text-app-info select-none">Owner</span>
+                                <span className="text-xs text-app-info select-none flex-shrink-0 ml-2">Owner</span>
                               )}
-                            </div>
-                            <div className="text-xs text-app-text-muted select-none">
-                              {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
                             </div>
                           </Link>
                         ))}
@@ -257,7 +275,7 @@ export default function Navigation() {
               </button>
             
             {isLeaguesOpen && (
-              <div className="absolute top-full right-0 mt-1 w-64 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
+              <div className="md:absolute md:top-full md:right-0 md:transform-none md:left-auto fixed top-16 left-1/2 transform -translate-x-1/2 md:-translate-x-0 mt-1 w-80 md:max-w-[min(320px,calc(100vw-1rem))] max-w-[calc(100vw-2rem)] bg-app-surface border border-app-border rounded-md shadow-lg z-10">
                 <div className="py-1">
                   {loadingLeagues ? (
                     <div className="px-4 py-2 text-sm text-app-text-muted">
@@ -269,22 +287,40 @@ export default function Navigation() {
                         <Link
                           key={league.id}
                           href={`/app/league/${league.id}`}
-                          className="block px-4 py-2 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
+                          className="block px-4 py-3 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <span>{league.name}</span>
-                              {league.needsAction && (
-                                <div className="w-2 h-2 bg-red-500 rounded-full" />
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium select-none truncate">{league.name}</span>
+                                {league.needsAction && (
+                                  <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
+                                )}
+                              </div>
+                              <div className="text-xs text-app-text-muted select-none mb-1">
+                                {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
+                              </div>
+                              {league.currentPrompt && (
+                                <div className="text-xs text-app-text-secondary select-none">
+                                  Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                </div>
+                              )}
+                              {league.needsAction && league.actionType && (
+                                <div className="mt-1">
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium select-none ${
+                                    league.actionType === 'submission'
+                                      ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50'
+                                      : 'bg-green-900/30 text-green-400 border border-green-800/50'
+                                  }`}>
+                                    {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                  </span>
+                                </div>
                               )}
                             </div>
                             {league.isOwner && (
-                              <span className="text-xs text-app-info">Owner</span>
+                              <span className="text-xs text-app-info select-none flex-shrink-0 ml-2">Owner</span>
                             )}
-                          </div>
-                          <div className="text-xs text-app-text-muted">
-                            {league.memberCount} member{league.memberCount !== 1 ? 's' : ''}
                           </div>
                         </Link>
                       ))}

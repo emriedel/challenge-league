@@ -43,7 +43,11 @@ export const { GET } = createMethodHandlers({
                     responses: true
                   }
                 }
-              }
+              },
+              orderBy: {
+                queueOrder: 'asc'
+              },
+              take: 1 // Only get the current prompt
             },
             _count: {
               select: {
@@ -62,6 +66,25 @@ export const { GET } = createMethodHandlers({
         const league = membership.league;
         let needsAction = false;
         let actionType: 'submission' | 'voting' | null = null;
+        let currentPrompt = null;
+        let challengeNumber = null;
+
+        // Get challenge number by counting completed prompts + 1
+        if (league.prompts.length > 0) {
+          const completedCount = await db.prompt.count({
+            where: {
+              leagueId: league.id,
+              status: 'COMPLETED'
+            }
+          });
+          challengeNumber = completedCount + 1;
+          currentPrompt = {
+            id: league.prompts[0].id,
+            text: league.prompts[0].text,
+            status: league.prompts[0].status,
+            challengeNumber
+          };
+        }
 
         // Check if user needs to take action on any active/voting prompts
         for (const prompt of league.prompts) {
@@ -103,7 +126,8 @@ export const { GET } = createMethodHandlers({
           memberCount: league._count.memberships,
           isOwner: league.ownerId === userId,
           needsAction,
-          actionType
+          actionType,
+          currentPrompt
         };
       })
     );

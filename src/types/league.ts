@@ -25,6 +25,13 @@ export interface League {
   // Action status
   needsAction?: boolean;
   actionType?: 'submission' | 'voting' | null;
+  // Current prompt information
+  currentPrompt?: {
+    id: string;
+    text: string;
+    status: 'ACTIVE' | 'VOTING';
+    challengeNumber: number;
+  } | null;
 }
 
 // Extended league type with additional member information
