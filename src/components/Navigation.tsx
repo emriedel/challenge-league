@@ -106,7 +106,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-3">
             <Link href="/app" className="flex items-center space-x-3 hover:opacity-80 select-none">
               <Image
-                src="/logo.png"
+                src="/logo-colored.png"
                 alt="Challenge League"
                 width={40}
                 height={40}

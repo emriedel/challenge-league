@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   title: 'Challenge League',
   description: 'Creative competition leagues for friends and communities',
   icons: {
-    icon: '/icons/icon-192x192.png',
-    shortcut: '/icons/icon-192x192.png',
-    apple: '/icons/icon-152x152.png', // Apple uses 152x152 for touch icons
+    icon: '/logo-colored.png',
+    shortcut: '/logo-colored.png',
+    apple: '/logo-colored.png',
   },
   manifest: '/manifest.json',
   appleWebApp: {
