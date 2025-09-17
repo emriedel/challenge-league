@@ -41,7 +41,7 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
     return null;
   }
 
-  const baseClasses = "px-8 py-4 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105";
+  const baseClasses = "w-full sm:w-auto px-8 py-4 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 text-center";
   const primaryClasses = "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white";
   const secondaryClasses = "bg-white text-blue-600 hover:bg-gray-50";
 
@@ -49,8 +49,7 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
     <button
       onClick={handleInstallClick}
       className={`${baseClasses} ${variant === 'primary' ? primaryClasses : secondaryClasses}`}
-    >
-      📱 Install Challenge League
+    >Install the App
     </button>
   );
 }
