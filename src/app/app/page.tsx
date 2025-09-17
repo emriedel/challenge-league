@@ -40,13 +40,7 @@ export default function HomePage() {
       router.push('/app/auth/signin');
       return;
     }
-
-    // Auto-redirect logic based on league count
-    if (!loading && leagues.length === 1) {
-      // Single league - auto-redirect
-      router.push(`/app/league/${leagues[0].id}`);
-    }
-  }, [session, status, router, loading, leagues]);
+  }, [session, status, router]);
 
   useEffect(() => {
     if (leagueError) {

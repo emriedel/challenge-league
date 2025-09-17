@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import BottomNavigation from '@/components/BottomNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import LeagueRedirectHandler from '@/components/LeagueRedirectHandler';
 
 interface LayoutContentProps {
   children: React.ReactNode;
@@ -24,7 +25,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       {!isAuthFlow && <Navigation />}
       <main className={hideBottomNav ? '' : 'pb-20 md:pb-0'}>
         <ErrorBoundary>
-          {children}
+          <LeagueRedirectHandler>
+            {children}
+          </LeagueRedirectHandler>
         </ErrorBoundary>
       </main>
       {!hideBottomNav && <BottomNavigation />}
