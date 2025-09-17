@@ -22,6 +22,13 @@ interface GalleryResponse {
       username: string;
     };
   }[];
+  // New voting participation metadata
+  votingMetadata?: {
+    authorVoted: boolean; // Whether the submission author voted in this round
+    totalVotes: number; // Total votes received (raw count)
+    standingVotes: number; // Votes from participants who voted (counts for standings)
+    votersWhoVoted: number; // Number of voters who also participated
+  };
 }
 
 interface CompletedRound {

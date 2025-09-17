@@ -40,7 +40,7 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
 
   // Get all completed prompts from this league with their responses
   const completedPrompts = await db.prompt.findMany({
-    where: { 
+    where: {
       status: 'COMPLETED',
       leagueId: league.id
     },
@@ -61,7 +61,8 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
             include: {
               voter: {
                 select: {
-                  username: true
+                  username: true,
+                  id: true
                 }
               }
             }
@@ -77,10 +78,10 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
     orderBy: { updatedAt: 'desc' } // Most recent rounds first
   });
 
-  // Add calculated dates and challenge numbers to completed prompts
-  const roundsWithDates = completedPrompts.map((prompt, index) => {
+  // Add calculated dates, challenge numbers, and voting participation analysis to completed prompts
+  const roundsWithDates = await Promise.all(completedPrompts.map(async (prompt, index) => {
     // For completed prompts, calculate when the submission phase ended
-    const submissionEndDate = prompt.phaseStartedAt 
+    const submissionEndDate = prompt.phaseStartedAt
       ? calculatePhaseEndTime(new Date(prompt.phaseStartedAt), 'ACTIVE')
       : null;
 
@@ -89,13 +90,50 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
     // So the challenge number is (total completed - current index)
     const challengeNumber = completedPrompts.length - index;
 
+    // Get all users who voted in this prompt
+    const votersInThisRound = await db.vote.findMany({
+      where: {
+        response: {
+          promptId: prompt.id
+        }
+      },
+      select: {
+        voterId: true
+      },
+      distinct: ['voterId']
+    });
+
+    const voterIds = new Set(votersInThisRound.map(v => v.voterId));
+
+    // Enhance responses with voting participation data
+    const enhancedResponses = prompt.responses.map(response => {
+      // Check if this response's author voted in this round
+      const authorVoted = voterIds.has(response.userId);
+
+      // Count votes from users who also voted in this round (eligible votes for standings)
+      const standingVotes = response.votes.filter(vote => voterIds.has(vote.voter.id));
+      const eligibleVoteCount = standingVotes.length;
+
+      return {
+        ...response,
+        // Add voting participation metadata
+        votingMetadata: {
+          authorVoted,
+          totalVotes: response.totalVotes, // Raw vote count (all votes)
+          standingVotes: eligibleVoteCount, // Votes from users who voted (counts for standings)
+          votersWhoVoted: standingVotes.length // Number of voters who also participated
+        }
+      };
+    });
+
     return {
       ...prompt,
+      responses: enhancedResponses,
       weekEnd: submissionEndDate ? submissionEndDate.toISOString() : null,
       weekStart: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt).toISOString() : null,
       challengeNumber
     };
-  });
+  }));
 
   return NextResponse.json({
     rounds: roundsWithDates

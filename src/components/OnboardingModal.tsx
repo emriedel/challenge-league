@@ -153,8 +153,8 @@ const ONBOARDING_STEPS = [
                 </svg>
               </div>
               <div>
-                <h4 className="text-app-text font-semibold mb-2">One Entry Per Challenge</h4>
-                <p className="text-app-text-secondary text-sm">Each player gets one submission per challenge. Make it count!</p>
+                <h4 className="text-app-text font-semibold mb-2">Vote to Earn Points</h4>
+                <p className="text-app-text-secondary text-sm">You must vote in order to earn points for your own submission for a given round</p>
               </div>
             </div>
           </div>

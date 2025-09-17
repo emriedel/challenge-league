@@ -145,7 +145,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                         <polyline points="12,6 12,12 16,14"/>
                       </svg>
                       <span>
-                        Ended: {selectedRound.weekEnd 
+                        Ended: {selectedRound.weekEnd
                           ? new Date(selectedRound.weekEnd).toLocaleDateString('en-US', {
                               weekday: 'short',
                               month: 'short',
@@ -158,6 +158,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                         }
                       </span>
                     </div>
+
                   </div>
               )}
             </div>
@@ -167,28 +168,43 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           <div>
             {selectedRound?.responses && selectedRound.responses.length > 0 ? (
               <div className="space-y-0">
-                {selectedRound.responses.map((response) => (
-                  <PhotoFeedItem
-                    key={response.id}
-                    user={{
-                      username: response.user.username,
-                      profilePhoto: response.user.profilePhoto
-                    }}
-                    imageUrl={response.imageUrl}
-                    caption={response.caption}
-                    metadata={response.finalRank !== null && response.finalRank !== undefined ? {
-                      rank: response.finalRank,
-                      votes: response.totalVotes ?? 0
-                    } : undefined}
-                    footerContent={
-                      <CommentSection
-                        responseId={response.id}
-                        showInput={false}
-                        collapsed={true}
-                      />
-                    }
-                  />
-                ))}
+                {selectedRound.responses.map((response) => {
+                  const metadata = response.votingMetadata;
+                  const authorDidntVote = metadata && !metadata.authorVoted;
+
+                  return (
+                    <PhotoFeedItem
+                      key={response.id}
+                      user={{
+                        username: response.user.username,
+                        profilePhoto: response.user.profilePhoto
+                      }}
+                      imageUrl={response.imageUrl}
+                      caption={response.caption}
+                      metadata={response.finalRank !== null && response.finalRank !== undefined ? {
+                        rank: response.finalRank,
+                        votes: response.totalVotes ?? 0,
+                        strikethroughVotes: authorDidntVote
+                      } : undefined}
+                      headerActions={
+                        authorDidntVote ? (
+                          <div className="text-right">
+                            <div className="text-xs text-app-text-muted">
+                              (Didn&apos;t Vote)
+                            </div>
+                          </div>
+                        ) : undefined
+                      }
+                      footerContent={
+                        <CommentSection
+                          responseId={response.id}
+                          showInput={false}
+                          collapsed={true}
+                        />
+                      }
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-app-bg min-h-[50vh] flex items-center justify-center">

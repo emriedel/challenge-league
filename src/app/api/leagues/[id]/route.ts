@@ -25,6 +25,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { session, league } = accessResult.context;
 
     // Get league standings - calculate total votes across all completed prompts in this league
+    // Only count votes from rounds where the user participated in voting (no vote, no points rule)
     const leaderboard = await Promise.all(
       (league.memberships || []).map(async (membership) => {
         const userResponses = await db.response.findMany({
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           select: {
             totalVotes: true,
             finalRank: true,
+            promptId: true,
             prompt: {
               select: {
                 id: true,
@@ -48,10 +50,47 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           }
         });
 
-        const totalVotes = userResponses.reduce((sum, response) => sum + response.totalVotes, 0);
-        const totalSubmissions = userResponses.length;
-        const wins = userResponses.filter(r => r.finalRank === 1).length;
-        const podiumFinishes = userResponses.filter(r => r.finalRank && r.finalRank <= 3).length;
+        // Get all completed prompts for this league to check which ones the user voted in
+        const completedPrompts = await db.prompt.findMany({
+          where: {
+            status: 'COMPLETED',
+            leagueId: league.id
+          },
+          select: {
+            id: true
+          }
+        });
+
+        // Check which prompts the user cast votes in
+        const userVotedPrompts = await db.vote.findMany({
+          where: {
+            voterId: membership.userId,
+            response: {
+              promptId: {
+                in: completedPrompts.map(p => p.id)
+              }
+            }
+          },
+          select: {
+            response: {
+              select: {
+                promptId: true
+              }
+            }
+          }
+        });
+
+        const votedPromptIds = new Set(userVotedPrompts.map(v => v.response.promptId));
+
+        // Only count votes from responses in rounds where the user voted
+        const eligibleResponses = userResponses.filter(response =>
+          votedPromptIds.has(response.promptId)
+        );
+
+        const totalVotes = eligibleResponses.reduce((sum, response) => sum + response.totalVotes, 0);
+        const totalSubmissions = userResponses.length; // Total submissions (not filtered by voting)
+        const wins = eligibleResponses.filter(r => r.finalRank === 1).length;
+        const podiumFinishes = eligibleResponses.filter(r => r.finalRank && r.finalRank <= 3).length;
 
         return {
           user: membership.user,
@@ -60,9 +99,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             totalSubmissions,
             wins,
             podiumFinishes,
-            averageRank: totalSubmissions > 0
-              ? userResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / totalSubmissions
-              : 0
+            averageRank: eligibleResponses.length > 0
+              ? eligibleResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / eligibleResponses.length
+              : 0,
+            // Add additional stats to help users understand the no-vote rule
+            votingParticipation: votedPromptIds.size,
+            totalCompletedRounds: completedPrompts.length
           }
         };
       })

@@ -24,6 +24,7 @@ interface PhotoFeedItemProps {
     rank?: number;
     votes?: number;
     date?: string;
+    strikethroughVotes?: boolean; // Whether to show votes with strikethrough
   };
   // CSS classes for customization
   className?: string;
@@ -85,7 +86,11 @@ export default function PhotoFeedItem({
                 <p className="text-sm text-app-text-muted">
                   {metadata.rank !== undefined && `#${metadata.rank}`}
                   {metadata.rank !== undefined && metadata.votes !== undefined && ' • '}
-                  {metadata.votes !== undefined && `${metadata.votes} ${metadata.votes === 1 ? 'vote' : 'votes'}`}
+                  {metadata.votes !== undefined && (
+                    <span className={metadata.strikethroughVotes ? 'line-through' : ''}>
+                      {metadata.votes} {metadata.votes === 1 ? 'vote' : 'votes'}
+                    </span>
+                  )}
                 </p>
               </div>
             )}

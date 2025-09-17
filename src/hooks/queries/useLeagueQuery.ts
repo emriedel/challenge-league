@@ -17,6 +17,9 @@ interface LeagueStats {
   podiumFinishes: number;
   averageRank: number;
   leagueRank: number;
+  // New fields for "no vote, no points" rule
+  votingParticipation: number; // Number of rounds the user voted in
+  totalCompletedRounds: number; // Total completed rounds in the league
 }
 
 interface LeaderboardEntry {
