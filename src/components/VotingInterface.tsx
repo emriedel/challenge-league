@@ -328,6 +328,7 @@ export default function VotingInterface({
         votesCount={getTotalVotes()}
         maxVotes={requiredVotes}
         isVisible={showFloatingCounter}
+        hasSubmittedVotes={hasSubmittedVotes}
       />
     </div>
   );
