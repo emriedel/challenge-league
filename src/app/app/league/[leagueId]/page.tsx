@@ -1,11 +1,11 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { 
-  useLeagueQuery, 
-  useVotingQuery, 
+import {
+  useLeagueQuery,
+  useVotingQuery,
   useLeaguePromptQuery,
   useSubmitVotesMutation,
   useSubmitResponseMutation
@@ -13,7 +13,7 @@ import {
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
-import { useAutoNotifications } from '@/hooks/useAutoNotifications';
+import { useContextualNotifications } from '@/hooks/useContextualNotifications';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -32,12 +32,19 @@ interface LeagueHomePageProps {
 export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
-  
-  // Auto-enable notifications for logged-in users
-  useAutoNotifications();
+
+  // Check if user just joined this league
+  const justJoined = searchParams.get('joined') === 'true';
+
+  // Show contextual notification prompt when user just joined
+  useContextualNotifications({
+    leagueName: leagueData?.league?.name,
+    trigger: justJoined ? 'league-join' : null
+  });
   
   // Mutations for user actions
   const submitVotesMutation = useSubmitVotesMutation(params.leagueId);

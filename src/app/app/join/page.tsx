@@ -80,8 +80,8 @@ export default function JoinLeaguePage() {
         throw new Error(data.error || 'Failed to join league');
       }
 
-      // Redirect to the joined league
-      router.push(`/app/league/${data.league.id}`);
+      // Redirect to the joined league with joined flag
+      router.push(`/app/league/${data.league.id}?joined=true`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -106,8 +106,8 @@ export default function JoinLeaguePage() {
         throw new Error(data.error || 'Failed to join league');
       }
 
-      // Redirect to the joined league
-      router.push(`/app/league/${data.league.id}`);
+      // Redirect to the joined league with joined flag
+      router.push(`/app/league/${data.league.id}?joined=true`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

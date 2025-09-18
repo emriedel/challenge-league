@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useSession } from 'next-auth/react';
 
@@ -15,20 +16,67 @@ export default function NotificationSettings() {
     unsubscribe
   } = usePushNotifications();
 
+  // Local state for optimistic UI updates
+  const [optimisticSubscribed, setOptimisticSubscribed] = useState<boolean | null>(null);
+  const [hasError, setHasError] = useState(false);
+
+  // Reset optimistic state when actual state changes
+  useEffect(() => {
+    setOptimisticSubscribed(null);
+    setHasError(false);
+  }, [isSubscribed]);
+
   if (!session?.user) {
     return null;
   }
 
   const handleEnableNotifications = async () => {
-    if (permission !== 'granted') {
-      const granted = await requestPermission();
-      if (!granted) return;
+    // If permission is denied, we can't do anything
+    if (permission === 'denied') {
+      return;
     }
-    await subscribe();
+
+    setHasError(false);
+
+    try {
+      // If permission is default, request permission first (this shows the system dialog)
+      if (permission === 'default') {
+        const granted = await requestPermission();
+        if (!granted) {
+          // User declined the system permission dialog
+          return;
+        }
+      }
+
+      // Only show optimistic state after permission is granted
+      setOptimisticSubscribed(true);
+
+      // Now subscribe to push notifications
+      const success = await subscribe();
+      if (!success) {
+        setOptimisticSubscribed(false);
+        setHasError(true);
+      }
+    } catch (error) {
+      setOptimisticSubscribed(false);
+      setHasError(true);
+    }
   };
 
   const handleDisableNotifications = async () => {
-    await unsubscribe();
+    setOptimisticSubscribed(false);
+    setHasError(false);
+
+    try {
+      const success = await unsubscribe();
+      if (!success) {
+        setOptimisticSubscribed(true);
+        setHasError(true);
+      }
+    } catch (error) {
+      setOptimisticSubscribed(true);
+      setHasError(true);
+    }
   };
 
   if (!isSupported) {
@@ -53,42 +101,79 @@ export default function NotificationSettings() {
 
         <div className="flex items-center justify-between">
           <span className="text-app-text text-sm font-medium">Notifications</span>
-          
+
           <div className="flex items-center space-x-3">
             {permission === 'denied' ? (
-              <span className="text-app-error text-sm">Blocked</span>
+              <div className="flex items-center space-x-3">
+                <span className="text-app-text-muted text-sm">Off</span>
+                <div className="relative">
+                  <button
+                    disabled
+                    className="relative inline-flex h-8 w-14 shrink-0 items-center rounded-full bg-app-border opacity-50 cursor-not-allowed"
+                  >
+                    <span className="inline-block h-6 w-6 shrink-0 transform rounded-full bg-white translate-x-1" />
+                  </button>
+                </div>
+                <span className="text-app-error text-sm">Blocked</span>
+              </div>
             ) : (
               <>
-                <span className={`text-sm ${
-                  isSubscribed ? 'text-app-text-muted' : 'text-app-text'
-                }`}>Off</span>
-                
-                <button
-                  onClick={isSubscribed ? handleDisableNotifications : handleEnableNotifications}
-                  disabled={isLoading}
-                  className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
-                    isSubscribed ? 'bg-[#3a8e8c]' : 'bg-app-border'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-6 w-6 shrink-0 transform rounded-full bg-white transition-transform ${
-                      isSubscribed ? 'translate-x-7' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-                
-                <span className={`text-sm ${
-                  isSubscribed ? 'text-app-text' : 'text-app-text-muted'
-                }`}>On</span>
+                {/* Determine the current toggle state (optimistic or actual) */}
+                {(() => {
+                  const currentlySubscribed = optimisticSubscribed !== null ? optimisticSubscribed : isSubscribed;
+
+                  return (
+                    <>
+                      <span className={`text-sm ${
+                        currentlySubscribed ? 'text-app-text-muted' : 'text-app-text'
+                      }`}>Off</span>
+
+                      <div className="relative">
+                        <button
+                          onClick={currentlySubscribed ? handleDisableNotifications : handleEnableNotifications}
+                          disabled={isLoading}
+                          className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
+                            currentlySubscribed ? 'bg-[#3a8e8c]' : 'bg-app-border'
+                          } ${hasError ? 'ring-2 ring-app-error' : ''}`}
+                        >
+                          <span
+                            className={`inline-block h-6 w-6 shrink-0 transform rounded-full bg-white transition-transform ${
+                              currentlySubscribed ? 'translate-x-7' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+
+                        {/* Loading spinner overlay when processing */}
+                        {isLoading && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        )}
+                      </div>
+
+                      <span className={`text-sm ${
+                        currentlySubscribed ? 'text-app-text' : 'text-app-text-muted'
+                      }`}>On</span>
+                    </>
+                  );
+                })()}
               </>
             )}
           </div>
         </div>
 
-        {permission === 'denied' && (
-          <p className="text-app-text-muted text-xs bg-app-surface rounded p-2">
-            To enable notifications, click the lock icon in your browser&apos;s address bar and allow notifications.
+        {/* Error message if subscription failed */}
+        {hasError && (
+          <p className="text-app-error text-xs bg-app-surface rounded p-2">
+            Failed to update notification settings. Please try again.
           </p>
+        )}
+
+        {permission === 'denied' && (
+          <div className="text-app-text-muted text-xs bg-app-surface rounded p-3">
+            <p className="font-medium text-app-error mb-1">Notifications are blocked</p>
+            <p>Enable notifications for this app in your system settings, then refresh this page.</p>
+          </div>
         )}
 
       </div>

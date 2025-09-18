@@ -6,7 +6,6 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
-import { useAutoNotifications } from '@/hooks/useAutoNotifications';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useLeagueActions } from '@/hooks/useLeagueActions';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -18,9 +17,6 @@ export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [error, setError] = useState('');
-
-  // Auto-enable notifications for logged-in users
-  useAutoNotifications();
 
   // Handle onboarding for new users
   const {
