@@ -3,8 +3,7 @@ import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
-import { getPhaseEndTime, isPhaseExpired, getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
-import { VOTING_CONFIG } from '@/constants/phases';
+import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -74,20 +73,8 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     votesPerPlayer: league.votesPerPlayer
   };
 
-  // Check if voting window is still open using dynamic calculation
-  const voteEndTime = getPhaseEndTime(votingPrompt, leagueSettings);
+  // Trust database state - if prompt status is VOTING, allow voting
   const realisticVoteEndTime = getRealisticPhaseEndTime(votingPrompt, leagueSettings);
-  const votingExpired = isPhaseExpired(votingPrompt, leagueSettings);
-
-  if (votingExpired || !voteEndTime) {
-    return NextResponse.json({
-      prompt: votingPrompt,
-      responses: votingPrompt.responses,
-      canVote: false,
-      voteEnd: realisticVoteEndTime?.toISOString(),
-      message: 'Voting window has closed'
-    });
-  }
 
   // Get user's existing votes for this prompt
   const existingVotes = await db.vote.findMany({
@@ -191,11 +178,7 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     }
   }
 
-  // Check if voting window is still open using dynamic calculation with league settings
-  const votingExpired = isPhaseExpired(votingPrompt, leagueSettings);
-  if (votingExpired) {
-    throw new ValidationError('Voting window has closed');
-  }
+  // Trust database state - if prompt status is VOTING, allow vote submission
 
   // Validate that responses exist and user isn't voting for their own
   const responseIds = votingPrompt.responses.map(r => r.id);
