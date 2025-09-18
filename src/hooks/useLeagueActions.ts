@@ -70,6 +70,18 @@ export function useLeagueActions(): UseLeagueActionsReturn {
     fetchLeagues();
   }, [fetchLeagues]);
 
+  // Listen for league actions refresh events
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchLeagues();
+    };
+
+    window.addEventListener('refreshLeagueActions', handleRefresh);
+    return () => {
+      window.removeEventListener('refreshLeagueActions', handleRefresh);
+    };
+  }, [fetchLeagues]);
+
   // Clear badge when user signs out
   useEffect(() => {
     if (status === 'unauthenticated') {

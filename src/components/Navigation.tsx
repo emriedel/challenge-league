@@ -28,7 +28,7 @@ export default function Navigation() {
   const scrollThreshold = 10; // minimum scroll distance to trigger hide/show
 
   // Use new hook to fetch leagues with action status
-  const { leagues, loading: loadingLeagues, hasAnyActions } = useLeagueActions();
+  const { leagues, loading: loadingLeagues, hasAnyActions, refetch: refetchLeagueActions } = useLeagueActions();
 
   // Detect current league from pathname
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function Navigation() {
 
   return (
     <>
-    <header 
+    <header
       className={`sticky top-0 z-40 transition-transform duration-300 bg-app-bg border-b border-app-border ${
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
       }`}

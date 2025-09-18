@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
+import { refreshLeagueActions } from '@/lib/leagueActions';
 
 interface SubmissionData {
   photo: File;
@@ -72,6 +73,7 @@ export function useSubmissionManagement({
 
       onSuccess?.({ type: 'success', text: 'Response submitted successfully!' });
       onRefetch?.(); // Refresh to show updated submission
+      refreshLeagueActions(); // Refresh navigation indicators
     } catch (error) {
       console.error('Submission error:', error);
       onError?.(error instanceof Error ? error.message : 'Failed to submit response');
@@ -127,6 +129,7 @@ export function useSubmissionManagement({
 
       onSuccess?.({ type: 'success', text: 'Submission updated successfully!' });
       onRefetch?.(); // Refresh to show updated submission
+      refreshLeagueActions(); // Refresh navigation indicators
     } catch (error) {
       console.error('Update error:', error);
       onError?.(error instanceof Error ? error.message : 'Failed to update submission');

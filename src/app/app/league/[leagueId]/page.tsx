@@ -14,6 +14,7 @@ import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
 import { useContextualNotifications } from '@/hooks/useContextualNotifications';
+import { refreshLeagueActions } from '@/lib/leagueActions';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -75,10 +76,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     try {
       await submitVotesMutation.mutateAsync(votes);
       setVotingMessage({ type: 'success', text: 'Votes submitted successfully!' });
+      refreshLeagueActions(); // Refresh navigation indicators
     } catch (error) {
-      setVotingMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to submit votes' 
+      setVotingMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to submit votes'
       });
     }
   };
