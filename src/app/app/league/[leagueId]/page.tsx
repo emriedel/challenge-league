@@ -146,11 +146,12 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     );
   }
 
-  // Three basic states for the Challenge page
-  const showVoting = votingData?.canVote && votingData.responses.length > 0;
-  const showSubmission = !showVoting && promptData?.prompt && !promptData.userResponse;
-  const showSubmitted = !showVoting && promptData?.prompt && promptData.userResponse;
-  const showNoChallenge = !showVoting && !showSubmission && !showSubmitted;
+  // Base UI state directly on prompt status from database
+  const promptStatus = promptData?.prompt?.status;
+  const showVoting = promptStatus === 'VOTING' && (votingData?.responses?.length ?? 0) > 0;
+  const showSubmission = promptStatus === 'ACTIVE' && !promptData?.userResponse;
+  const showSubmitted = promptStatus === 'ACTIVE' && !!promptData?.userResponse;
+  const showNoChallenge = !promptStatus || promptStatus === 'SCHEDULED' || promptStatus === 'COMPLETED';
 
   return (
     <ErrorBoundary 
@@ -249,7 +250,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         {showVoting && votingData && (
           <VotingInterface
             votingData={{
-              canVote: votingData.canVote,
+              canVote: true, // Always allow voting when prompt status is VOTING
               responses: votingData.responses.map(response => ({
                 ...response,
                 user: {
