@@ -5,7 +5,7 @@ Challenge League is a web application inspired by Taskmaster, where players join
 
 **Purpose:** Foster creativity and friendly competition through weekly challenges
 **Development Strategy:** Web-first with PWA features, mobile app to follow later
-**Current Status:** MVP Complete - fully functional competition platform
+**Current Status:** MVP Complete
 
 ## Core Technology Stack
 - **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
