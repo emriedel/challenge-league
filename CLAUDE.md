@@ -160,8 +160,8 @@ src/
 - Invite code for joining
 - Active status and startup flag (`isStarted`)
 - Configurable settings:
-  - `submissionDays` (default: 5 days)
-  - `votingDays` (default: 2 days) 
+  - `submissionDays` (default: 6 days)
+  - `votingDays` (default: 1 day) 
   - `votesPerPlayer` (default: 3 votes)
 - Owner relationship and member count via LeagueMembership
 

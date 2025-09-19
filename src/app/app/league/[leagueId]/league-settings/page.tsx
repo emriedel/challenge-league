@@ -110,8 +110,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [showDeleteLeagueConfirm, setShowDeleteLeagueConfirm] = useState(false);
   
   // League settings state - use strings for inputs, parse only on submit
-  const [submissionDays, setSubmissionDays] = useState('5');
-  const [votingDays, setVotingDays] = useState('2');
+  const [submissionDays, setSubmissionDays] = useState('6');
+  const [votingDays, setVotingDays] = useState('1');
   const [votesPerPlayer, setVotesPerPlayer] = useState('3');
   const [isEditingSettings, setIsEditingSettings] = useState(false);
 
@@ -498,13 +498,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-app-surface-dark rounded-lg p-4">
                   <h3 className="text-sm font-medium text-app-text-secondary mb-1">Submission Phase</h3>
-                  <p className="text-2xl font-bold text-app-text">{league?.submissionDays || 5} days</p>
+                  <p className="text-2xl font-bold text-app-text">{league?.submissionDays || 6} days</p>
                   <p className="text-xs text-app-text-muted">Time to submit responses</p>
                 </div>
                 
                 <div className="bg-app-surface-dark rounded-lg p-4">
                   <h3 className="text-sm font-medium text-app-text-secondary mb-1">Voting Phase</h3>
-                  <p className="text-2xl font-bold text-app-text">{league?.votingDays || 2} days</p>
+                  <p className="text-2xl font-bold text-app-text">{league?.votingDays || 1} days</p>
                   <p className="text-xs text-app-text-muted">Time to vote on submissions</p>
                 </div>
                 
