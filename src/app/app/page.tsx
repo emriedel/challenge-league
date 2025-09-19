@@ -44,12 +44,22 @@ export default function HomePage() {
     }
   }, [leagueError]);
 
-  if (status === 'loading' || loading) {
+  // Redirect to single league immediately if user has exactly one league
+  useEffect(() => {
+    if (!loading && leagues.length === 1) {
+      router.push(`/app/league/${leagues[0].id}`);
+    }
+  }, [loading, leagues, router]);
+
+  // Show loading while fetching leagues or redirecting to single league
+  if (status === 'loading' || loading || (!loading && leagues.length === 1)) {
     return (
       <div className="min-h-screen bg-app-bg flex flex-col justify-center px-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-app-text-muted">Loading your leagues...</p>
+          <p className="mt-4 text-app-text-muted">
+            {leagues.length === 1 ? 'Entering your league...' : 'Loading your leagues...'}
+          </p>
         </div>
       </div>
     );
@@ -72,6 +82,7 @@ export default function HomePage() {
   }
 
   // Show league selection dashboard for users with multiple leagues or no leagues
+  // (Single league users are redirected above)
   return (
     <>
       <div className="min-h-screen bg-app-bg flex flex-col px-4 pt-8 sm:py-12 sm:px-6 lg:px-8">
