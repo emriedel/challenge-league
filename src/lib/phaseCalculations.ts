@@ -192,8 +192,8 @@ export function getRealisticPhaseEndTime(prompt: PromptWithPhase, leagueSettings
   const phaseDurationMs = phaseDurationDays * 24 * 60 * 60 * 1000;
   const theoreticalEndTime = new Date(normalizedStart.getTime() + phaseDurationMs);
 
-  // Find the next cron execution after the theoretical end time (will be at exact hour)
-  return getNextCronExecution(theoreticalEndTime);
+  // Return the theoretical end time (already aligned to cron hour boundary)
+  return theoreticalEndTime;
 }
 
 /**
