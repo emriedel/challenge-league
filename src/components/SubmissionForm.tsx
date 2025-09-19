@@ -93,7 +93,6 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             onChange={(e) => setCaption(e.target.value)}
             maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
             disabled={isSubmitting}
-            required
           />
           <div className="mt-1 text-right text-sm text-app-text-muted">
             <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
