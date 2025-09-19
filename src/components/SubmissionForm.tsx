@@ -105,7 +105,11 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           <button
             type="submit"
             disabled={isSubmissionDisabled}
-            className="bg-gray-800 text-white px-8 py-3 rounded-md font-medium hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-8 py-3 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors ${
+              isSubmissionDisabled
+                ? 'bg-gray-800 text-gray-400 opacity-50'
+                : 'bg-[#3a8e8c] text-white hover:bg-[#2f7574] focus:ring-[#3a8e8c]'
+            }`}
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
