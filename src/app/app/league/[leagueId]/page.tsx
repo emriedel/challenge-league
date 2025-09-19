@@ -176,56 +176,29 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <div className="max-w-2xl mx-auto px-4 py-6">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
-            <CurrentChallenge
-              votingData={votingData || undefined}
-              promptData={promptData && promptData.prompt ? {
-                prompt: {
-                  id: promptData.prompt.id,
-                  text: promptData.prompt.text,
-                  phaseStartedAt: promptData.prompt.phaseStartedAt,
-                  status: promptData.prompt.status,
-                  challengeNumber: promptData.prompt.challengeNumber,
-                  createdAt: new Date().toISOString(),
-                  leagueId: params.leagueId
-                }
-              } : undefined}
-              showVoting={!!showVoting}
-              showSubmission={!!showSubmission}
-              showSubmitted={!!showSubmitted}
-              leagueSettings={league ? {
-                submissionDays: league.submissionDays,
-                votingDays: league.votingDays,
-                votesPerPlayer: league.votesPerPlayer
-              } : undefined}
-            />
-          )}
-
-          {/* Submission Form */}
-          {showSubmission && promptData?.prompt && (
-            <div className="mb-8">
-              <div className="bg-app-surface border border-app-border rounded-md p-4">
-                
-                {submissionMessage && (
-                  <div className={`mb-4 p-3 rounded-md text-sm ${
-                    submissionMessage.type === 'success' 
-                      ? 'bg-app-success-bg border border-app-success text-app-success' 
-                      : 'bg-app-error-bg border border-app-error text-app-error'
-                  }`}>
-                    {submissionMessage.text}
-                  </div>
-                )}
-                
-                <SubmissionForm
-                  prompt={{
+            <div className="mb-2">
+              <CurrentChallenge
+                votingData={votingData || undefined}
+                promptData={promptData && promptData.prompt ? {
+                  prompt: {
                     id: promptData.prompt.id,
                     text: promptData.prompt.text,
                     phaseStartedAt: promptData.prompt.phaseStartedAt,
-                    status: promptData.prompt.status
-                  }}
-                  onSubmit={handleSubmitResponse}
-                  isSubmitting={isSubmittingResponse}
-                />
-              </div>
+                    status: promptData.prompt.status,
+                    challengeNumber: promptData.prompt.challengeNumber,
+                    createdAt: new Date().toISOString(),
+                    leagueId: params.leagueId
+                  }
+                } : undefined}
+                showVoting={!!showVoting}
+                showSubmission={!!showSubmission}
+                showSubmitted={!!showSubmitted}
+                leagueSettings={league ? {
+                  submissionDays: league.submissionDays,
+                  votingDays: league.votingDays,
+                  votesPerPlayer: league.votesPerPlayer
+                } : undefined}
+              />
             </div>
           )}
 
@@ -248,6 +221,35 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         </div>
 
         {/* Full-width components - outside container */}
+        {/* Submission Form */}
+        {showSubmission && promptData?.prompt && (
+          <div className="max-w-2xl mx-auto px-4 mb-8">
+            <div className="bg-app-surface border border-app-border rounded-md p-4">
+
+              {submissionMessage && (
+                <div className={`mb-4 p-3 rounded-md text-sm ${
+                  submissionMessage.type === 'success'
+                    ? 'bg-app-success-bg border border-app-success text-app-success'
+                    : 'bg-app-error-bg border border-app-error text-app-error'
+                }`}>
+                  {submissionMessage.text}
+                </div>
+              )}
+
+              <SubmissionForm
+                prompt={{
+                  id: promptData.prompt.id,
+                  text: promptData.prompt.text,
+                  phaseStartedAt: promptData.prompt.phaseStartedAt,
+                  status: promptData.prompt.status
+                }}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={isSubmittingResponse}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Voting Interface */}
         {showVoting && votingData && (
           <VotingInterface
