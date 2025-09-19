@@ -2,9 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import { useResultsCacheListener } from '@/hooks/useCacheEventListener';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
+import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
 import CommentSection from '@/components/CommentSection';
@@ -19,9 +22,31 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
+  const cacheInvalidator = useCacheInvalidator();
+  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
 
   // Listen for cache events to keep results synchronized
   useResultsCacheListener(params.leagueId);
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await cacheInvalidator.refreshLeague(params.leagueId);
+  }, [cacheInvalidator, params.leagueId]);
+
+  // Navigation refresh handlers
+  const handleScrollToTop = useCallback(() => {
+    pullToRefreshRef.current?.scrollToTop();
+  }, []);
+
+  const handleNavigationRefresh = useCallback(async () => {
+    if (pullToRefreshRef.current?.triggerRefresh) {
+      await pullToRefreshRef.current.triggerRefresh();
+    } else {
+      await handleRefresh();
+    }
+  }, [handleRefresh]);
+
+  useNavigationRefreshHandlers('results', handleScrollToTop, handleNavigationRefresh);
   const [selectedRoundId, setSelectedRoundId] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -77,10 +102,15 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   };
 
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-      
-      {galleryData?.rounds && galleryData.rounds.length > 0 ? (
+
+      <PullToRefreshContainer
+        ref={pullToRefreshRef}
+        onRefresh={handleRefresh}
+        className="flex-1"
+      >
+        {galleryData?.rounds && galleryData.rounds.length > 0 ? (
         <div className="bg-app-bg min-h-screen">
           {/* Challenge Selector and Details */}
           <div className="py-4 pb-6">
@@ -228,7 +258,8 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             <p className="text-app-text-muted">Completed rounds will appear here after challenges are completed and voted on.</p>
           </div>
         </div>
-      )}
+        )}
+      </PullToRefreshContainer>
     </div>
   );
 }

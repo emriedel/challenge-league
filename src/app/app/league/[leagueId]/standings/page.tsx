@@ -2,9 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useLeagueStandingsQuery } from '@/hooks/queries';
 import { useStandingsCacheListener } from '@/hooks/useCacheEventListener';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
+import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -34,9 +37,31 @@ export default function StandingPage({ params }: StandingPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueStandingsQuery(params.leagueId);
+  const cacheInvalidator = useCacheInvalidator();
+  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
 
   // Listen for cache events to keep standings synchronized
   useStandingsCacheListener(params.leagueId);
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await cacheInvalidator.refreshLeague(params.leagueId);
+  }, [cacheInvalidator, params.leagueId]);
+
+  // Navigation refresh handlers
+  const handleScrollToTop = useCallback(() => {
+    pullToRefreshRef.current?.scrollToTop();
+  }, []);
+
+  const handleNavigationRefresh = useCallback(async () => {
+    if (pullToRefreshRef.current?.triggerRefresh) {
+      await pullToRefreshRef.current.triggerRefresh();
+    } else {
+      await handleRefresh();
+    }
+  }, [handleRefresh]);
+
+  useNavigationRefreshHandlers('standings', handleScrollToTop, handleNavigationRefresh);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -77,23 +102,30 @@ export default function StandingPage({ params }: StandingPageProps) {
   const standings = leagueData?.leaderboard || [];
 
   return (
-    <ErrorBoundary 
+    <ErrorBoundary
       fallback={({ error, resetError }) => (
-        <div>
+        <div className="flex flex-col h-screen">
           <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-          <PageErrorFallback 
-            error={error}
-            resetError={resetError}
-            title="Standings Page Error"
-            description="The standings page encountered an error. Please try again."
-          />
+          <div className="flex-1 flex items-center justify-center">
+            <PageErrorFallback
+              error={error}
+              resetError={resetError}
+              title="Standings Page Error"
+              description="The standings page encountered an error. Please try again."
+            />
+          </div>
         </div>
       )}
     >
-      <div>
+      <div className="flex flex-col h-screen">
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <PullToRefreshContainer
+          ref={pullToRefreshRef}
+          onRefresh={handleRefresh}
+          className="flex-1"
+        >
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h2 className="text-2xl font-semibold text-app-text mb-6 text-center">League Standings</h2>
 
 
@@ -167,7 +199,8 @@ export default function StandingPage({ params }: StandingPageProps) {
             </div>
           )}
         </div>
-        </div>
+          </div>
+        </PullToRefreshContainer>
       </div>
     </ErrorBoundary>
   );

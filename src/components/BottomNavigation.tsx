@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState, memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryClient';
+import { navigationRefreshManager } from '@/lib/navigationRefresh';
 
 const BottomNavigation = memo(function BottomNavigation() {
   const pathname = usePathname();
@@ -26,37 +27,39 @@ const BottomNavigation = memo(function BottomNavigation() {
     }
   }, [pathname]);
 
-  // Handle tab click - refresh if clicking current tab, otherwise navigate
-  const handleTabClick = (href: string, isActive: boolean, tabName: string, e: React.MouseEvent) => {
+  // Handle tab click with scroll-to-top and refresh behavior
+  const handleTabClick = async (href: string, isActive: boolean, tabName: string, e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     if (isActive && currentLeagueId) {
-      // Refresh only the current tab's data by invalidating relevant queries
-      switch (tabName) {
-        case 'Challenge':
-          // Invalidate prompt/challenge data
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.leaguePrompt(currentLeagueId) 
-          });
-          break;
-        case 'Results':
-          // Invalidate rounds/gallery data
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.leagueRounds(currentLeagueId) 
-          });
-          break;
-        case 'Standings':
-          // Invalidate league standings data
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.league(currentLeagueId) 
-          });
-          break;
-        case 'League':
-          // Invalidate league settings data
-          queryClient.invalidateQueries({ 
-            queryKey: queryKeys.leagueSettings(currentLeagueId) 
-          });
-          break;
+      // Use the navigation refresh manager for scroll-to-top and refresh behavior
+      const result = await navigationRefreshManager.handleNavigationTap(tabName.toLowerCase());
+
+      // If no custom handlers were registered, fall back to query invalidation
+      if (result === 'scrolled' && window.pageYOffset <= 10) {
+        // We scrolled but we're still at top, so trigger query refresh as fallback
+        switch (tabName) {
+          case 'Challenge':
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.leaguePrompt(currentLeagueId)
+            });
+            break;
+          case 'Results':
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.leagueRounds(currentLeagueId)
+            });
+            break;
+          case 'Standings':
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.league(currentLeagueId)
+            });
+            break;
+          case 'League':
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.leagueSettings(currentLeagueId)
+            });
+            break;
+        }
       }
     } else {
       // Navigate to new tab

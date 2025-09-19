@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import {
   useLeagueQuery,
   useVotingQuery,
@@ -15,6 +15,8 @@ import { useMessages } from '@/hooks/useMessages';
 import { useContextualNotifications } from '@/hooks/useContextualNotifications';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useChallengeCacheListener } from '@/hooks/useCacheEventListener';
+import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
+import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -38,9 +40,36 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
   const cacheInvalidator = useCacheInvalidator();
+  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
 
   // Listen for cache events to keep challenge page synchronized
   useChallengeCacheListener(params.leagueId);
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await cacheInvalidator.refreshLeague(params.leagueId);
+  }, [cacheInvalidator, params.leagueId]);
+
+  // Handle scroll-to-top from navigation
+  const handleScrollToTop = useCallback(() => {
+    if (pullToRefreshRef.current?.scrollToTop) {
+      pullToRefreshRef.current.scrollToTop();
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  // Handle navigation refresh trigger
+  const handleNavigationRefresh = useCallback(async () => {
+    if (pullToRefreshRef.current?.triggerRefresh) {
+      await pullToRefreshRef.current.triggerRefresh();
+    } else {
+      await handleRefresh();
+    }
+  }, [handleRefresh]);
+
+  // Register this page with the navigation refresh manager
+  useNavigationRefreshHandlers('challenge', handleScrollToTop, handleNavigationRefresh);
 
   // Check if user just joined this league
   const justJoined = searchParams.get('joined') === 'true';
@@ -158,24 +187,32 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const showNoChallenge = !promptStatus || promptStatus === 'SCHEDULED' || promptStatus === 'COMPLETED';
 
   return (
-    <ErrorBoundary 
+    <ErrorBoundary
       fallback={({ error, resetError }) => (
-        <div>
+        <div className="flex flex-col h-screen">
           <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-          <PageErrorFallback 
-            error={error}
-            resetError={resetError}
-            title="League Page Error"
-            description="This league page encountered an error. Please try again."
-          />
+          <div className="flex-1 flex items-center justify-center">
+            <PageErrorFallback
+              error={error}
+              resetError={resetError}
+              title="League Page Error"
+              description="This league page encountered an error. Please try again."
+            />
+          </div>
         </div>
       )}
     >
-      <div>
+      <div className="flex flex-col h-screen">
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-        
-        {/* Container for challenge content */}
-        <div className="max-w-2xl mx-auto px-4 py-6">
+
+        {/* Pull-to-refresh container for page content */}
+        <PullToRefreshContainer
+          ref={pullToRefreshRef}
+          onRefresh={handleRefresh}
+          className="flex-1"
+        >
+          {/* Container for challenge content */}
+          <div className="max-w-2xl mx-auto px-4 py-6">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
             <div className="mb-2">
@@ -220,93 +257,93 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Full-width components - outside container */}
-        {/* Submission Form */}
-        {showSubmission && promptData?.prompt && (
-          <div className="max-w-2xl mx-auto px-4 mb-8">
-            <div className="bg-app-surface border border-app-border rounded-md p-4">
+          {/* Submission Form */}
+          {showSubmission && promptData?.prompt && (
+            <div className="max-w-2xl mx-auto px-4 mb-8">
+              <div className="bg-app-surface border border-app-border rounded-md p-4">
 
-              {submissionMessage && (
-                <div className={`mb-4 p-3 rounded-md text-sm ${
-                  submissionMessage.type === 'success'
-                    ? 'bg-app-success-bg border border-app-success text-app-success'
-                    : 'bg-app-error-bg border border-app-error text-app-error'
-                }`}>
-                  {submissionMessage.text}
-                </div>
-              )}
+                {submissionMessage && (
+                  <div className={`mb-4 p-3 rounded-md text-sm ${
+                    submissionMessage.type === 'success'
+                      ? 'bg-app-success-bg border border-app-success text-app-success'
+                      : 'bg-app-error-bg border border-app-error text-app-error'
+                  }`}>
+                    {submissionMessage.text}
+                  </div>
+                )}
 
-              <SubmissionForm
-                prompt={{
-                  id: promptData.prompt.id,
-                  text: promptData.prompt.text,
-                  phaseStartedAt: promptData.prompt.phaseStartedAt,
-                  status: promptData.prompt.status
-                }}
-                onSubmit={handleSubmitResponse}
-                isSubmitting={isSubmittingResponse}
-              />
+                <SubmissionForm
+                  prompt={{
+                    id: promptData.prompt.id,
+                    text: promptData.prompt.text,
+                    phaseStartedAt: promptData.prompt.phaseStartedAt,
+                    status: promptData.prompt.status
+                  }}
+                  onSubmit={handleSubmitResponse}
+                  isSubmitting={isSubmittingResponse}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Voting Interface */}
-        {showVoting && votingData && (
-          <VotingInterface
-            votingData={{
-              canVote: true, // Always allow voting when prompt status is VOTING
-              responses: votingData.responses.map(response => ({
-                ...response,
+          {/* Voting Interface */}
+          {showVoting && votingData && (
+            <VotingInterface
+              votingData={{
+                canVote: true, // Always allow voting when prompt status is VOTING
+                responses: votingData.responses.map(response => ({
+                  ...response,
+                  user: {
+                    id: (response.user as any).id || `user-${response.user.username}`,
+                    username: response.user.username,
+                    profilePhoto: response.user.profilePhoto
+                  }
+                })),
+                prompt: votingData.prompt ? { text: votingData.prompt.text } : undefined,
+                voteEnd: votingData.voteEnd,
+                userHasVoted: votingData.existingVotes && votingData.existingVotes.length > 0,
+                existingVotes: votingData.existingVotes ? votingData.existingVotes.reduce((acc: { [responseId: string]: number }, vote: any) => {
+                  acc[vote.response.id] = 1; // Each response can receive 1 vote per voter
+                  return acc;
+                }, {}) : {}
+              }}
+              onSubmitVotes={handleSubmitVotes}
+              isSubmitting={votingManagement.isSubmitting}
+              message={votingMessage}
+              leagueSettings={league ? {
+                submissionDays: league.submissionDays,
+                votingDays: league.votingDays,
+                votesPerPlayer: league.votesPerPlayer
+              } : undefined}
+            />
+          )}
+
+          {/* User's Current Submission (when already submitted) */}
+          {showSubmitted && promptData?.userResponse && session?.user && (
+            <UserSubmissionDisplay
+              userResponse={{
+                ...promptData.userResponse,
+                canEdit: true,
+                isOwn: true,
                 user: {
-                  id: (response.user as any).id || `user-${response.user.username}`,
-                  username: response.user.username,
-                  profilePhoto: response.user.profilePhoto
+                  id: session.user.id,
+                  username: session.user.username || '',
+                  profilePhoto: session.user.profilePhoto
                 }
-              })),
-              prompt: votingData.prompt ? { text: votingData.prompt.text } : undefined,
-              voteEnd: votingData.voteEnd,
-              userHasVoted: votingData.existingVotes && votingData.existingVotes.length > 0,
-              existingVotes: votingData.existingVotes ? votingData.existingVotes.reduce((acc: { [responseId: string]: number }, vote: any) => {
-                acc[vote.response.id] = 1; // Each response can receive 1 vote per voter
-                return acc;
-              }, {}) : {}
-            }}
-            onSubmitVotes={handleSubmitVotes}
-            isSubmitting={votingManagement.isSubmitting}
-            message={votingMessage}
-            leagueSettings={league ? {
-              submissionDays: league.submissionDays,
-              votingDays: league.votingDays,
-              votesPerPlayer: league.votesPerPlayer
-            } : undefined}
-          />
-        )}
-
-        {/* User's Current Submission (when already submitted) */}
-        {showSubmitted && promptData?.userResponse && session?.user && (
-          <UserSubmissionDisplay
-            userResponse={{
-              ...promptData.userResponse,
-              canEdit: true,
-              isOwn: true,
-              user: {
-                id: session.user.id,
+              }}
+              user={{
+                id: session.user.id || `user-${session.user.username}`,
                 username: session.user.username || '',
-                profilePhoto: session.user.profilePhoto
-              }
-            }}
-            user={{
-              id: session.user.id || `user-${session.user.username}`,
-              username: session.user.username || '',
-              profilePhoto: session.user.profilePhoto,
-            }}
-            onUpdate={handleUpdateResponse}
-            isUpdating={isSubmittingResponse}
-            message={submissionMessage}
-          />
-        )}
+                profilePhoto: session.user.profilePhoto,
+              }}
+              onUpdate={handleUpdateResponse}
+              isUpdating={isSubmittingResponse}
+              message={submissionMessage}
+            />
+          )}
+        </div>
+        </PullToRefreshContainer>
       </div>
     </ErrorBoundary>
   );
