@@ -111,6 +111,10 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [deleteConfirm, setDeleteConfirm] = useState<{ promptId: string; promptText: string } | null>(null);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showDeleteLeagueConfirm, setShowDeleteLeagueConfirm] = useState(false);
+
+  // Optimistic state for prompts
+  const [optimisticPrompts, setOptimisticPrompts] = useState<Prompt[]>([]);
+  const [deletingPrompts, setDeletingPrompts] = useState<Set<string>>(new Set());
   
   // League settings state - use strings for inputs, parse only on submit
   const [submissionDays, setSubmissionDays] = useState('6');
@@ -147,14 +151,31 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
     e.preventDefault();
     if (!newPromptText.trim()) return;
 
+    // Optimistic update
+    const tempPrompt: Prompt = {
+      id: `temp-${Date.now()}`,
+      text: newPromptText.trim(),
+      phaseStartedAt: null,
+      status: 'SCHEDULED',
+      queueOrder: (settingsData?.queue.scheduled?.length || 0) + optimisticPrompts.length + 1,
+      createdAt: new Date().toISOString()
+    };
+
+    const promptText = newPromptText.trim();
+    setOptimisticPrompts(prev => [...prev, tempPrompt]);
+    setNewPromptText('');
+    setShowAddChallenge(false);
+
     try {
-      await createPromptMutation.mutateAsync(newPromptText.trim());
-      setNewPromptText('');
-      setShowAddChallenge(false);
+      await createPromptMutation.mutateAsync(promptText);
+      // Clear optimistic state on success - real data will replace it
+      setOptimisticPrompts(prev => prev.filter(p => p.id !== tempPrompt.id));
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to create prompt' 
+      // Remove optimistic prompt on error
+      setOptimisticPrompts(prev => prev.filter(p => p.id !== tempPrompt.id));
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to create prompt'
       });
     }
   };
@@ -175,37 +196,53 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   };
 
   const handleDeletePrompt = async (promptId: string) => {
+    // Optimistic update
+    setDeletingPrompts(prev => new Set(prev).add(promptId));
+    setDeleteConfirm(null);
+
     try {
       await deletePromptMutation.mutateAsync(promptId);
-      setDeleteConfirm(null);
-    } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to delete prompt' 
+      // Clear optimistic state on success
+      setDeletingPrompts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(promptId);
+        return newSet;
       });
-      setDeleteConfirm(null);
+    } catch (error) {
+      // Revert optimistic state on error
+      setDeletingPrompts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(promptId);
+        return newSet;
+      });
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to delete prompt'
+      });
     }
   };
 
   const handleMovePrompt = async (promptId: string, direction: 'up' | 'down') => {
     if (!settingsData) return;
-    
-    const scheduled = settingsData.queue.scheduled;
-    const currentIndex = scheduled.findIndex(p => p.id === promptId);
+
+    const allPrompts = [...(settingsData.queue.scheduled || []), ...optimisticPrompts].filter(p => !deletingPrompts.has(p.id));
+    const currentIndex = allPrompts.findIndex(p => p.id === promptId);
     if (currentIndex === -1) return;
 
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= scheduled.length) return;
+    if (newIndex < 0 || newIndex >= allPrompts.length) return;
 
-    const newOrder = [...scheduled];
+    const newOrder = [...allPrompts];
     [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
 
     try {
-      await reorderPromptsMutation.mutateAsync(newOrder.map(p => p.id));
+      // Only send real prompt IDs to the server
+      const realPromptIds = newOrder.map(p => p.id).filter(id => !id.startsWith('temp-'));
+      await reorderPromptsMutation.mutateAsync(realPromptIds);
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to reorder prompts' 
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to reorder prompts'
       });
     }
   };
@@ -356,19 +393,19 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   return (
     <>
       <style>{sliderStyles}</style>
-      <ErrorBoundary 
-      fallback={({ error, resetError }) => (
-        <div>
-          <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-          <PageErrorFallback 
-            error={error}
-            resetError={resetError}
-            title="League Settings Error"
-            description="The league settings page encountered an error. Please try again."
-          />
-        </div>
-      )}
-    >
+      <ErrorBoundary
+        fallback={({ error, resetError }) => (
+          <div>
+            <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
+            <PageErrorFallback
+              error={error}
+              resetError={resetError}
+              title="League Settings Error"
+              description="The league settings page encountered an error. Please try again."
+            />
+          </div>
+        )}
+      >
       <div className="min-h-screen bg-app-bg">
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
         
@@ -400,7 +437,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               {isOwner && !isEditingSettings && (
                 <button
                   onClick={handleStartEditing}
-                  className="px-3 py-2 text-blue-600 hover:text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
+                  className="px-3 py-2 text-[#3a8e8c] hover:text-[#2d6b6a] text-sm font-medium rounded-lg hover:bg-[#3a8e8c] hover:bg-opacity-10 transition-colors"
                 >
                   Edit Settings
                 </button>
@@ -484,7 +521,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   <button
                     type="submit"
                     disabled={updateLeagueSettingsMutation.isPending}
-                    className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                    className="w-full sm:w-auto bg-[#3a8e8c] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#2d6b6a] focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 transition-colors"
                   >
                     {updateLeagueSettingsMutation.isPending ? 'Saving...' : 'Save Settings'}
                   </button>
@@ -541,13 +578,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
 
 
-          {/* Upcoming Challenges Queue */}
+          {/* Upcoming Challenges Queue - Admin Only */}
+          {isOwner && (
           <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
             <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">
-              Upcoming Challenges ({queue?.scheduled?.length || 0})
+              Upcoming Challenges ({((queue?.scheduled?.length || 0) + optimisticPrompts.length)})
             </h2>
             
-            {!queue?.scheduled || queue.scheduled.length === 0 ? (
+            {(!queue?.scheduled || queue.scheduled.length === 0) && optimisticPrompts.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-app-text-muted mb-2">
                   <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -561,8 +599,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </div>
             ) : (
               <div className="space-y-4">
-                {queue.scheduled.map((prompt, index) => (
-                  <div key={prompt.id} className="border border-app-border rounded-lg p-4 hover:bg-app-surface-light transition-colors">
+                {[...(queue?.scheduled || []), ...optimisticPrompts]
+                  .filter(prompt => !deletingPrompts.has(prompt.id))
+                  .map((prompt, index) => (
+                  <div key={prompt.id} className={`border border-app-border rounded-lg p-4 hover:bg-app-surface-light transition-colors ${
+                    prompt.id.startsWith('temp-') ? 'opacity-75' : ''
+                  } ${
+                    deletingPrompts.has(prompt.id) ? 'opacity-50 pointer-events-none' : ''
+                  }`}>
                     {/* Header with queue number and prompt text */}
                     <div className="flex items-start gap-3 mb-4">
                       <span className="bg-blue-900 bg-opacity-30 text-blue-300 text-xs font-medium px-2 py-1 rounded flex-shrink-0">
@@ -592,7 +636,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'up')}
-                              disabled={index === 0 || reorderPromptsMutation.isPending}
+                              disabled={index === 0 || reorderPromptsMutation.isPending || prompt.id.startsWith('temp-')}
                               className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move up"
                             >
@@ -600,7 +644,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             </button>
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'down')}
-                              disabled={index === queue.scheduled.length - 1 || reorderPromptsMutation.isPending}
+                              disabled={index === [...(queue?.scheduled || []), ...optimisticPrompts].filter(p => !deletingPrompts.has(p.id)).length - 1 || reorderPromptsMutation.isPending || prompt.id.startsWith('temp-')}
                               className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move down"
                             >
@@ -627,33 +671,41 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                               <button
                                 onClick={() => handleUpdatePrompt(prompt.id)}
                                 disabled={updatePromptMutation.isPending}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 transition-colors min-h-[40px]"
+                                className="px-4 py-2 bg-[#3a8e8c] text-white rounded-lg text-sm hover:bg-[#2d6b6a] disabled:opacity-50 transition-colors min-h-[40px]"
                               >
                                 {updatePromptMutation.isPending ? 'Saving...' : 'Save'}
                               </button>
                             </>
                           ) : (
                             <>
+                              {!prompt.id.startsWith('temp-') && (
+                                <button
+                                  onClick={() => {
+                                    setEditingPrompt(prompt.id);
+                                    setEditText(prompt.text);
+                                  }}
+                                  className="flex items-center justify-center w-10 h-10 text-blue-400 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 rounded-lg transition-colors"
+                                  title="Edit challenge"
+                                >
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                              )}
+
                               <button
                                 onClick={() => {
-                                  setEditingPrompt(prompt.id);
-                                  setEditText(prompt.text);
+                                  if (prompt.id.startsWith('temp-')) {
+                                    setOptimisticPrompts(prev => prev.filter(p => p.id !== prompt.id));
+                                  } else {
+                                    setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text });
+                                  }
                                 }}
-                                className="flex items-center justify-center w-10 h-10 text-blue-400 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 rounded-lg transition-colors"
-                                title="Edit challenge"
-                              >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                              
-                              <button
-                                onClick={() => setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text })}
-                                disabled={deletePromptMutation.isPending}
+                                disabled={deletePromptMutation.isPending && !prompt.id.startsWith('temp-')}
                                 className="flex items-center justify-center w-10 h-10 text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20 rounded-lg disabled:opacity-50 transition-colors"
                                 title="Delete challenge"
                               >
-                                {deletePromptMutation.isPending ? (
+                                {deletePromptMutation.isPending && !prompt.id.startsWith('temp-') ? (
                                   <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
                                 ) : (
                                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -672,12 +724,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             )}
             
             {/* Add Challenge Section */}
-            {isOwner && (
-              <div className="mt-4 pt-4 border-t border-app-border">
+            <div className="mt-4 pt-4 border-t border-app-border">
                 {!showAddChallenge ? (
                   <button
                     onClick={() => setShowAddChallenge(true)}
-                    className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    className="w-full bg-[#3a8e8c] text-white px-4 py-3 rounded-lg font-medium hover:bg-[#2d6b6a] focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 transition-colors"
                   >
                     + Add Challenge
                   </button>
@@ -703,7 +754,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                         <button
                           type="submit"
                           disabled={createPromptMutation.isPending || !newPromptText.trim()}
-                          className="flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                          className="flex-1 sm:flex-none bg-[#3a8e8c] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#2d6b6a] focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 transition-colors"
                         >
                           {createPromptMutation.isPending ? 'Adding...' : 'Add to Queue'}
                         </button>
@@ -721,99 +772,101 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                     </form>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
-
-
-          {/* Phase Controls - Admin Only - Moved to Bottom */}
-          {isOwner && (
-            <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Admin Phase Controls</h2>
-              <p className="text-app-text-secondary mb-2">Not intended for normal use!</p>
-              <div className="bg-app-surface-dark rounded-lg p-4 mb-4">
-                <h3 className="font-medium text-app-text-secondary mb-2">Current Status</h3>
-                {phaseInfo?.currentPhase.type === 'NONE' && (
-                  <p className="text-app-text-secondary text-sm">No active challenges</p>
-                )}
-                {phaseInfo?.currentPhase.type === 'ACTIVE' && (
-                  <div className="text-app-text-secondary text-sm">
-                    <p className="font-medium text-app-text">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                    {phaseInfo.currentPhase.endTime && (
-                      <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        timeZoneName: 'short',
-                      })}</p>
-                    )}
-                  </div>
-                )}
-                {phaseInfo?.currentPhase.type === 'VOTING' && (
-                  <div className="text-app-text-secondary text-sm">
-                    <p className="font-medium text-app-text">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                    {phaseInfo.currentPhase.endTime && (
-                      <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        timeZoneName: 'short',
-                      })}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-orange-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-orange-600 border-opacity-30">
-                <h3 className="font-medium text-orange-300 mb-2">Next Action</h3>
-                <p className="text-orange-200 text-sm">
-                  {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
-                  {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
-                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Will start new challenge: "${phaseInfo.nextPhase.prompt}"`}
-                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && `No scheduled challenges available`}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowTransitionModal(true)}
-                disabled={transitionPhaseMutation.isPending}
-                className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50"
-              >
-                {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Transition to Next Phase'}
-              </button>
             </div>
+          </div>
           )}
 
-          {/* Delete League Section - Owners only */}
+          {/* Admin Controls & Danger Zone - Admin Only */}
           {isOwner && (
-            <div className="bg-app-surface rounded-lg border border-red-600 border-opacity-30 p-4 sm:p-6 mt-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Danger Zone</h2>
-              <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
-                <p className="text-red-200 text-sm mb-2">
-                  <strong>Warning:</strong> Deleting this league will permanently remove:
-                </p>
-                <ul className="text-red-200 text-sm space-y-1 ml-4">
-                  <li>• All challenges and submissions</li>
-                  <li>• All photos and voting data</li>
-                  <li>• All member data for this league</li>
-                  <li>• League settings and history</li>
-                </ul>
-                <p className="text-red-200 text-sm mt-3">
-                  <strong>This action cannot be undone.</strong>
-                </p>
+            <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Admin Controls & Danger Zone</h2>
+
+              {/* Phase Controls Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-app-text mb-2">Phase Controls</h3>
+                <p className="text-app-text-secondary mb-4">Not intended for normal use!</p>
+                <div className="bg-app-surface-dark rounded-lg p-4 mb-4">
+                  <h4 className="font-medium text-app-text-secondary mb-2">Current Status</h4>
+                  {phaseInfo?.currentPhase.type === 'NONE' && (
+                    <p className="text-app-text-secondary text-sm">No active challenges</p>
+                  )}
+                  {phaseInfo?.currentPhase.type === 'ACTIVE' && (
+                    <div className="text-app-text-secondary text-sm">
+                      <p className="font-medium text-app-text">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
+                      {phaseInfo.currentPhase.endTime && (
+                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          timeZoneName: 'short',
+                        })}</p>
+                      )}
+                    </div>
+                  )}
+                  {phaseInfo?.currentPhase.type === 'VOTING' && (
+                    <div className="text-app-text-secondary text-sm">
+                      <p className="font-medium text-app-text">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
+                      {phaseInfo.currentPhase.endTime && (
+                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          timeZoneName: 'short',
+                        })}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-orange-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-orange-600 border-opacity-30">
+                  <h4 className="font-medium text-orange-300 mb-2">Next Action</h4>
+                  <p className="text-orange-200 text-sm">
+                    {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
+                    {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
+                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Will start new challenge: "${phaseInfo.nextPhase.prompt}"`}
+                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && `No scheduled challenges available`}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowTransitionModal(true)}
+                  disabled={transitionPhaseMutation.isPending}
+                  className="w-full sm:w-auto bg-[#b8860b] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#9a7209] focus:outline-none focus:ring-2 focus:ring-[#b8860b] focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                >
+                  {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Transition to Next Phase'}
+                </button>
               </div>
-              
-              <button
-                onClick={() => setShowDeleteLeagueConfirm(true)}
-                disabled={deleteLeagueMutation.isPending}
-                className="w-full sm:w-auto bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
-              >
-                {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
-              </button>
+
+              {/* Danger Zone Section */}
+              <div className="border-t border-app-border-dark pt-6">
+                <h3 className="text-lg font-semibold text-app-text mb-2">Danger Zone</h3>
+                <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
+                  <p className="text-red-200 text-sm mb-2">
+                    <strong>Warning:</strong> Deleting this league will permanently remove:
+                  </p>
+                  <ul className="text-red-200 text-sm space-y-1 ml-4">
+                    <li>• All challenges and submissions</li>
+                    <li>• All photos and voting data</li>
+                    <li>• All member data for this league</li>
+                    <li>• League settings and history</li>
+                  </ul>
+                  <p className="text-red-200 text-sm mt-3">
+                    <strong>This action cannot be undone.</strong>
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowDeleteLeagueConfirm(true)}
+                  disabled={deleteLeagueMutation.isPending}
+                  className="w-full sm:w-auto bg-[#8b4444] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#7a3d3d] focus:outline-none focus:ring-2 focus:ring-[#8b4444] focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                >
+                  {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
+                </button>
+              </div>
             </div>
           )}
 
@@ -829,11 +882,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   This action cannot be undone.
                 </p>
               </div>
-              
+
               <button
                 onClick={() => setShowLeaveConfirm(true)}
                 disabled={leaveLeagueMutation.isPending}
-                className="w-full sm:w-auto bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                className="w-full sm:w-auto bg-[#8b4444] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#7a3d3d] focus:outline-none focus:ring-2 focus:ring-[#8b4444] focus:ring-offset-2 disabled:opacity-50 transition-colors"
               >
                 {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
               </button>
@@ -867,7 +920,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <button
                   onClick={handleLeaveLeague}
                   disabled={leaveLeagueMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
                 >
                   {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
                 </button>
@@ -917,7 +970,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <button
                   onClick={handleTransitionPhase}
                   disabled={transitionPhaseMutation.isPending}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#b8860b] text-white rounded-lg hover:bg-[#9a7209] disabled:opacity-50 transition-colors"
                 >
                   {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Confirm Transition'}
                 </button>
@@ -955,7 +1008,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <button
                   onClick={() => handleDeletePrompt(deleteConfirm.promptId)}
                   disabled={deletePromptMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
                 >
                   {deletePromptMutation.isPending ? 'Deleting...' : 'Delete Challenge'}
                 </button>
@@ -1002,7 +1055,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <button
                   onClick={handleDeleteLeague}
                   disabled={deleteLeagueMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
                 >
                   {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
                 </button>
