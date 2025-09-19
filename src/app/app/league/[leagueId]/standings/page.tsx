@@ -92,22 +92,6 @@ export default function StandingPage({ params }: StandingPageProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h2 className="text-2xl font-semibold text-app-text mb-6 text-center">League Standings</h2>
 
-          {/* No Vote, No Points Rule Explanation */}
-          <div className="bg-app-surface border border-app-border rounded-lg p-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0 mt-1">
-                <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-app-text mb-1">Scoring Rule</h3>
-                <p className="text-sm text-app-text-secondary">
-                  Points are only counted from rounds where you participated in voting. If you don&apos;t vote in a round, any points earned from that round won&apos;t count toward your league standing.
-                </p>
-              </div>
-            </div>
-          </div>
 
         <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
           {standings.length > 0 ? (
