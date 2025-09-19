@@ -41,8 +41,6 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  emailVerified DateTime?
-  image         String?
   username      String    @unique
   password      String
   profilePhoto  String?   // URL to user's profile photo
@@ -115,7 +113,6 @@ model Response {
 model League {
   id          String    @id @default(cuid())
   name        String    @unique
-  slug        String    @unique // URL-friendly identifier
   description String
   inviteCode  String    @unique // Code for users to join
   isActive    Boolean   @default(true)

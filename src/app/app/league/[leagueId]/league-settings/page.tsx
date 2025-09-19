@@ -18,7 +18,6 @@ import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
-import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
 // CSS for range sliders
 const sliderStyles = `

@@ -3,12 +3,10 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
 import CommentSection from '@/components/CommentSection';
-import { getRankBadge } from '@/lib/utils';
 
 
 interface ResultsPageProps {
@@ -69,7 +67,6 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
   const league = leagueData?.league;
   const selectedRound = galleryData?.rounds?.find(round => round.id === selectedRoundId);
-  const selectedRoundIndex = galleryData?.rounds?.findIndex(round => round.id === selectedRoundId);
 
   const truncateText = (text: string, maxLength: number = 50) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;

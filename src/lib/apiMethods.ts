@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createApiHandler, ApiContext, AuthenticatedApiContext } from './apiHandler';
 import { MethodNotAllowedError } from './apiErrors';
 

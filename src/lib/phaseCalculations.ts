@@ -1,4 +1,4 @@
-import { PHASE_DURATIONS_MS, CRON_CONFIG } from '@/constants/phases';
+import { PHASE_DURATIONS_MS } from '@/constants/phases';
 
 export interface PromptWithPhase {
   id: string;

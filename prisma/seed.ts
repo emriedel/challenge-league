@@ -157,7 +157,6 @@ async function main() {
       data: {
         name: leagues[i].name,
         description: leagues[i].description,
-        slug: leagues[i].slug,
         inviteCode: generateInviteCode(),
         ownerId: createdUsers[i].id,
       },

@@ -66,18 +66,7 @@ export type {
   CommentWithResponse,
 } from './comment';
 
-// API types
-export type {
-  APIResponse,
-  PaginatedResponse,
-  APIError,
-  RouteParams,
-  LeagueRouteParams,
-  RoundRouteParams,
-  UploadResponse,
-  AuthResponse,
-  VoteSubmissionResponse,
-} from './api';
+// Note: API types are defined locally in route files as needed
 
 // Hook types
 export type {

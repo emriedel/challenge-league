@@ -89,7 +89,6 @@ export const { GET, POST } = createMethodHandlers({
     const league = await db.league.create({
       data: {
         name,
-        slug: `league-${Date.now()}`, // Temporary slug until we can remove from schema
         description,
         inviteCode,
         ownerId: userId,

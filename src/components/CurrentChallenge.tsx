@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { NoChallengeEmptyState } from './EmptyState';
 import type { CurrentChallengeProps } from '@/types/components';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
-import { VOTING_CONFIG } from '@/constants/phases';
 
 
 export default function CurrentChallenge({ 

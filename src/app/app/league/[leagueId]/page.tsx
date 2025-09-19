@@ -7,8 +7,7 @@ import {
   useLeagueQuery,
   useVotingQuery,
   useLeaguePromptQuery,
-  useSubmitVotesMutation,
-  useSubmitResponseMutation
+  useSubmitVotesMutation
 } from '@/hooks/queries';
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
@@ -49,7 +48,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   
   // Mutations for user actions
   const submitVotesMutation = useSubmitVotesMutation(params.leagueId);
-  const submitResponseMutation = useSubmitResponseMutation(params.leagueId);
   
   // Custom hooks for managing complex state
   const { submissionMessage, votingMessage, setSubmissionMessage, setVotingMessage } = useMessages();
@@ -131,7 +129,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
   const league = leagueData?.league;
   const leaderboard = leagueData?.leaderboard || [];
-  const currentUserEntry = leaderboard.find(entry => entry.user.username === session.user.username);
 
   // Check if league hasn't started yet
   if (league && league.isStarted === false) {
