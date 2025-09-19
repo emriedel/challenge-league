@@ -171,13 +171,10 @@ export default function Navigation() {
                               </div>
                               {league.needsAction && league.actionType && (
                                 <div className="flex-shrink-0 ml-2">
-                                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium select-none ${
-                                    league.actionType === 'submission'
-                                      ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50'
-                                      : 'bg-green-900/30 text-green-400 border border-green-800/50'
-                                  }`}>
-                                    {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
-                                  </span>
+                                  <div className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
+                                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                    <span>{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -311,13 +308,10 @@ export default function Navigation() {
                             </div>
                             {league.needsAction && league.actionType && (
                               <div className="flex-shrink-0 ml-2">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium select-none ${
-                                  league.actionType === 'submission'
-                                    ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50'
-                                    : 'bg-green-900/30 text-green-400 border border-green-800/50'
-                                }`}>
-                                  {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
-                                </span>
+                                <div className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
+                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                  <span>{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
+                                </div>
                               </div>
                             )}
                           </div>
