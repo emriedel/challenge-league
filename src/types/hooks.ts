@@ -26,6 +26,8 @@ export interface VotingData {
   voteEnd?: string;
   userHasVoted: boolean;
   existingVotes: VoteMap;
+  votableResponseIds?: string[]; // IDs of responses that can be voted on
+  currentUserId?: string; // Current user's ID for frontend logic
 }
 
 export interface UseVotingReturn extends UseAsyncReturn<VotingData> {

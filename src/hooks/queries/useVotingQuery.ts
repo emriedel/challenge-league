@@ -31,10 +31,12 @@ interface ExistingVote {
 interface VotingData {
   prompt: VotingPrompt | null;
   responses: VotingResponse[];
+  votableResponseIds?: string[]; // IDs of responses that can be voted on
   existingVotes: ExistingVote[];
   canVote: boolean;
   voteEnd?: string;
   message?: string;
+  currentUserId?: string; // Current user's ID for frontend logic
 }
 
 /**

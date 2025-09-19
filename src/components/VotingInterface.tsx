@@ -7,7 +7,7 @@ import CommentSection from './CommentSection';
 import FloatingVoteCounter from './FloatingVoteCounter';
 import { NoSubmissionsEmptyState } from './EmptyState';
 import { VOTING_CONFIG } from '@/constants/phases';
-import { getVotingOrder } from '@/lib/ordering';
+import { getUniversalVotingOrder } from '@/lib/ordering';
 import type { VotingInterfaceProps } from '@/types/components';
 import type { VoteMap } from '@/types/vote';
 
@@ -28,19 +28,18 @@ export default function VotingInterface({
   const [showFloatingCounter, setShowFloatingCounter] = useState(false);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
   
-  // Create deterministic user-specific ordering for voting
+  // Create deterministic ordering for voting (same for all users)
   const orderedResponses = useMemo(() => {
-    if (!session?.user?.id || !votingData.prompt) {
-      // Fallback to original order if no session or prompt
+    if (!votingData.prompt) {
+      // Fallback to original order if no prompt
       return votingData.responses;
     }
-    
-    // Create a unique identifier for this voting context
-    // We'll use a combination of the prompt text and league context to ensure different orderings per round
-    const promptId = votingData.prompt.text || 'default-prompt';
-    
-    return getVotingOrder(votingData.responses, session.user.id, promptId);
-  }, [votingData.responses, votingData.prompt, session?.user?.id]);
+
+    // Use only the prompt ID to ensure ALL users see the same order
+    const promptId = votingData.prompt.id || votingData.prompt.text || 'default-prompt';
+
+    return getUniversalVotingOrder(votingData.responses, promptId);
+  }, [votingData.responses, votingData.prompt]);
   
   // Initialize with existing votes and check if user has already submitted
   useEffect(() => {
@@ -77,31 +76,40 @@ export default function VotingInterface({
     };
   }, []);
   
-  // Calculate required votes as minimum of available submissions and max votes allowed
+  // Calculate required votes based on votable responses (excluding user's own)
   const maxVotesAllowed = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
-  const requiredVotes = Math.min(orderedResponses.length, maxVotesAllowed);
+  const votableResponses = orderedResponses.filter(response =>
+    votingData.votableResponseIds?.includes(response.id) ?? true
+  );
+  const requiredVotes = Math.min(votableResponses.length, maxVotesAllowed);
 
   const handleVoteToggle = (responseId: string) => {
     // Prevent vote changes if user has already submitted
     if (hasSubmittedVotes) {
       return;
     }
-    
+
+    // Check if this response is votable (not user's own submission)
+    const isVotable = votingData.votableResponseIds?.includes(responseId) ?? true;
+    if (!isVotable) {
+      return;
+    }
+
     const newVotes = { ...selectedVotes };
     const hasVoted = newVotes[responseId] === 1;
-    
+
     if (hasVoted) {
       // Remove vote
       delete newVotes[responseId];
     } else if (getTotalVotes() < requiredVotes) {
       // Add vote (only 1 vote per submission allowed)
       newVotes[responseId] = 1;
-      
+
       // Show heart animation only when voting (not un-voting)
       setHeartAnimation(responseId);
       setTimeout(() => setHeartAnimation(null), 1000);
     }
-    
+
     setSelectedVotes(newVotes);
   };
 
@@ -110,14 +118,20 @@ export default function VotingInterface({
     if (hasSubmittedVotes) {
       return;
     }
-    
+
+    // Check if this response is votable (not user's own submission)
+    const isVotable = votingData.votableResponseIds?.includes(responseId) ?? true;
+    if (!isVotable) {
+      return;
+    }
+
     const now = Date.now();
     const doubleTapThreshold = 300; // milliseconds
-    
+
     if (lastTap && lastTap.responseId === responseId && now - lastTap.time < doubleTapThreshold) {
       // Double tap detected - toggle vote
       handleVoteToggle(responseId);
-      
+
       setLastTap(null); // Reset to prevent triple-tap issues
     } else {
       // Single tap - just record the tap
@@ -173,6 +187,9 @@ export default function VotingInterface({
         <div className="space-y-0">
           {orderedResponses.map((response, index) => {
             const hasVoted = selectedVotes[response.id] === 1;
+            const isVotable = votingData.votableResponseIds?.includes(response.id) ?? true;
+            const isOwnSubmission = !isVotable; // If not votable, it's the user's own submission
+
             return (
               <PhotoFeedItem
                 key={response.id}
@@ -188,30 +205,39 @@ export default function VotingInterface({
                 headerActions={
                   <button
                     onClick={() => handleVoteToggle(response.id)}
-                    disabled={hasSubmittedVotes || (!hasVoted && getTotalVotes() >= requiredVotes)}
+                    disabled={hasSubmittedVotes || isOwnSubmission || (!hasVoted && getTotalVotes() >= requiredVotes)}
                     className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
-                      hasVoted 
-                        ? 'bg-gray-800 text-white hover:bg-gray-900' 
+                      isOwnSubmission
+                        ? 'bg-app-surface-light text-app-text-subtle cursor-not-allowed opacity-60'
+                        : hasVoted
+                        ? 'bg-gray-800 text-white hover:bg-gray-900'
                         : hasSubmittedVotes
                         ? 'bg-app-surface-light text-app-text-muted cursor-not-allowed opacity-50'
                         : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center space-x-1">
-                      <svg 
-                        className={`w-4 h-4 ${hasVoted ? 'text-red-500' : ''}`}
-                        fill={hasVoted ? "currentColor" : "none"} 
-                        stroke="currentColor" 
+                      <svg
+                        className={`w-4 h-4 ${hasVoted ? 'text-red-500' : isOwnSubmission ? 'text-app-text-subtle' : ''}`}
+                        fill={hasVoted ? "currentColor" : "none"}
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                         strokeWidth={2}
                       >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                         />
                       </svg>
-                      <span>{hasVoted ? 'Voted' : 'Vote'}</span>
+                      <span>
+                        {isOwnSubmission
+                          ? 'Your submission'
+                          : hasVoted
+                          ? 'Voted'
+                          : 'Vote'
+                        }
+                      </span>
                     </div>
                   </button>
                 }

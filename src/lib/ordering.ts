@@ -74,17 +74,39 @@ export function getUserSpecificOrder<T extends { id: string }>(
 }
 
 /**
- * Creates a consistent ordering for voting submissions
- * 
+ * Creates a consistent ordering for voting submissions (user-specific)
+ *
  * @param responses - Array of response objects to order
  * @param userId - Current user's ID
  * @param promptId - Current prompt ID to ensure different ordering per prompt
  * @returns Ordered responses for this user and prompt
  */
 export function getVotingOrder<T extends { id: string }>(
-  responses: T[], 
-  userId: string, 
+  responses: T[],
+  userId: string,
   promptId: string
 ): T[] {
   return getUserSpecificOrder(responses, userId, `voting-${promptId}`);
+}
+
+/**
+ * Creates a consistent ordering for voting submissions that is the same for all users
+ *
+ * @param responses - Array of response objects to order
+ * @param promptId - Current prompt ID to ensure different ordering per prompt
+ * @returns Ordered responses that all users will see in the same order
+ */
+export function getUniversalVotingOrder<T extends { id: string }>(
+  responses: T[],
+  promptId: string
+): T[] {
+  if (responses.length <= 1) {
+    return responses;
+  }
+
+  // Create a deterministic seed based only on the prompt ID
+  // This ensures ALL users get the same order for the same prompt
+  const seed = simpleHash(`universal-voting-${promptId}`);
+
+  return seededShuffle(responses, seed);
 }

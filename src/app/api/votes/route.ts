@@ -93,17 +93,20 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     }
   });
 
-  // Filter out user's own response from voting options
+  // Include all responses but track which ones are votable
+  const allResponses = votingPrompt.responses;
   const votableResponses = votingPrompt.responses.filter(
     response => response.userId !== session.user.id
   );
 
   return NextResponse.json({
     prompt: votingPrompt,
-    responses: votableResponses,
+    responses: allResponses, // Include all responses
+    votableResponseIds: votableResponses.map(r => r.id), // Track which ones can be voted on
     existingVotes: existingVotes,
     canVote: true,
-    voteEnd: realisticVoteEndTime?.toISOString()
+    voteEnd: realisticVoteEndTime?.toISOString(),
+    currentUserId: session.user.id // Include current user ID for frontend logic
   });
 };
 
