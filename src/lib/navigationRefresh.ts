@@ -28,8 +28,19 @@ class NavigationRefreshManager {
 
   // Handle navigation tap for a specific page
   async handleNavigationTap(page: string): Promise<'scrolled' | 'refreshed' | 'navigated'> {
-    // Check if we're at the top by seeing if there's minimal scroll
-    const isAtTop = window.pageYOffset <= 10;
+    // For pages with pull-to-refresh containers, we need to check their scroll position
+    // Otherwise fall back to window scroll position
+    let isAtTop = false;
+
+    // Try to find a pull-to-refresh container on the page
+    const pullToRefreshContainer = document.querySelector('[data-pull-to-refresh-container]') as HTMLElement;
+
+    if (pullToRefreshContainer) {
+      isAtTop = pullToRefreshContainer.scrollTop <= 10;
+    } else {
+      // Fallback to window scroll for pages without pull-to-refresh
+      isAtTop = window.pageYOffset <= 10;
+    }
 
     if (!isAtTop) {
       // First tap: scroll to top

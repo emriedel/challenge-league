@@ -59,7 +59,7 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
         <div
           className="absolute top-0 left-0 right-0 z-10 bg-app-bg flex justify-center"
           style={{
-            transform: isPulling ? `translateY(${Math.max(0, pullProgress * 40 - 40)}px)` : 'translateY(-40px)',
+            transform: isPulling ? `translateY(${Math.max(0, pullProgress * 60 - 60)}px)` : 'translateY(-60px)',
             transition: isPulling ? 'none' : 'transform 0.3s ease-out'
           }}
         >
@@ -67,12 +67,14 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
             isVisible={shouldShowSpinner || isRefreshing}
             isSpinning={isRefreshing}
             opacity={isRefreshing ? 1 : spinnerOpacity}
+            pullProgress={pullProgress}
           />
         </div>
 
         {/* Scrollable content container */}
         <div
           ref={containerRef}
+          data-pull-to-refresh-container
           className="h-full overflow-y-auto overscroll-y-none"
           style={{
             transform: contentTransform,

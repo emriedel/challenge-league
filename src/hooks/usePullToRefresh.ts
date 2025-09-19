@@ -23,8 +23,8 @@ interface PullToRefreshState {
  */
 export function usePullToRefresh({
   onRefresh,
-  threshold = 80,
-  maxPullDistance = 120,
+  threshold = 60,
+  maxPullDistance = 100,
   disabled = false
 }: UsePullToRefreshOptions) {
   const [state, setState] = useState<PullToRefreshState>({
@@ -86,7 +86,7 @@ export function usePullToRefresh({
       isPulling: true,
       pullDistance: elasticDeltaY,
       pullProgress: progress,
-      shouldShowSpinner: elasticDeltaY > 20 // Show spinner after small pull
+      shouldShowSpinner: elasticDeltaY > 15 // Show spinner after small pull
     }));
   }, [canPull, threshold, maxPullDistance]);
 

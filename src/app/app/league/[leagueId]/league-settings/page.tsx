@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   useLeagueSettingsQuery,
   useCreatePromptMutation,
@@ -15,6 +15,9 @@ import {
   useDeleteLeagueMutation
 } from '@/hooks/queries';
 import { useLeagueSettingsCacheListener } from '@/hooks/useCacheEventListener';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
+import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
@@ -90,7 +93,37 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
   // Listen for cache events to keep settings synchronized
   useLeagueSettingsCacheListener(params.leagueId);
-  
+
+  // Pull-to-refresh setup
+  const cacheInvalidator = useCacheInvalidator();
+  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await cacheInvalidator.refreshLeague(params.leagueId);
+  }, [cacheInvalidator, params.leagueId]);
+
+  // Handle scroll-to-top from navigation
+  const handleScrollToTop = useCallback(() => {
+    if (pullToRefreshRef.current?.scrollToTop) {
+      pullToRefreshRef.current.scrollToTop();
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  // Handle navigation refresh trigger
+  const handleNavigationRefresh = useCallback(async () => {
+    if (pullToRefreshRef.current?.triggerRefresh) {
+      await pullToRefreshRef.current.triggerRefresh();
+    } else {
+      await handleRefresh();
+    }
+  }, [handleRefresh]);
+
+  // Register this page with the navigation refresh manager
+  useNavigationRefreshHandlers('league', handleScrollToTop, handleNavigationRefresh);
+
   // Mutations
   const createPromptMutation = useCreatePromptMutation(params.leagueId);
   const updatePromptMutation = useUpdatePromptMutation(params.leagueId);
@@ -406,11 +439,17 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           </div>
         )}
       >
-      <div className="min-h-screen bg-app-bg">
+      <div className="flex flex-col h-screen">
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
-        
-        {/* Mobile-friendly container with proper bottom padding for nav */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 md:pb-8">
+
+        {/* Pull-to-refresh container for page content */}
+        <PullToRefreshContainer
+          ref={pullToRefreshRef}
+          onRefresh={handleRefresh}
+          className="flex-1"
+        >
+          {/* Mobile-friendly container with proper bottom padding for nav */}
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 md:pb-8">
           
           {/* Page Header */}
           <div className="mb-6">
@@ -892,7 +931,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </button>
             </div>
           )}
-        </div>
+          </div>
+        </PullToRefreshContainer>
 
         {/* Leave League Confirmation Modal */}
         {showLeaveConfirm && (
