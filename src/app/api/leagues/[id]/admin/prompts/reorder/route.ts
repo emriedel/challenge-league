@@ -46,18 +46,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }, { status: 403 });
     }
 
-    // Verify all prompts belong to this league and are scheduled
+    // Verify all prompts belong to this league and are scheduled (only queue prompts can be reordered)
     const prompts = await db.prompt.findMany({
       where: {
         id: { in: promptIds },
         leagueId: league.id,
-        status: 'SCHEDULED'
+        status: 'SCHEDULED' // Only SCHEDULED prompts can be reordered
       }
     });
 
     if (prompts.length !== promptIds.length) {
-      return NextResponse.json({ 
-        error: 'Some prompts not found or not schedulable' 
+      return NextResponse.json({
+        error: 'Some prompts not found or not schedulable (only queued prompts can be reordered)'
       }, { status: 400 });
     }
 

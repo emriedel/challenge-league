@@ -105,11 +105,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }, { status: 403 });
     }
 
-    // Get the next queue order for this league
+    // Get the next queue order for this league (consider ALL prompts, not just SCHEDULED)
     const lastPrompt = await db.prompt.findFirst({
       where: {
-        leagueId: league.id,
-        status: 'SCHEDULED'
+        leagueId: league.id
       },
       orderBy: {
         queueOrder: 'desc'
@@ -134,8 +133,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   } catch (error) {
     console.error('Error creating league prompt:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create prompt' 
+    return NextResponse.json({
+      error: 'Failed to create prompt'
     }, { status: 500 });
   }
 }
