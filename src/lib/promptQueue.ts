@@ -147,10 +147,11 @@ async function sendTargetedNotificationToUsers(
 /**
  * Send 24-hour warning notifications for phases that will expire in the next cron run
  * Only sends to users who haven't completed the required action
+ * Skips warnings for phases that are 1 day or less to avoid duplicate notifications
  */
 async function send24HourWarningNotifications() {
   console.log('📢 Checking for 24-hour warning notifications...');
-  
+
   try {
     // Get all ACTIVE and VOTING prompts that haven't already sent warnings
     const activePrompts = await db.prompt.findMany({
@@ -181,9 +182,29 @@ async function send24HourWarningNotifications() {
         votesPerPlayer: prompt.league.votesPerPlayer,
       };
 
-      if (willPhaseExpireInNextCronRun(prompt, leagueSettings)) {
+      // Skip 24-hour warnings for 1-day rounds to avoid duplicate notifications
+      if (leagueSettings.submissionDays <= 1) {
+        console.log(`⏭️ Skipping 24h submission warning for 1-day round: "${prompt.text}"`);
+        // Mark as sent to prevent repeated checking
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { submissionWarningNotificationSent: true },
+        });
+        continue;
+      }
+
+      // Add debugging information for 24-hour warning logic
+      const phaseEndTime = getPhaseEndTime(prompt, leagueSettings);
+      const nextCronTime = new Date();
+      nextCronTime.setUTCDate(nextCronTime.getUTCDate() + 1);
+      nextCronTime.setUTCHours(19, 0, 0, 0); // Next cron at 7 PM UTC
+
+      const willExpire = willPhaseExpireInNextCronRun(prompt, leagueSettings);
+      console.log(`🔍 24h warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}`);
+
+      if (willExpire) {
         console.log(`⚠️ Sending 24h submission warning for: "${prompt.text}"`);
-        
+
         try {
           // Get league members who haven't submitted yet
           const leagueMembers = await db.leagueMembership.findMany({
@@ -244,9 +265,29 @@ async function send24HourWarningNotifications() {
         votesPerPlayer: prompt.league.votesPerPlayer,
       };
 
-      if (willPhaseExpireInNextCronRun(prompt, leagueSettings)) {
+      // Skip 24-hour warnings for 1-day rounds to avoid duplicate notifications
+      if (leagueSettings.votingDays <= 1) {
+        console.log(`⏭️ Skipping 24h voting warning for 1-day round: "${prompt.text}"`);
+        // Mark as sent to prevent repeated checking
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { votingWarningNotificationSent: true },
+        });
+        continue;
+      }
+
+      // Add debugging information for 24-hour warning logic
+      const phaseEndTime = getPhaseEndTime(prompt, leagueSettings);
+      const nextCronTime = new Date();
+      nextCronTime.setUTCDate(nextCronTime.getUTCDate() + 1);
+      nextCronTime.setUTCHours(19, 0, 0, 0); // Next cron at 7 PM UTC
+
+      const willExpire = willPhaseExpireInNextCronRun(prompt, leagueSettings);
+      console.log(`🔍 24h voting warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}`);
+
+      if (willExpire) {
         console.log(`⚠️ Sending 24h voting warning for: "${prompt.text}"`);
-        
+
         try {
           // Get league members who haven't completed their voting yet
           const leagueMembers = await db.leagueMembership.findMany({

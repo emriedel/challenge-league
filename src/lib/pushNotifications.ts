@@ -279,7 +279,7 @@ export function createNotificationData(
     case 'new-prompt-available':
       return {
         title: 'A New Challenge Is Available!',
-        body: promptText || 'A new creative challenge is ready for you!',
+        body: promptText || '',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'new-prompt',
@@ -292,7 +292,7 @@ export function createNotificationData(
     case 'submission-deadline-24h':
       return {
         title: '24 Hours Left to Submit!',
-        body: promptText || 'Submission deadline is approaching - submit your response now!',
+        body: promptText || '',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'submission-reminder',
@@ -305,7 +305,7 @@ export function createNotificationData(
     case 'voting-available':
       return {
         title: 'Voting is Open!',
-        body: promptText || 'Vote on the latest challenge submissions!',
+        body: promptText || '',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-open',
@@ -318,7 +318,7 @@ export function createNotificationData(
     case 'voting-deadline-24h':
       return {
         title: '24 Hours Left to Vote!',
-        body: promptText || 'Voting deadline is approaching - make sure to vote!',
+        body: promptText || '',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-reminder',
