@@ -438,6 +438,43 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 **📋 Future Enhancements:**
 - Mobile app development
 
+## Cache Invalidation System
+
+### Overview
+Challenge League implements a comprehensive cache invalidation system using TanStack Query that ensures seamless UI updates across all pages without requiring full page refreshes.
+
+### Architecture
+- **Centralized Patterns**: `src/lib/cacheInvalidation.ts` provides predefined invalidation patterns for different user actions
+- **Event-Based Sync**: Custom events broadcast cache updates to listening pages
+- **Page-Specific Listeners**: Each page type has targeted cache listeners for optimal performance
+- **Type-Safe Helpers**: `CacheInvalidator` class with methods like `handleSubmission()`, `handleVoting()`, `handlePhaseTransition()`
+
+### Usage Examples
+```typescript
+// Enhanced mutation handling
+const cacheInvalidator = useCacheInvalidator();
+await cacheInvalidator.handleSubmission('submit', leagueId);
+await cacheInvalidator.handleVoting('submit', leagueId);
+
+// Page-specific listeners for automatic updates
+useChallengeCacheListener(leagueId);      // Challenge page
+useResultsCacheListener(leagueId);        // Results page
+useStandingsCacheListener(leagueId);      // Standings page
+useLeagueSettingsCacheListener(leagueId); // League Settings page
+```
+
+### Seamless Updates
+The system handles these scenarios without page refreshes:
+- **Submission/Voting**: Immediate state updates across Challenge, Results, and Standings pages
+- **Phase Transitions**: All pages instantly reflect ACTIVE → VOTING → COMPLETED changes
+- **League Actions**: Navigation indicators update immediately after any user action
+- **Cross-Page Sync**: Actions on one page automatically update all other relevant pages
+
+### Backward Compatibility
+- Maintains existing `refreshLeagueActions()` function
+- All current mutations continue to work
+- No breaking changes to existing API
+
 ## Testing Infrastructure
 
 ### Overview

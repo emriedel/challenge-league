@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
-import { refreshLeagueActions } from '@/lib/leagueActions';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 
 interface SubmissionData {
   photo: File;
@@ -30,6 +30,7 @@ export function useSubmissionManagement({
   onRefetch
 }: UseSubmissionManagementProps): UseSubmissionManagementReturn {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const cacheInvalidator = useCacheInvalidator();
 
   const submitResponse = useCallback(async (data: SubmissionData) => {
     if (!promptId) return;
@@ -73,14 +74,14 @@ export function useSubmissionManagement({
 
       onSuccess?.({ type: 'success', text: 'Response submitted successfully!' });
       onRefetch?.(); // Refresh to show updated submission
-      refreshLeagueActions(); // Refresh navigation indicators
+      await cacheInvalidator.handleSubmission('submit', leagueId);
     } catch (error) {
       console.error('Submission error:', error);
       onError?.(error instanceof Error ? error.message : 'Failed to submit response');
     } finally {
       setIsSubmitting(false);
     }
-  }, [promptId, leagueId, onSuccess, onError, onRefetch]);
+  }, [promptId, leagueId, onSuccess, onError, onRefetch, cacheInvalidator]);
 
   const updateResponse = useCallback(async (data: UpdateData, currentImageUrl: string) => {
     if (!promptId) return;
@@ -129,14 +130,14 @@ export function useSubmissionManagement({
 
       onSuccess?.({ type: 'success', text: 'Submission updated successfully!' });
       onRefetch?.(); // Refresh to show updated submission
-      refreshLeagueActions(); // Refresh navigation indicators
+      await cacheInvalidator.handleSubmission('update', leagueId);
     } catch (error) {
       console.error('Update error:', error);
       onError?.(error instanceof Error ? error.message : 'Failed to update submission');
     } finally {
       setIsSubmitting(false);
     }
-  }, [promptId, leagueId, onSuccess, onError, onRefetch]);
+  }, [promptId, leagueId, onSuccess, onError, onRefetch, cacheInvalidator]);
 
   return {
     isSubmitting,

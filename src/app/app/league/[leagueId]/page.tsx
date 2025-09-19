@@ -13,7 +13,8 @@ import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
 import { useMessages } from '@/hooks/useMessages';
 import { useContextualNotifications } from '@/hooks/useContextualNotifications';
-import { refreshLeagueActions } from '@/lib/leagueActions';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { useChallengeCacheListener } from '@/hooks/useCacheEventListener';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -36,6 +37,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
+  const cacheInvalidator = useCacheInvalidator();
+
+  // Listen for cache events to keep challenge page synchronized
+  useChallengeCacheListener(params.leagueId);
 
   // Check if user just joined this league
   const justJoined = searchParams.get('joined') === 'true';
@@ -74,7 +79,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     try {
       await submitVotesMutation.mutateAsync(votes);
       setVotingMessage({ type: 'success', text: 'Votes submitted successfully!' });
-      refreshLeagueActions(); // Refresh navigation indicators
+      await cacheInvalidator.handleVoting('submit', params.leagueId);
     } catch (error) {
       setVotingMessage({
         type: 'error',

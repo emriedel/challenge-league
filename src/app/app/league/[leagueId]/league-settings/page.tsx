@@ -14,6 +14,7 @@ import {
   useLeaveLeagueMutation,
   useDeleteLeagueMutation
 } from '@/hooks/queries';
+import { useLeagueSettingsCacheListener } from '@/hooks/useCacheEventListener';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
@@ -86,6 +87,9 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const { data: session, status } = useSession();
   const router = useRouter();
   const { data: settingsData, isLoading: settingsLoading, error: settingsError } = useLeagueSettingsQuery(params.leagueId);
+
+  // Listen for cache events to keep settings synchronized
+  useLeagueSettingsCacheListener(params.leagueId);
   
   // Mutations
   const createPromptMutation = useCreatePromptMutation(params.leagueId);

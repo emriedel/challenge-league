@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheConfig } from '@/lib/queryClient';
+import { invalidationPatterns } from '@/lib/cacheInvalidation';
 
 interface VotingResponse {
   id: string;
@@ -96,14 +97,11 @@ export function useSubmitVotesMutation(leagueId?: string) {
       return response.json();
     },
     onSuccess: () => {
-      // Immediately refetch voting data after successful vote submission
-      queryClient.invalidateQueries({ queryKey: queryKeys.votingData(leagueId!) });
-      
-      // Also invalidate league data since standings might change
-      queryClient.invalidateQueries({ queryKey: queryKeys.league(leagueId!) });
-      
-      // Invalidate rounds data since results might be available
-      queryClient.invalidateQueries({ queryKey: queryKeys.leagueRounds(leagueId!) });
+      // Use enhanced invalidation pattern for voting
+      const pattern = invalidationPatterns.voting.submit(leagueId!);
+      pattern.forEach(queryKey => {
+        queryClient.invalidateQueries({ queryKey });
+      });
     },
   });
 }

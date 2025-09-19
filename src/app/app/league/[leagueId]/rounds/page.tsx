@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
+import { useResultsCacheListener } from '@/hooks/useCacheEventListener';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
 import CommentSection from '@/components/CommentSection';
@@ -18,6 +19,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
+
+  // Listen for cache events to keep results synchronized
+  useResultsCacheListener(params.leagueId);
   const [selectedRoundId, setSelectedRoundId] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useLeagueStandingsQuery } from '@/hooks/queries';
+import { useStandingsCacheListener } from '@/hooks/useCacheEventListener';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -33,6 +34,9 @@ export default function StandingPage({ params }: StandingPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueStandingsQuery(params.leagueId);
+
+  // Listen for cache events to keep standings synchronized
+  useStandingsCacheListener(params.leagueId);
 
   useEffect(() => {
     if (status === 'loading') return;

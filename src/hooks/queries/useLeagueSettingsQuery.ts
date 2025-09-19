@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheConfig } from '@/lib/queryClient';
+import { invalidationPatterns } from '@/lib/cacheInvalidation';
 
 interface Prompt {
   id: string;
@@ -247,25 +248,16 @@ export function useTransitionPhaseMutation(leagueId?: string) {
       return response.json();
     },
     onSuccess: () => {
-      // Phase transitions affect everything - invalidate all queries for this league
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueSettings(leagueId!) 
+      // Use enhanced invalidation pattern for phase transitions
+      const pattern = invalidationPatterns.phaseTransition.any(leagueId!);
+      pattern.forEach(queryKey => {
+        queryClient.invalidateQueries({ queryKey });
       });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.league(leagueId!) 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leaguePrompt(leagueId!) 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.votingData(leagueId!) 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueRounds(leagueId!) 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueStandings(leagueId!) 
-      });
+
+      // Also refresh league actions for navigation updates
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('refreshLeagueActions'));
+      }
     },
   });
 }
