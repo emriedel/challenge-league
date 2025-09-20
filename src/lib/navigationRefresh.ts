@@ -60,6 +60,16 @@ class NavigationRefreshManager {
         navigator.vibrate(30);
       }
 
+      // Add a small delay to ensure scroll operation completes
+      // before allowing new touch interactions
+      setTimeout(() => {
+        // Force a slight UI update to ensure touch handlers are properly reset
+        document.body.style.touchAction = 'pan-y';
+        requestAnimationFrame(() => {
+          document.body.style.touchAction = '';
+        });
+      }, 100);
+
       return 'scrolled';
     } else {
       // Second tap: trigger refresh when already at top

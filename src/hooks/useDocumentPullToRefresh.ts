@@ -47,6 +47,13 @@ export function useDocumentPullToRefresh({
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (disabled || !isAtDocumentTop()) return;
 
+    // Check if the touch target is part of the bottom navigation
+    const target = e.target as HTMLElement;
+    const isBottomNavTouch = target.closest('nav') && target.closest('[class*="bottom"]');
+
+    // Don't track touches that start on navigation elements
+    if (isBottomNavTouch) return;
+
     touchStartY.current = e.touches[0].clientY;
     scrollTopOnStart.current = window.scrollY;
   }, [disabled, isAtDocumentTop]);
@@ -64,8 +71,17 @@ export function useDocumentPullToRefresh({
     // Double-check we're still at the top before preventing default
     if (!isAtDocumentTop()) return;
 
-    // Prevent default scrolling when pulling down from top
-    e.preventDefault();
+    // Check if the touch target is part of the bottom navigation
+    const target = e.target as HTMLElement;
+    const isBottomNavTouch = target.closest('nav') && target.closest('[class*="bottom"]');
+
+    // Don't interfere with navigation touches
+    if (isBottomNavTouch) return;
+
+    // Only prevent default if we have a significant pull to avoid interfering with taps
+    if (deltaY > 10) {
+      e.preventDefault();
+    }
 
     // Calculate pull distance with elastic resistance
     const elasticDeltaY = Math.min(
@@ -86,6 +102,10 @@ export function useDocumentPullToRefresh({
 
   // Handle touch end
   const handleTouchEnd = useCallback(async () => {
+    // Always reset touchStartY to ensure clean state
+    const wasActive = touchStartY.current !== null;
+    touchStartY.current = null;
+
     if (!state.isPulling) return;
 
     const shouldTriggerRefresh = state.pullDistance >= threshold;
@@ -125,8 +145,6 @@ export function useDocumentPullToRefresh({
         pullProgress: 0
       }));
     }
-
-    touchStartY.current = null;
   }, [state.isPulling, state.pullDistance, state.isRefreshing, threshold, onRefresh]);
 
   // Trigger refresh programmatically (for double-tap nav)
@@ -170,11 +188,14 @@ export function useDocumentPullToRefresh({
     document.addEventListener('touchstart', handleTouchStart, options);
     document.addEventListener('touchmove', handleTouchMove, options);
     document.addEventListener('touchend', handleTouchEnd, options);
+    // Also listen for touchcancel to handle interrupted gestures
+    document.addEventListener('touchcancel', handleTouchEnd, options);
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd, disabled]);
 
