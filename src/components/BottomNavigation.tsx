@@ -36,7 +36,16 @@ const BottomNavigation = memo(function BottomNavigation() {
       const result = await navigationRefreshManager.handleNavigationTap(tabName.toLowerCase());
 
       // If no custom handlers were registered, fall back to query invalidation
-      if (result === 'scrolled' && window.pageYOffset <= 10) {
+      // Check if we're at the top using the same logic as navigationRefreshManager
+      let isAtTop = false;
+      const pullToRefreshContainer = document.querySelector('[data-pull-to-refresh-container]') as HTMLElement;
+      if (pullToRefreshContainer) {
+        isAtTop = pullToRefreshContainer.scrollTop <= 10;
+      } else {
+        isAtTop = window.pageYOffset <= 10;
+      }
+
+      if (result === 'scrolled' && isAtTop) {
         // We scrolled but we're still at top, so trigger query refresh as fallback
         switch (tabName) {
           case 'Challenge':
