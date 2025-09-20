@@ -256,7 +256,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
-            <div className="max-w-2xl mx-auto px-4 mb-8">
+            <div className="mb-8">
               <div className="bg-app-surface border border-app-border rounded-md p-4">
 
                 {submissionMessage && (
