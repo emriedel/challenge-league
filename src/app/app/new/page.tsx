@@ -74,7 +74,7 @@ export default function NewLeaguePage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className={`${rubik.className} text-3xl sm:text-4xl font-bold text-app-text mb-2`}>
+          <h1 className="text-3xl sm:text-4xl font-bold text-app-text mb-2">
             Create New League
           </h1>
         </div>

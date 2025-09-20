@@ -106,7 +106,7 @@ export default function JoinLeaguePage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className={`${rubik.className} text-3xl sm:text-4xl font-bold text-app-text mb-2`}>
+          <h1 className="text-3xl sm:text-4xl font-bold text-app-text mb-2">
             Join a League
           </h1>
         </div>
