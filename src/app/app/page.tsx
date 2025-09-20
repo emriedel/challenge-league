@@ -161,10 +161,10 @@ export default function HomePage() {
                               </span>
                               {league.needsAction ? (
                                 <div className="flex items-center gap-1">
-                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                                   <span className="text-red-400 font-medium">
                                     {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
                                   </span>
+                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                                 </div>
                               ) : (
                                 <span className="text-app-text-secondary">
