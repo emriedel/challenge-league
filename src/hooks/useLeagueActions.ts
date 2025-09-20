@@ -20,7 +20,7 @@ interface UseLeagueActionsReturn {
 export function useLeagueActions(): UseLeagueActionsReturn {
   const { data: session, status } = useSession();
   const [leagues, setLeagues] = useState<League[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Helper to update PWA badge

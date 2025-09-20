@@ -256,7 +256,7 @@ export default function Navigation() {
           </div>
 
           {/* Mobile Right Section */}
-          <div className="md:hidden flex items-center space-x-3">
+          <div className="md:hidden flex items-center space-x-4">
             {/* League Selector */}
             <div className="relative" ref={mobileDropdownRef}>
               <button
