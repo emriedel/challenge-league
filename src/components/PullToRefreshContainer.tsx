@@ -59,7 +59,7 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
         <div
           className="absolute top-0 left-0 right-0 z-10 flex justify-center"
           style={{
-            transform: isPulling ? `translateY(${Math.max(0, pullProgress * 60 - 60)}px)` : isRefreshing ? 'translateY(10px)' : 'translateY(-60px)',
+            transform: isPulling ? `translateY(${Math.max(0, pullProgress * 60 - 60)}px)` : isRefreshing ? 'translateY(0px)' : 'translateY(-60px)',
             transition: isPulling ? 'none' : 'transform 0.3s ease-out'
           }}
         >

@@ -52,11 +52,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
   // Handle scroll-to-top from navigation
   const handleScrollToTop = useCallback(() => {
-    if (pullToRefreshRef.current?.scrollToTop) {
-      pullToRefreshRef.current.scrollToTop();
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    pullToRefreshRef.current?.scrollToTop();
   }, []);
 
   // Handle navigation refresh trigger
