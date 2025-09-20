@@ -142,7 +142,7 @@ export default function HomePage() {
                     <div className="p-4 sm:p-6 w-full">
                       {/* League Header */}
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-app-text truncate">
+                        <h3 className="text-xl font-semibold text-app-text truncate">
                           {league.name}
                         </h3>
                         {league.isOwner && (
@@ -153,13 +153,13 @@ export default function HomePage() {
                       </div>
 
                       {/* Admin info */}
-                      <p className="text-sm text-app-text-muted mb-3 break-words">
+                      <p className="text-base text-app-text-muted mb-3 break-words">
                         Admin: @{league.owner?.username || 'Unknown'}
                       </p>
 
                       {/* League Info */}
                       {league.currentPrompt && (
-                        <div className="text-xs text-app-text-secondary p-2 bg-app-surface-dark rounded break-words mb-3">
+                        <div className="text-sm text-app-text-secondary break-words mb-3">
                           Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
                         </div>
                       )}
@@ -169,7 +169,7 @@ export default function HomePage() {
                         <div className="flex">
                           <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-red-500/10 text-red-400">
                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                            <span>{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
+                            <span className="text-sm">{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
                           </div>
                         </div>
                       )}
@@ -182,7 +182,7 @@ export default function HomePage() {
               <div className="flex gap-3 justify-center">
                 <Link
                   href="/app/new"
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -191,7 +191,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/app/join"
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
