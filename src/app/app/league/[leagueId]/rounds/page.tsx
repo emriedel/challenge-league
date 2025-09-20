@@ -7,7 +7,7 @@ import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import { useResultsCacheListener } from '@/hooks/useCacheEventListener';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
-import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
+import DocumentPullToRefresh from '@/components/DocumentPullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
 import CommentSection from '@/components/CommentSection';
@@ -23,7 +23,6 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
   const cacheInvalidator = useCacheInvalidator();
-  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
 
   // Listen for cache events to keep results synchronized
   useResultsCacheListener(params.leagueId);
@@ -35,15 +34,14 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
   // Navigation refresh handlers
   const handleScrollToTop = useCallback(() => {
-    pullToRefreshRef.current?.scrollToTop();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
   const handleNavigationRefresh = useCallback(async () => {
-    if (pullToRefreshRef.current?.triggerRefresh) {
-      await pullToRefreshRef.current.triggerRefresh();
-    } else {
-      await handleRefresh();
-    }
+    await handleRefresh();
   }, [handleRefresh]);
 
   useNavigationRefreshHandlers('results', handleScrollToTop, handleNavigationRefresh);
@@ -102,16 +100,11 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <DocumentPullToRefresh onRefresh={handleRefresh}>
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
-      <PullToRefreshContainer
-        ref={pullToRefreshRef}
-        onRefresh={handleRefresh}
-        className="flex-1"
-      >
-        {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-        <div className="bg-app-bg min-h-screen pb-24">
+      {galleryData?.rounds && galleryData.rounds.length > 0 ? (
+        <div className="bg-app-bg pb-16">
           {/* Challenge Selector and Details */}
           <div className="py-4 pb-6">
             <div className="max-w-2xl mx-auto px-4">
@@ -259,7 +252,6 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           </div>
         </div>
         )}
-      </PullToRefreshContainer>
-    </div>
+    </DocumentPullToRefresh>
   );
 }

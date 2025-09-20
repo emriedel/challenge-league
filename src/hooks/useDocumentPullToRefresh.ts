@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-interface UsePullToRefreshOptions {
+interface UseDocumentPullToRefreshOptions {
   onRefresh: () => Promise<void> | void;
   threshold?: number;
   maxPullDistance?: number;
@@ -18,15 +18,15 @@ interface PullToRefreshState {
 }
 
 /**
- * Hook for implementing pull-to-refresh functionality
- * Handles touch events and provides state for UI animations
+ * Document-level pull-to-refresh that enhances natural scrolling
+ * Works with window scroll position, doesn't interfere with scroll containers
  */
-export function usePullToRefresh({
+export function useDocumentPullToRefresh({
   onRefresh,
   threshold = 60,
   maxPullDistance = 100,
   disabled = false
-}: UsePullToRefreshOptions) {
+}: UseDocumentPullToRefreshOptions) {
   const [state, setState] = useState<PullToRefreshState>({
     isPulling: false,
     isRefreshing: false,
@@ -36,45 +36,35 @@ export function usePullToRefresh({
   });
 
   const touchStartY = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const scrollTopOnStart = useRef<number>(0);
 
-  // Check if we should allow pull-to-refresh
-  const canPull = useCallback(() => {
-    if (disabled) return false;
-
-    // Only allow pull if we're at the top of the scroll container
-    const container = containerRef.current;
-    if (!container) return false;
-
-    return container.scrollTop <= 5;
-  }, [disabled]);
+  // Check if we're at the top of the document
+  const isAtDocumentTop = useCallback(() => {
+    return window.scrollY <= 5; // Small threshold for touch variations
+  }, []);
 
   // Handle touch start
-  const handleTouchStart = useCallback((e: Event) => {
-    const touchEvent = e as TouchEvent;
-    if (!canPull()) return;
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (disabled || !isAtDocumentTop()) return;
 
-    touchStartY.current = touchEvent.touches[0].clientY;
-    scrollTopOnStart.current = containerRef.current?.scrollTop || 0;
-  }, [canPull]);
+    touchStartY.current = e.touches[0].clientY;
+    scrollTopOnStart.current = window.scrollY;
+  }, [disabled, isAtDocumentTop]);
 
   // Handle touch move
-  const handleTouchMove = useCallback((e: Event) => {
-    const touchEvent = e as TouchEvent;
-    if (touchStartY.current === null) return;
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (disabled || touchStartY.current === null) return;
 
-    const currentY = touchEvent.touches[0].clientY;
+    const currentY = e.touches[0].clientY;
     const deltaY = currentY - touchStartY.current;
 
     // Only handle downward pulls when at the top
-    if (deltaY <= 0 || scrollTopOnStart.current > 0) return;
+    if (deltaY <= 0 || scrollTopOnStart.current > 5) return;
 
     // Double-check we're still at the top before preventing default
-    const container = containerRef.current;
-    if (!container || container.scrollTop > 5) return;
+    if (!isAtDocumentTop()) return;
 
-    // Prevent default scrolling when pulling
+    // Prevent default scrolling when pulling down from top
     e.preventDefault();
 
     // Calculate pull distance with elastic resistance
@@ -92,7 +82,7 @@ export function usePullToRefresh({
       pullProgress: progress,
       shouldShowSpinner: elasticDeltaY > 15 // Show spinner after small pull
     }));
-  }, [canPull, threshold, maxPullDistance]);
+  }, [disabled, threshold, maxPullDistance, isAtDocumentTop]);
 
   // Handle touch end
   const handleTouchEnd = useCallback(async () => {
@@ -171,28 +161,24 @@ export function usePullToRefresh({
     }
   }, [state.isRefreshing, disabled, onRefresh]);
 
-  // Set up touch event listeners
+  // Set up document-level touch event listeners
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    if (disabled) return;
 
     const options: AddEventListenerOptions = { passive: false };
 
-    container.addEventListener('touchstart', handleTouchStart, options);
-    container.addEventListener('touchmove', handleTouchMove, options);
-    container.addEventListener('touchend', handleTouchEnd, options);
+    document.addEventListener('touchstart', handleTouchStart, options);
+    document.addEventListener('touchmove', handleTouchMove, options);
+    document.addEventListener('touchend', handleTouchEnd, options);
 
     return () => {
-      container.removeEventListener('touchstart', handleTouchStart, options);
-      container.removeEventListener('touchmove', handleTouchMove, options);
-      container.removeEventListener('touchend', handleTouchEnd, options);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, disabled]);
 
   return {
-    // Ref to attach to the scrollable container
-    containerRef,
-
     // State for UI rendering
     isPulling: state.isPulling,
     isRefreshing: state.isRefreshing,
@@ -203,7 +189,7 @@ export function usePullToRefresh({
     // Programmatic trigger for double-tap nav
     triggerRefresh,
 
-    // Transform style for content during pull
+    // Transform style for page content during pull
     contentTransform: state.isPulling ? `translateY(${state.pullDistance}px)` : 'translateY(0)',
 
     // Opacity for spinner based on pull progress

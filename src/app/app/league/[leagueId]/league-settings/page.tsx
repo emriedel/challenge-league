@@ -17,7 +17,7 @@ import {
 import { useLeagueSettingsCacheListener } from '@/hooks/useCacheEventListener';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
-import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
+import DocumentPullToRefresh from '@/components/DocumentPullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
@@ -96,7 +96,6 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
   // Pull-to-refresh setup
   const cacheInvalidator = useCacheInvalidator();
-  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
@@ -105,20 +104,15 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
   // Handle scroll-to-top from navigation
   const handleScrollToTop = useCallback(() => {
-    if (pullToRefreshRef.current?.scrollToTop) {
-      pullToRefreshRef.current.scrollToTop();
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
   // Handle navigation refresh trigger
   const handleNavigationRefresh = useCallback(async () => {
-    if (pullToRefreshRef.current?.triggerRefresh) {
-      await pullToRefreshRef.current.triggerRefresh();
-    } else {
-      await handleRefresh();
-    }
+    await handleRefresh();
   }, [handleRefresh]);
 
   // Register this page with the navigation refresh manager
@@ -439,17 +433,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           </div>
         )}
       >
-      <div className="flex flex-col h-screen">
+      <DocumentPullToRefresh onRefresh={handleRefresh}>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
-        {/* Pull-to-refresh container for page content */}
-        <PullToRefreshContainer
-          ref={pullToRefreshRef}
-          onRefresh={handleRefresh}
-          className="flex-1"
-        >
-          {/* Mobile-friendly container with proper bottom padding for nav */}
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-24">
+        {/* Mobile-friendly container with proper bottom padding for nav */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-16">
           
           {/* Page Header */}
           <div className="mb-6">
@@ -924,8 +912,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </button>
             </div>
           )}
-          </div>
-        </PullToRefreshContainer>
+        </div>
 
         {/* Leave League Confirmation Modal */}
         {showLeaveConfirm && (
@@ -1096,7 +1083,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
             </div>
           </div>
         )}
-      </div>
+      </DocumentPullToRefresh>
     </ErrorBoundary>
     </>
   );

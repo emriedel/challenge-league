@@ -16,7 +16,7 @@ import { useContextualNotifications } from '@/hooks/useContextualNotifications';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useChallengeCacheListener } from '@/hooks/useCacheEventListener';
 import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
-import PullToRefreshContainer, { PullToRefreshHandle } from '@/components/PullToRefreshContainer';
+import DocumentPullToRefresh from '@/components/DocumentPullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import CurrentChallenge from '@/components/CurrentChallenge';
 import VotingInterface from '@/components/VotingInterface';
@@ -40,15 +40,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
   const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
   const cacheInvalidator = useCacheInvalidator();
-  const pullToRefreshRef = useRef<PullToRefreshHandle>(null);
-
-  // Listen for cache events to keep challenge page synchronized
-  useChallengeCacheListener(params.leagueId);
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
     await cacheInvalidator.refreshLeague(params.leagueId);
   }, [cacheInvalidator, params.leagueId]);
+
+  // Listen for cache events to keep challenge page synchronized
+  useChallengeCacheListener(params.leagueId);
 
   // Handle scroll-to-top from navigation
   const handleScrollToTop = useCallback(() => {
@@ -197,7 +196,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         </div>
       )}
     >
-      <div>
+      <DocumentPullToRefresh onRefresh={handleRefresh}>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
         {/* Container for challenge content */}
@@ -332,7 +331,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             />
           )}
         </div>
-      </div>
+      </DocumentPullToRefresh>
     </ErrorBoundary>
   );
 }
