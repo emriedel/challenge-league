@@ -145,7 +145,7 @@ export default function Navigation() {
               
               {isLeaguesOpen && (
                 <div className="absolute top-full right-0 mt-1 w-80 bg-app-surface border border-app-border rounded-md shadow-lg z-10">
-                  <div className="py-1">
+                  <div className="pt-1">
                     {loadingLeagues ? (
                       <div className="px-4 py-2 text-sm text-app-text-muted">
                         Loading leagues...
@@ -171,8 +171,22 @@ export default function Navigation() {
                                     <span className="font-medium select-none truncate">{league.name}</span>
                                   </div>
                                   {league.currentPrompt && (
-                                    <div className="text-xs text-app-text-secondary select-none">
-                                      Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                    <div className="flex items-center gap-1 text-xs select-none">
+                                      <span className="text-app-text-secondary">
+                                        Challenge #{league.currentPrompt.challengeNumber} •
+                                      </span>
+                                      {league.needsAction ? (
+                                        <div className="flex items-center gap-1">
+                                          <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                                          <span className="text-red-400 font-medium">
+                                            {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <span className="text-app-text-secondary">
+                                          {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
+                                        </span>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -188,24 +202,24 @@ export default function Navigation() {
                             </div>
                           </Link>
                         ))}
-                        <hr className="my-1 border-app-border" />
-                        <div className="flex gap-2 p-2">
+                        <hr className="mt-1 border-app-border" />
+                        <div className="flex">
                           <Link
                             href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light select-none touch-manipulation rounded transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
                             Create League
                           </Link>
                           <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light select-none touch-manipulation rounded transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
                             Join League
@@ -217,24 +231,24 @@ export default function Navigation() {
                         <div className="px-4 py-2 text-sm text-app-text-muted">
                           No leagues found
                         </div>
-                        <hr className="my-1 border-app-border" />
-                        <div className="flex gap-2 p-2">
+                        <hr className="mt-1 border-app-border" />
+                        <div className="flex">
                           <Link
                             href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light select-none touch-manipulation rounded transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
                             Create League
                           </Link>
                           <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light select-none touch-manipulation rounded transition-colors"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
                             Join League
@@ -289,7 +303,7 @@ export default function Navigation() {
             
             {isLeaguesOpen && (
               <div className="md:absolute md:top-full md:right-0 md:transform-none md:left-auto fixed top-14 left-1/2 transform -translate-x-1/2 md:-translate-x-0 mt-1 w-80 md:max-w-[min(320px,calc(100vw-1rem))] max-w-[calc(100vw-2rem)] bg-app-surface border border-app-border rounded-md shadow-lg z-10">
-                <div className="py-1">
+                <div className="pt-1">
                   {loadingLeagues ? (
                     <div className="px-4 py-2 text-sm text-app-text-muted">
                       Loading leagues...
@@ -315,8 +329,22 @@ export default function Navigation() {
                                   <span className="font-medium select-none truncate">{league.name}</span>
                                 </div>
                                 {league.currentPrompt && (
-                                  <div className="text-xs text-app-text-secondary select-none">
-                                    Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                  <div className="flex items-center gap-1 text-xs select-none">
+                                    <span className="text-app-text-secondary">
+                                      Challenge #{league.currentPrompt.challengeNumber} •
+                                    </span>
+                                    {league.needsAction ? (
+                                      <div className="flex items-center gap-1">
+                                        <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                                        <span className="text-red-400 font-medium">
+                                          {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-app-text-secondary">
+                                        {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
+                                      </span>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -332,24 +360,24 @@ export default function Navigation() {
                           </div>
                         </Link>
                       ))}
-                      <hr className="my-1 border-app-border" />
-                      <div className="flex gap-2 p-2">
+                      <hr className="mt-1 border-app-border" />
+                      <div className="flex">
                         <Link
                           href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
                           Create League
                         </Link>
                         <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                           </svg>
                           Join League
@@ -361,24 +389,24 @@ export default function Navigation() {
                       <div className="px-4 py-2 text-sm text-app-text-muted">
                         No leagues found
                       </div>
-                      <hr className="my-1 border-app-border" />
-                      <div className="flex gap-2 p-2">
+                      <hr className="mt-1 border-app-border" />
+                      <div className="flex">
                         <Link
                           href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
                           Create League
                         </Link>
                         <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded transition-colors"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                           </svg>
                           Join League
