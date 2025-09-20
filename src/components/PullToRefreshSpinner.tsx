@@ -25,7 +25,7 @@ export default function PullToRefreshSpinner({
 
   return (
     <div
-      className="flex flex-col justify-center items-center py-4 transition-opacity duration-200"
+      className="flex justify-center items-center py-4 transition-opacity duration-200"
       style={{ opacity }}
     >
       <div className="relative">
@@ -49,17 +49,6 @@ export default function PullToRefreshSpinner({
         {/* Spinning circle when refreshing */}
         {isSpinning && (
           <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-app-text rounded-full animate-spin"></div>
-        )}
-      </div>
-
-      {/* Status text */}
-      <div className="mt-2 text-xs text-app-text-secondary text-center">
-        {isSpinning ? (
-          'Refreshing...'
-        ) : hasReachedThreshold ? (
-          <span className="text-green-400">Release to refresh</span>
-        ) : (
-          'Pull to refresh'
         )}
       </div>
     </div>
