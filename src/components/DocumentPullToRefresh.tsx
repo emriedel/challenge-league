@@ -51,11 +51,12 @@ export default function DocumentPullToRefresh({
         />
       </div>
 
-      {/* Page content with pull transform */}
+      {/* Page content with pull transform and refresh spacing */}
       <div
         style={{
           transform: contentTransform,
-          transition: isPulling ? 'none' : 'transform 0.3s ease-out'
+          marginTop: isRefreshing ? '60px' : '0px',
+          transition: isPulling ? 'none' : 'transform 0.3s ease-out, margin-top 0.3s ease-out'
         }}
       >
         {children}
