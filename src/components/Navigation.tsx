@@ -155,7 +155,7 @@ export default function Navigation() {
                           <Link
                             key={league.id}
                             href={`/app/league/${league.id}`}
-                            className="block px-4 py-3 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
+                            className="block px-4 py-3 text-base text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <div className="flex justify-between items-center">
@@ -292,7 +292,7 @@ export default function Navigation() {
                         <Link
                           key={league.id}
                           href={`/app/league/${league.id}`}
-                          className="block px-4 py-3 text-sm text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
+                          className="block px-4 py-3 text-base text-app-text hover:bg-app-surface-light select-none touch-manipulation relative"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <div className="flex justify-between items-center">
