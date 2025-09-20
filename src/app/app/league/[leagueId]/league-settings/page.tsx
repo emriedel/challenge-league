@@ -449,7 +449,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           className="flex-1"
         >
           {/* Mobile-friendly container with proper bottom padding for nav */}
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 md:pb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-24">
           
           {/* Page Header */}
           <div className="mb-6">

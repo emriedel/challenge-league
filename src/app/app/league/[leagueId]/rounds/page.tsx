@@ -111,7 +111,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         className="flex-1"
       >
         {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-        <div className="bg-app-bg min-h-screen">
+        <div className="bg-app-bg min-h-screen pb-24">
           {/* Challenge Selector and Details */}
           <div className="py-4 pb-6">
             <div className="max-w-2xl mx-auto px-4">

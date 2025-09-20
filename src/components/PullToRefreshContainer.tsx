@@ -54,7 +54,7 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
     }
 
     return (
-      <div className={`relative overflow-hidden ${className}`}>
+      <div className={`relative ${className}`}>
         {/* Pull-to-refresh spinner */}
         <div
           className="absolute top-0 left-0 right-0 z-10 flex justify-center"
@@ -75,20 +75,14 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
         <div
           ref={containerRef}
           data-pull-to-refresh-container
-          className="h-full overflow-y-auto overscroll-y-none"
+          className="overflow-y-auto overscroll-y-none"
           style={{
+            height: '100vh',
             transform: contentTransform,
             transition: isPulling ? 'none' : 'transform 0.3s ease-out'
           }}
         >
-          <div
-            style={{
-              marginTop: isRefreshing ? '60px' : '0px',
-              transition: isPulling ? 'none' : 'margin-top 0.3s ease-out'
-            }}
-          >
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     );

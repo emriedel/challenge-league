@@ -47,7 +47,7 @@ export function usePullToRefresh({
     const container = containerRef.current;
     if (!container) return false;
 
-    return container.scrollTop === 0;
+    return container.scrollTop <= 5;
   }, [disabled]);
 
   // Handle touch start
@@ -62,13 +62,17 @@ export function usePullToRefresh({
   // Handle touch move
   const handleTouchMove = useCallback((e: Event) => {
     const touchEvent = e as TouchEvent;
-    if (touchStartY.current === null || !canPull()) return;
+    if (touchStartY.current === null) return;
 
     const currentY = touchEvent.touches[0].clientY;
     const deltaY = currentY - touchStartY.current;
 
     // Only handle downward pulls when at the top
     if (deltaY <= 0 || scrollTopOnStart.current > 0) return;
+
+    // Double-check we're still at the top before preventing default
+    const container = containerRef.current;
+    if (!container || container.scrollTop > 5) return;
 
     // Prevent default scrolling when pulling
     e.preventDefault();

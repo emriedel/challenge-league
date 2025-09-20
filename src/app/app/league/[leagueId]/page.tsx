@@ -52,16 +52,15 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
   // Handle scroll-to-top from navigation
   const handleScrollToTop = useCallback(() => {
-    pullToRefreshRef.current?.scrollToTop();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
   // Handle navigation refresh trigger
   const handleNavigationRefresh = useCallback(async () => {
-    if (pullToRefreshRef.current?.triggerRefresh) {
-      await pullToRefreshRef.current.triggerRefresh();
-    } else {
-      await handleRefresh();
-    }
+    await handleRefresh();
   }, [handleRefresh]);
 
   // Register this page with the navigation refresh manager
@@ -198,17 +197,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         </div>
       )}
     >
-      <div className="flex flex-col h-screen">
+      <div>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
-        {/* Pull-to-refresh container for page content */}
-        <PullToRefreshContainer
-          ref={pullToRefreshRef}
-          onRefresh={handleRefresh}
-          className="flex-1"
-        >
-          {/* Container for challenge content */}
-          <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* Container for challenge content */}
+        <div className="max-w-2xl mx-auto px-4 py-6 pb-8">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
             <div className="mb-2">
@@ -339,7 +332,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             />
           )}
         </div>
-        </PullToRefreshContainer>
       </div>
     </ErrorBoundary>
   );
