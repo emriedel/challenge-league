@@ -142,47 +142,58 @@ export default function HomePage() {
                   >
                     <div className="p-4 sm:p-6 w-full">
                       {/* League Header */}
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3">
                         <LeagueAvatar
                           leagueName={league.name}
                           leagueId={league.id}
                           size="md"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2 mb-1">
-                            <h3 className="text-xl font-semibold text-app-text truncate">
-                              {league.name}
-                            </h3>
-                            {league.isOwner && (
-                              <span className="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded-full flex-shrink-0">
-                                Admin
+                          <h3 className="text-lg font-semibold text-app-text truncate mb-2">
+                            {league.name}
+                          </h3>
+
+                          {/* League Status - combines phase info and action status */}
+                          {league.currentPrompt && (
+                            <div className="flex items-center gap-2 text-sm break-words mb-2">
+                              <span className="text-app-text-secondary">
+                                Challenge #{league.currentPrompt.challengeNumber} •
                               </span>
-                            )}
-                          </div>
+                              {league.needsAction ? (
+                                <div className="flex items-center gap-1">
+                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                  <span className="text-red-400 font-medium">
+                                    {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-app-text-secondary">
+                                  {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Phase End Time */}
+                          {league.currentPrompt?.phaseEndsAt && (
+                            <div className="flex items-center gap-1 text-sm text-app-text-muted">
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>
+                                {new Date(league.currentPrompt.phaseEndsAt).toLocaleDateString('en-US', {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  timeZoneName: 'short'
+                                })}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      {/* Admin info */}
-                      <p className="text-base text-app-text-muted mb-3 break-words">
-                        Admin: @{league.owner?.username || 'Unknown'}
-                      </p>
-
-                      {/* League Info */}
-                      {league.currentPrompt && (
-                        <div className="text-sm text-app-text-secondary break-words mb-3">
-                          Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
-                        </div>
-                      )}
-
-                      {/* Action badge */}
-                      {league.needsAction && (
-                        <div className="flex">
-                          <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-red-500/10 text-red-400">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                            <span className="text-sm">{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </Link>
                 ))}
@@ -192,18 +203,18 @@ export default function HomePage() {
               <div className="flex gap-3 justify-center">
                 <Link
                   href="/app/new"
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-green-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Create League
                 </Link>
                 <Link
                   href="/app/join"
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-blue-400 bg-app-surface-light hover:bg-app-surface border border-app-border-light rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
                   Join League

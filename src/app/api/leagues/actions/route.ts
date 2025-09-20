@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
+import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -33,7 +34,11 @@ export const { GET } = createMethodHandlers({
                   { status: 'VOTING' }
                 ]
               },
-              include: {
+              select: {
+                id: true,
+                text: true,
+                status: true,
+                phaseStartedAt: true,
                 responses: {
                   where: { userId },
                   select: { id: true }
@@ -78,11 +83,29 @@ export const { GET } = createMethodHandlers({
             }
           });
           challengeNumber = completedCount + 1;
+
+          const prompt = league.prompts[0];
+
+          // Calculate phase end time using centralized logic
+          const phaseEndsAt = getRealisticPhaseEndTime(
+            {
+              id: prompt.id,
+              status: prompt.status,
+              phaseStartedAt: prompt.phaseStartedAt
+            },
+            {
+              submissionDays: league.submissionDays,
+              votingDays: league.votingDays,
+              votesPerPlayer: league.votesPerPlayer
+            }
+          );
+
           currentPrompt = {
-            id: league.prompts[0].id,
-            text: league.prompts[0].text,
-            status: league.prompts[0].status,
-            challengeNumber
+            id: prompt.id,
+            text: prompt.text,
+            status: prompt.status,
+            challengeNumber,
+            phaseEndsAt
           };
         }
 

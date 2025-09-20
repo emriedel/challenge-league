@@ -31,6 +31,7 @@ export interface League {
     text: string;
     status: 'ACTIVE' | 'VOTING';
     challengeNumber: number;
+    phaseEndsAt?: Date;
   } | null;
 }
 
