@@ -10,6 +10,21 @@ const TEST_DB_URL = 'postgresql://challenge_league:test_password@localhost:5433/
 async function runIntegrationTests() {
   console.log('🚀 Starting isolated integration test environment...');
 
+  // Verify database isolation BEFORE starting anything
+  console.log('🔍 Verifying database isolation...');
+  try {
+    execSync('node scripts/check-db-connection.js', {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        DATABASE_URL: TEST_DB_URL
+      }
+    });
+  } catch (error) {
+    console.error('❌ Database verification failed');
+    process.exit(1);
+  }
+
   let nextServer = null;
   let testDbContainer = null;
 
@@ -21,6 +36,19 @@ async function runIntegrationTests() {
     // Wait for database to be ready
     console.log('⏳ Waiting for test database to be ready...');
     await new Promise(resolve => setTimeout(resolve, 5000));
+
+    // Step 1.5: Create test environment file to override development settings
+    console.log('🔧 Creating test environment override...');
+    const testEnvContent = `# ISOLATED TEST ENVIRONMENT - DO NOT COMMIT
+DATABASE_URL="${TEST_DB_URL}"
+PORT=${TEST_PORT}
+NEXTAUTH_URL="http://localhost:${TEST_PORT}"
+NEXTAUTH_SECRET="test-secret-for-testing-only"
+NODE_ENV="test"
+NEXT_TELEMETRY_DISABLED="1"
+`;
+    require('fs').writeFileSync('.env.test.local', testEnvContent);
+    console.log('✅ Test environment file created');
 
     // Step 2: Apply database schema
     console.log('🔧 Applying database schema...');
@@ -110,6 +138,14 @@ async function runIntegrationTests() {
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
+    // Remove test environment file
+    try {
+      require('fs').unlinkSync('.env.test.local');
+      console.log('🗑️ Test environment file removed');
+    } catch (error) {
+      // File might not exist, that's ok
+    }
+
     try {
       execSync('docker compose -f docker-compose.test.yml down', { stdio: 'inherit' });
     } catch (error) {
@@ -121,6 +157,11 @@ async function runIntegrationTests() {
 // Handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   console.log('\n🛑 Received SIGINT, cleaning up...');
+  try {
+    require('fs').unlinkSync('.env.test.local');
+  } catch (error) {
+    // File might not exist, that's ok
+  }
   try {
     execSync('docker compose -f docker-compose.test.yml down', { stdio: 'inherit' });
   } catch (error) {

@@ -159,7 +159,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const leaderboard = leagueData?.leaderboard || [];
 
   // Check if league hasn't started yet
-  if (league && league.isStarted === false) {
+  // Treat undefined, null, or false as "not started"
+  if (league && !league.isStarted) {
     return (
       <WaitingToStartState
         league={{

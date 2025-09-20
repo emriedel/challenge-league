@@ -105,6 +105,7 @@ export default function SignUp() {
                   type="email"
                   autoComplete="email"
                   required
+                  data-testid="signup-email-input"
                   className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
                   value={email}
@@ -122,6 +123,7 @@ export default function SignUp() {
                   type="text"
                   autoComplete="username"
                   required
+                  data-testid="signup-username-input"
                   className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Choose your username"
                   value={username}
@@ -139,6 +141,7 @@ export default function SignUp() {
                   type="password"
                   autoComplete="new-password"
                   required
+                  data-testid="signup-password-input"
                   className="appearance-none block w-full px-4 py-2.5 sm:py-3 border border-app-border-light bg-app-surface-dark text-app-text rounded-xl shadow-sm placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Create a secure password"
                   value={password}
@@ -150,6 +153,7 @@ export default function SignUp() {
             <button
               type="submit"
               disabled={isLoading}
+              data-testid="signup-submit-button"
               className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#3a8e8c] hover:bg-[#338a88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3a8e8c] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
             >
               {isLoading ? (

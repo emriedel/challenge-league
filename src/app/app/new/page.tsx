@@ -91,6 +91,7 @@ export default function NewLeaguePage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                data-testid="league-name-input"
                 className="w-full px-3 py-2 bg-app-surface-dark border border-app-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
                 placeholder="Enter league name"
                 required
@@ -106,6 +107,7 @@ export default function NewLeaguePage() {
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                data-testid="league-description-input"
                 className="w-full px-3 py-2 bg-app-surface-dark border border-app-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted resize-none"
                 placeholder="Describe your league and what makes it special"
                 required
@@ -122,6 +124,7 @@ export default function NewLeaguePage() {
               <button
                 type="submit"
                 disabled={loading || !name.trim() || !description.trim()}
+                data-testid="create-league-button"
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#3a8e8c] hover:bg-[#347a78] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3a8e8c] transition-all duration-200 font-semibold disabled:opacity-50"
               >
                 {loading ? 'Creating...' : 'Create League'}

@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { resetTestDb, cleanupTestDb } from '../utils/database';
-import { 
-  createTestUser, 
-  registerUser, 
+import {
+  createTestUser,
+  registerUser,
   createLeague,
   addPromptToLeague,
   joinLeagueById,
@@ -11,7 +11,8 @@ import {
   castVotes,
   cleanupTestFiles,
   addProfilePhoto,
-  debugLeagueState
+  debugLeagueState,
+  startLeague
 } from '../utils/test-helpers';
 
 test.describe('Fixed Phase Transition Workflow', () => {
@@ -28,9 +29,14 @@ test.describe('Fixed Phase Transition Workflow', () => {
 
   test('Complete workflow: Create accounts → League → Add prompt → Activate → Submit → Vote → Results', async ({ browser }) => {
     test.setTimeout(180000);
-    
-    const context1 = await browser.newContext();
-    const context2 = await browser.newContext();
+
+    // Create contexts with iPhone SE viewport (375x667)
+    const context1 = await browser.newContext({
+      viewport: { width: 375, height: 667 }
+    });
+    const context2 = await browser.newContext({
+      viewport: { width: 375, height: 667 }
+    });
     const page1 = await context1.newPage();
     const page2 = await context2.newPage();
 
@@ -70,17 +76,26 @@ test.describe('Fixed Phase Transition Workflow', () => {
       // Debug database state after adding prompt
       console.log('🔍 Database state after adding prompt:');
       await debugLeagueState(leagueId);
-      
-      // === STEP 5: Admin activates the prompt (starts league and/or transitions to ACTIVE) ===
-      console.log('🔄 Step 5: Admin activating the prompt...');
+
+      // === STEP 5: Admin starts the league ===
+      console.log('🏁 Step 5: Admin starting the league...');
+      await startLeague(page1, leagueId);
+      console.log('✅ League started successfully');
+
+      // Debug database state after starting league
+      console.log('🔍 Database state after starting league:');
+      await debugLeagueState(leagueId);
+
+      // === STEP 6: Admin activates the prompt (transitions to ACTIVE) ===
+      console.log('🔄 Step 6: Admin activating the prompt...');
       await transitionLeaguePhase(page1);
       console.log('✅ Prompt transition completed');
       
       // Debug database state after transition
       await debugLeagueState(leagueId);
       
-      // === STEP 6: Both users submit responses in parallel ===
-      console.log('📸 Step 6: Both users submitting responses simultaneously...');
+      // === STEP 7: Both users submit responses in parallel ===
+      console.log('📸 Step 7: Both users submitting responses simultaneously...');
       
       // Submit both users at the same time to prevent phase transitions
       try {
@@ -100,24 +115,24 @@ test.describe('Fixed Phase Transition Workflow', () => {
         console.log('✅ Admin submitted response');
       }
       
-      // === STEP 7: Admin transitions to voting phase ===
-      console.log('🗳️ Step 7: Admin transitioning to voting phase...');
+      // === STEP 8: Admin transitions to voting phase ===
+      console.log('🗳️ Step 8: Admin transitioning to voting phase...');
       await transitionLeaguePhase(page1);
       console.log('✅ Should now be in voting phase');
       
-      // === STEP 8: Both users cast votes ===
-      console.log('🗳️ Step 8: Both users casting votes...');
+      // === STEP 9: Both users cast votes ===
+      console.log('🗳️ Step 9: Both users casting votes...');
       await castVotes(page1, leagueId);
       await castVotes(page2, leagueId);
       console.log('✅ Both users voted');
       
-      // === STEP 9: Admin completes voting and processes results ===
-      console.log('🏁 Step 9: Admin processing results...');
+      // === STEP 10: Admin completes voting and processes results ===
+      console.log('🏁 Step 10: Admin processing results...');
       await transitionLeaguePhase(page1);
       console.log('✅ Results should now be processed');
       
-      // === STEP 10: Verify all pages are accessible ===
-      console.log('🔍 Step 10: Verifying all pages load correctly...');
+      // === STEP 11: Verify all pages are accessible ===
+      console.log('🔍 Step 11: Verifying all pages load correctly...');
       
       // Check Challenge page
       await page1.goto(`/app/league/${leagueId}`);

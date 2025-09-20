@@ -202,6 +202,34 @@ export async function createLeague(page: Page, leagueName: string): Promise<stri
   }
   
   const leagueId = leagueMatch[1];
+
+  // CRITICAL: Clean up any existing prompts for this league and ensure clean state
+  try {
+    const { getTestDb } = await import('./database');
+    const testDb = getTestDb();
+
+    // Delete any existing prompts for this league
+    await testDb.prompt.deleteMany({
+      where: { leagueId: leagueId }
+    });
+
+    // Ensure league is set to not started
+    await testDb.league.update({
+      where: { id: leagueId },
+      data: { isStarted: false }
+    });
+
+    console.log('🧹 Cleaned up league and ensured fresh state');
+
+    // Force the page to refresh to reflect the updated league state
+    await page.waitForTimeout(1000);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    console.log('🔄 Refreshed page to reflect updated league state');
+  } catch (dbError) {
+    console.error('⚠️ Could not clean up league state:', dbError);
+  }
+
   console.log(`✅ League created successfully: ${leagueId}`);
   return leagueId;
 }
@@ -1042,12 +1070,89 @@ export async function checkForConsoleErrors(page: Page): Promise<string[]> {
 }
 
 /**
+ * Start a league by clicking the Start League button (UI-based testing)
+ */
+export async function startLeague(page: Page, leagueId: string): Promise<void> {
+  console.log('🏁 Starting league via UI...');
+
+  // Navigate to league page
+  await page.goto(`/app/league/${leagueId}`);
+  await page.waitForLoadState('networkidle');
+
+  // Force a cache refresh by triggering React Query invalidation
+  console.log('🔄 Forcing cache refresh...');
+  await page.evaluate(() => {
+    // Trigger a refresh to force React Query to refetch data
+    window.location.reload();
+  });
+  await page.waitForLoadState('networkidle');
+
+  // Additional wait to ensure React Query has time to process
+  await page.waitForTimeout(2000);
+
+  // Check what the API is actually returning for debugging
+  console.log('🔍 Checking API response for league data...');
+  const apiResponse = await page.evaluate(async (leagueId) => {
+    try {
+      const response = await fetch(`/api/leagues/${leagueId}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return { error: error.message };
+    }
+  }, leagueId);
+
+  console.log('📊 API Response league.isStarted:', apiResponse?.league?.isStarted);
+
+  // Check UI state
+  const waitingStateExists = await page.locator('button:has-text("Start League")').count();
+  const regularChallengeExists = await page.locator('text="Current Challenge"').count();
+
+  console.log(`🎯 UI State: Start League buttons: ${waitingStateExists}, Current Challenge tabs: ${regularChallengeExists}`);
+
+  // Take a screenshot before attempting to find the button
+  console.log('📸 Taking screenshot of current UI state...');
+  const screenshotPath = `tests/temp/ui-state-league-start-${Date.now()}.png`;
+  await page.screenshot({
+    path: screenshotPath,
+    fullPage: true
+  });
+  console.log(`📸 Screenshot saved to: ${screenshotPath}`);
+
+  // Look for the Start League button
+  const startLeagueButton = page.locator('button:has-text("Start League")');
+
+  if (await startLeagueButton.isVisible({ timeout: 10000 })) {
+    console.log('🎯 Found Start League button, clicking it...');
+    await startLeagueButton.click();
+
+    // Wait for the action to complete
+    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
+
+    console.log('✅ League started successfully via UI');
+  } else {
+    console.log('❌ Start League button not found in UI');
+    console.log('🔍 Current page URL:', page.url());
+    console.log('📄 Page title:', await page.title());
+
+    // Get more detailed page content for debugging
+    const bodyText = await page.textContent('body');
+    console.log('📄 Page content contains "Start League":', bodyText?.includes('Start League') || false);
+    console.log('📄 Page content contains "WaitingToStartState":', bodyText?.includes('Waiting') || false);
+    console.log('📄 Page content preview:', bodyText?.substring(0, 500) + '...');
+
+    throw new Error('Start League button not found - WaitingToStartState component not rendering');
+  }
+}
+
+/**
  * Basic performance check - measure page load time
  */
 export async function measurePageLoadTime(page: Page, url: string): Promise<number> {
   const startTime = Date.now();
   await page.goto(url, { waitUntil: 'networkidle' });
   const endTime = Date.now();
-  
+
   return endTime - startTime;
 }

@@ -91,6 +91,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
               <button
                 onClick={handleStartLeague}
                 disabled={isStarting}
+                data-testid="start-league-button"
                 className={`
                   w-full px-6 py-3 rounded-lg font-semibold transition-all duration-200
                   ${

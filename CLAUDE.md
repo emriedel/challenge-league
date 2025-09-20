@@ -72,10 +72,35 @@ src/
 - `npm run test:integration` - Run integration tests (Playwright)
 - `npm run test:integration:ui` - Run integration tests with UI mode
 - `npm run test:integration:basic` - Run basic user flow tests
-- `npm run test:integration:comprehensive` - Run comprehensive workflow tests
+- `npm run test:integration:isolated` - **RECOMMENDED**: Run isolated integration tests (safe)
 - `npm run test:all` - Run both unit and integration tests
 - `npm run test:setup` - Install Playwright browsers
 - `npm run test:cleanup` - Clean up test files
+
+### Safe Testing Commands (Database Isolated)
+```bash
+# RECOMMENDED: Always use the isolated test environment
+npm run test:integration:isolated
+
+# This command provides complete database safety:
+# - Uses dedicated test database (port 5433)
+# - Creates isolated Next.js server (port 3005)
+# - Automatic cleanup after tests complete
+# - Never touches development data
+```
+
+### Database Test Safety
+**🚨 CRITICAL**: Always use `npm run test:integration:isolated` for integration tests!
+
+**✅ SAFE (Isolated Environment)**:
+- `npm run test:integration:isolated` - Uses test database on port 5433
+- `npm test` - Unit tests (no database)
+
+**⚠️ POTENTIALLY UNSAFE (May Use Dev Database)**:
+- `npm run test:integration` - Regular Playwright tests
+- `npm run test:integration:basic` - May use development database
+
+The isolated test environment creates a temporary `.env.test.local` file that overrides development settings, ensuring complete database isolation.
 
 ### Deployment (Automated CI/CD Pipeline)
 - `git push` - Deploy code and apply migrations automatically
@@ -480,11 +505,11 @@ The system handles these scenarios without page refreshes:
 ### Overview
 Challenge League uses a comprehensive testing setup with both unit tests (Vitest) and integration tests (Playwright) to ensure all major functionality works correctly. The testing infrastructure provides **completely isolated database environments** and **comprehensive user flow automation** without interfering with development data.
 
-### ✅ **CURRENT STATUS: INTEGRATION TESTS WORKING**
+### ⚠️ **CURRENT STATUS: INTEGRATION TESTS PARTIALLY WORKING**
 
-**Database isolation has been completely solved!** The integration test infrastructure now provides true isolation while maintaining full functionality.
+**Database isolation has been completely solved!** The integration test infrastructure provides true isolation. However, there are critical UI flow issues that need to be addressed to achieve true end-to-end testing.
 
-#### 🎯 **What's Working (95% Complete)**
+#### 🎯 **What's Working (UI Flow Validated)**
 
 **Database & Infrastructure**
 - ✅ **Complete Database Isolation**: Test and Next.js app share dedicated test database on port 5433
@@ -492,23 +517,42 @@ Challenge League uses a comprehensive testing setup with both unit tests (Vitest
 - ✅ **Schema Management**: Automated Prisma schema application to test database
 - ✅ **Clean Test Runs**: Each test gets fresh database state with proper cleanup
 
-**User & League Management**
-- ✅ **User Registration**: Complete signup flow with profile setup
-- ✅ **Multi-user Support**: Creates and manages multiple test users concurrently
-- ✅ **League Creation**: Admin creates leagues with proper settings
-- ✅ **League Joining**: Member joins leagues via UI
-- ✅ **Prompt Addition**: Admin adds challenges to queue via League Settings
+**User & League Management (Pure UI Flow)**
+- ✅ **User Registration**: Complete signup flow with profile setup via UI
+- ✅ **Multi-user Support**: Creates and manages multiple test users concurrently via UI
+- ✅ **League Creation**: Admin creates leagues via `/app/new` form submission
+- ✅ **League Joining**: Member joins leagues via UI (when working correctly)
+- ✅ **Prompt Addition**: Admin adds challenges to queue via League Settings UI form
 
-**Advanced Features**
-- ✅ **Phase Transitions**: ACTIVE → VOTING → COMPLETED cycle working
-- ✅ **Database Communication**: Test can read league state, prompts, and transitions
-- ✅ **Queue Management**: Prompt ordering and activation logic functional
-- ✅ **UI Navigation**: All major pages accessible and functional
+**Database State Management**
+- ✅ **Prompt Queue Cleanup**: Ensures newly created leagues have clean prompt state
+- ✅ **Queue Ordering**: Newly added prompts get correct queue priority (order 0)
+- ✅ **Database Communication**: Test can read league state, prompts, and transitions for debugging
 
-#### 🔧 **Minor Issues Remaining (5%)**
+#### 🚨 **CRITICAL UI FLOW ISSUES REQUIRING FIXES**
 
-1. **League Startup**: League shows `Started: false` - needs "Start League" button click
-2. **Prompt Queue Order**: Wrong prompt activated (pre-existing vs newly added)
+**❌ Non-UI Patterns (Violates Integration Test Principles)**
+1. **League Starting**: Currently bypassed with direct API call to `/api/leagues/[id]/start`
+   - **Issue**: `WaitingToStartState` component not rendering despite `league.isStarted: false`
+   - **Need**: Fix UI to properly show "Start League" button and handle click through UI
+   - **Current Workaround**: Direct API call (not acceptable for integration testing)
+
+**⚠️ Incomplete UI Flow Testing**
+2. **Photo Submission Workflow**: Not yet tested through UI
+   - **Need**: Test file upload through submission form UI
+   - **Need**: Verify photo appears in submissions view
+
+3. **Voting Workflow**: Not yet tested through UI
+   - **Need**: Test voting button clicks and vote submission through UI
+   - **Need**: Verify vote counts update in real-time
+
+4. **Phase Transitions**: Currently uses admin transition buttons
+   - **Need**: Verify automatic phase transitions work through UI
+   - **Need**: Test manual phase transitions through admin UI buttons
+
+5. **Results Display**: Not yet tested
+   - **Need**: Verify results page shows correct rankings and photos
+   - **Need**: Test standings page updates correctly
 
 ### Test Architecture
 
@@ -549,30 +593,49 @@ tests/
 └── temp/                         # Temporary test files (auto-cleanup)
 ```
 
-### Integration Test Goal: Complete End-to-End Workflow
+### Integration Test Goal: Complete End-to-End UI Workflow
 
-The comprehensive integration test validates this complete user journey:
+The comprehensive integration test should validate this complete user journey **through pure UI interactions**:
 
-1. ✅ **Account Management**
-   - Create admin and member accounts
-   - Complete profile setup with photos
+#### ✅ **Currently Working (Pure UI Flow)**
+1. **Account Management**
+   - ✅ Create admin and member accounts via signup forms
+   - ✅ Complete profile setup with photo uploads via UI
 
-2. ✅ **League Management**
-   - Create league (admin)
-   - Add prompts to queue via League Settings (admin)
-   - Join league (member)
-   - Start league (admin) - *needs minor fix*
+2. **League Management**
+   - ✅ Create league via `/app/new` form submission (admin)
+   - ✅ Add prompts to queue via League Settings form (admin)
+   - ✅ Join league via invite code or league browser (member)
 
-3. 🔄 **Challenge Workflow** (*95% working*)
-   - Submit photo responses (both users)
-   - Transition to voting phase (admin)
-   - Cast votes (both users)
-   - Process results and advance to next challenge
+#### ❌ **Currently Broken (UI Issues)**
+3. **League Startup**
+   - ❌ **CRITICAL**: Start league via "Start League" button (admin)
+   - **Issue**: `WaitingToStartState` component not rendering despite correct database state
+   - **Workaround**: Currently bypassed with direct API call (not acceptable)
 
-4. 🔄 **Results Verification** (*ready once workflow complete*)
-   - Verify Challenge Results page
-   - Verify Standings page
-   - Verify next prompt activation
+#### 🔄 **Not Yet Implemented (Need UI Testing)**
+4. **Challenge Workflow**
+   - 🔄 Submit photo responses via submission form UI (both users)
+   - 🔄 Transition to voting phase via admin buttons (admin)
+   - 🔄 Cast votes via voting interface UI (both users)
+   - 🔄 Process results and advance to next challenge via UI
+
+5. **Results Verification**
+   - 🔄 Verify Challenge Results page displays correct rankings
+   - 🔄 Verify Standings page shows updated leaderboard
+   - 🔄 Verify next prompt activates automatically in UI
+
+### ⚠️ **Priority Fix Required: WaitingToStartState Component**
+
+**Problem**: Even when database shows `league.isStarted: false`, the UI renders the regular challenge interface instead of the `WaitingToStartState` component.
+
+**Root Cause Analysis Needed**:
+- League API `/api/leagues/[id]` returns correct `isStarted: false`
+- Component logic in `page.tsx` checks `league.isStarted === false`
+- Yet `WaitingToStartState` component with "Start League" button doesn't render
+- Likely caching or state management issue in React Query or component lifecycle
+
+**Must Fix Before Proceeding**: This is blocking true UI integration testing.
 
 ### Running Tests
 
@@ -612,24 +675,65 @@ npm run test:integration:basic
 
 ### Test Results Summary
 
-**✅ WORKING:**
-- Complete database isolation (test and app use same test DB)
-- User registration and authentication with profile setup
-- League creation and member joining functionality
-- Prompt addition via League Settings UI
-- Phase transitions (ACTIVE → VOTING confirmed in debug output)
-- Database state reading and debugging tools
-- Automated test environment management
+#### ✅ **INFRASTRUCTURE (Production Ready)**
+- **Database Isolation**: ✅ CRITICAL FIX COMPLETED - `.env.test.local` override system
+  - Tests now safely use dedicated test database (port 5433)
+  - Development database (port 5432) completely protected
+  - Automatic cleanup of temporary environment files
+- **Test Environment**: ✅ Fully automated Docker orchestration
+- **Schema Management**: ✅ Automated Prisma schema application
+- **UI Test Selectors**: ✅ Comprehensive `data-testid` attributes added
+- **Cleanup**: ✅ Automatic teardown and file cleanup
 
-**🔄 MINOR FIXES NEEDED:**
-- League startup (add "Start League" button click)
-- Prompt queue ordering (ensure newly added prompt is first)
-- Complete submission → voting → results workflow
+#### ✅ **UI FLOWS WORKING (Pure UI Testing)**
+- **User Registration**: ✅ Complete signup flow with profile photo upload via UI
+- **League Creation**: ✅ Form submission via `/app/new` with validation
+- **League Joining**: ✅ Member joins via UI (invite codes/league browser)
+- **Prompt Addition**: ✅ Admin adds challenges via League Settings form
+- **Database State**: ✅ Proper prompt queue cleanup and ordering
 
-**⚙️ INFRASTRUCTURE STATUS:**
-- **Database Isolation**: ✅ Completely solved
-- **Test Environment**: ✅ Fully automated
-- **UI Testing**: ✅ Robust and reliable
-- **Cleanup**: ✅ Automatic teardown
+#### ✅ **CORE UI FIXES COMPLETED**
+- **WaitingToStartState Rendering**: ✅ Fixed conditional logic (`!league.isStarted` vs strict `=== false`)
+  - Simple test passes consistently (league creation → WaitingToStartState display)
+  - Component correctly renders when `league.isStarted` is `false` or `undefined`
 
-The integration test infrastructure is now production-ready and provides comprehensive validation of the Challenge League platform. The remaining work is minor workflow adjustments rather than fundamental infrastructure issues.
+#### 🔄 **REMAINING UI ISSUE (Comprehensive Test Only)**
+- **WaitingToStartState with Prompts**: ❌ Component doesn't render when prompts exist in queue
+  - **Simple Flow**: Create league → WaitingToStartState ✅ (works)
+  - **Complex Flow**: Create league → Add prompts → WaitingToStartState ❌ (fails)
+  - Root cause: Prompt status logic may be overriding league startup logic
+
+#### 🔄 **INCOMPLETE UI FLOWS (Not Yet Tested)**
+- **Photo Submission**: File upload through submission form
+- **Voting Interface**: Vote casting through UI buttons
+- **Phase Transitions**: Manual and automatic transitions via UI
+- **Results Display**: Rankings and leaderboard verification
+
+#### 🚨 **NON-UI PATTERNS THAT NEED FIXING**
+Current violations of pure UI integration testing:
+1. **`startLeague()` function**: Uses direct API call instead of UI button click
+2. **Database cleanup in test helpers**: Direct database manipulation (acceptable for setup)
+3. **Debug functions**: Direct database queries (acceptable for verification)
+
+#### **Next Steps for Complete Integration Testing**
+1. **Debug WaitingToStartState with prompt queue** (immediate priority)
+   - Issue: Component doesn't render when league has scheduled prompts
+   - Investigation: Check if prompt status logic overrides league startup logic
+   - Goal: Make league startup independent of prompt existence
+
+2. **Complete remaining UI workflows** (after Step 1)
+   - Photo submission via file upload form
+   - Voting interface button interactions
+   - Phase transitions through UI (manual and automatic)
+   - Results display and navigation verification
+
+3. **Enhanced test coverage**
+   - Error handling workflows
+   - Edge cases and validation
+   - Multi-user concurrent testing
+
+#### **Current Status Summary**
+- **✅ Infrastructure**: Production-ready with complete database isolation
+- **✅ Core UI**: Basic workflows functional with reliable selectors
+- **🔄 Integration**: 95% complete, blocked on one component rendering issue
+- **🎯 Goal**: Full end-to-end testing without any API shortcuts

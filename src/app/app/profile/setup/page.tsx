@@ -165,12 +165,16 @@ export default function ProfileSetup() {
               </div>
 
               {/* Upload Button */}
-              <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+              <label
+                data-testid="add-profile-photo-button"
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+              >
                 {profilePhoto ? 'Change Photo' : 'Add Profile Photo'}
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handlePhotoChange}
+                  data-testid="profile-photo-file-input"
                   className="hidden"
                 />
               </label>
@@ -182,6 +186,7 @@ export default function ProfileSetup() {
             <button
               onClick={handleContinue}
               disabled={isUploading}
+              data-testid="profile-continue-button"
               className="w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold"
             >
               {isUploading ? (
@@ -200,6 +205,7 @@ export default function ProfileSetup() {
             <button
               onClick={handleSkip}
               disabled={isUploading}
+              data-testid="profile-skip-button"
               className="w-full py-2.5 px-4 border border-app-border text-app-text-secondary hover:text-app-text hover:border-app-border-light rounded-xl transition-colors font-medium"
             >
               Skip for now

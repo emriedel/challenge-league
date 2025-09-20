@@ -108,6 +108,7 @@ export default function AppHomeClient() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
                 <Link
                   href="/app/join"
+                  data-testid="join-league-button-welcome"
                   className="flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,6 +118,7 @@ export default function AppHomeClient() {
                 </Link>
                 <Link
                   href="/app/new"
+                  data-testid="create-league-button-welcome"
                   className="flex items-center justify-center gap-2 px-6 py-4 bg-app-surface border border-app-border text-app-text hover:bg-app-surface-light font-medium rounded-lg transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -207,6 +209,7 @@ export default function AppHomeClient() {
               <div className="flex gap-3 justify-center">
                 <Link
                   href="/app/new"
+                  data-testid="create-league-button-dashboard"
                   className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -216,6 +219,7 @@ export default function AppHomeClient() {
                 </Link>
                 <Link
                   href="/app/join"
+                  data-testid="join-league-button-dashboard"
                   className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
