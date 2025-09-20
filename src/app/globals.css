@@ -17,7 +17,7 @@
 @layer base {
   /* Ensure minimum touch target size on mobile */
   @media (max-width: 640px) {
-    button {
+    .mobile-touch-target {
       min-height: 44px;
     }
     

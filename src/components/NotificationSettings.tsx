@@ -109,9 +109,9 @@ export default function NotificationSettings() {
                 <div className="relative">
                   <button
                     disabled
-                    className="relative inline-flex h-8 w-14 shrink-0 items-center rounded-full bg-app-border opacity-50 cursor-not-allowed"
+                    className="toggle-button relative inline-flex h-7 w-12 shrink-0 items-center rounded-full bg-app-border opacity-50 cursor-not-allowed"
                   >
-                    <span className="inline-block h-6 w-6 shrink-0 transform rounded-full bg-white translate-x-1" />
+                    <span className="inline-block h-5 w-5 shrink-0 transform rounded-full bg-white translate-x-1" />
                   </button>
                 </div>
                 <span className="text-app-error text-sm">Blocked</span>
@@ -132,13 +132,13 @@ export default function NotificationSettings() {
                         <button
                           onClick={currentlySubscribed ? handleDisableNotifications : handleEnableNotifications}
                           disabled={isLoading}
-                          className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
+                          className={`toggle-button relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
                             currentlySubscribed ? 'bg-[#3a8e8c]' : 'bg-app-border'
                           } ${hasError ? 'ring-2 ring-app-error' : ''}`}
                         >
                           <span
-                            className={`inline-block h-6 w-6 shrink-0 transform rounded-full bg-white transition-transform ${
-                              currentlySubscribed ? 'translate-x-7' : 'translate-x-1'
+                            className={`inline-block h-5 w-5 shrink-0 transform rounded-full bg-white transition-transform ${
+                              currentlySubscribed ? 'translate-x-6' : 'translate-x-1'
                             }`}
                           />
                         </button>

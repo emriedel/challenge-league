@@ -13,7 +13,6 @@ interface ProfileModalProps {
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { data: session, update } = useSession();
-  const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { addMessage, messages } = useMessages();
   const message = messages.profile;
@@ -82,7 +81,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       });
 
       addMessage('profile', { type: 'success', text: 'Profile photo updated successfully!' });
-      setIsEditingPhoto(false);
     } catch (error: any) {
       console.error('Error updating profile photo:', error);
       addMessage('profile', { type: 'error', text: error.message || 'Failed to update profile photo' });
@@ -160,10 +158,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 />
                 
                 {/* Edit Photo Button */}
-                <button
-                  onClick={() => setIsEditingPhoto(!isEditingPhoto)}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
                   disabled={isUploading}
-                  className="absolute -bottom-1 -right-1 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-[#3a8e8c] text-white hover:bg-[#2f7371] w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] flex items-center justify-center p-0"
+                  className="hidden"
+                  id="profile-photo-input"
+                />
+                <button
+                  onClick={() => document.getElementById('profile-photo-input')?.click()}
+                  disabled={isUploading}
+                  className="absolute -bottom-2 -right-2 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-[#3a8e8c] text-white hover:bg-[#2f7371] w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] flex items-center justify-center p-0"
                 >
                   {isUploading ? (
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -179,22 +185,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </button>
               </div>
 
-              {/* File Input */}
-              {isEditingPhoto && (
-                <div className="mt-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    disabled={isUploading}
-                    className="block w-full text-sm text-app-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white disabled:opacity-50"
-                    style={{ "--file-bg": "#2d8cff" } as any}
-                  />
-                  <p className="mt-2 text-xs text-app-text-muted">
-                    Upload a new profile photo (JPG, PNG, max 5MB)
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
