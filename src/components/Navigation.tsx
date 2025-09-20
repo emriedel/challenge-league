@@ -327,10 +327,10 @@ export default function Navigation() {
                                     </span>
                                     {league.needsAction ? (
                                       <div className="flex items-center gap-1">
-                                        <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                                         <span className="text-red-400 font-medium">
                                           {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
                                         </span>
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                                       </div>
                                     ) : (
                                       <span className="text-app-text-secondary">
@@ -341,14 +341,6 @@ export default function Navigation() {
                                 )}
                               </div>
                             </div>
-                            {league.needsAction && league.actionType && (
-                              <div className="flex-shrink-0 ml-2">
-                                <div className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
-                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                                  <span>{league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}</span>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </Link>
                       ))}
