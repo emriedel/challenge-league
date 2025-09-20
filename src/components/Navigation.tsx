@@ -198,7 +198,7 @@ export default function Navigation() {
                         <div className="flex">
                           <Link
                             href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +208,7 @@ export default function Navigation() {
                           </Link>
                           <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +227,7 @@ export default function Navigation() {
                         <div className="flex">
                           <Link
                             href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -237,7 +237,7 @@ export default function Navigation() {
                           </Link>
                           <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -321,7 +321,7 @@ export default function Navigation() {
                                   <span className="font-medium select-none truncate">{league.name}</span>
                                 </div>
                                 {league.currentPrompt && (
-                                  <div className="flex items-center gap-1 text-xs select-none">
+                                  <div className="flex items-center gap-1 text-sm select-none">
                                     <span className="text-app-text-secondary">
                                       Challenge #{league.currentPrompt.challengeNumber} •
                                     </span>
@@ -330,7 +330,7 @@ export default function Navigation() {
                                         <span className="text-red-400 font-medium">
                                           {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
                                         </span>
-                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                                       </div>
                                     ) : (
                                       <span className="text-app-text-secondary">
@@ -348,7 +348,7 @@ export default function Navigation() {
                       <div className="flex">
                         <Link
                           href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -358,7 +358,7 @@ export default function Navigation() {
                         </Link>
                         <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -377,7 +377,7 @@ export default function Navigation() {
                       <div className="flex">
                         <Link
                           href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -387,7 +387,7 @@ export default function Navigation() {
                         </Link>
                         <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-xs font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
