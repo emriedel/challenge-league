@@ -118,36 +118,14 @@ export default function StandingPage({ params }: StandingPageProps) {
       <DocumentPullToRefresh onRefresh={handleRefresh}>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-          <h2 className="text-2xl font-semibold text-app-text mb-6 text-center">League Standings</h2>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-16">
+          <h1 className="text-2xl sm:text-3xl font-bold text-app-text mb-4 text-center">League Standings</h1>
 
 
         <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
           {standings.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-app-border">
-                <thead className="bg-app-surface-dark">
-                  <tr>
-                    <th className="px-2 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider w-12">
-                      Rank
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-secondary uppercase tracking-wider">
-                      Player
-                    </th>
-                    <th className="px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
-                      Points
-                    </th>
-                    <th className="hidden md:table-cell px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
-                      Wins
-                    </th>
-                    <th className="hidden md:table-cell px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
-                      Submissions
-                    </th>
-                    <th className="hidden lg:table-cell px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
-                      Voted
-                    </th>
-                  </tr>
-                </thead>
+              <table className="min-w-full">
                 <tbody className="bg-app-surface divide-y divide-app-border">
                   {standings.map((entry, index) => (
                     <tr 

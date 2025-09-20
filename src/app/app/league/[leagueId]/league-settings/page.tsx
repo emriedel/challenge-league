@@ -437,7 +437,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
         {/* Mobile-friendly container with proper bottom padding for nav */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-16">
           
           {/* Page Header */}
           <div className="mb-6">
