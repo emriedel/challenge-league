@@ -1,4 +1,4 @@
-# Challenge League - Creative Competition Platform
+# Challenge League - A Creative Competition Platform
 
 ## Project Overview
 Challenge League is a web application inspired by Taskmaster, where players join leagues to compete in weekly challenges. Players submit photo responses to specific challenges, then vote on each other's submissions to determine winners and rankings.
