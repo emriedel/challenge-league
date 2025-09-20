@@ -81,7 +81,14 @@ const PullToRefreshContainer = forwardRef<PullToRefreshHandle, PullToRefreshCont
             transition: isPulling ? 'none' : 'transform 0.3s ease-out'
           }}
         >
-          {children}
+          <div
+            style={{
+              marginTop: isRefreshing ? '60px' : '0px',
+              transition: isPulling ? 'none' : 'margin-top 0.3s ease-out'
+            }}
+          >
+            {children}
+          </div>
         </div>
       </div>
     );

@@ -200,7 +200,7 @@ export function usePullToRefresh({
     triggerRefresh,
 
     // Transform style for content during pull
-    contentTransform: state.isPulling ? `translateY(${state.pullDistance}px)` : state.isRefreshing ? 'translateY(60px)' : 'translateY(0)',
+    contentTransform: state.isPulling ? `translateY(${state.pullDistance}px)` : 'translateY(0)',
 
     // Opacity for spinner based on pull progress
     spinnerOpacity: Math.min(state.pullProgress, 1)
