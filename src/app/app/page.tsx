@@ -10,6 +10,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useLeagueActions } from '@/hooks/useLeagueActions';
 import OnboardingModal from '@/components/OnboardingModal';
 import NotificationDot from '@/components/NotificationDot';
+import LeagueAvatar from '@/components/LeagueAvatar';
 import type { League } from '@/types/league';
 
 
@@ -141,15 +142,24 @@ export default function HomePage() {
                   >
                     <div className="p-4 sm:p-6 w-full">
                       {/* League Header */}
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <h3 className="text-xl font-semibold text-app-text truncate">
-                          {league.name}
-                        </h3>
-                        {league.isOwner && (
-                          <span className="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded-full flex-shrink-0">
-                            Admin
-                          </span>
-                        )}
+                      <div className="flex items-center gap-3 mb-3">
+                        <LeagueAvatar
+                          leagueName={league.name}
+                          leagueId={league.id}
+                          size="md"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <h3 className="text-xl font-semibold text-app-text truncate">
+                              {league.name}
+                            </h3>
+                            {league.isOwner && (
+                              <span className="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded-full flex-shrink-0">
+                                Admin
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Admin info */}

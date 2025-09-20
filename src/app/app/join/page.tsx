@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
+import LeagueAvatar from '@/components/LeagueAvatar';
 
 interface League {
   id: string;
@@ -186,13 +187,22 @@ export default function JoinLeaguePage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {availableLeagues.map((league) => (
                 <div key={league.id} className="bg-app-surface rounded-xl border border-app-border p-6 hover:border-app-border-light transition-all">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-semibold text-app-text text-lg truncate">{league.name}</h3>
-                    {!league.isStarted && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full whitespace-nowrap ml-2">
-                        Not Started
-                      </span>
-                    )}
+                  <div className="flex items-center gap-3 mb-3">
+                    <LeagueAvatar
+                      leagueName={league.name}
+                      leagueId={league.id}
+                      size="md"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="font-semibold text-app-text text-lg truncate">{league.name}</h3>
+                        {!league.isStarted && (
+                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full whitespace-nowrap">
+                            Not Started
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   
                   <p className="text-app-text-secondary text-sm mb-4 line-clamp-2">{league.description}</p>

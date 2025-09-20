@@ -12,6 +12,7 @@ import OnboardingModal from './OnboardingModal';
 import NotificationDot from './NotificationDot';
 import { useLeagueActions } from '@/hooks/useLeagueActions';
 import { rubik } from '@/lib/fonts';
+import LeagueAvatar from './LeagueAvatar';
 
 
 export default function Navigation() {
@@ -159,15 +160,22 @@ export default function Navigation() {
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <div className="flex justify-between items-center">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium select-none truncate">{league.name}</span>
-                                </div>
-                                {league.currentPrompt && (
-                                  <div className="text-xs text-app-text-secondary select-none">
-                                    Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <LeagueAvatar
+                                  leagueName={league.name}
+                                  leagueId={league.id}
+                                  size="sm"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-medium select-none truncate">{league.name}</span>
                                   </div>
-                                )}
+                                  {league.currentPrompt && (
+                                    <div className="text-xs text-app-text-secondary select-none">
+                                      Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                               {league.needsAction && league.actionType && (
                                 <div className="flex-shrink-0 ml-2">
@@ -296,15 +304,22 @@ export default function Navigation() {
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <div className="flex justify-between items-center">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium select-none truncate">{league.name}</span>
-                              </div>
-                              {league.currentPrompt && (
-                                <div className="text-xs text-app-text-secondary select-none">
-                                  Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <LeagueAvatar
+                                leagueName={league.name}
+                                leagueId={league.id}
+                                size="sm"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium select-none truncate">{league.name}</span>
                                 </div>
-                              )}
+                                {league.currentPrompt && (
+                                  <div className="text-xs text-app-text-secondary select-none">
+                                    Challenge #{league.currentPrompt.challengeNumber} • {league.currentPrompt.status === 'ACTIVE' ? 'Submissions' : 'Voting'}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             {league.needsAction && league.actionType && (
                               <div className="flex-shrink-0 ml-2">
