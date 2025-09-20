@@ -72,19 +72,9 @@ export default function NewLeaguePage() {
   return (
     <div className="min-h-screen bg-app-bg flex flex-col px-4 pt-8 sm:py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Logo and Brand */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="bg-app-surface-dark rounded-full p-3 shadow-lg mb-4">
-            <Image
-              src="/logo.png"
-              alt="Challenge League"
-              width={48}
-              height={48}
-              className="rounded-full"
-              priority
-            />
-          </div>
-          <h1 className={`${rubik.className} text-2xl sm:text-3xl font-semibold text-app-text text-center`}>
+        {/* Page Title */}
+        <div className="text-center mb-8">
+          <h1 className={`${rubik.className} text-3xl sm:text-4xl font-bold text-app-text mb-2`}>
             Create New League
           </h1>
         </div>
@@ -132,7 +122,7 @@ export default function NewLeaguePage() {
               <button
                 type="submit"
                 disabled={loading || !name.trim() || !description.trim()}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 font-semibold disabled:opacity-50"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#3a8e8c] hover:bg-[#347a78] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3a8e8c] transition-all duration-200 font-semibold disabled:opacity-50"
               >
                 {loading ? 'Creating...' : 'Create League'}
               </button>
@@ -145,17 +135,6 @@ export default function NewLeaguePage() {
               </Link>
             </div>
           </form>
-
-          {/* Info Box */}
-          <div className="mt-6 p-4 bg-blue-900 bg-opacity-20 rounded-lg border border-blue-600 border-opacity-30">
-            <h3 className="text-sm font-medium text-blue-300 mb-2">What happens next?</h3>
-            <ul className="text-sm text-blue-200 space-y-1">
-              <li>• Your league will be created with 8 starter challenges</li>
-              <li>• You&apos;ll be the league owner and first member</li>
-              <li>• Share the league ID with friends to invite them</li>
-              <li>• The first challenge will start immediately</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
