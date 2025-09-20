@@ -203,7 +203,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <div className="max-w-2xl mx-auto px-4 py-6 pb-8">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
-            <div className="mb-2">
+            <div className="mb-8">
               <CurrentChallenge
                 votingData={votingData || undefined}
                 promptData={promptData && promptData.prompt ? {
@@ -277,7 +277,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Voting Interface */}
           {showVoting && votingData && (
-            <VotingInterface
+            <div className="-mx-4">
+              <VotingInterface
               votingData={{
                 canVote: true, // Always allow voting when prompt status is VOTING
                 responses: votingData.responses.map(response => ({
@@ -305,30 +306,33 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 votesPerPlayer: league.votesPerPlayer
               } : undefined}
             />
+            </div>
           )}
 
           {/* User's Current Submission (when already submitted) */}
           {showSubmitted && promptData?.userResponse && session?.user && (
-            <UserSubmissionDisplay
-              userResponse={{
-                ...promptData.userResponse,
-                canEdit: true,
-                isOwn: true,
-                user: {
-                  id: session.user.id,
+            <div className="-mx-4">
+              <UserSubmissionDisplay
+                userResponse={{
+                  ...promptData.userResponse,
+                  canEdit: true,
+                  isOwn: true,
+                  user: {
+                    id: session.user.id,
+                    username: session.user.username || '',
+                    profilePhoto: session.user.profilePhoto
+                  }
+                }}
+                user={{
+                  id: session.user.id || `user-${session.user.username}`,
                   username: session.user.username || '',
-                  profilePhoto: session.user.profilePhoto
-                }
-              }}
-              user={{
-                id: session.user.id || `user-${session.user.username}`,
-                username: session.user.username || '',
-                profilePhoto: session.user.profilePhoto,
-              }}
-              onUpdate={handleUpdateResponse}
-              isUpdating={isSubmittingResponse}
-              message={submissionMessage}
-            />
+                  profilePhoto: session.user.profilePhoto,
+                }}
+                onUpdate={handleUpdateResponse}
+                isUpdating={isSubmittingResponse}
+                message={submissionMessage}
+              />
+            </div>
           )}
         </div>
       </DocumentPullToRefresh>
