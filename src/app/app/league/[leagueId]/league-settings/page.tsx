@@ -818,14 +818,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           {/* Admin Controls & Danger Zone - Admin Only */}
           {isOwner && (
             <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Admin Controls & Danger Zone</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">Danger Zone</h2>
 
               {/* Phase Controls Section */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-app-text mb-2">Phase Controls</h3>
-                <p className="text-app-text-secondary mb-4">Not intended for normal use!</p>
+                <h3 className="text-md font-semibold text-app-text mb-2">Phase Controls</h3>
                 <div className="bg-app-surface-dark rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-app-text-secondary mb-2">Current Status</h4>
+                  <h4 className="font-medium text-app-text-secondary mb-2">Current Phase</h4>
                   {phaseInfo?.currentPhase.type === 'NONE' && (
                     <p className="text-app-text-secondary text-sm">No active challenges</p>
                   )}
@@ -862,7 +861,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 </div>
 
                 <div className="bg-orange-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-orange-600 border-opacity-30">
-                  <h4 className="font-medium text-orange-300 mb-2">Next Action</h4>
+                  <h4 className="font-medium text-orange-300 mb-2">Next Phase</h4>
                   <p className="text-orange-200 text-sm">
                     {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
                     {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
@@ -885,14 +884,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <h3 className="text-lg font-semibold text-app-text mb-2">Danger Zone</h3>
                 <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
                   <p className="text-red-200 text-sm mb-2">
-                    <strong>Warning:</strong> Deleting this league will permanently remove:
+                    <strong>Warning:</strong> Deleting this league will permanently remove all league data
                   </p>
-                  <ul className="text-red-200 text-sm space-y-1 ml-4">
-                    <li>• All challenges and submissions</li>
-                    <li>• All photos and voting data</li>
-                    <li>• All member data for this league</li>
-                    <li>• League settings and history</li>
-                  </ul>
                   <p className="text-red-200 text-sm mt-3">
                     <strong>This action cannot be undone.</strong>
                   </p>
