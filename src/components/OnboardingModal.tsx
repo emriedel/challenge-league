@@ -257,22 +257,25 @@ export default function OnboardingModal({ isOpen, onClose, onComplete, isNewUser
     localStorage.setItem('onboardingCompleted', 'true');
     onComplete?.();
     onClose();
-    
-    // For new users, trigger notifications and PWA install prompt
-    if (isNewUserFlow) {
-      // Small delay to let the modal close first
-      setTimeout(async () => {
-        try {
+
+    // Always trigger notifications and PWA install prompt after onboarding
+    // Small delay to let the modal close first
+    setTimeout(async () => {
+      try {
+        // Check if user already has granted permission and auto-subscribe
+        if (Notification.permission === 'granted') {
+          await subscribe();
+        } else {
           // Request push notification permission and subscribe
           const granted = await requestPermission();
           if (granted) {
             await subscribe();
           }
-        } catch (error) {
-          console.log('Failed to setup notifications:', error);
         }
-      }, 500);
-    }
+      } catch (error) {
+        console.log('Failed to setup notifications:', error);
+      }
+    }, 500);
   };
 
   // Reset to first step when modal opens
