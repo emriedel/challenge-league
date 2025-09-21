@@ -215,6 +215,40 @@ async function refreshPWABadge() {
   }
 }
 
+// Helper function to invalidate league cache across all tabs
+async function invalidateLeagueCache(leagueId) {
+  try {
+    // Use BroadcastChannel to send cache invalidation to all open tabs
+    if ('BroadcastChannel' in self) {
+      const channel = new BroadcastChannel('cache-invalidation');
+      channel.postMessage({
+        type: 'INVALIDATE_LEAGUE_CACHE',
+        leagueId: leagueId,
+        timestamp: Date.now(),
+        source: 'service-worker'
+      });
+      channel.close();
+      console.log(`📱 Cache invalidation broadcast sent for league ${leagueId}`);
+    }
+
+    // Clear relevant cached API responses
+    const cache = await caches.open(DYNAMIC_CACHE_NAME);
+    const keys = await cache.keys();
+
+    const leagueRelatedRequests = keys.filter(request => {
+      const url = new URL(request.url);
+      return url.pathname.includes(`/api/leagues/${leagueId}`) ||
+             url.pathname.includes('/api/leagues/actions');
+    });
+
+    await Promise.all(leagueRelatedRequests.map(request => cache.delete(request)));
+    console.log(`🗑️ Cleared ${leagueRelatedRequests.length} cached league requests`);
+
+  } catch (error) {
+    console.error('Failed to invalidate league cache:', error);
+  }
+}
+
 // Push notification event handler
 self.addEventListener('push', (event) => {
   let notificationData = {
@@ -246,6 +280,12 @@ self.addEventListener('push', (event) => {
     const refreshPromise = refreshPWABadge();
     event.waitUntil(refreshPromise);
     return; // Don't show a visual notification for badge refresh
+  }
+
+  // Handle cache invalidation for league start events
+  if (notificationData.data?.invalidateCache && notificationData.data?.leagueId) {
+    const cacheInvalidationPromise = invalidateLeagueCache(notificationData.data.leagueId);
+    event.waitUntil(cacheInvalidationPromise);
   }
 
   const notificationOptions = {

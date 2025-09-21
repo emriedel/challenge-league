@@ -35,6 +35,7 @@ export type NotificationType =
   | 'submission-deadline-24h'
   | 'voting-available'
   | 'voting-deadline-24h'
+  | 'league-started'
   | 'badge-refresh';
 
 /**
@@ -325,6 +326,21 @@ export function createNotificationData(
         data: {
           url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'voting-reminder'
+        }
+      };
+
+    case 'league-started':
+      return {
+        title: 'Your League Has Started!',
+        body: `Check out the first challenge for ${leagueName || 'your league'}!`,
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: 'league-started',
+        data: {
+          url: leagueId ? `/app/league/${leagueId}` : '/',
+          type: 'league-started',
+          leagueId,
+          invalidateCache: true // Signal for cache invalidation
         }
       };
 

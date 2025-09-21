@@ -95,7 +95,61 @@ export const invalidationPatterns = {
  * Enhanced cache invalidation utility with better patterns and event system
  */
 export class CacheInvalidator {
-  constructor(private queryClient: QueryClient) {}
+  private broadcastChannel: BroadcastChannel | null = null;
+
+  constructor(private queryClient: QueryClient) {
+    // Initialize BroadcastChannel for cross-tab communication
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      this.broadcastChannel = new BroadcastChannel('cache-invalidation');
+      this.setupBroadcastListener();
+    }
+  }
+
+  /**
+   * Set up listener for cross-tab cache invalidation events
+   */
+  private setupBroadcastListener() {
+    if (!this.broadcastChannel) return;
+
+    this.broadcastChannel.addEventListener('message', (event) => {
+      const { type, leagueId, source } = event.data;
+
+      if (type === 'INVALIDATE_LEAGUE_CACHE' && leagueId && source !== 'current-tab') {
+        console.log(`🔄 Received cache invalidation broadcast for league ${leagueId}`);
+        this.handleLeagueCacheInvalidation(leagueId);
+      }
+    });
+  }
+
+  /**
+   * Handle league cache invalidation from broadcast events
+   */
+  private async handleLeagueCacheInvalidation(leagueId: string) {
+    try {
+      // Invalidate all league-related queries
+      const allLeaguePatterns = [
+        queryKeys.league(leagueId),
+        queryKeys.leaguePrompt(leagueId),
+        queryKeys.leagueRounds(leagueId),
+        queryKeys.leagueSettings(leagueId),
+        queryKeys.votingData(leagueId),
+        queryKeys.userLeagues(),
+      ];
+
+      await Promise.all(
+        allLeaguePatterns.map(queryKey =>
+          this.queryClient.invalidateQueries({ queryKey })
+        )
+      );
+
+      // Trigger UI refresh events
+      this.broadcastLeagueActionsRefresh();
+
+      console.log(`✅ Cache invalidated for league ${leagueId} via broadcast`);
+    } catch (error) {
+      console.error('Failed to handle broadcast cache invalidation:', error);
+    }
+  }
 
   /**
    * Invalidate queries based on a predefined pattern
@@ -105,7 +159,8 @@ export class CacheInvalidator {
     options?: {
       broadcast?: boolean,
       eventType?: string,
-      leagueId?: string
+      leagueId?: string,
+      crossTab?: boolean
     }
   ) {
     // Invalidate all queries in the pattern
@@ -125,6 +180,17 @@ export class CacheInvalidator {
           timestamp: Date.now()
         }
       }));
+    }
+
+    // Broadcast to other tabs if requested
+    if (options?.crossTab && options?.leagueId && this.broadcastChannel) {
+      this.broadcastChannel.postMessage({
+        type: 'INVALIDATE_LEAGUE_CACHE',
+        leagueId: options.leagueId,
+        timestamp: Date.now(),
+        source: 'current-tab'
+      });
+      console.log(`📡 Cache invalidation broadcast sent to other tabs for league ${options.leagueId}`);
     }
   }
 
@@ -199,10 +265,15 @@ export class CacheInvalidator {
     leagueId: string
   ) {
     const pattern = invalidationPatterns.admin[action](leagueId);
+
+    // Enable cross-tab broadcasting for league start events
+    const enableCrossTab = action === 'startLeague';
+
     await this.invalidateByPattern(pattern, {
       broadcast: true,
       eventType: 'adminUpdate',
-      leagueId
+      leagueId,
+      crossTab: enableCrossTab
     });
 
     // Refresh league actions for nav updates when relevant
