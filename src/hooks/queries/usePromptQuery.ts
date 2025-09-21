@@ -26,14 +26,15 @@ interface PromptData {
  */
 export function useLeaguePromptQuery(leagueId?: string) {
   return useQuery({
-    queryKey: queryKeys.leaguePrompt(leagueId!),
+    queryKey: leagueId ? queryKeys.leaguePrompt(leagueId) : ['league-prompt', 'disabled'],
     queryFn: async (): Promise<PromptData> => {
       if (!leagueId) {
-        throw new Error('League ID is required');
+        // Return empty data when league ID is not provided (league not started)
+        return { prompt: null, userResponse: null };
       }
 
       const response = await fetch(`/api/leagues/${leagueId}/prompt`);
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Please sign in to view prompt data');

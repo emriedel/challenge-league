@@ -38,7 +38,12 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const searchParams = useSearchParams();
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
-  const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(params.leagueId);
+
+  // Only fetch prompt data if the league has been started
+  const leagueIsStarted = leagueData?.league?.isStarted;
+  const { data: promptData, isLoading: promptLoading, error: promptError, refetch: refetchPrompt } = useLeaguePromptQuery(
+    leagueIsStarted ? params.leagueId : undefined
+  );
   const cacheInvalidator = useCacheInvalidator();
 
   // Handle pull-to-refresh
