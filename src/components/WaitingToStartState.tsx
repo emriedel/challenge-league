@@ -70,7 +70,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
           {isOwner ? (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-app-text text-center">
-                What's next?
+                What&apos;s next?
               </h3>
               <div className="space-y-4 text-left">
                 <div className="flex items-start space-x-3">
@@ -83,7 +83,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="text-[#3a8e8c] font-bold text-lg">3.</span>
-                  <p className="text-app-text-secondary text-sm">Start the league when you're ready to kick off the first Challenge!</p>
+                  <p className="text-app-text-secondary text-sm">Start the league when you&apos;re ready to kick off the first Challenge!</p>
                 </div>
               </div>
 
