@@ -135,7 +135,10 @@ export default function Navigation() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                <span className="relative pr-1">
+                <span
+                  className="relative pr-1 truncate max-w-[160px] lg:max-w-[200px]"
+                  title={currentLeague ? currentLeague.name : 'Select League'}
+                >
                   {currentLeague ? currentLeague.name : 'Select League'}
                   {hasAnyActions && (
                     <div className="absolute top-0 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
@@ -285,7 +288,10 @@ export default function Navigation() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                <span className="text-sm select-none relative pr-1">
+                <span
+                  className="text-sm select-none relative pr-1 truncate max-w-[120px]"
+                  title={currentLeague ? currentLeague.name : 'Select League'}
+                >
                   {currentLeague ? currentLeague.name : 'Select League'}
                   {hasAnyActions && (
                     <div className="absolute top-0 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>

@@ -138,13 +138,18 @@ export default function StandingPage({ params }: StandingPageProps) {
                         </span>
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text">
-                        <div className="flex items-center space-x-2">
-                          <ProfileAvatar 
+                        <div className="flex items-center space-x-2 min-w-0">
+                          <ProfileAvatar
                             username={entry.user.username}
                             profilePhoto={entry.user.profilePhoto}
                             size="sm"
                           />
-                          <span className="truncate">{entry.user.username}</span>
+                          <span
+                            className="truncate max-w-[120px] sm:max-w-[200px] md:max-w-none"
+                            title={entry.user.username}
+                          >
+                            {entry.user.username}
+                          </span>
                         </div>
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium text-center">

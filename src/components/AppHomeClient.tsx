@@ -129,12 +129,12 @@ export default function AppHomeClient() {
               </div>
 
               {/* Leagues Grid */}
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8 items-start">
                 {leagues.map((league) => (
                   <Link
                     key={league.id}
                     href={`/app/league/${league.id}`}
-                    className="block bg-app-surface border border-app-border rounded-lg hover:border-app-border-light transition-colors group"
+                    className="flex flex-col bg-app-surface border border-app-border rounded-lg hover:border-app-border-light transition-colors group h-full"
                   >
                     <div className="p-4 sm:p-6 w-full">
                       {/* League Header */}
@@ -145,7 +145,10 @@ export default function AppHomeClient() {
                           size="md"
                         />
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-app-text truncate mb-2">
+                          <h3
+                            className="text-lg font-semibold text-app-text truncate mb-2"
+                            title={league.name}
+                          >
                             {league.name}
                           </h3>
 

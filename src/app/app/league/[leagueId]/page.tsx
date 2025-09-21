@@ -245,7 +245,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-app-text mb-2">No Active Challenge</h3>
-                <p className="text-app-text-secondary">
+                <p className="text-app-text">
                   There&apos;s no challenge running right now. Check back soon for the next creative prompt!
                 </p>
               </div>
