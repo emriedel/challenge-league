@@ -83,48 +83,38 @@ export default function AppHomeClient() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {leagues.length === 0 ? (
             /* Welcome State - No Leagues */
-            <div className="max-w-2xl mx-auto text-center py-12">
-              {/* Logo and Brand */}
-              <div className="flex flex-col items-center mb-12">
-                <div className="bg-app-surface rounded-full p-6 shadow-lg mb-6">
-                  <Image
-                    src="/logo.png"
-                    alt="Challenge League"
-                    width={80}
-                    height={80}
-                    className="rounded-full"
-                    priority
-                  />
-                </div>
-                <h1 className={`${rubik.className} text-4xl sm:text-5xl font-bold text-app-text mb-4`}>
-                  Challenge League
+            <div className="max-w-2xl mx-auto text-center py-6">
+              {/* Header */}
+              <div className="mb-8">
+                <h1 className={`${rubik.className} text-3xl sm:text-4xl font-bold text-app-text mb-6`}>
+                  Welcome to<br/>Challenge League!
                 </h1>
-                <p className="text-app-text-secondary text-xl leading-relaxed max-w-lg">
-                  Join creative competitions with friends. Submit photos, vote on submissions, and compete for the top spot!
+                <p className="text-app-text-secondary text-md">
+                  Join or create a league to start challenging friends
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <Link
-                  href="/app/join"
-                  data-testid="join-league-button-welcome"
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  Join League
-                </Link>
+              <div className="flex gap-3 justify-center">
                 <Link
                   href="/app/new"
                   data-testid="create-league-button-welcome"
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-app-surface border border-app-border text-app-text hover:bg-app-surface-light font-medium rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Create League
+                </Link>
+                <Link
+                  href="/app/join"
+                  data-testid="join-league-button-welcome"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Join League
                 </Link>
               </div>
             </div>
