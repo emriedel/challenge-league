@@ -181,7 +181,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
   // Base UI state directly on prompt status from database
   const promptStatus = promptData?.prompt?.status;
-  const showVoting = promptStatus === 'VOTING' && (votingData?.responses?.length ?? 0) > 0;
+  const showVoting = promptStatus === 'VOTING';
   const showSubmission = promptStatus === 'ACTIVE' && !promptData?.userResponse;
   const showSubmitted = promptStatus === 'ACTIVE' && !!promptData?.userResponse;
   const showNoChallenge = !promptStatus || promptStatus === 'SCHEDULED' || promptStatus === 'COMPLETED';
@@ -282,7 +282,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           )}
 
           {/* Voting Interface */}
-          {showVoting && votingData && (
+          {showVoting && votingData && (votingData.responses?.length ?? 0) > 0 && (
             <div className="-mx-4">
               <VotingInterface
               votingData={{
@@ -312,6 +312,31 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 votesPerPlayer: league.votesPerPlayer
               } : undefined}
             />
+            </div>
+          )}
+
+          {/* No Submissions to Vote On */}
+          {showVoting && votingData && (votingData.responses?.length ?? 0) === 0 && (
+            <div className="mb-8">
+              <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+                <div className="text-app-text-muted mb-4">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-app-text mb-2">No Submissions Yet</h3>
+                <p className="text-app-text-secondary">
+                  Nobody submitted a response to this challenge. The voting phase will end on{' '}
+                  {votingData?.voteEnd ? new Date(votingData.voteEnd).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    timeZoneName: 'short',
+                  }) : 'TBD'}.
+                </p>
+              </div>
             </div>
           )}
 
