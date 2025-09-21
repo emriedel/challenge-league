@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Temporary fix for hot-reload API route issues
+  reactStrictMode: false,
+  swcMinify: false,
   images: {
     remotePatterns: [
       {

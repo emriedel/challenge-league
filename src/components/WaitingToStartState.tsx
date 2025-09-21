@@ -59,31 +59,36 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
   };
 
   return (
-    <div className="min-h-screen bg-app-bg flex justify-center p-4 pt-16">
+    <div className="min-h-screen bg-app-bg flex justify-center p-4 pt-8">
       <div className="max-w-2xl w-full">
-        <div className="bg-app-surface rounded-lg border border-app-border p-6 text-center">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-app-text mb-2">
-              {league.name}
-            </h2>
-            <p className="text-app-text-secondary">
-              {league.description}
-            </p>
-          </div>
-
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold text-app-text mb-2">
+            {league.name}
+          </h2>
+        </div>
+        <div className="bg-app-surface rounded-lg border border-app-border p-6">
           {isOwner ? (
-            <div className="space-y-4">
-              <div className="bg-app-surface-dark rounded-lg p-4 border border-app-border-dark">
-                <h3 className="text-lg font-semibold text-app-text mb-2">
-                  Ready to Start Your League?
-                </h3>
-                <p className="text-app-text-secondary text-sm">
-                  When you&apos;re ready, click the button below to begin the first creative challenge!
-                </p>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-app-text text-center">
+                What's next?
+              </h3>
+              <div className="space-y-4 text-left">
+                <div className="flex items-start space-x-3">
+                  <span className="text-[#3a8e8c] font-bold text-lg">1.</span>
+                  <p className="text-app-text-secondary text-sm">Invite other players to join your league<br /><em className="text-xs">Players can also join after the league starts</em></p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-[#3a8e8c] font-bold text-lg">2.</span>
+                  <p className="text-app-text-secondary text-sm">Add or adjust Challenges in the League Settings page</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-[#3a8e8c] font-bold text-lg">3.</span>
+                  <p className="text-app-text-secondary text-sm">Start the league when you're ready to kick off the first Challenge!</p>
+                </div>
               </div>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mt-4">
                   <p className="text-red-400 text-sm">{error}</p>
                 </div>
               )}
@@ -93,7 +98,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
                 disabled={isStarting}
                 data-testid="start-league-button"
                 className={`
-                  w-full px-6 py-3 rounded-lg font-semibold transition-all duration-200
+                  w-full px-6 py-3 rounded-lg font-semibold transition-all duration-200 mt-6
                   ${
                     isStarting
                       ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
@@ -112,24 +117,13 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="bg-app-surface-dark rounded-lg p-4 border border-app-border-dark">
-                <h3 className="text-lg font-semibold text-app-text mb-2">
-                  Waiting for League to Start
-                </h3>
-                <p className="text-app-text-secondary text-sm">
-                  This league hasn&apos;t started yet. The league owner ({league.owner?.username}) 
-                  needs to start the first challenge.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-center text-app-text-muted">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-[#3a8e8c] rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-[#3a8e8c] rounded-full animate-pulse delay-75"></div>
-                  <div className="w-2 h-2 bg-[#3a8e8c] rounded-full animate-pulse delay-150"></div>
-                </div>
-              </div>
+            <div className="space-y-4 text-center">
+              <h3 className="text-lg font-semibold text-app-text mb-2">
+                Waiting for League to Start
+              </h3>
+              <p className="text-app-text-secondary text-sm">
+                This league is waiting for all players to join and the admin to start the league.
+              </p>
             </div>
           )}
         </div>
