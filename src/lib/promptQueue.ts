@@ -200,9 +200,10 @@ async function send24HourWarningNotifications() {
       nextCronTime.setUTCHours(19, 0, 0, 0); // Next cron at 7 PM UTC
 
       const willExpire = willPhaseExpireInNextCronRun(prompt, leagueSettings);
-      console.log(`🔍 24h warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}`);
+      const isAlreadyExpired = isPhaseExpired(prompt, leagueSettings);
+      console.log(`🔍 24h warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}, Already expired: ${isAlreadyExpired}`);
 
-      if (willExpire) {
+      if (willExpire && !isAlreadyExpired) {
         console.log(`⚠️ Sending 24h submission warning for: "${prompt.text}"`);
 
         try {
@@ -254,6 +255,13 @@ async function send24HourWarningNotifications() {
         } catch (notificationError) {
           console.error(`❌ Failed to send submission warning for "${prompt.text}":`, notificationError);
         }
+      } else if (willExpire && isAlreadyExpired) {
+        console.log(`⏭️ Skipping 24h submission warning for "${prompt.text}" - phase already expired, will be transitioned later in this cron run`);
+        // Mark warning as sent to prevent repeated checking
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { submissionWarningNotificationSent: true },
+        });
       }
     }
 
@@ -283,9 +291,10 @@ async function send24HourWarningNotifications() {
       nextCronTime.setUTCHours(19, 0, 0, 0); // Next cron at 7 PM UTC
 
       const willExpire = willPhaseExpireInNextCronRun(prompt, leagueSettings);
-      console.log(`🔍 24h voting warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}`);
+      const isAlreadyExpired = isPhaseExpired(prompt, leagueSettings);
+      console.log(`🔍 24h voting warning check for "${prompt.text}": Phase ends ${phaseEndTime?.toISOString()}, Next cron ${nextCronTime.toISOString()}, Will expire: ${willExpire}, Already expired: ${isAlreadyExpired}`);
 
-      if (willExpire) {
+      if (willExpire && !isAlreadyExpired) {
         console.log(`⚠️ Sending 24h voting warning for: "${prompt.text}"`);
 
         try {
@@ -344,6 +353,13 @@ async function send24HourWarningNotifications() {
         } catch (notificationError) {
           console.error(`❌ Failed to send voting warning for "${prompt.text}":`, notificationError);
         }
+      } else if (willExpire && isAlreadyExpired) {
+        console.log(`⏭️ Skipping 24h voting warning for "${prompt.text}" - phase already expired, will be transitioned later in this cron run`);
+        // Mark warning as sent to prevent repeated checking
+        await db.prompt.update({
+          where: { id: prompt.id },
+          data: { votingWarningNotificationSent: true },
+        });
       }
     }
     
