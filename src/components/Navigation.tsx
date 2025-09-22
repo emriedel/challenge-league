@@ -171,7 +171,7 @@ export default function Navigation() {
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium select-none truncate">{league.name}</span>
+                                    <span className="font-medium select-none truncate max-w-[220px]" title={league.name}>{league.name}</span>
                                   </div>
                                   {league.currentPrompt && (
                                     <div className="flex items-center gap-1 text-xs select-none">
@@ -289,7 +289,7 @@ export default function Navigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
                 <span
-                  className="text-sm select-none relative pr-1 truncate max-w-[120px]"
+                  className="text-sm select-none relative pr-1 truncate max-w-[180px]"
                   title={currentLeague ? currentLeague.name : 'Select League'}
                 >
                   {currentLeague ? currentLeague.name : 'Select League'}
@@ -324,7 +324,7 @@ export default function Navigation() {
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium select-none truncate">{league.name}</span>
+                                  <span className="font-medium select-none truncate max-w-[220px]" title={league.name}>{league.name}</span>
                                 </div>
                                 {league.currentPrompt && (
                                   <div className="flex items-center gap-1 text-sm select-none">
