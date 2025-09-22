@@ -55,6 +55,7 @@ model User {
   leagueMemberships LeagueMembership[]
   ownedLeagues League[] @relation("LeagueOwner")
   pushSubscriptions PushSubscription[]
+  chatMessages ChatMessage[]
 
   @@map("users")
 }
@@ -130,6 +131,7 @@ model League {
 
   memberships LeagueMembership[]
   prompts     Prompt[]
+  chatMessages ChatMessage[]
 
   @@map("leagues")
 }
@@ -198,4 +200,17 @@ model PushSubscription {
 
   @@unique([userId, endpoint]) // One subscription per user per device/browser
   @@map("push_subscriptions")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  leagueId String
+  league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
 }
