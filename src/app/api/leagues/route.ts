@@ -67,7 +67,10 @@ export const { GET, POST } = createMethodHandlers({
       isOwner: membership.league.ownerId === userId
     }));
 
-    return NextResponse.json({ leagues });
+    // Sort leagues by member count (highest first)
+    const sortedLeagues = leagues.sort((a, b) => b.memberCount - a.memberCount);
+
+    return NextResponse.json({ leagues: sortedLeagues });
   },
 
   // POST /api/leagues - Create new league

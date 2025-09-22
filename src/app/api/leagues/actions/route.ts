@@ -155,6 +155,9 @@ export const { GET } = createMethodHandlers({
       })
     );
 
-    return NextResponse.json({ leagues: leaguesWithActions });
+    // Sort leagues by member count (highest first)
+    const sortedLeagues = leaguesWithActions.sort((a, b) => b.memberCount - a.memberCount);
+
+    return NextResponse.json({ leagues: sortedLeagues });
   }
 }, true); // requireAuth = true

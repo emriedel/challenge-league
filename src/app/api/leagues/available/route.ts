@@ -43,10 +43,7 @@ export const { GET } = createMethodHandlers({
             }
           }
         }
-      },
-      orderBy: [
-        { createdAt: 'desc' } // Show newest leagues first
-      ]
+      }
     });
 
     const leagues = availableLeagues.map(league => ({
@@ -60,6 +57,9 @@ export const { GET } = createMethodHandlers({
       isStarted: league.isStarted
     }));
 
-    return NextResponse.json({ leagues });
+    // Sort leagues by member count (highest first)
+    const sortedLeagues = leagues.sort((a, b) => b.memberCount - a.memberCount);
+
+    return NextResponse.json({ leagues: sortedLeagues });
   }
 }, true); // requireAuth = true
