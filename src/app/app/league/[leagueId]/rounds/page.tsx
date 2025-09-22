@@ -161,7 +161,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
               {selectedRound && (
                   <div className="text-center space-y-4">
                     <div>
-                      <p className="text-xl text-app-text leading-relaxed">{selectedRound.text}</p>
+                      <p className="text-xl text-app-text font-medium">{selectedRound.text}</p>
                     </div>
                     <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

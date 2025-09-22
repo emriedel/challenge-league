@@ -33,6 +33,7 @@ export interface CurrentChallengeProps {
   votingData?: {
     prompt?: VotingPrompt | null;
     voteEnd?: string; // Calculated dynamically by API
+    existingVotes?: any[]; // For determining userHasVoted
   };
   promptData?: {
     prompt: Prompt;

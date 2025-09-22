@@ -28,7 +28,7 @@ module.exports = {
           'border-dark': '#262626',    // Darker borders
           
           // Text colors
-          'text': '#ffffff',           // Primary text (white)
+          'text': '#f5f5f5',           // Primary text (off-white)
           'text-secondary': '#a3a3a3', // Secondary text (light gray)
           'text-muted': '#737373',     // Muted text (medium gray)
           'text-subtle': '#525252',    // Very subtle text
