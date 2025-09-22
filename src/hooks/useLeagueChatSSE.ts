@@ -41,6 +41,30 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     messagesRef.current = messages
   }, [messages])
 
+  // Load initial messages
+  const loadInitialMessages = useCallback(async () => {
+    if (!session?.user?.id) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/leagues/${leagueId}/chat?limit=50`)
+      if (!response.ok) {
+        throw new Error('Failed to load messages')
+      }
+
+      const data = await response.json()
+      setMessages(data.messages || [])
+      setHasMore(data.hasMore || false)
+    } catch (err) {
+      console.error('Error loading messages:', err)
+      setError('Failed to load messages')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [session?.user?.id, leagueId])
+
   // Initialize SSE connection
   useEffect(() => {
     if (!session?.user?.id) return
@@ -93,30 +117,6 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       setIsConnected(false)
     }
   }, [session?.user?.id, leagueId, loadInitialMessages])
-
-  // Load initial messages
-  const loadInitialMessages = useCallback(async () => {
-    if (!session?.user?.id) return
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch(`/api/leagues/${leagueId}/chat?limit=50`)
-      if (!response.ok) {
-        throw new Error('Failed to load messages')
-      }
-
-      const data = await response.json()
-      setMessages(data.messages || [])
-      setHasMore(data.hasMore || false)
-    } catch (err) {
-      console.error('Error loading messages:', err)
-      setError('Failed to load messages')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [session?.user?.id, leagueId])
 
   // Load more messages (pagination)
   const loadMoreMessages = useCallback(async () => {

@@ -71,7 +71,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   useNavigationRefreshHandlers('challenge', handleScrollToTop, handleNavigationRefresh);
 
   // Check if user just joined this league
-  const justJoined = searchParams.get('joined') === 'true';
+  const justJoined = searchParams?.get('joined') === 'true';
 
   // Show contextual notification prompt when user just joined
   useContextualNotifications({
