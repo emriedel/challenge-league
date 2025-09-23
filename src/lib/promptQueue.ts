@@ -449,6 +449,7 @@ export async function processPromptQueue() {
             data: {
               status: 'VOTING',
               phaseStartedAt: normalizedNow, // Update phase start time for voting phase
+              submissionEndedAt: normalizedNow, // Record when submission phase actually ended
             },
           });
 
@@ -495,7 +496,11 @@ export async function processPromptQueue() {
           // Mark prompt as completed
           await db.prompt.update({
             where: { id: votingPrompt.id },
-            data: { status: 'COMPLETED' },
+            data: {
+              status: 'COMPLETED',
+              votingEndedAt: normalizedNow, // Record when voting phase actually ended
+              completedAt: normalizedNow,   // Record when challenge was completed
+            },
           });
 
           console.log(`   🏆 Completed voting for: "${votingPrompt.text}"`);
@@ -684,6 +689,7 @@ export async function manualPhaseTransition(leagueId: string) {
         data: {
           status: 'VOTING',
           phaseStartedAt: normalizedNow,
+          submissionEndedAt: normalizedNow, // Record when submission phase actually ended
         },
       });
 
@@ -697,7 +703,11 @@ export async function manualPhaseTransition(leagueId: string) {
 
       await db.prompt.update({
         where: { id: currentPrompt.id },
-        data: { status: 'COMPLETED' },
+        data: {
+          status: 'COMPLETED',
+          votingEndedAt: normalizedNow, // Record when voting phase actually ended
+          completedAt: normalizedNow,   // Record when challenge was completed
+        },
       });
 
       console.log(`⚡ Manually completed voting for: "${currentPrompt.text}"`);

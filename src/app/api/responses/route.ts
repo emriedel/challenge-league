@@ -80,10 +80,12 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
 
   // Add calculated dates, challenge numbers, and voting participation analysis to completed prompts
   const roundsWithDates = await Promise.all(completedPrompts.map(async (prompt, index) => {
-    // For completed prompts, calculate when the submission phase ended
-    const submissionEndDate = prompt.phaseStartedAt
-      ? calculatePhaseEndTime(new Date(prompt.phaseStartedAt), 'ACTIVE')
-      : null;
+    // For completed prompts, use the actual completion timestamp instead of calculating it
+    // This fixes the bug where calculated times could show in the future
+    const challengeEndDate = prompt.completedAt || (
+      // Fallback for older prompts that don't have completedAt yet
+      prompt.phaseStartedAt ? calculatePhaseEndTime(new Date(prompt.phaseStartedAt), 'ACTIVE') : null
+    );
 
     // Calculate challenge number based on completion order
     // Since rounds are ordered by updatedAt DESC, the most recent is index 0
@@ -129,7 +131,7 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
     return {
       ...prompt,
       responses: enhancedResponses,
-      weekEnd: submissionEndDate ? submissionEndDate.toISOString() : null,
+      weekEnd: challengeEndDate ? challengeEndDate.toISOString() : null,
       weekStart: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt).toISOString() : null,
       challengeNumber
     };

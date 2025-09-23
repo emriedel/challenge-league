@@ -69,7 +69,12 @@ model Prompt {
   queueOrder     Int          // Order in the queue (lower numbers = sooner)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  
+
+  // Explicit phase completion timestamps (replaces calculated times)
+  submissionEndedAt DateTime?  // When submission phase actually ended (ACTIVE → VOTING)
+  votingEndedAt     DateTime?  // When voting phase actually ended (VOTING → COMPLETED)
+  completedAt       DateTime?  // When challenge was marked COMPLETED
+
   // 24-hour warning notification tracking
   submissionWarningNotificationSent Boolean @default(false)
   votingWarningNotificationSent     Boolean @default(false)
