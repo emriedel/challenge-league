@@ -82,37 +82,41 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
           )}
         </div>
 
-        {/* Caption Input */}
-        <div>
-          <textarea
-            id="caption"
-            rows={6}
-            className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
-            placeholder="Share the story behind your photo..."
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
-            disabled={isSubmitting}
-          />
-          <div className="mt-1 text-right text-sm text-app-text-muted">
-            <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
+        {/* Caption Input - Only show when photo is selected */}
+        {selectedPhoto && (
+          <div>
+            <textarea
+              id="caption"
+              rows={6}
+              className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
+              placeholder="Share the story behind your photo..."
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
+              disabled={isSubmitting}
+            />
+            <div className="mt-1 text-right text-sm text-app-text-muted">
+              <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isSubmissionDisabled}
-            className={`px-8 py-3 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors ${
-              isSubmissionDisabled
-                ? 'bg-gray-800 text-gray-400 opacity-50'
-                : 'bg-[#3a8e8c] text-white hover:bg-[#2f7574] focus:ring-[#3a8e8c]'
-            }`}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </button>
-        </div>
+        {/* Submit Button - Only show when photo is selected */}
+        {selectedPhoto && (
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmissionDisabled}
+              className={`px-8 py-3 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors ${
+                isSubmissionDisabled
+                  ? 'bg-gray-800 text-gray-400 opacity-50'
+                  : 'bg-[#3a8e8c] text-white hover:bg-[#2f7574] focus:ring-[#3a8e8c]'
+              }`}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit'}
+            </button>
+          </div>
+        )}
       </form>
 
     </>
