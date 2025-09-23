@@ -94,11 +94,11 @@ export function useLeagueStandingsQuery(leagueId?: string) {
 }
 
 /**
- * Mutation for joining a league
+ * Mutation for joining a league by invite code
  */
 export function useJoinLeagueMutation() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (inviteCode: string) => {
       const response = await fetch('/api/leagues/join', {
@@ -119,7 +119,77 @@ export function useJoinLeagueMutation() {
     onSuccess: (data) => {
       // Invalidate user leagues to show new league
       queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
-      
+
+      // Add new league data to cache
+      if (data.league) {
+        queryClient.setQueryData(queryKeys.league(data.league.id), data);
+      }
+    },
+  });
+}
+
+/**
+ * Mutation for joining a league by league ID
+ */
+export function useJoinLeagueByIdMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (leagueId: string) => {
+      const response = await fetch('/api/leagues/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ leagueId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to join league');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Invalidate user leagues to show new league immediately
+      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
+
+      // Add new league data to cache
+      if (data.league) {
+        queryClient.setQueryData(queryKeys.league(data.league.id), data);
+      }
+    },
+  });
+}
+
+/**
+ * Mutation for creating a new league
+ */
+export function useCreateLeagueMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { name: string; description: string }) => {
+      const response = await fetch('/api/leagues', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create league');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Invalidate user leagues to show new league immediately
+      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
+
       // Add new league data to cache
       if (data.league) {
         queryClient.setQueryData(queryKeys.league(data.league.id), data);

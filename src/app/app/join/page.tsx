@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
 import LeagueAvatar from '@/components/LeagueAvatar';
+import { useJoinLeagueByIdMutation } from '@/hooks/queries/useLeagueQuery';
 
 interface League {
   id: string;
@@ -27,8 +28,10 @@ export default function JoinLeaguePage() {
   const router = useRouter();
   const [availableLeagues, setAvailableLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingJoin, setLoadingJoin] = useState<string | null>(null);
   const [error, setError] = useState('');
+
+  // Use the mutation hook for proper cache invalidation
+  const joinMutation = useJoinLeagueByIdMutation();
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -61,28 +64,14 @@ export default function JoinLeaguePage() {
 
 
   const handleOneClickJoin = async (leagueId: string) => {
-    setLoadingJoin(leagueId);
     setError('');
 
     try {
-      const response = await fetch('/api/leagues/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leagueId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to join league');
-      }
-
+      const data = await joinMutation.mutateAsync(leagueId);
       // Redirect to the joined league with joined flag
       router.push(`/app/league/${data.league.id}?joined=true`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoadingJoin(null);
     }
   };
 
@@ -162,10 +151,10 @@ export default function JoinLeaguePage() {
                   
                   <button
                     onClick={() => handleOneClickJoin(league.id)}
-                    disabled={loadingJoin === league.id}
+                    disabled={joinMutation.isPending}
                     className="w-full bg-[#3a8e8c] hover:bg-[#347a78] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50"
                   >
-                    {loadingJoin === league.id ? 'Joining...' : 'Join League'}
+                    {joinMutation.isPending ? 'Joining...' : 'Join League'}
                   </button>
                 </div>
               ))}
