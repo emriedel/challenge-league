@@ -255,29 +255,26 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
             <div className="mb-8">
-              <div className="bg-app-surface border border-app-border rounded-md p-4">
+              {submissionMessage && (
+                <div className={`mb-4 p-3 rounded-md text-sm ${
+                  submissionMessage.type === 'success'
+                    ? 'bg-app-success-bg border border-app-success text-app-success'
+                    : 'bg-app-error-bg border border-app-error text-app-error'
+                }`}>
+                  {submissionMessage.text}
+                </div>
+              )}
 
-                {submissionMessage && (
-                  <div className={`mb-4 p-3 rounded-md text-sm ${
-                    submissionMessage.type === 'success'
-                      ? 'bg-app-success-bg border border-app-success text-app-success'
-                      : 'bg-app-error-bg border border-app-error text-app-error'
-                  }`}>
-                    {submissionMessage.text}
-                  </div>
-                )}
-
-                <SubmissionForm
-                  prompt={{
-                    id: promptData.prompt.id,
-                    text: promptData.prompt.text,
-                    phaseStartedAt: promptData.prompt.phaseStartedAt,
-                    status: promptData.prompt.status
-                  }}
-                  onSubmit={handleSubmitResponse}
-                  isSubmitting={isSubmittingResponse}
-                />
-              </div>
+              <SubmissionForm
+                prompt={{
+                  id: promptData.prompt.id,
+                  text: promptData.prompt.text,
+                  phaseStartedAt: promptData.prompt.phaseStartedAt,
+                  status: promptData.prompt.status
+                }}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={isSubmittingResponse}
+              />
             </div>
           )}
 
