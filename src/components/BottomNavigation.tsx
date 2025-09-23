@@ -6,6 +6,8 @@ import { useEffect, useState, memo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryClient';
 import { navigationRefreshManager } from '@/lib/navigationRefresh';
+import { useNavigationNotifications } from '@/hooks/useNavigationNotifications';
+import NotificationDot from '@/components/NotificationDot';
 
 const BottomNavigation = memo(function BottomNavigation() {
   const pathname = usePathname();
@@ -13,6 +15,13 @@ const BottomNavigation = memo(function BottomNavigation() {
   const { data: session, status } = useSession();
   const [currentLeagueId, setCurrentLeagueId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  // Get notification states for the current league
+  const {
+    challengeNotification,
+    resultsNotification,
+    chatNotification
+  } = useNavigationNotifications(currentLeagueId || undefined);
 
   // Extract league ID from current path
   useEffect(() => {
@@ -141,13 +150,31 @@ const BottomNavigation = memo(function BottomNavigation() {
                          (item.name === 'Standings' && pathname?.includes('/standings')) ||
                          (item.name === 'Chat' && pathname?.includes('/chat')) ||
                          (item.name === 'League' && pathname?.includes('/league-settings'));
+
+          // Determine notification state for this tab
+          const showNotification = (() => {
+            switch (item.name) {
+              case 'Challenge':
+                return challengeNotification;
+              case 'Results':
+                return resultsNotification;
+              case 'Chat':
+                return chatNotification;
+              default:
+                return false;
+            }
+          })();
+
           return (
             <button
               key={item.name}
               onClick={(e) => handleTabClick(item.href, !!isActive, item.name, e)}
-              className="flex flex-col items-center py-2 px-0.5 transition-all duration-200 flex-1 select-none touch-manipulation active:scale-95"
+              className="flex flex-col items-center py-2 px-0.5 transition-all duration-200 flex-1 select-none touch-manipulation active:scale-95 relative"
             >
-              {item.icon(!!isActive)}
+              <div className="relative">
+                {item.icon(!!isActive)}
+                <NotificationDot show={showNotification} size="sm" />
+              </div>
               <span className={`text-xs mt-1 select-none transition-all duration-200 ${isActive ? 'text-white font-bold' : 'text-white/70 font-medium'}`}>
                 {item.name}
               </span>

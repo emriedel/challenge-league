@@ -7,6 +7,7 @@ import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import { useResultsCacheListener } from '@/hooks/useCacheEventListener';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
+import { useActivityTracking } from '@/hooks/useActivityTracking';
 import DocumentPullToRefresh from '@/components/DocumentPullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
@@ -23,6 +24,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
   const cacheInvalidator = useCacheInvalidator();
+  const { markResultsAsViewed } = useActivityTracking();
 
   // Listen for cache events to keep results synchronized
   useResultsCacheListener(params.leagueId);
@@ -55,6 +57,13 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       router.push('/app/auth/signin');
     }
   }, [session, status, router]);
+
+  // Mark results as viewed when user visits this page
+  useEffect(() => {
+    if (session?.user?.id && !galleryLoading && galleryData?.rounds?.length) {
+      markResultsAsViewed(params.leagueId);
+    }
+  }, [session?.user?.id, galleryLoading, galleryData?.rounds?.length, markResultsAsViewed, params.leagueId]);
 
   // Set the most recent round as default when data loads
   useEffect(() => {

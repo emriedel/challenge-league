@@ -1,10 +1,18 @@
+'use client';
+
+import { memo } from 'react';
+
 interface NotificationDotProps {
   show: boolean;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
-export default function NotificationDot({ show, className = '', size = 'sm' }: NotificationDotProps) {
+/**
+ * Small red notification dot for indicating pending actions or unread content
+ * Positioned absolutely in top-right corner of parent element
+ */
+const NotificationDot = memo(function NotificationDot({ show, className = '', size = 'sm' }: NotificationDotProps) {
   if (!show) return null;
 
   const sizeClasses = {
@@ -15,8 +23,10 @@ export default function NotificationDot({ show, className = '', size = 'sm' }: N
 
   return (
     <div
-      className={`${sizeClasses[size]} bg-red-500 rounded-full absolute -top-1 -right-1 border border-app-bg ${className}`}
-      aria-label="Action required"
+      className={`${sizeClasses[size]} bg-red-500 rounded-full absolute -top-1 -right-1 border-2 border-app-bg ${className}`}
+      aria-hidden="true"
     />
   );
-}
+});
+
+export default NotificationDot;

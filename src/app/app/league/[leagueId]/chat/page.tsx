@@ -7,6 +7,7 @@ import { useLeagueChatSSE } from '../../../../../hooks/useLeagueChatSSE'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
 import ProfileAvatar from '../../../../../components/ProfileAvatar'
+import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
 
 interface ChatPageProps {
   params: {
@@ -30,12 +31,21 @@ export default function ChatPage({ params }: ChatPageProps) {
     error
   } = useLeagueChatSSE(params.leagueId)
 
+  const { markChatAsRead } = useActivityTracking()
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/app/auth/signin')
     }
   }, [status, router])
+
+  // Mark chat as read when user visits this page and when new messages arrive
+  useEffect(() => {
+    if (session?.user?.id && messages.length > 0) {
+      markChatAsRead(params.leagueId)
+    }
+  }, [session?.user?.id, messages.length, markChatAsRead, params.leagueId])
 
   // Auto-scroll to bottom on new messages and initial load
   useEffect(() => {

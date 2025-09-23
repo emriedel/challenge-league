@@ -38,6 +38,7 @@ export const queryKeys = {
   // User-specific queries
   userLeagues: () => ['user', 'leagues'],
   userResponse: (promptId: string) => ['user', 'response', promptId],
+  userActivity: (leagueId: string) => ['user', 'activity', leagueId],
   
   // Voting queries
   votingData: (leagueId: string) => ['voting', leagueId],

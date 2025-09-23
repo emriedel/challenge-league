@@ -56,6 +56,7 @@ model User {
   ownedLeagues League[] @relation("LeagueOwner")
   pushSubscriptions PushSubscription[]
   chatMessages ChatMessage[]
+  activities UserActivity[]
 
   @@map("users")
 }
@@ -132,6 +133,7 @@ model League {
   memberships LeagueMembership[]
   prompts     Prompt[]
   chatMessages ChatMessage[]
+  userActivities UserActivity[]
 
   @@map("leagues")
 }
@@ -213,4 +215,20 @@ model ChatMessage {
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 
   @@map("chat_messages")
+}
+
+model UserActivity {
+  id                    String    @id @default(cuid())
+  userId                String
+  leagueId              String
+  lastViewedResults     DateTime? // When user last viewed Results tab for this league
+  lastReadChatMessage   DateTime? // When user last read chat messages for this league
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, leagueId]) // One activity record per user per league
+  @@map("user_activities")
 }

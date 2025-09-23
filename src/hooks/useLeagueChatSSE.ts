@@ -58,7 +58,7 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     if (!session?.user?.id) return
 
     // Skip loading if we already have cached messages
-    if (messagesCache.get(leagueId)?.length > 0) {
+    if (messagesCache.get(leagueId)?.length && messagesCache.get(leagueId)!.length > 0) {
       return
     }
 
