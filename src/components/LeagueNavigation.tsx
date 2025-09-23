@@ -13,6 +13,7 @@ const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, 
     { id: 'home', name: 'Current Challenge', href: `/app/league/${leagueId}` },
     { id: 'rounds', name: 'Challenge Results', href: `/app/league/${leagueId}/rounds` },
     { id: 'standings', name: 'Standings', href: `/app/league/${leagueId}/standings` },
+    { id: 'chat', name: 'Chat', href: `/app/league/${leagueId}/chat` },
     ...(isOwner ? [{ id: 'league-settings', name: 'League Settings', href: `/app/league/${leagueId}/league-settings` }] : []),
   ];
 
@@ -35,9 +36,10 @@ const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, 
             >
               <span className="hidden sm:inline">{tab.name}</span>
               <span className="sm:hidden">
-                {tab.name === 'Current Challenge' ? 'Home' : 
-                 tab.name === 'Challenge Results' ? 'Results' : 
-                 tab.name === 'Standings' ? 'Standings' : 
+                {tab.name === 'Current Challenge' ? 'Home' :
+                 tab.name === 'Challenge Results' ? 'Results' :
+                 tab.name === 'Standings' ? 'Standings' :
+                 tab.name === 'Chat' ? 'Chat' :
                  tab.name === 'League Settings' ? 'Settings' : tab.name}
               </span>
             </Link>

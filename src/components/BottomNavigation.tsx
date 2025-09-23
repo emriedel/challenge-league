@@ -111,6 +111,15 @@ const BottomNavigation = memo(function BottomNavigation() {
       )
     },
     {
+      name: 'Chat',
+      href: currentLeagueId ? `/app/league/${currentLeagueId}/chat` : '/app/chat',
+      icon: (active: boolean) => (
+        <svg className={`w-6 h-6 ${active ? 'text-black' : 'text-white/70'}`} fill={active ? "white" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 1.5 : 2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      )
+    },
+    {
       name: 'League',
       href: currentLeagueId ? `/app/league/${currentLeagueId}/league-settings` : '/app/league-settings',
       icon: (active: boolean) => (
@@ -126,10 +135,11 @@ const BottomNavigation = memo(function BottomNavigation() {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-app-bg border-t border-app-border">
       <div className="flex items-center py-1 px-1 pb-6">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
                          (item.name === 'Challenge' && currentLeagueId && pathname === `/app/league/${currentLeagueId}`) ||
                          (item.name === 'Results' && pathname?.includes('/rounds')) ||
                          (item.name === 'Standings' && pathname?.includes('/standings')) ||
+                         (item.name === 'Chat' && pathname?.includes('/chat')) ||
                          (item.name === 'League' && pathname?.includes('/league-settings'));
           return (
             <button
