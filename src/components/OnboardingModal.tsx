@@ -33,7 +33,7 @@ const ONBOARDING_STEPS = [
             Welcome to Challenge League!
           </p>
           <p className="text-app-text-secondary text-lg max-w-md mx-auto leading-relaxed">
-            A fun way to challenge your friends to turn everyday life into a game
+            A fun way to challenge your friends and turn everyday life into a game
           </p>
         </div>
       </div>
@@ -93,18 +93,7 @@ const ONBOARDING_STEPS = [
               </div>
             </div>
           </div>
-
-          <div className="bg-app-surface-dark rounded-lg p-5 border border-app-border">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
-                <span className="text-red-400 font-semibold text-sm">5</span>
-              </div>
-              <div>
-                <h4 className="text-app-text font-semibold mb-2">Do It All Again!</h4>
-                <p className="text-app-text-secondary text-sm">A new challenge arrives every week for a fresh chance to climb the leaderboard</p>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     )
