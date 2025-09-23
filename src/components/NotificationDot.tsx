@@ -16,7 +16,7 @@ const NotificationDot = memo(function NotificationDot({ show, className = '', si
   if (!show) return null;
 
   const sizeClasses = {
-    sm: 'w-2 h-2',
+    sm: 'w-2.5 h-2.5',
     md: 'w-3 h-3',
     lg: 'w-4 h-4'
   };

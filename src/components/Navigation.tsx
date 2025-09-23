@@ -142,7 +142,7 @@ export default function Navigation() {
                   >
                     {currentLeague ? currentLeague.name : 'Select League'}
                   </span>
-                  {hasAnyActions && (
+                  {leagues.some(league => league.needsAction && league.id !== currentLeague?.id) && (
                     <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
                 </div>
@@ -297,7 +297,7 @@ export default function Navigation() {
                   >
                     {currentLeague ? currentLeague.name : 'Select League'}
                   </span>
-                  {hasAnyActions && (
+                  {leagues.some(league => league.needsAction && league.id !== currentLeague?.id) && (
                     <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
                 </div>

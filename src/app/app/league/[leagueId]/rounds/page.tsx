@@ -61,7 +61,12 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   // Mark results as viewed when user visits this page
   useEffect(() => {
     if (session?.user?.id && !galleryLoading && galleryData?.rounds?.length) {
-      markResultsAsViewed(params.leagueId);
+      // Add a small delay to ensure the notification query has loaded
+      const timer = setTimeout(() => {
+        markResultsAsViewed(params.leagueId);
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [session?.user?.id, galleryLoading, galleryData?.rounds?.length, markResultsAsViewed, params.leagueId]);
 
