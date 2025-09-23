@@ -17,9 +17,11 @@ export const invalidationPatterns = {
       queryKeys.leaguePrompt(leagueId),     // Update challenge page
       queryKeys.votingData(leagueId),       // May enable voting phase
       queryKeys.league(leagueId),           // Update league stats
+      queryKeys.userLeagues(),              // Update action status (home page)
     ],
     update: (leagueId: string) => [
       queryKeys.leaguePrompt(leagueId),     // Update challenge page
+      queryKeys.userLeagues(),              // Update action status (home page)
     ],
   },
 
@@ -30,6 +32,7 @@ export const invalidationPatterns = {
       queryKeys.league(leagueId),           // Update standings
       queryKeys.leagueRounds(leagueId),     // May complete round
       queryKeys.leaguePrompt(leagueId),     // May trigger next challenge
+      queryKeys.userLeagues(),              // Update action status (home page)
     ],
   },
 
@@ -41,6 +44,7 @@ export const invalidationPatterns = {
       queryKeys.league(leagueId),           // League overview updates
       queryKeys.leagueRounds(leagueId),     // Results may be available
       queryKeys.leagueSettings(leagueId),   // Admin view updates
+      queryKeys.userLeagues(),              // Update action status (home page)
     ],
   },
 

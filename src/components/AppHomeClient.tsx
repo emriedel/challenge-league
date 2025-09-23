@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
 import { useOnboarding } from '@/hooks/useOnboarding';
-import { useLeagueActions } from '@/hooks/useLeagueActions';
+import { useLeagueActionsQuery } from '@/hooks/queries';
 import OnboardingModal from '@/components/OnboardingModal';
 import LeagueAvatar from '@/components/LeagueAvatar';
 
@@ -24,8 +24,8 @@ export default function AppHomeClient() {
     closeOnboarding,
   } = useOnboarding();
 
-  // Use new hook to fetch leagues with action status
-  const { leagues, loading, error: leagueError } = useLeagueActions();
+  // Use new React Query hook to fetch leagues with action status
+  const { leagues, loading, error: leagueError } = useLeagueActionsQuery();
 
   useEffect(() => {
     if (status === 'loading') return;

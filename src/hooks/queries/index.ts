@@ -10,6 +10,11 @@ export {
   useJoinLeagueMutation,
 } from './useLeagueQuery';
 
+// League actions hooks
+export {
+  useLeagueActionsQuery,
+} from './useLeagueActionsQuery';
+
 // Voting hooks
 export {
   useVotingQuery,
