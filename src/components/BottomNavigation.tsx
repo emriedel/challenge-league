@@ -169,7 +169,7 @@ const BottomNavigation = memo(function BottomNavigation() {
             <button
               key={item.name}
               onClick={(e) => handleTabClick(item.href, !!isActive, item.name, e)}
-              className="flex flex-col items-center py-2 px-0.5 transition-all duration-200 flex-1 select-none touch-manipulation active:scale-95 relative"
+              className="flex flex-col items-center py-2 px-0.5 transition-all duration-200 flex-1 select-none touch-manipulation active:scale-95 relative tap-highlight-transparent"
             >
               <div className="relative">
                 {item.icon(!!isActive)}
