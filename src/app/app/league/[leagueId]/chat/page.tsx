@@ -37,19 +37,19 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   }, [status, router])
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages and initial load
   useEffect(() => {
-    if (messagesEndRef.current && !isInitialLoad) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (messagesEndRef.current) {
+      if (isInitialLoad) {
+        // Immediate scroll to bottom on initial load
+        messagesEndRef.current.scrollIntoView({ behavior: 'instant' })
+        setIsInitialLoad(false)
+      } else {
+        // Smooth scroll for new messages
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      }
     }
   }, [messages, isInitialLoad])
-
-  // Mark initial load as complete after first render
-  useEffect(() => {
-    if (messages.length > 0) {
-      setIsInitialLoad(false)
-    }
-  }, [messages])
 
   if (status === 'loading') {
     return (
@@ -81,15 +81,9 @@ export default function ChatPage({ params }: ChatPageProps) {
             </div>
           )}
 
-          {/* Error State */}
-          {error && (
-            <div className="bg-app-error-bg border border-red-500 rounded-lg p-4 text-center">
-              <p className="text-app-error">{error}</p>
-            </div>
-          )}
 
           {/* Messages */}
-          {messages.length === 0 && !isLoading && (
+          {messages.length === 0 && !isLoading && !isInitialLoad && (
             <div className="text-center text-app-text-muted py-8">
               <p>No messages yet. Be the first to start the conversation!</p>
             </div>
