@@ -135,15 +135,17 @@ export default function Navigation() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                <span
-                  className="relative pr-1 truncate max-w-[160px] lg:max-w-[200px]"
-                  title={currentLeague ? currentLeague.name : 'Select League'}
-                >
-                  {currentLeague ? currentLeague.name : 'Select League'}
+                <div className="relative flex items-center">
+                  <span
+                    className="truncate max-w-[160px] lg:max-w-[220px]"
+                    title={currentLeague ? currentLeague.name : 'Select League'}
+                  >
+                    {currentLeague ? currentLeague.name : 'Select League'}
+                  </span>
                   {hasAnyActions && (
-                    <div className="absolute top-0 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
-                </span>
+                </div>
               </button>
               
               {isLeaguesOpen && (
@@ -288,15 +290,17 @@ export default function Navigation() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                <span
-                  className="text-sm select-none relative pr-1 truncate max-w-[180px]"
-                  title={currentLeague ? currentLeague.name : 'Select League'}
-                >
-                  {currentLeague ? currentLeague.name : 'Select League'}
+                <div className="relative flex items-center">
+                  <span
+                    className="text-sm select-none truncate max-w-[160px] sm:max-w-[200px]"
+                    title={currentLeague ? currentLeague.name : 'Select League'}
+                  >
+                    {currentLeague ? currentLeague.name : 'Select League'}
+                  </span>
                   {hasAnyActions && (
-                    <div className="absolute top-0 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
-                </span>
+                </div>
               </button>
             
             {isLeaguesOpen && (
