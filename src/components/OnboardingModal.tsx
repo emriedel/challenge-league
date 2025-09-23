@@ -89,11 +89,11 @@ const ONBOARDING_STEPS = [
               </div>
               <div>
                 <h4 className="text-app-text font-semibold mb-2">Vote for Your Favorites</h4>
-                <p className="text-app-text-secondary text-sm">Once submissions are in, everyone in the league votes on their favorites</p>
+                <p className="text-app-text-secondary text-sm">Once submissions are in, everyone in the league votes on their favorites before the next round starts</p>
               </div>
             </div>
           </div>
-          
+
         </div>
       </div>
     )
