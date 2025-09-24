@@ -806,6 +806,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           </div>
           )}
 
+          {/* Section Divider */}
+          {isOwner && (
+            <div className="my-8">
+              <div className="border-t border-app-border-dark"></div>
+            </div>
+          )}
+
           {/* Admin Controls & Danger Zone - Admin Only */}
           {isOwner && (
             <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6">
