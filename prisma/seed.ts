@@ -96,11 +96,46 @@ const sampleCaptions = [
   "Sometimes the best ideas come at 2am. This was one of those times."
 ];
 
+// Diverse sample comments for responses
+const sampleComments = [
+  "This is absolutely incredible! Love the creativity here.",
+  "Wow, such attention to detail. Really well executed!",
+  "This made me smile - such a clever interpretation!",
+  "The colors in this are just perfect. Great work!",
+  "I never would have thought of this approach. So creative!",
+  "This is exactly what I was hoping to see from this challenge.",
+  "Beautiful composition! Really draws the eye in.",
+  "The lighting in this shot is amazing. How did you get it so perfect?",
+  "This is so well thought out. Every element works together perfectly.",
+  "Love the story this tells! Really captures the essence of the challenge.",
+  "Such a unique perspective on this prompt. Well done!",
+  "The craftsmanship here is outstanding. Clearly a lot of effort went into this.",
+  "This has such a great mood to it. Really evocative!",
+  "Brilliant use of everyday materials! So resourceful.",
+  "This is both beautiful and functional. Perfect execution!",
+  "The texture and detail work here is phenomenal.",
+  "Such a clean, elegant solution. Sometimes simple is best.",
+  "This tells such a compelling visual story. Love it!",
+  "The technique you used here is so impressive. Teach me!",
+  "This completely exceeded my expectations. Fantastic work!",
+  "Love how you incorporated natural elements into this.",
+  "The symmetry and balance in this piece is so satisfying.",
+  "This has such personality! Really shows your creative voice.",
+  "Perfect capture of the moment. Great timing!",
+  "The way you played with shadows here is brilliant.",
+  "This is so innovative! Never seen anything quite like it.",
+  "Beautiful work with the materials you had available.",
+  "This really captures the spirit of the challenge perfectly.",
+  "The detail work here must have taken forever. So worth it!",
+  "This is exactly the kind of creativity this challenge was meant to inspire."
+];
+
 async function main() {
   console.log('🌱 Starting comprehensive database seed...');
 
   // Clear existing data
   await prisma.vote.deleteMany();
+  await prisma.comment.deleteMany();
   await prisma.response.deleteMany();
   await prisma.leagueMembership.deleteMany();
   await prisma.prompt.deleteMany();
@@ -236,15 +271,16 @@ async function main() {
       
       console.log(`📸 Created ${createdResponses.length} submissions for completed round`);
       
-      // Create votes from league members (everyone gets 3 votes)
-      const voters = leagueMembers.filter(member =>
-        !createdResponses.some(r => r.userId === member.id)
-      ); // Non-participants vote
+      // Create votes from ALL league members (everyone gets 3 votes, cannot vote for own submission)
+      for (const voter of leagueMembers) {
+        // Get responses this voter can vote for (exclude their own submission)
+        const eligibleResponses = createdResponses.filter(r => r.userId !== voter.id);
 
-      for (const voter of voters) {
-        // Each voter gives 3 individual votes (distributed randomly among responses)
-        const shuffledResponses = [...createdResponses].sort(() => Math.random() - 0.5);
-        const votesToCast = Math.min(3, shuffledResponses.length); // Cast up to 3 votes
+        if (eligibleResponses.length === 0) continue; // Skip if no eligible responses
+
+        // Each voter gives up to 3 individual votes (distributed randomly among eligible responses)
+        const shuffledResponses = [...eligibleResponses].sort(() => Math.random() - 0.5);
+        const votesToCast = Math.min(3, shuffledResponses.length);
 
         // Randomly select which responses to vote for
         const selectedResponses = shuffledResponses.slice(0, votesToCast);
@@ -259,7 +295,28 @@ async function main() {
           });
         }
       }
-      
+
+      // Create comments from some league members on responses (1-4 comments per response)
+      for (const response of createdResponses) {
+        // Randomly select 1-4 members to comment (excluding response author)
+        const potentialCommenters = leagueMembers.filter(member => member.id !== response.userId);
+        const numComments = Math.floor(Math.random() * 4) + 1; // 1-4 comments
+        const commenters = potentialCommenters
+          .sort(() => Math.random() - 0.5)
+          .slice(0, Math.min(numComments, potentialCommenters.length));
+
+        for (const commenter of commenters) {
+          const commentText = sampleComments[Math.floor(Math.random() * sampleComments.length)];
+          await prisma.comment.create({
+            data: {
+              text: commentText,
+              authorId: commenter.id,
+              responseId: response.id,
+            },
+          });
+        }
+      }
+
       // Calculate and update final rankings
       for (const response of createdResponses) {
         const totalVotes = await prisma.vote.count({
@@ -288,7 +345,7 @@ async function main() {
         });
       }
       
-      console.log(`🗳️ Created votes and calculated rankings for completed round`);
+      console.log(`🗳️ Created votes and comments, calculated rankings for completed round`);
     }
     
     // Create 1 current round (active submission phase)
