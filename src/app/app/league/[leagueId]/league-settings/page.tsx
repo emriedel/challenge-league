@@ -464,9 +464,12 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               {isOwner && !isEditingSettings && (
                 <button
                   onClick={handleStartEditing}
-                  className="px-3 py-2 text-[#3a8e8c] hover:text-[#2d6b6a] text-sm font-medium rounded-lg hover:bg-[#3a8e8c] hover:bg-opacity-10 transition-colors"
+                  className="flex items-center justify-center w-10 h-10 text-[#3a8e8c] hover:text-[#2d6b6a] hover:bg-[#3a8e8c] hover:bg-opacity-10 rounded-lg transition-colors"
+                  title="Edit settings"
                 >
-                  Edit Settings
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                 </button>
               )}
             </div>
@@ -609,7 +612,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           {isOwner && (
           <div className="bg-app-surface rounded-lg border border-app-border p-4 sm:p-6 mb-6">
             <h2 className="text-lg sm:text-xl font-semibold text-app-text mb-4">
-              Upcoming Challenges ({((queue?.scheduled?.length || 0) + optimisticPrompts.length)})
+              Upcoming Challenges
             </h2>
             
             {(!queue?.scheduled || queue.scheduled.length === 0) && optimisticPrompts.length === 0 ? (
@@ -629,14 +632,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 {[...(queue?.scheduled || []), ...optimisticPrompts]
                   .filter(prompt => !deletingPrompts.has(prompt.id))
                   .map((prompt, index) => (
-                  <div key={prompt.id} className={`border border-app-border rounded-lg p-4 hover:bg-app-surface-light transition-colors ${
+                  <div key={prompt.id} className={`bg-app-bg border border-app-border rounded-lg p-4 hover:bg-app-surface-dark transition-colors ${
                     prompt.id.startsWith('temp-') ? 'opacity-75' : ''
                   } ${
                     deletingPrompts.has(prompt.id) ? 'opacity-50 pointer-events-none' : ''
                   }`}>
                     {/* Header with queue number and prompt text */}
                     <div className="flex items-start gap-3 mb-4">
-                      <span className="bg-blue-900 bg-opacity-30 text-blue-300 text-xs font-medium px-2 py-1 rounded flex-shrink-0">
+                      <span className="bg-[#3a8e8c] bg-opacity-30 text-[#3a8e8c] text-xs font-medium px-2 py-1 rounded flex-shrink-0">
                         #{index + 1}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -711,7 +714,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                                     setEditingPrompt(prompt.id);
                                     setEditText(prompt.text);
                                   }}
-                                  className="flex items-center justify-center w-10 h-10 text-blue-400 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 rounded-lg transition-colors"
+                                  className="flex items-center justify-center w-10 h-10 text-[#3a8e8c] hover:text-[#2d6b6a] hover:bg-[#3a8e8c] hover:bg-opacity-20 rounded-lg transition-colors"
                                   title="Edit challenge"
                                 >
                                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -811,49 +814,14 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               {/* Phase Controls Section */}
               <div className="mb-6">
                 <h3 className="text-md font-semibold text-app-text mb-2">Phase Controls</h3>
-                <div className="bg-app-surface-dark rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-app-text-secondary mb-2">Current Phase</h4>
-                  {phaseInfo?.currentPhase.type === 'NONE' && (
-                    <p className="text-app-text-secondary text-sm">No active challenges</p>
-                  )}
-                  {phaseInfo?.currentPhase.type === 'ACTIVE' && (
-                    <div className="text-app-text-secondary text-sm">
-                      <p className="font-medium text-app-text">Active Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                      {phaseInfo.currentPhase.endTime && (
-                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          timeZoneName: 'short',
-                        })}</p>
-                      )}
-                    </div>
-                  )}
-                  {phaseInfo?.currentPhase.type === 'VOTING' && (
-                    <div className="text-app-text-secondary text-sm">
-                      <p className="font-medium text-app-text">Voting Phase: &quot;{phaseInfo.currentPhase.prompt}&quot;</p>
-                      {phaseInfo.currentPhase.endTime && (
-                        <p>Ends: {new Date(phaseInfo.currentPhase.endTime).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          timeZoneName: 'short',
-                        })}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <p className="text-sm text-app-text-muted mb-4">Use this to override existing league timings and transition immediately to the next phase</p>
 
-                <div className="bg-orange-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-orange-600 border-opacity-30">
-                  <h4 className="font-medium text-orange-300 mb-2">Next Phase</h4>
-                  <p className="text-orange-200 text-sm">
-                    {phaseInfo?.nextPhase.type === 'VOTING' && `Will start voting for: "${phaseInfo.nextPhase.prompt}"`}
+                <div className="bg-app-bg rounded-lg p-4 mb-4 border border-app-border">
+                  <h4 className="font-medium text-app-text-secondary mb-2">Next Phase</h4>
+                  <p className="text-app-text-secondary text-sm">
+                    {phaseInfo?.nextPhase.type === 'VOTING' && `Start voting for: "${phaseInfo.nextPhase.prompt}"`}
                     {phaseInfo?.nextPhase.type === 'COMPLETED' && `Will complete current challenge`}
-                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Will start new challenge: "${phaseInfo.nextPhase.prompt}"`}
+                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Start new challenge: "${phaseInfo.nextPhase.prompt}"`}
                     {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && `No scheduled challenges available`}
                   </p>
                 </div>
@@ -861,7 +829,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                 <button
                   onClick={() => setShowTransitionModal(true)}
                   disabled={transitionPhaseMutation.isPending}
-                  className="w-full sm:w-auto bg-[#b8860b] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#9a7209] focus:outline-none focus:ring-2 focus:ring-[#b8860b] focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                  className="w-full sm:w-auto bg-amber-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2 disabled:opacity-50 transition-colors"
                 >
                   {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Transition to Next Phase'}
                 </button>
@@ -869,13 +837,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
 
               {/* Danger Zone Section */}
               <div className="border-t border-app-border-dark pt-6">
-                <h3 className="text-lg font-semibold text-app-text mb-2">Danger Zone</h3>
+                <h3 className="text-lg font-semibold text-app-text mb-2">Delete League</h3>
                 <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
                   <p className="text-red-200 text-sm mb-2">
                     <strong>Warning:</strong> Deleting this league will permanently remove all league data
                   </p>
                   <p className="text-red-200 text-sm mt-3">
-                    <strong>This action cannot be undone.</strong>
+                    This action cannot be undone.
                   </p>
                 </div>
 
@@ -914,176 +882,157 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
           )}
         </div>
 
-        {/* Leave League Confirmation Modal */}
-        {showLeaveConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Leave League</h3>
-              
-              <div className="mb-4">
-                <p className="text-sm text-app-text-secondary mb-3">
-                  Are you sure you want to leave <strong>{league?.name}</strong>?
-                </p>
-              </div>
-              
-              <p className="text-sm text-app-text-muted mb-6">
-                This action cannot be undone.
-              </p>
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-3">
-                <button
-                  onClick={() => setShowLeaveConfirm(false)}
-                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLeaveLeague}
-                  disabled={leaveLeagueMutation.isPending}
-                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
-                >
-                  {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Transition Confirmation Modal */}
-        {showTransitionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Phase Transition</h3>
-              
-              <div className="mb-4 space-y-3">
-                <div className="bg-app-surface-dark p-3 rounded">
-                  <p className="text-sm font-medium text-app-text-secondary">Current:</p>
-                  <p className="text-sm text-app-text-secondary">
-                    {phaseInfo?.currentPhase.type === 'NONE' && 'No active challenges'}
-                    {phaseInfo?.currentPhase.type === 'ACTIVE' && `Active: "${phaseInfo.currentPhase.prompt}"`}
-                    {phaseInfo?.currentPhase.type === 'VOTING' && `Voting: "${phaseInfo.currentPhase.prompt}"`}
-                  </p>
-                </div>
-                
-                <div className="bg-orange-50 p-3 rounded">
-                  <p className="text-sm font-medium text-orange-700">Next:</p>
-                  <p className="text-sm text-orange-600">
-                    {phaseInfo?.nextPhase.type === 'VOTING' && `Start voting for: "${phaseInfo.nextPhase.prompt}"`}
-                    {phaseInfo?.nextPhase.type === 'COMPLETED' && 'Complete current challenge'}
-                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Start new challenge: "${phaseInfo.nextPhase.prompt}"`}
-                    {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && 'No scheduled challenges'}
-                  </p>
-                </div>
-              </div>
-              
-              <p className="text-sm text-app-text-secondary mb-6">
-                This will immediately move to the next phase, regardless of timing. Are you sure?
-              </p>
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-3">
-                <button
-                  onClick={() => setShowTransitionModal(false)}
-                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleTransitionPhase}
-                  disabled={transitionPhaseMutation.isPending}
-                  className="px-4 py-2 bg-[#b8860b] text-white rounded-lg hover:bg-[#9a7209] disabled:opacity-50 transition-colors"
-                >
-                  {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Confirm Transition'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Delete Challenge Confirmation Modal */}
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-app-surface rounded-lg max-w-md w-full p-6">
-              <h3 className="text-lg font-semibold text-app-text mb-4">Delete Challenge</h3>
-              
-              <div className="mb-4">
-                <p className="text-sm text-app-text-secondary mb-3">
-                  Are you sure you want to delete this challenge?
-                </p>
-                <div className="bg-app-surface-dark p-3 rounded">
-                  <p className="text-sm text-app-text break-words">{deleteConfirm.promptText}</p>
-                </div>
-              </div>
-              
-              <p className="text-sm text-app-text-muted mb-6">
-                This action cannot be undone.
-              </p>
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-3">
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDeletePrompt(deleteConfirm.promptId)}
-                  disabled={deletePromptMutation.isPending}
-                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
-                >
-                  {deletePromptMutation.isPending ? 'Deleting...' : 'Delete Challenge'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Delete League Confirmation Modal */}
-        {showDeleteLeagueConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-app-surface rounded-lg max-w-lg w-full p-6">
-              <h3 className="text-lg font-semibold text-app-text mb-4">Delete League</h3>
-              
-              <div className="mb-4">
-                <p className="text-sm text-app-text-secondary mb-3">
-                  Are you sure you want to permanently delete <strong className="text-app-text">{league?.name}</strong>?
-                </p>
-                
-                <div className="bg-red-900 bg-opacity-20 rounded-lg p-4 mb-4 border border-red-600 border-opacity-30">
-                  <p className="text-red-200 text-sm mb-2">
-                    <strong>This will permanently delete:</strong>
-                  </p>
-                  <ul className="text-red-200 text-sm space-y-1 ml-4">
-                    <li>• All challenges and submissions from {league?.memberCount} members</li>
-                    <li>• All photos and voting data</li>
-                    <li>• All league history and statistics</li>
-                    <li>• League settings and configurations</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <p className="text-sm text-app-text-muted mb-6">
-                <strong>This action cannot be undone.</strong> All data will be permanently removed from our servers.
-              </p>
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-3">
-                <button
-                  onClick={() => setShowDeleteLeagueConfirm(false)}
-                  className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteLeague}
-                  disabled={deleteLeagueMutation.isPending}
-                  className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
-                >
-                  {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </DocumentPullToRefresh>
+
+      {/* Modals positioned outside of pull-to-refresh container */}
+      {/* Leave League Confirmation Modal */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-app-surface rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-app-border-light shadow-2xl">
+            <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Leave League</h3>
+
+            <div className="mb-4">
+              <p className="text-sm text-app-text-secondary mb-3">
+                Are you sure you want to leave <strong>{league?.name}</strong>?
+              </p>
+            </div>
+
+            <p className="text-sm text-app-text-muted mb-6">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLeaveLeague}
+                disabled={leaveLeagueMutation.isPending}
+                className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
+              >
+                {leaveLeagueMutation.isPending ? 'Leaving...' : 'Leave League'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transition Confirmation Modal */}
+      {showTransitionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-app-surface rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-app-border-light shadow-2xl">
+            <h3 className="text-lg font-semibold text-app-text mb-4">Confirm Phase Transition</h3>
+
+            <div className="mb-4 space-y-3">
+
+              <div className="bg-app-bg p-3 rounded border border-app-border">
+                <p className="text-sm text-app-text-secondary">
+                  {phaseInfo?.nextPhase.type === 'VOTING' && `Start voting for: "${phaseInfo.nextPhase.prompt}"`}
+                  {phaseInfo?.nextPhase.type === 'COMPLETED' && 'Complete current challenge'}
+                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && phaseInfo.nextPhase.prompt && `Start new challenge: "${phaseInfo.nextPhase.prompt}"`}
+                  {phaseInfo?.nextPhase.type === 'NEW_ACTIVE' && !phaseInfo.nextPhase.prompt && 'No scheduled challenges'}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-app-text-secondary mb-6">
+              This will immediately move to the next phase, regardless of timing. Are you sure?
+            </p>
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                onClick={() => setShowTransitionModal(false)}
+                className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTransitionPhase}
+                disabled={transitionPhaseMutation.isPending}
+                className="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 disabled:opacity-50 transition-colors"
+              >
+                {transitionPhaseMutation.isPending ? 'Transitioning...' : 'Confirm Transition'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Challenge Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-app-surface rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-app-border-light shadow-2xl">
+            <h3 className="text-lg font-semibold text-app-text mb-4">Delete Challenge</h3>
+
+            <div className="mb-4">
+              <p className="text-sm text-app-text-secondary mb-3">
+                Are you sure you want to delete this challenge?
+              </p>
+              <div className="bg-app-surface-dark p-3 rounded">
+                <p className="text-sm text-app-text break-words">{deleteConfirm.promptText}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-app-text-muted mb-6">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeletePrompt(deleteConfirm.promptId)}
+                disabled={deletePromptMutation.isPending}
+                className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
+              >
+                {deletePromptMutation.isPending ? 'Deleting...' : 'Delete Challenge'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete League Confirmation Modal */}
+      {showDeleteLeagueConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-app-surface rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-app-border-light shadow-2xl">
+            <h3 className="text-lg font-semibold text-app-text mb-4">Delete League</h3>
+
+            <div className="mb-4">
+              <p className="text-sm text-app-text-secondary mb-3">
+                Are you sure you want to permanently delete <strong className="text-app-text">{league?.name}</strong>?
+              </p>
+            </div>
+
+            <p className="text-sm text-app-text-muted mb-6">
+              <strong>This action cannot be undone.</strong> All data will be permanently removed.
+            </p>
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button
+                onClick={() => setShowDeleteLeagueConfirm(false)}
+                className="px-4 py-2 text-app-text-secondary bg-app-surface-dark rounded-lg hover:bg-app-surface-light transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteLeague}
+                disabled={deleteLeagueMutation.isPending}
+                className="px-4 py-2 bg-[#8b4444] text-white rounded-lg hover:bg-[#7a3d3d] disabled:opacity-50 transition-colors"
+              >
+                {deleteLeagueMutation.isPending ? 'Deleting League...' : 'Delete League'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ErrorBoundary>
     </>
   );

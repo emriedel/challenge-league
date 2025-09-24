@@ -152,7 +152,7 @@ export default function UserSubmissionDisplay({
 
       {/* Save/Cancel buttons for inline editing */}
       {isEditingInline && (
-        <div className="py-4 bg-app-surface">
+        <div className="py-4">
           <div className="max-w-2xl mx-auto px-4">
             <div className="flex justify-center space-x-4">
               <button
