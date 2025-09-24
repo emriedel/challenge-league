@@ -370,7 +370,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 {liveVoteCount}/{league?.votesPerPlayer || 3} votes cast
               </div>
               {liveVoteCount === (league?.votesPerPlayer || 3) && (
-                <div className="text-yellow-400 mt-1 font-semibold">
+                <div className="text-blue-400 mt-1 font-semibold">
                   Ready to submit!
                 </div>
               )}

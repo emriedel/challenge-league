@@ -277,7 +277,7 @@ export default function VotingInterface({
       )}
 
       {/* Submit Votes */}
-      <div ref={bottomSectionRef} className="bg-app-bg border-t border-app-border py-6 pb-8">
+      <div ref={bottomSectionRef} className="bg-app-bg border-t border-app-border py-6 pb-8 mt-4">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="mb-4">
             <span className="text-lg font-medium text-app-text">

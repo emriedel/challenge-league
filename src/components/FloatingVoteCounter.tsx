@@ -27,7 +27,7 @@ export default function FloatingVoteCounter({
             {votesCount}/{maxVotes} votes cast
           </div>
           {hasMaxVotes && (
-            <div className="text-yellow-400 mt-1 font-semibold">
+            <div className="text-blue-400 mt-1 font-semibold">
               Ready to submit!
             </div>
           )}
