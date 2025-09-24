@@ -165,7 +165,7 @@ export default function UserSubmissionDisplay({
               <button
                 onClick={handleSaveInlineEdit}
                 disabled={isUpdating || editedCaption.trim().length === 0}
-                className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-[#3a8e8c] text-white rounded-lg hover:bg-[#2d6b6a] focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUpdating ? 'Saving...' : 'Save Changes'}
               </button>
@@ -174,15 +174,11 @@ export default function UserSubmissionDisplay({
         </div>
       )}
       
-      {/* Success/Error messages */}
-      {message && (
+      {/* Error messages only */}
+      {message && message.type === 'error' && (
         <div className="bg-app-surface border-t border-app-border py-4">
           <div className="max-w-2xl mx-auto px-4">
-            <div className={`p-3 rounded-lg text-sm ${
-              message.type === 'success' 
-                ? 'bg-app-success-bg border border-app-success text-app-success' 
-                : 'bg-app-error-bg border border-app-error text-app-error'
-            }`}>
+            <div className="p-3 rounded-lg text-sm bg-app-error-bg border border-app-error text-app-error">
               {message.text}
             </div>
           </div>

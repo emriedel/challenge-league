@@ -9,6 +9,7 @@ interface VotingResponse {
   caption: string;
   imageUrl: string;
   submittedAt: string;
+  userId: string; // Add userId for own submission detection
   user: {
     username: string;
     profilePhoto?: string;

@@ -72,7 +72,7 @@ export function useSubmissionManagement({
         throw new Error(errorData.error || 'Failed to submit response');
       }
 
-      onSuccess?.({ type: 'success', text: 'Response submitted successfully!' });
+      // Success handled by UI state change - no banner needed
       onRefetch?.(); // Refresh to show updated submission
       await cacheInvalidator.handleSubmission('submit', leagueId);
     } catch (error) {
@@ -128,7 +128,7 @@ export function useSubmissionManagement({
         throw new Error(errorData.error || 'Failed to update submission');
       }
 
-      onSuccess?.({ type: 'success', text: 'Submission updated successfully!' });
+      // Success handled by UI state change - no banner needed
       onRefetch?.(); // Refresh to show updated submission
       await cacheInvalidator.handleSubmission('update', leagueId);
     } catch (error) {

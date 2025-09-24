@@ -83,9 +83,10 @@ const getComments = async ({ req, session }: AuthenticatedApiContext) => {
     });
   }
 
-  // Check if user can still comment (only during VOTING phase)
-  const canComment = response.prompt.status === 'VOTING' && 
-                     !isPhaseExpired(response.prompt, leagueSettings);
+  // Check if user can still comment (only during VOTING phase and not on own submission)
+  const canComment = response.prompt.status === 'VOTING' &&
+                     !isPhaseExpired(response.prompt, leagueSettings) &&
+                     response.userId !== session.user.id; // Can't comment on own submission
 
   return NextResponse.json({
     comments: response.comments.map(comment => ({

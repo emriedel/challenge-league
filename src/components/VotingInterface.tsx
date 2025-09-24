@@ -56,20 +56,27 @@ export default function VotingInterface({
     const currentBottomSection = bottomSectionRef.current;
     if (!currentBottomSection) return;
 
+    let timeoutId: NodeJS.Timeout;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Show floating counter when bottom section is NOT visible
-        setShowFloatingCounter(!entry.isIntersecting);
+        // Debounce the state change to prevent flashing during rapid scroll
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          // Show floating counter when bottom section is NOT visible
+          setShowFloatingCounter(!entry.isIntersecting);
+        }, 50); // Small delay to debounce rapid changes
       },
       {
-        threshold: 0.1, // Trigger when 10% of bottom section is visible
-        rootMargin: '0px 0px -50px 0px' // Add some margin to trigger earlier
+        threshold: 0.3, // Trigger when 30% of bottom section is visible (more stable)
+        rootMargin: '0px 0px -20px 0px' // Smaller margin to reduce flashing
       }
     );
 
     observer.observe(currentBottomSection);
 
     return () => {
+      clearTimeout(timeoutId);
       if (currentBottomSection) {
         observer.unobserve(currentBottomSection);
       }
@@ -90,8 +97,9 @@ export default function VotingInterface({
     }
 
     // Check if this response is votable (not user's own submission)
-    const isVotable = votingData.votableResponseIds?.includes(responseId) ?? true;
-    if (!isVotable) {
+    const response = orderedResponses.find(r => r.id === responseId);
+    const isOwnSubmission = response?.userId === votingData.currentUserId;
+    if (isOwnSubmission) {
       return;
     }
 
@@ -120,8 +128,9 @@ export default function VotingInterface({
     }
 
     // Check if this response is votable (not user's own submission)
-    const isVotable = votingData.votableResponseIds?.includes(responseId) ?? true;
-    if (!isVotable) {
+    const response = orderedResponses.find(r => r.id === responseId);
+    const isOwnSubmission = response?.userId === votingData.currentUserId;
+    if (isOwnSubmission) {
       return;
     }
 
@@ -187,8 +196,8 @@ export default function VotingInterface({
         <div className="space-y-0">
           {orderedResponses.map((response, index) => {
             const hasVoted = selectedVotes[response.id] === 1;
-            const isVotable = votingData.votableResponseIds?.includes(response.id) ?? true;
-            const isOwnSubmission = !isVotable; // If not votable, it's the user's own submission
+            // Check if this is the user's own submission
+            const isOwnSubmission = response.userId === votingData.currentUserId;
 
             return (
               <PhotoFeedItem
@@ -285,7 +294,7 @@ export default function VotingInterface({
             <button
               onClick={handleSubmitVotes}
               disabled={getTotalVotes() !== requiredVotes || isSubmitting}
-              className="bg-gray-800 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-900 disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors"
+              className={`${getTotalVotes() === requiredVotes ? 'bg-[#3a8e8c] hover:bg-[#2d6b6a]' : 'bg-gray-800 hover:bg-gray-900'} text-white px-8 py-3 rounded-lg font-medium disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors`}
             >
               {isSubmitting ? 'Submitting...' : 'Submit Votes'}
             </button>
@@ -333,7 +342,7 @@ export default function VotingInterface({
               <button
                 onClick={confirmSubmitVotes}
                 disabled={isSubmitting}
-                className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-900 disabled:opacity-50 transition-colors"
+                className="flex-1 bg-[#3a8e8c] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#2d6b6a] disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? 'Submitting...' : 'Yes, Submit Votes'}
               </button>

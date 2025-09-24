@@ -273,7 +273,7 @@ export default function CommentSection({
                         <button
                           type="submit"
                           disabled={!editingText.trim() || submitting}
-                          className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-3 py-1 text-xs bg-[#3a8e8c] text-white rounded hover:bg-[#2d6b6a] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {submitting ? 'Updating...' : 'Update'}
                         </button>
@@ -359,7 +359,7 @@ export default function CommentSection({
                       <button
                         type="submit"
                         disabled={!commentText.trim() || submitting}
-                        className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1 text-xs bg-[#3a8e8c] text-white rounded hover:bg-[#2d6b6a] disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {submitting ? 'Posting...' : 'Post'}
                       </button>

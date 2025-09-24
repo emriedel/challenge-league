@@ -255,12 +255,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
             <div className="mb-8">
-              {submissionMessage && (
-                <div className={`mb-4 p-3 rounded-md text-sm ${
-                  submissionMessage.type === 'success'
-                    ? 'bg-app-success-bg border border-app-success text-app-success'
-                    : 'bg-app-error-bg border border-app-error text-app-error'
-                }`}>
+              {submissionMessage && submissionMessage.type === 'error' && (
+                <div className="mb-4 p-3 rounded-md text-sm bg-app-error-bg border border-app-error text-app-error">
                   {submissionMessage.text}
                 </div>
               )}

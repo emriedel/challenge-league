@@ -29,7 +29,12 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     include: {
       responses: {
         where: { isPublished: true },
-        include: {
+        select: {
+          id: true,
+          caption: true,
+          imageUrl: true,
+          submittedAt: true,
+          userId: true, // Explicitly include userId for frontend logic
           user: {
             select: {
               username: true,
