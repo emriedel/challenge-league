@@ -294,7 +294,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 existingVotes: votingData.existingVotes ? votingData.existingVotes.reduce((acc: { [responseId: string]: number }, vote: any) => {
                   acc[vote.response.id] = 1; // Each response can receive 1 vote per voter
                   return acc;
-                }, {}) : {}
+                }, {}) : {},
+                // Include the critical fields for self-voting protection
+                currentUserId: votingData.currentUserId,
+                votableResponseIds: votingData.votableResponseIds
               }}
               onSubmitVotes={handleSubmitVotes}
               isSubmitting={votingManagement.isSubmitting}

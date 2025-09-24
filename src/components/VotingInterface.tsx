@@ -89,6 +89,7 @@ export default function VotingInterface({
   );
   const requiredVotes = Math.min(votableResponses.length, maxVotesAllowed);
 
+
   const handleVoteToggle = (responseId: string) => {
     // Prevent vote changes if user has already submitted
     if (hasSubmittedVotes) {
@@ -183,7 +184,7 @@ export default function VotingInterface({
       
       {/* Full-width Voting Feed */}
       {orderedResponses.length > 0 ? (
-        <div className="space-y-0">
+        <div className="space-y-4">
           {orderedResponses.map((response, index) => {
             const hasVoted = selectedVotes[response.id] === 1;
             // Check if this is the user's own submission
@@ -202,43 +203,39 @@ export default function VotingInterface({
                 onImageClick={() => handleImageTap(response.id)}
                 priority={index === 0}
                 headerActions={
-                  <button
-                    onClick={() => handleVoteToggle(response.id)}
-                    disabled={hasSubmittedVotes || isOwnSubmission || (!hasVoted && getTotalVotes() >= requiredVotes)}
-                    className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
-                      isOwnSubmission
-                        ? 'bg-app-surface-light text-app-text-subtle cursor-not-allowed opacity-60'
-                        : hasVoted
-                        ? 'bg-gray-800 text-white hover:bg-gray-900'
-                        : hasSubmittedVotes
-                        ? 'bg-app-surface-light text-app-text-muted cursor-not-allowed opacity-50'
-                        : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-1">
-                      <svg
-                        className={`w-4 h-4 ${hasVoted ? 'text-red-500' : isOwnSubmission ? 'text-app-text-subtle' : ''}`}
-                        fill={hasVoted ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                      <span>
-                        {isOwnSubmission
-                          ? 'Your submission'
-                          : hasVoted
-                          ? 'Voted'
-                          : 'Vote'
-                        }
-                      </span>
-                    </div>
-                  </button>
+                  // Only show vote button for other users' submissions
+                  !isOwnSubmission ? (
+                    <button
+                      onClick={() => handleVoteToggle(response.id)}
+                      disabled={hasSubmittedVotes || (!hasVoted && getTotalVotes() >= requiredVotes)}
+                      className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${
+                        hasVoted
+                          ? 'bg-gray-800 text-white hover:bg-gray-900'
+                          : hasSubmittedVotes
+                          ? 'bg-app-surface-light text-app-text-muted cursor-not-allowed opacity-50'
+                          : 'bg-app-surface-light text-app-text hover:bg-app-surface disabled:opacity-50 disabled:cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <svg
+                          className={`w-4 h-4 ${hasVoted ? 'text-red-500' : ''}`}
+                          fill={hasVoted ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                        <span>
+                          {hasVoted ? 'Voted' : 'Vote'}
+                        </span>
+                      </div>
+                    </button>
+                  ) : null
                 }
                 imageOverlay={
                   heartAnimation === response.id && (
