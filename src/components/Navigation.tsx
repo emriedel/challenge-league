@@ -182,7 +182,7 @@ export default function Navigation() {
                                       </span>
                                       {league.needsAction ? (
                                         <div className="flex items-center gap-1">
-                                          <span className="text-red-400 font-medium">
+                                          <span className="text-red-400">
                                             {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
                                           </span>
                                           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
@@ -337,7 +337,7 @@ export default function Navigation() {
                                     </span>
                                     {league.needsAction ? (
                                       <div className="flex items-center gap-1">
-                                        <span className="text-red-400 font-medium">
+                                        <span className="text-red-400">
                                           {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
                                         </span>
                                         <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>

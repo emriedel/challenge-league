@@ -84,7 +84,7 @@ export function NoSubmissionsEmptyState() {
         </svg>
       }
       title="No Submissions Yet"
-      description="No one has submitted anything for this challenge yet. Be the first to share your creativity!"
+      description="No one has submitted anything for this challenge."
     />
   );
 }
@@ -112,7 +112,7 @@ export function NoMembersEmptyState() {
         </svg>
       }
       title="No Members Yet"
-      description="This league doesn't have any members yet. Share the invitation code to get people to join!"
+      description="This league doesn't have any members yet."
     />
   );
 }

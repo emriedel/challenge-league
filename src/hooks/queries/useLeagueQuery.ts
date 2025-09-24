@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheConfig } from '@/lib/queryClient';
+import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import type { LeagueWithMembers } from '@/types/league';
 
 interface LeagueUser {
@@ -98,6 +99,7 @@ export function useLeagueStandingsQuery(leagueId?: string) {
  */
 export function useJoinLeagueMutation() {
   const queryClient = useQueryClient();
+  const cacheInvalidator = useCacheInvalidator();
 
   return useMutation({
     mutationFn: async (inviteCode: string) => {
@@ -116,13 +118,13 @@ export function useJoinLeagueMutation() {
 
       return response.json();
     },
-    onSuccess: (data) => {
-      // Invalidate user leagues to show new league
-      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
-
-      // Add new league data to cache
+    onSuccess: async (data) => {
       if (data.league) {
+        // Add league data to cache first
         queryClient.setQueryData(queryKeys.league(data.league.id), data);
+
+        // Use comprehensive cache invalidation for membership changes
+        await cacheInvalidator.handleMembership('join', data.league.id);
       }
     },
   });
@@ -133,6 +135,7 @@ export function useJoinLeagueMutation() {
  */
 export function useJoinLeagueByIdMutation() {
   const queryClient = useQueryClient();
+  const cacheInvalidator = useCacheInvalidator();
 
   return useMutation({
     mutationFn: async (leagueId: string) => {
@@ -151,13 +154,13 @@ export function useJoinLeagueByIdMutation() {
 
       return response.json();
     },
-    onSuccess: (data) => {
-      // Invalidate user leagues to show new league immediately
-      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
-
-      // Add new league data to cache
+    onSuccess: async (data) => {
       if (data.league) {
+        // Add league data to cache first
         queryClient.setQueryData(queryKeys.league(data.league.id), data);
+
+        // Use comprehensive cache invalidation for membership changes
+        await cacheInvalidator.handleMembership('join', data.league.id);
       }
     },
   });
@@ -187,13 +190,13 @@ export function useCreateLeagueMutation() {
       return response.json();
     },
     onSuccess: (data) => {
-      // Invalidate user leagues to show new league immediately
-      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
-
-      // Add new league data to cache
+      // Add new league data to cache first
       if (data.league) {
         queryClient.setQueryData(queryKeys.league(data.league.id), data);
       }
+
+      // Invalidate user leagues to show new league immediately
+      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
     },
   });
 }
