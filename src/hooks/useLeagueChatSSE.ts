@@ -105,13 +105,26 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
         console.log('SSE message received:', data)
 
         if (data.type === 'new_message') {
-          // Add message if not already present (deduplication)
+          // Add message if not already present (enhanced deduplication)
           setMessages(prev => {
-            const messageExists = prev.some(msg => msg.id === data.message.id)
-            if (messageExists) {
-              console.log('Message already exists, skipping duplicate')
+            // Check for exact ID match first
+            const exactMatch = prev.some(msg => msg.id === data.message.id)
+            if (exactMatch) {
+              console.log('Message already exists (ID match), skipping duplicate')
               return prev
             }
+
+            // Check for content/author/time match to catch race conditions
+            const contentMatch = prev.some(msg =>
+              msg.content === data.message.content &&
+              msg.author.id === data.message.author.id &&
+              Math.abs(new Date(msg.createdAt).getTime() - new Date(data.message.createdAt).getTime()) < 5000
+            )
+            if (contentMatch) {
+              console.log('Message already exists (content match), skipping duplicate')
+              return prev
+            }
+
             return [...prev, data.message]
           })
         } else if (data.type === 'connected') {
