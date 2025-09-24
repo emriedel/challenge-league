@@ -118,32 +118,37 @@ export default function ResultsPage({ params }: ResultsPageProps) {
       <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
       {galleryData?.rounds && galleryData.rounds.length > 0 ? (
-        <div className="bg-app-bg pb-16">
+        <div className="bg-app-bg pb-6">
           {/* Challenge Selector and Details */}
           <div className="py-4 pb-6">
             <div className="max-w-2xl mx-auto px-4">
               <div className="relative mb-4 flex justify-center" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-between p-2 bg-app-surface border border-app-border rounded-md hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
+                  className="flex items-center justify-center p-2 bg-app-surface border border-app-border rounded-md hover:bg-app-surface-light transition-colors min-w-48 shadow-sm"
                 >
-                  <div className="text-left">
+                  <div className="flex items-center gap-2">
                     {selectedRound ? (
-                      <div className="font-medium text-app-text">
-                        Challenge #{selectedRound.challengeNumber}
-                      </div>
+                      <>
+                        <svg className="w-4 h-4 text-app-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                        <div className="font-medium text-app-text">
+                          Challenge #{selectedRound.challengeNumber}
+                        </div>
+                      </>
                     ) : (
                       <div className="text-app-text-muted">Select a challenge</div>
                     )}
+                    <svg
+                      className={`w-4 h-4 text-app-text-muted transition-transform ml-1 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
-                  <svg 
-                    className={`w-4 h-4 text-app-text-muted transition-transform ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                 </button>
                 
                 {isDropdownOpen && (
