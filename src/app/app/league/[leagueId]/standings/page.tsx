@@ -14,18 +14,29 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
 import { NoMembersEmptyState } from '@/components/EmptyState';
+import MedalIcon from '@/components/MedalIcon';
 
 // Ranking display for standings
 const getRankIcon = (rank: number) => {
+  if (rank >= 1 && rank <= 3) {
+    return <MedalIcon place={rank as 1 | 2 | 3} size="md" />;
+  }
+  return `#${rank}`;
+};
+
+// Get background color for podium positions
+const getRowBackgroundClass = (rank: number, isCurrentUser: boolean) => {
+  const baseClass = isCurrentUser ? 'bg-app-surface-light' : '';
+
   switch (rank) {
     case 1:
-      return '#1';
+      return `${baseClass} bg-gradient-to-r from-yellow-900/20 to-transparent`;
     case 2:
-      return '#2';
+      return `${baseClass} bg-gradient-to-r from-gray-700/20 to-transparent`;
     case 3:
-      return '#3';
+      return `${baseClass} bg-gradient-to-r from-yellow-800/20 to-transparent`;
     default:
-      return `#${rank}`;
+      return baseClass;
   }
 };
 
@@ -127,32 +138,48 @@ export default function StandingPage({ params }: StandingPageProps) {
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <tbody className="bg-app-surface divide-y divide-app-border">
-                  {standings.map((entry, index) => (
-                    <tr 
-                      key={entry.user.id}
-                      className={entry.user.username === session.user.username ? 'bg-app-surface-light' : ''}
-                    >
-                      <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-center w-12">
-                        <span className="text-app-text-secondary">
-                          {getRankIcon(entry.stats.leagueRank)}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text">
-                        <div className="flex items-center space-x-2 min-w-0">
-                          <ProfileAvatar
-                            username={entry.user.username}
-                            profilePhoto={entry.user.profilePhoto}
-                            size="sm"
-                          />
-                          <span
-                            className="truncate max-w-[120px] sm:max-w-[200px] md:max-w-none"
-                            title={entry.user.username}
-                          >
-                            {entry.user.username}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium text-center">
+                  {standings.map((entry, index) => {
+                    const isCurrentUser = entry.user.username === session.user.username;
+                    const rankIcon = getRankIcon(entry.stats.leagueRank);
+
+                    return (
+                      <tr
+                        key={entry.user.id}
+                        className={getRowBackgroundClass(entry.stats.leagueRank, isCurrentUser)}
+                      >
+                        <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-center w-12">
+                          <div className="flex justify-center items-center min-h-[24px]">
+                            {typeof rankIcon === 'string' ? (
+                              <span className="text-app-text-secondary">
+                                {rankIcon}
+                              </span>
+                            ) : (
+                              <div className="flex justify-center items-center w-6">
+                                {rankIcon}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-app-text">
+                          <div className="flex items-center space-x-2 min-w-0">
+                            <ProfileAvatar
+                              username={entry.user.username}
+                              profilePhoto={entry.user.profilePhoto}
+                              size="sm"
+                            />
+                            <span
+                              className={`truncate max-w-[120px] sm:max-w-[200px] md:max-w-none ${
+                                isCurrentUser ? 'font-bold' : ''
+                              }`}
+                              title={entry.user.username}
+                            >
+                              {entry.user.username}
+                            </span>
+                          </div>
+                        </td>
+                      <td className={`px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium text-center ${
+                        isCurrentUser ? 'font-bold' : ''
+                      }`}>
                         {entry.stats.totalVotes}
                       </td>
                       <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
@@ -161,11 +188,12 @@ export default function StandingPage({ params }: StandingPageProps) {
                       <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
                         {entry.stats.totalSubmissions}
                       </td>
-                      <td className="hidden lg:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
-                        {entry.stats.votingParticipation}/{entry.stats.totalCompletedRounds}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="hidden lg:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
+                          {entry.stats.votingParticipation}/{entry.stats.totalCompletedRounds}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
