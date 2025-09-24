@@ -112,13 +112,32 @@ export default function ChatPage({ params }: ChatPageProps) {
               const previousMessage = index > 0 ? messages[index - 1] : null
               const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id
 
+              // Check if we need a date separator
+              const currentDate = new Date(message.createdAt).toDateString()
+              const previousDate = previousMessage ? new Date(previousMessage.createdAt).toDateString() : null
+              const showDateSeparator = currentDate !== previousDate
+
               return (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  isOwnMessage={isOwnMessage}
-                  showAvatar={showAvatar}
-                />
+                <div key={message.id}>
+                  {showDateSeparator && (
+                    <div className="flex items-center justify-center my-6">
+                      <div className="bg-app-surface-dark px-3 py-1 rounded-full">
+                        <span className="text-xs text-app-text-muted font-medium">
+                          {new Date(message.createdAt).toLocaleDateString([], {
+                            weekday: 'long',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <MessageBubble
+                    message={message}
+                    isOwnMessage={isOwnMessage}
+                    showAvatar={showAvatar}
+                  />
+                </div>
               )
             })}
 
