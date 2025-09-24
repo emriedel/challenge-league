@@ -23,7 +23,6 @@ export default function VotingInterface({
   const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
   const [lastTap, setLastTap] = useState<{ responseId: string; time: number } | null>(null);
   const [heartAnimation, setHeartAnimation] = useState<string | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [hasSubmittedVotes, setHasSubmittedVotes] = useState(false);
   const [showFloatingCounter, setShowFloatingCounter] = useState(false);
   const bottomSectionRef = useRef<HTMLDivElement>(null);
@@ -158,18 +157,9 @@ export default function VotingInterface({
       return;
     }
 
-    // Show confirmation dialog
-    setShowConfirmation(true);
-  };
-  
-  const confirmSubmitVotes = async () => {
-    setShowConfirmation(false);
+    // Submit votes directly
     await onSubmitVotes(selectedVotes);
     setHasSubmittedVotes(true);
-  };
-  
-  const cancelSubmitVotes = () => {
-    setShowConfirmation(false);
   };
 
   return (
@@ -291,13 +281,18 @@ export default function VotingInterface({
             </span>
           </div>
           {!hasSubmittedVotes ? (
-            <button
-              onClick={handleSubmitVotes}
-              disabled={getTotalVotes() !== requiredVotes || isSubmitting}
-              className={`${getTotalVotes() === requiredVotes ? 'bg-[#3a8e8c] hover:bg-[#2d6b6a]' : 'bg-gray-800 hover:bg-gray-900'} text-white px-8 py-3 rounded-lg font-medium disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Votes'}
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={handleSubmitVotes}
+                disabled={getTotalVotes() !== requiredVotes || isSubmitting}
+                className={`${getTotalVotes() === requiredVotes ? 'bg-[#3a8e8c] hover:bg-[#2d6b6a]' : 'bg-gray-800 hover:bg-gray-900'} text-white px-8 py-3 rounded-lg font-medium disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Votes'}
+              </button>
+              <p className="text-app-text-muted text-xs text-center">
+                You won&apos;t be able to change your votes after submitting
+              </p>
+            </div>
           ) : (
             <div className="text-center">
               <div className="bg-green-900/20 border border-green-500/30 text-green-400 px-6 py-3 rounded-lg font-medium mb-2">
@@ -318,45 +313,6 @@ export default function VotingInterface({
         </div>
       </div>
       
-      {/* Vote Confirmation Modal */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-app-surface border border-app-border rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-app-text mb-3">Confirm Your Votes</h3>
-            <p className="text-app-text-secondary mb-4">
-              Are you sure you want to submit your votes? You won&apos;t be able to change them once submitted.
-            </p>
-            <div className="mb-4">
-              <p className="text-sm text-app-text-muted mb-2">You have voted for {getTotalVotes()} submission{getTotalVotes() !== 1 ? 's' : ''}:</p>
-              {Object.keys(selectedVotes).map(responseId => {
-                const response = orderedResponses.find(r => r.id === responseId);
-                return response ? (
-                  <div key={responseId} className="flex items-center space-x-2 text-sm text-app-text-secondary">
-                    <span>•</span>
-                    <span>@{response.user.username}&apos;s submission</span>
-                  </div>
-                ) : null;
-              })}
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={confirmSubmitVotes}
-                disabled={isSubmitting}
-                className="flex-1 bg-[#3a8e8c] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#2d6b6a] disabled:opacity-50 transition-colors"
-              >
-                {isSubmitting ? 'Submitting...' : 'Yes, Submit Votes'}
-              </button>
-              <button
-                onClick={cancelSubmitVotes}
-                disabled={isSubmitting}
-                className="flex-1 bg-app-surface-light text-app-text px-4 py-2 rounded-lg font-medium hover:bg-app-surface disabled:opacity-50 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* Floating Vote Counter */}
       <FloatingVoteCounter

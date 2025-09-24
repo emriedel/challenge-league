@@ -81,7 +81,7 @@ export function useSubmissionManagement({
     } finally {
       setIsSubmitting(false);
     }
-  }, [promptId, leagueId, onSuccess, onError, onRefetch, cacheInvalidator]);
+  }, [promptId, leagueId, onError, onRefetch, cacheInvalidator]);
 
   const updateResponse = useCallback(async (data: UpdateData, currentImageUrl: string) => {
     if (!promptId) return;
@@ -137,7 +137,7 @@ export function useSubmissionManagement({
     } finally {
       setIsSubmitting(false);
     }
-  }, [promptId, leagueId, onSuccess, onError, onRefetch, cacheInvalidator]);
+  }, [promptId, leagueId, onError, onRefetch, cacheInvalidator]);
 
   return {
     isSubmitting,
