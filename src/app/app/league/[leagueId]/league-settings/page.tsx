@@ -453,15 +453,15 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h2 className="font-semibold text-app-text truncate">{league?.name}</h2>
-                    <p className="text-sm text-app-text-muted ml-2">
-                      {league?.memberCount} members
-                    </p>
+                  <div className="mb-1">
+                    <h2 className="font-semibold text-app-text">{league?.name}</h2>
                   </div>
                   {league?.description && (
-                    <p className="text-app-text-secondary text-sm">{league.description}</p>
+                    <p className="text-app-text-secondary text-sm mb-1">{league.description}</p>
                   )}
+                  <p className="text-sm text-app-text-muted">
+                    {league?.memberCount} members
+                  </p>
                 </div>
               </div>
             </div>
