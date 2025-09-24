@@ -120,7 +120,7 @@ export default function ChatPage({ params }: ChatPageProps) {
               return (
                 <div key={message.id}>
                   {showDateSeparator && (
-                    <div className="flex items-center justify-center my-6">
+                    <div className="flex items-center justify-center my-2">
                       <div className="bg-app-surface-dark px-3 py-1 rounded-full">
                         <span className="text-xs text-app-text-muted font-medium">
                           {new Date(message.createdAt).toLocaleDateString([], {
