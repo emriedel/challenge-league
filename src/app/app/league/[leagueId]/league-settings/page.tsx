@@ -140,8 +140,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showDeleteLeagueConfirm, setShowDeleteLeagueConfirm] = useState(false);
 
-  // Optimistic state for prompts
-  const [optimisticPrompts, setOptimisticPrompts] = useState<Prompt[]>([]);
+  // Optimistic state for deleting prompts
   const [deletingPrompts, setDeletingPrompts] = useState<Set<string>>(new Set());
   
   // League settings state - use strings for inputs, parse only on submit
@@ -179,28 +178,13 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
     e.preventDefault();
     if (!newPromptText.trim()) return;
 
-    // Optimistic update
-    const tempPrompt: Prompt = {
-      id: `temp-${Date.now()}`,
-      text: newPromptText.trim(),
-      phaseStartedAt: null,
-      status: 'SCHEDULED',
-      queueOrder: (settingsData?.queue.scheduled?.length || 0) + optimisticPrompts.length + 1,
-      createdAt: new Date().toISOString()
-    };
-
     const promptText = newPromptText.trim();
-    setOptimisticPrompts(prev => [...prev, tempPrompt]);
     setNewPromptText('');
     setShowAddChallenge(false);
 
     try {
       await createPromptMutation.mutateAsync(promptText);
-      // Clear optimistic state on success - real data will replace it
-      setOptimisticPrompts(prev => prev.filter(p => p.id !== tempPrompt.id));
     } catch (error) {
-      // Remove optimistic prompt on error
-      setOptimisticPrompts(prev => prev.filter(p => p.id !== tempPrompt.id));
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'Failed to create prompt'
@@ -253,7 +237,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
   const handleMovePrompt = async (promptId: string, direction: 'up' | 'down') => {
     if (!settingsData) return;
 
-    const allPrompts = [...(settingsData.queue.scheduled || []), ...optimisticPrompts].filter(p => !deletingPrompts.has(p.id));
+    const allPrompts = (settingsData.queue.scheduled || []).filter(p => !deletingPrompts.has(p.id));
     const currentIndex = allPrompts.findIndex(p => p.id === promptId);
     if (currentIndex === -1) return;
 
@@ -264,9 +248,8 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
     [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
 
     try {
-      // Only send real prompt IDs to the server
-      const realPromptIds = newOrder.map(p => p.id).filter(id => !id.startsWith('temp-'));
-      await reorderPromptsMutation.mutateAsync(realPromptIds);
+      const reorderedIds = newOrder.map(p => p.id);
+      await reorderPromptsMutation.mutateAsync(reorderedIds);
     } catch (error) {
       setMessage({
         type: 'error',
@@ -625,7 +608,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               Upcoming Challenges
             </h2>
             
-            {(!queue?.scheduled || queue.scheduled.length === 0) && optimisticPrompts.length === 0 ? (
+            {(!queue?.scheduled || queue.scheduled.length === 0) ? (
               <div className="text-center py-8">
                 <div className="text-app-text-muted mb-2">
                   <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -639,12 +622,10 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               </div>
             ) : (
               <div className="space-y-4">
-                {[...(queue?.scheduled || []), ...optimisticPrompts]
+                {(queue?.scheduled || [])
                   .filter(prompt => !deletingPrompts.has(prompt.id))
                   .map((prompt, index) => (
                   <div key={prompt.id} className={`bg-app-bg border border-app-border rounded-lg p-4 hover:bg-app-surface-dark transition-colors ${
-                    prompt.id.startsWith('temp-') ? 'opacity-75' : ''
-                  } ${
                     deletingPrompts.has(prompt.id) ? 'opacity-50 pointer-events-none' : ''
                   }`}>
                     {/* Header with queue number and prompt text */}
@@ -676,7 +657,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'up')}
-                              disabled={index === 0 || reorderPromptsMutation.isPending || prompt.id.startsWith('temp-')}
+                              disabled={index === 0 || reorderPromptsMutation.isPending}
                               className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move up"
                             >
@@ -684,7 +665,7 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             </button>
                             <button
                               onClick={() => handleMovePrompt(prompt.id, 'down')}
-                              disabled={index === [...(queue?.scheduled || []), ...optimisticPrompts].filter(p => !deletingPrompts.has(p.id)).length - 1 || reorderPromptsMutation.isPending || prompt.id.startsWith('temp-')}
+                              disabled={index === (queue?.scheduled || []).filter(p => !deletingPrompts.has(p.id)).length - 1 || reorderPromptsMutation.isPending}
                               className="flex items-center justify-center w-10 h-10 text-app-text-muted hover:text-app-text-secondary disabled:opacity-30 text-xl hover:bg-app-surface-light rounded-lg transition-colors"
                               title="Move down"
                             >
@@ -718,34 +699,26 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                             </>
                           ) : (
                             <>
-                              {!prompt.id.startsWith('temp-') && (
-                                <button
-                                  onClick={() => {
-                                    setEditingPrompt(prompt.id);
-                                    setEditText(prompt.text);
-                                  }}
-                                  className="flex items-center justify-center w-10 h-10 text-[#3a8e8c] hover:text-[#2d6b6a] hover:bg-[#3a8e8c] hover:bg-opacity-20 rounded-lg transition-colors"
-                                  title="Edit challenge"
-                                >
-                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                </button>
-                              )}
-
                               <button
                                 onClick={() => {
-                                  if (prompt.id.startsWith('temp-')) {
-                                    setOptimisticPrompts(prev => prev.filter(p => p.id !== prompt.id));
-                                  } else {
-                                    setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text });
-                                  }
+                                  setEditingPrompt(prompt.id);
+                                  setEditText(prompt.text);
                                 }}
-                                disabled={deletePromptMutation.isPending && !prompt.id.startsWith('temp-')}
+                                className="flex items-center justify-center w-10 h-10 text-[#3a8e8c] hover:text-[#2d6b6a] hover:bg-[#3a8e8c] hover:bg-opacity-20 rounded-lg transition-colors"
+                                title="Edit challenge"
+                              >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+
+                              <button
+                                onClick={() => setDeleteConfirm({ promptId: prompt.id, promptText: prompt.text })}
+                                disabled={deletePromptMutation.isPending}
                                 className="flex items-center justify-center w-10 h-10 text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20 rounded-lg disabled:opacity-50 transition-colors"
                                 title="Delete challenge"
                               >
-                                {deletePromptMutation.isPending && !prompt.id.startsWith('temp-') ? (
+                                {deletePromptMutation.isPending ? (
                                   <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
                                 ) : (
                                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -776,14 +749,11 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
                   <div className="space-y-4">
                     <form onSubmit={handleCreatePrompt} className="space-y-4">
                       <div>
-                        <label htmlFor="prompt-text" className="block text-sm font-medium text-app-text-secondary mb-2">
-                          Challenge Description
-                        </label>
                         <textarea
                           id="prompt-text"
                           rows={3}
                           className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base text-app-text placeholder-app-text-muted"
-                          placeholder="e.g., Share a photo that represents your favorite moment from this week"
+                          placeholder="Describe your challenge"
                           value={newPromptText}
                           onChange={(e) => setNewPromptText(e.target.value)}
                           required

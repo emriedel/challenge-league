@@ -86,7 +86,7 @@ export function useLeagueSettingsQuery(leagueId?: string) {
  */
 export function useCreatePromptMutation(leagueId?: string) {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (promptText: string) => {
       if (!leagueId) {
@@ -110,10 +110,18 @@ export function useCreatePromptMutation(leagueId?: string) {
 
       return response.json();
     },
-    onSuccess: () => {
-      // Refresh league settings data
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueSettings(leagueId!) 
+    onSuccess: (response) => {
+      // Update the cache directly instead of invalidating to prevent flickering
+      queryClient.setQueryData(queryKeys.leagueSettings(leagueId!), (oldData: LeagueSettingsData | undefined) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          queue: {
+            ...oldData.queue,
+            scheduled: [...(oldData.queue.scheduled || []), response.prompt]
+          }
+        };
       });
     },
   });
@@ -124,7 +132,7 @@ export function useCreatePromptMutation(leagueId?: string) {
  */
 export function useUpdatePromptMutation(leagueId?: string) {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ promptId, text }: { promptId: string; text: string }) => {
       if (!leagueId) {
@@ -148,9 +156,20 @@ export function useUpdatePromptMutation(leagueId?: string) {
 
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueSettings(leagueId!) 
+    onSuccess: (response, variables) => {
+      // Update the cache directly instead of invalidating to prevent flickering
+      queryClient.setQueryData(queryKeys.leagueSettings(leagueId!), (oldData: LeagueSettingsData | undefined) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          queue: {
+            ...oldData.queue,
+            scheduled: oldData.queue.scheduled.map(p =>
+              p.id === variables.promptId ? response.prompt : p
+            )
+          }
+        };
       });
     },
   });
@@ -161,7 +180,7 @@ export function useUpdatePromptMutation(leagueId?: string) {
  */
 export function useDeletePromptMutation(leagueId?: string) {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (promptId: string) => {
       if (!leagueId) {
@@ -179,9 +198,18 @@ export function useDeletePromptMutation(leagueId?: string) {
 
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueSettings(leagueId!) 
+    onSuccess: (_, promptId) => {
+      // Update the cache directly instead of invalidating to prevent flickering
+      queryClient.setQueryData(queryKeys.leagueSettings(leagueId!), (oldData: LeagueSettingsData | undefined) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          queue: {
+            ...oldData.queue,
+            scheduled: oldData.queue.scheduled.filter(p => p.id !== promptId)
+          }
+        };
       });
     },
   });
@@ -192,7 +220,7 @@ export function useDeletePromptMutation(leagueId?: string) {
  */
 export function useReorderPromptsMutation(leagueId?: string) {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (promptIds: string[]) => {
       if (!leagueId) {
@@ -217,8 +245,9 @@ export function useReorderPromptsMutation(leagueId?: string) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.leagueSettings(leagueId!) 
+      // For reorder, we need to invalidate since the API doesn't return the reordered list
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.leagueSettings(leagueId!)
       });
     },
   });
