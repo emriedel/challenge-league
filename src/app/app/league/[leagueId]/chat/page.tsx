@@ -58,12 +58,16 @@ export default function ChatPage({ params }: ChatPageProps) {
   useEffect(() => {
     if (messagesEndRef.current) {
       if (isInitialLoad) {
-        // Immediate scroll to bottom on initial load
-        messagesEndRef.current.scrollIntoView({ behavior: 'instant' })
+        // Use setTimeout to ensure DOM is settled, then scroll only within the container
+        setTimeout(() => {
+          if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'instant', block: 'end' })
+          }
+        }, 100)
         setIsInitialLoad(false)
       } else {
-        // Smooth scroll for new messages
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        // Smooth scroll for new messages, but only within container
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
       }
     }
   }, [messages, isInitialLoad])
