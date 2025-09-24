@@ -22,6 +22,7 @@ import LeagueNavigation from '@/components/LeagueNavigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonLeaderboard } from '@/components/LoadingSkeleton';
+import LeagueAvatar from '@/components/LeagueAvatar';
 
 // CSS for range sliders
 const sliderStyles = `
@@ -445,15 +446,24 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
               {isOwner ? 'League Settings' : 'League Information'}
             </h1>
             <div className="bg-app-surface rounded-lg border border-app-border p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="font-semibold text-app-text">{league?.name}</h2>
-                <p className="text-sm text-app-text-muted">
-                  {league?.memberCount} members
-                </p>
+              <div className="flex items-center gap-3 mb-2">
+                <LeagueAvatar
+                  leagueName={league?.name || 'League'}
+                  leagueId={params.leagueId}
+                  size="md"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h2 className="font-semibold text-app-text truncate">{league?.name}</h2>
+                    <p className="text-sm text-app-text-muted ml-2">
+                      {league?.memberCount} members
+                    </p>
+                  </div>
+                  {league?.description && (
+                    <p className="text-app-text-secondary text-sm">{league.description}</p>
+                  )}
+                </div>
               </div>
-              {league?.description && (
-                <p className="text-app-text-secondary">{league.description}</p>
-              )}
             </div>
           </div>
 

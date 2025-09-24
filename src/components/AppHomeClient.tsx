@@ -80,7 +80,7 @@ export default function AppHomeClient() {
   return (
     <>
       <div className="min-h-screen bg-app-bg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
           {leagues.length === 0 ? (
             /* Welcome State - No Leagues */
             <div className="max-w-2xl mx-auto text-center py-6">
@@ -152,45 +152,58 @@ export default function AppHomeClient() {
                             {league.name}
                           </h3>
 
-                          {/* League Status - combines phase info and action status */}
-                          {league.currentPrompt && (
+                          {/* League Status - show not started state or current challenge info */}
+                          {league.isStarted === false ? (
                             <div className="flex items-center gap-2 text-sm break-words mb-2">
-                              <span className="text-app-text-secondary">
-                                Challenge #{league.currentPrompt.challengeNumber} •
-                              </span>
-                              {league.needsAction ? (
+                              {league.isOwner ? (
                                 <div className="flex items-center gap-1">
-                                  <span className="text-red-400 font-medium">
-                                    {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
-                                  </span>
-                                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                  <span className="text-amber-400 font-medium">Not Started</span>
+                                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
                                 </div>
                               ) : (
-                                <span className="text-app-text-secondary">
-                                  {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
-                                </span>
+                                <span className="text-app-text-muted">Not Started</span>
                               )}
                             </div>
-                          )}
+                          ) : league.currentPrompt ? (
+                            <>
+                              <div className="flex items-center gap-2 text-sm break-words mb-2">
+                                <span className="text-app-text-secondary">
+                                  Challenge #{league.currentPrompt.challengeNumber} •
+                                </span>
+                                {league.needsAction ? (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-red-400 font-medium">
+                                      {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
+                                    </span>
+                                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                                  </div>
+                                ) : (
+                                  <span className="text-app-text-secondary">
+                                    {league.currentPrompt.status === 'ACTIVE' ? 'Submissions Open' : 'Voting Open'}
+                                  </span>
+                                )}
+                              </div>
 
-                          {/* Phase End Time */}
-                          {league.currentPrompt?.phaseEndsAt && (
-                            <div className="flex items-center gap-1 text-sm text-app-text-muted">
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span>
-                                {new Date(league.currentPrompt.phaseEndsAt).toLocaleDateString('en-US', {
-                                  weekday: 'short',
-                                  month: 'short',
-                                  day: 'numeric',
-                                  hour: 'numeric',
-                                  minute: '2-digit',
-                                  timeZoneName: 'short'
-                                })}
-                              </span>
-                            </div>
-                          )}
+                              {/* Phase End Time */}
+                              {league.currentPrompt.phaseEndsAt && (
+                                <div className="flex items-center gap-1 text-sm text-app-text-muted">
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span>
+                                    {new Date(league.currentPrompt.phaseEndsAt).toLocaleDateString('en-US', {
+                                      weekday: 'short',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit',
+                                      timeZoneName: 'short'
+                                    })}
+                                  </span>
+                                </div>
+                              )}
+                            </>
+                          ) : null}
                         </div>
                       </div>
                     </div>
