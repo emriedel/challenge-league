@@ -81,50 +81,52 @@ export default function ChatPage({ params }: ChatPageProps) {
   }
 
   return (
-    <DocumentPullToRefresh onRefresh={handleRefresh}>
-      {/* Messages Container - scrollable area */}
-      <div className="pb-24 md:pb-4">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="text-center">
-              <button
-                onClick={loadMoreMessages}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm bg-app-surface text-app-text border border-app-border rounded-lg hover:bg-app-surface-light transition-colors disabled:opacity-50"
-              >
-                {isLoading ? 'Loading...' : 'Load older messages'}
-              </button>
-            </div>
-          )}
+    <>
+      <DocumentPullToRefresh onRefresh={handleRefresh}>
+        {/* Messages Container - scrollable area */}
+        <div className="pb-24 md:pb-4">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="text-center">
+                <button
+                  onClick={loadMoreMessages}
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm bg-app-surface text-app-text border border-app-border rounded-lg hover:bg-app-surface-light transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Loading...' : 'Load older messages'}
+                </button>
+              </div>
+            )}
 
 
-          {/* Messages */}
-          {messages.length === 0 && !isLoading && !isInitialLoad && (
-            <div className="text-center text-app-text-muted py-8">
-              <p>No messages yet. Be the first to start the conversation!</p>
-            </div>
-          )}
+            {/* Messages */}
+            {messages.length === 0 && !isLoading && !isInitialLoad && (
+              <div className="text-center text-app-text-muted py-8">
+                <p>No messages yet. Be the first to start the conversation!</p>
+              </div>
+            )}
 
-          {messages.map((message, index) => {
-            const isOwnMessage = message.author.id === session.user.id
-            const previousMessage = index > 0 ? messages[index - 1] : null
-            const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id
+            {messages.map((message, index) => {
+              const isOwnMessage = message.author.id === session.user.id
+              const previousMessage = index > 0 ? messages[index - 1] : null
+              const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id
 
-            return (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isOwnMessage={isOwnMessage}
-                showAvatar={showAvatar}
-              />
-            )
-          })}
+              return (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isOwnMessage={isOwnMessage}
+                  showAvatar={showAvatar}
+                />
+              )
+            })}
 
-          {/* Scroll anchor */}
-          <div ref={messagesEndRef} />
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-      </div>
+      </DocumentPullToRefresh>
 
       {/* Message Input - fixed position on mobile, regular on desktop */}
       <div className="fixed bottom-20 left-0 right-0 md:relative md:bottom-auto bg-app-bg z-10">
@@ -137,6 +139,6 @@ export default function ChatPage({ params }: ChatPageProps) {
           />
         </div>
       </div>
-    </DocumentPullToRefresh>
+    </>
   )
 }
