@@ -171,6 +171,7 @@ export function useJoinLeagueByIdMutation() {
  */
 export function useCreateLeagueMutation() {
   const queryClient = useQueryClient();
+  const cacheInvalidator = useCacheInvalidator();
 
   return useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
@@ -189,14 +190,14 @@ export function useCreateLeagueMutation() {
 
       return response.json();
     },
-    onSuccess: (data) => {
-      // Add new league data to cache first
+    onSuccess: async (data) => {
       if (data.league) {
+        // Add new league data to cache first
         queryClient.setQueryData(queryKeys.league(data.league.id), data);
-      }
 
-      // Invalidate user leagues to show new league immediately
-      queryClient.invalidateQueries({ queryKey: queryKeys.userLeagues() });
+        // Use comprehensive cache invalidation like league joining does
+        await cacheInvalidator.handleMembership('join', data.league.id);
+      }
     },
   });
 }
