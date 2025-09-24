@@ -166,15 +166,15 @@ export default function CommentSection({
   if (collapsed && comments.length > 0) {
     const previewComment = comments[0];
     return (
-      <div className="px-4 pt-3 pb-4">
+      <div className="px-4 pt-3 pb-8">
         {showAll ? (
           <div>
             {comments.map((comment) => (
               <div key={comment.id} className="flex space-x-3 mb-4 last:mb-2">
-                <ProfileAvatar 
+                <ProfileAvatar
                   username={comment.author.username}
                   profilePhoto={comment.author.profilePhoto}
-                  size="sm"
+                  size="xs"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
@@ -197,10 +197,10 @@ export default function CommentSection({
         ) : (
           <div>
             <div className="flex space-x-3 mb-2">
-              <ProfileAvatar 
+              <ProfileAvatar
                 username={previewComment.author.username}
                 profilePhoto={previewComment.author.profilePhoto}
-                size="sm"
+                size="xs"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
@@ -231,10 +231,10 @@ export default function CommentSection({
         <div className="mb-3">
           {comments.map((comment) => (
             <div key={comment.id} className="flex space-x-3 mt-3">
-              <ProfileAvatar 
+              <ProfileAvatar
                 username={comment.author.username}
                 profilePhoto={comment.author.profilePhoto}
-                size="sm"
+                size="xs"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
@@ -324,10 +324,10 @@ export default function CommentSection({
           ) : (
             <form onSubmit={handleSubmitComment} className="space-y-2 mt-2">
               <div className="flex space-x-3">
-                <ProfileAvatar 
+                <ProfileAvatar
                   username={session?.user?.username || ''}
                   profilePhoto={session?.user?.profilePhoto}
-                  size="sm"
+                  size="xs"
                 />
                 <div className="flex-1">
                   <textarea
