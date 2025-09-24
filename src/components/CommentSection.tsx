@@ -181,7 +181,7 @@ export default function CommentSection({
                     <span className="font-semibold text-sm text-app-text">{comment.author.username}</span>
                     <span className="text-xs text-app-text-muted">{formatCommentTime(comment.createdAt)}</span>
                   </div>
-                  <p className="text-sm text-app-text leading-relaxed">{comment.text}</p>
+                  <p className="text-sm text-app-text">{comment.text}</p>
                 </div>
               </div>
             ))}
@@ -207,7 +207,7 @@ export default function CommentSection({
                   <span className="font-semibold text-sm text-app-text">{previewComment.author.username}</span>
                   <span className="text-xs text-app-text-muted">{formatCommentTime(previewComment.createdAt)}</span>
                 </div>
-                <p className="text-sm text-app-text leading-relaxed">{previewComment.text}</p>
+                <p className="text-sm text-app-text">{previewComment.text}</p>
               </div>
             </div>
             {comments.length > 1 && (
@@ -283,7 +283,7 @@ export default function CommentSection({
                 ) : (
                   /* Display comment */
                   <div>
-                    <p className="text-sm text-app-text leading-relaxed mb-1">{comment.text}</p>
+                    <p className="text-sm text-app-text mb-1">{comment.text}</p>
                     {comment.canEdit && (
                       <div className="flex space-x-3">
                         <button
