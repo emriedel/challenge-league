@@ -57,8 +57,6 @@ export default function VotingInterface({
     const currentBottomSection = bottomSectionRef.current;
     if (!currentBottomSection) return;
 
-    let timeoutId: NodeJS.Timeout;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         // Show floating counter when bottom section is NOT fully visible
@@ -77,7 +75,6 @@ export default function VotingInterface({
     observer.observe(currentBottomSection);
 
     return () => {
-      clearTimeout(timeoutId);
       if (currentBottomSection) {
         observer.unobserve(currentBottomSection);
       }
