@@ -85,7 +85,8 @@ export default function PWAInstallPrompt() {
   // Show appropriate install prompt
   if (isIOS) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
+      <div className="fixed bottom-4 left-4 right-4 bg-blue-700 text-white p-4 rounded-lg shadow-lg z-50 cursor-pointer hover:bg-blue-600 transition-colors"
+           onClick={handleIOSInstall}>
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium">Install Challenge League</p>
@@ -93,13 +94,19 @@ export default function PWAInstallPrompt() {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              onClick={handleIOSInstall}
-              className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleIOSInstall();
+              }}
+              className="bg-white text-blue-700 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100"
             >
               Install
             </button>
             <button
-              onClick={handleDismiss}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDismiss();
+              }}
               className="text-white/80 hover:text-white p-1"
               aria-label="Dismiss"
             >
@@ -115,7 +122,8 @@ export default function PWAInstallPrompt() {
 
   if (showInstallButton && deferredPrompt) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
+      <div className="fixed bottom-4 left-4 right-4 bg-blue-700 text-white p-4 rounded-lg shadow-lg z-50 cursor-pointer hover:bg-blue-600 transition-colors"
+           onClick={handleInstallClick}>
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium">Install Challenge League</p>
@@ -123,13 +131,19 @@ export default function PWAInstallPrompt() {
           </div>
           <div className="flex items-center space-x-2">
             <button
-              onClick={handleInstallClick}
-              className="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleInstallClick();
+              }}
+              className="bg-white text-blue-700 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100"
             >
               Install
             </button>
             <button
-              onClick={handleDismiss}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDismiss();
+              }}
               className="text-white/80 hover:text-white p-1"
               aria-label="Dismiss"
             >
