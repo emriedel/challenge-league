@@ -305,12 +305,8 @@ export default function VotingInterface({
               <p className="text-app-text-muted text-sm">You can still view all submissions but cannot change your votes.</p>
             </div>
           )}
-          {message && (
-            <div className={`mt-4 p-3 rounded-lg text-sm ${
-              message.type === 'success' 
-                ? 'bg-green-50 border border-green-200 text-green-700' 
-                : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
+          {message && message.type === 'error' && (
+            <div className="mt-4 p-3 rounded-lg text-sm bg-app-error-bg border border-app-error text-app-error">
               {message.text}
             </div>
           )}

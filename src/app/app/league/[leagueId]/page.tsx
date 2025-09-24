@@ -110,7 +110,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const handleSubmitVotes = async (votes: { [responseId: string]: number }) => {
     try {
       await submitVotesMutation.mutateAsync(votes);
-      setVotingMessage({ type: 'success', text: 'Votes submitted successfully!' });
       await cacheInvalidator.handleVoting('submit', params.leagueId);
     } catch (error) {
       setVotingMessage({
