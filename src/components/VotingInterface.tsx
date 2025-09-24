@@ -69,7 +69,7 @@ export default function VotingInterface({
         }
       },
       {
-        threshold: 0, // Trigger as soon as any part goes out of view
+        threshold: 0.2, // Trigger when 20% of bottom section is visible (disappears later)
         rootMargin: '0px 0px 0px 0px' // No margin
       }
     );
