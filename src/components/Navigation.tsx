@@ -142,7 +142,7 @@ export default function Navigation() {
                   >
                     {currentLeague ? currentLeague.name : 'Select League'}
                   </span>
-                  {leagues.some(league => league.needsAction && league.id !== currentLeague?.id) && (
+                  {leagues.some(league => league.needsAction && league.isStarted && league.id !== currentLeague?.id) && (
                     <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
                 </div>
@@ -175,12 +175,16 @@ export default function Navigation() {
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="font-medium select-none truncate max-w-[220px]" title={league.name}>{league.name}</span>
                                   </div>
-                                  {league.currentPrompt && (
+                                  {!league.isStarted ? (
+                                    <div className="flex items-center gap-1 text-xs select-none">
+                                      <span className="text-app-text-muted">Not started</span>
+                                    </div>
+                                  ) : league.currentPrompt && (
                                     <div className="flex items-center gap-1 text-xs select-none">
                                       <span className="text-app-text-secondary">
                                         Challenge #{league.currentPrompt.challengeNumber} •
                                       </span>
-                                      {league.needsAction ? (
+                                      {league.needsAction && league.isStarted ? (
                                         <div className="flex items-center gap-1">
                                           <span className="text-red-400">
                                             {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
@@ -297,7 +301,7 @@ export default function Navigation() {
                   >
                     {currentLeague ? currentLeague.name : 'Select League'}
                   </span>
-                  {leagues.some(league => league.needsAction && league.id !== currentLeague?.id) && (
+                  {leagues.some(league => league.needsAction && league.isStarted && league.id !== currentLeague?.id) && (
                     <div className="absolute top-0 -right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}
                 </div>
@@ -330,12 +334,16 @@ export default function Navigation() {
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className="font-medium select-none truncate max-w-[220px]" title={league.name}>{league.name}</span>
                                 </div>
-                                {league.currentPrompt && (
+                                {!league.isStarted ? (
+                                  <div className="flex items-center gap-1 text-sm select-none">
+                                    <span className="text-app-text-muted">Not started</span>
+                                  </div>
+                                ) : league.currentPrompt && (
                                   <div className="flex items-center gap-1 text-sm select-none">
                                     <span className="text-app-text-secondary">
                                       Challenge #{league.currentPrompt.challengeNumber} •
                                     </span>
-                                    {league.needsAction ? (
+                                    {league.needsAction && league.isStarted ? (
                                       <div className="flex items-center gap-1">
                                         <span className="text-red-400">
                                           {league.actionType === 'submission' ? 'Submit now!' : 'Vote now!'}
