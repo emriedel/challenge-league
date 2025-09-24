@@ -125,7 +125,7 @@ export default function PhotoUpload({
       <button
         onClick={openFileDialog}
         disabled={disabled || isCompressing}
-        className="flex items-center justify-center gap-2 w-3/4 sm:w-full max-w-md mx-auto px-6 sm:px-8 py-3 sm:py-4 bg-[#3a8e8c] text-white rounded-lg hover:bg-[#2f7574] disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors text-lg font-medium"
+        className="flex items-center justify-center gap-2 w-3/4 sm:w-full max-w-md mx-auto px-6 sm:px-8 py-3 bg-[#3a8e8c] text-white rounded-lg hover:bg-[#2f7574] disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors text-lg font-medium"
       >
         {isCompressing ? (
           <>
