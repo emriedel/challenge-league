@@ -12,12 +12,14 @@ import type { VotingInterfaceProps } from '@/types/components';
 import type { VoteMap } from '@/types/vote';
 
 
-export default function VotingInterface({ 
-  votingData, 
-  onSubmitVotes, 
-  isSubmitting, 
+export default function VotingInterface({
+  votingData,
+  onSubmitVotes,
+  isSubmitting,
   message,
-  leagueSettings 
+  leagueSettings,
+  onVoteCountChange,
+  onVisibilityChange
 }: VotingInterfaceProps) {
   const { data: session } = useSession();
   const [selectedVotes, setSelectedVotes] = useState<VoteMap>({});
@@ -59,16 +61,16 @@ export default function VotingInterface({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Debounce the state change to prevent flashing during rapid scroll
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          // Show floating counter when bottom section is NOT visible
-          setShowFloatingCounter(!entry.isIntersecting);
-        }, 50); // Small delay to debounce rapid changes
+        // Show floating counter when bottom section is NOT fully visible
+        setShowFloatingCounter(!entry.isIntersecting);
+        // Notify parent of visibility changes
+        if (onVisibilityChange) {
+          onVisibilityChange(entry.isIntersecting);
+        }
       },
       {
-        threshold: 0.3, // Trigger when 30% of bottom section is visible (more stable)
-        rootMargin: '0px 0px -20px 0px' // Smaller margin to reduce flashing
+        threshold: 0, // Trigger as soon as any part goes out of view
+        rootMargin: '0px 0px 0px 0px' // No margin
       }
     );
 
@@ -152,6 +154,13 @@ export default function VotingInterface({
     return Object.values(selectedVotes).reduce((sum, votes) => sum + votes, 0);
   };
 
+  // Notify parent component of vote count changes
+  useEffect(() => {
+    if (onVoteCountChange) {
+      onVoteCountChange(getTotalVotes());
+    }
+  }, [selectedVotes, onVoteCountChange]);
+
   const handleSubmitVotes = async () => {
     const totalVotes = getTotalVotes();
     if (totalVotes !== requiredVotes || hasSubmittedVotes) {
@@ -164,6 +173,7 @@ export default function VotingInterface({
   };
 
   return (
+    <>
     <div className="bg-app-bg">
       <style jsx>{`
         @keyframes heartBeat {
@@ -310,14 +320,8 @@ export default function VotingInterface({
         </div>
       </div>
       
-      
-      {/* Floating Vote Counter */}
-      <FloatingVoteCounter
-        votesCount={getTotalVotes()}
-        maxVotes={requiredVotes}
-        isVisible={showFloatingCounter}
-        hasSubmittedVotes={hasSubmittedVotes}
-      />
-    </div>
+      </div>
+
+    </>
   );
 }

@@ -26,6 +26,8 @@ export interface VotingInterfaceProps {
     votingDays: number;
     votesPerPlayer: number;
   };
+  onVoteCountChange?: (count: number) => void;
+  onVisibilityChange?: (isBottomVisible: boolean) => void;
 }
 
 // Current Challenge component props

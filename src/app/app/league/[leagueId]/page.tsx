@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import {
   useLeagueQuery,
   useVotingQuery,
@@ -36,6 +36,10 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Live voting state for floating counter
+  const [liveVoteCount, setLiveVoteCount] = useState(0);
+  const [isBottomVisible, setIsBottomVisible] = useState(true);
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useLeagueQuery(params.leagueId);
   const { data: votingData, isLoading: votingLoading, error: votingError } = useVotingQuery(params.leagueId);
 
@@ -307,6 +311,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 votingDays: league.votingDays,
                 votesPerPlayer: league.votesPerPlayer
               } : undefined}
+              onVoteCountChange={setLiveVoteCount}
+              onVisibilityChange={setIsBottomVisible}
             />
             </div>
           )}
@@ -355,6 +361,24 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           )}
         </div>
       </DocumentPullToRefresh>
+
+      {/* Floating Vote Counter - Shows during voting when bottom not visible */}
+      {showVoting && votingData && !isBottomVisible && (
+        <div className="fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100">
+          <div className="bg-app-surface/85 backdrop-blur-md border border-app-border/50 shadow-lg rounded-lg px-3 py-2">
+            <div className="text-xs font-medium text-app-text whitespace-nowrap text-center">
+              <div>
+                {liveVoteCount}/{league?.votesPerPlayer || 3} votes cast
+              </div>
+              {liveVoteCount === (league?.votesPerPlayer || 3) && (
+                <div className="text-yellow-400 mt-1 font-semibold">
+                  Ready to submit!
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </ErrorBoundary>
   );
 }

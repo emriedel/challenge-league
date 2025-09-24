@@ -14,16 +14,11 @@ export default function FloatingVoteCounter({
   isVisible,
   hasSubmittedVotes = false
 }: FloatingVoteCounterProps) {
-  // Don't show if user has already submitted votes
-  if (hasSubmittedVotes) {
-    return null;
-  }
   const hasMaxVotes = votesCount === maxVotes;
 
   return (
-    <div className={`fixed bottom-4 right-4 mb-20 md:mb-0 z-40 transition-all duration-300 ease-in-out transform ${
-      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 pointer-events-none'
-    }`}>
+    <div className="fixed bottom-20 right-4 z-50 bg-red-500 p-4 border-2 border-yellow-400"
+         style={{ backgroundColor: 'red', border: '3px solid yellow' }}>
       <div className={`bg-app-surface/85 backdrop-blur-md border border-app-border/50 shadow-lg ${
         hasMaxVotes ? 'rounded-lg px-3 py-2' : 'rounded-full px-3 py-1.5'
       }`}>
