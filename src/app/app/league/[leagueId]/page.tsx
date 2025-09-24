@@ -213,7 +213,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <div className="max-w-2xl mx-auto px-4 py-6 pb-8">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
-            <div className="mb-8">
+            <div className="mb-6">
               <CurrentChallenge
                 votingData={votingData || undefined}
                 promptData={promptData && promptData.prompt ? {
@@ -241,7 +241,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* No Active Challenge State */}
           {showNoChallenge && (
-            <div className="mb-8">
+            <div className="mb-6">
               <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
                 <div className="text-app-text-muted mb-4">
                   <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,7 +258,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
-            <div className="mb-8">
+            <div className="mb-6">
               {submissionMessage && submissionMessage.type === 'error' && (
                 <div className="mb-4 p-3 rounded-md text-sm bg-app-error-bg border border-app-error text-app-error">
                   {submissionMessage.text}

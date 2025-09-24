@@ -83,7 +83,7 @@ export default function CurrentChallenge({
         <div className="text-center space-y-4 mb-4">
           <div>
             <ChallengeBadge challengeNumber={challengeNumber} />
-            <p className="text-2xl text-app-text font-medium my-6">{challengeText}</p>
+            <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -115,11 +115,11 @@ export default function CurrentChallenge({
         <div className="text-center space-y-4">
           <div>
             <ChallengeBadge challengeNumber={challengeNumber} />
-            <p className="text-2xl text-app-text font-medium my-6">{challengeText}</p>
+            <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
           </div>
           <div className="flex items-center justify-center space-x-2 text-sm text-app-text-secondary">
             <DeadlineInfo
-              label="Submit by"
+              label="Deadline"
               date={submissionDeadline}
               isActive={showSubmitted}
             />
