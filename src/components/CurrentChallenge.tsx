@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { NoChallengeEmptyState } from './EmptyState';
 import type { CurrentChallengeProps } from '@/types/components';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
+import { VOTING_CONFIG } from '@/constants/phases';
 
 // Extracted reusable components
 const ChallengeBadge = ({ challengeNumber }: { challengeNumber: number | string }) => (
@@ -75,6 +76,7 @@ export default function CurrentChallenge({
   if (showVoting) {
     const votingDeadline = votingData?.voteEnd ? formatDate(new Date(votingData.voteEnd)) : null;
     const hasVoted = Boolean(votingData && votingData.existingVotes && votingData.existingVotes.length > 0);
+    const maxVotes = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
 
     return (
       <div className="">
@@ -86,7 +88,7 @@ export default function CurrentChallenge({
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div className="text-center">
-            <p className="text-app-text-secondary text-sm mb-3">Vote for your favorites now!</p>
+            <p className="text-app-text-secondary text-sm mb-3">Vote for your {maxVotes} favorites now!</p>
             <DeadlineInfo
               label="Deadline"
               date={votingDeadline}
