@@ -21,6 +21,7 @@ export interface Prompt extends BasePrompt {
 export interface VotingPrompt {
   id?: string;
   text: string;
+  challengeNumber?: number; // Challenge number for display
 }
 
 // Simplified prompt for results display

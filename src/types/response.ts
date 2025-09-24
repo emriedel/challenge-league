@@ -25,6 +25,7 @@ export interface Response extends BaseResponse {
 
 // Response during voting phase
 export interface VotingResponse extends BaseResponse {
+  userId: string; // User ID for own submission detection
   comments?: Comment[];
   commentCount?: number;
 }

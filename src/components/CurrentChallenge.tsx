@@ -74,7 +74,7 @@ export default function CurrentChallenge({
 
   if (showVoting) {
     const votingDeadline = votingData?.voteEnd ? formatDate(new Date(votingData.voteEnd)) : null;
-    const hasVoted = votingData && votingData.existingVotes && votingData.existingVotes.length > 0;
+    const hasVoted = Boolean(votingData && votingData.existingVotes && votingData.existingVotes.length > 0);
 
     return (
       <div className="">
