@@ -24,6 +24,7 @@ interface UseChatReturn {
   loadMoreMessages: () => void
   hasMore: boolean
   error: string | null
+  refreshMessages: () => Promise<void>
 }
 
 // Global cache for messages to persist across component mounts
@@ -250,6 +251,28 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     }
   }, [session?.user?.id, session?.user?.username, session?.user?.profilePhoto, leagueId])
 
+  // Refresh messages function for pull-to-refresh
+  const refreshMessages = useCallback(async () => {
+    if (!session?.user?.id) return
+
+    try {
+      const response = await fetch(`/api/leagues/${leagueId}/chat?limit=50`)
+      if (!response.ok) {
+        throw new Error('Failed to refresh messages')
+      }
+
+      const data = await response.json()
+      setMessages(data.messages || [])
+      setHasMore(data.hasMore || false)
+
+      // Clear any error state
+      setError(null)
+    } catch (err) {
+      console.error('Error refreshing messages:', err)
+      // Silent failure for pull-to-refresh - don't set error state
+    }
+  }, [session?.user?.id, leagueId])
+
   return {
     messages,
     isConnected,
@@ -257,6 +280,7 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     sendMessage,
     loadMoreMessages,
     hasMore,
-    error
+    error,
+    refreshMessages
   }
 }

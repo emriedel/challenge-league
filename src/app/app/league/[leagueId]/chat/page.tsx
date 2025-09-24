@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLeagueChatSSE } from '../../../../../hooks/useLeagueChatSSE'
@@ -8,6 +8,7 @@ import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
 import ProfileAvatar from '../../../../../components/ProfileAvatar'
 import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
+import DocumentPullToRefresh from '../../../../../components/DocumentPullToRefresh'
 
 interface ChatPageProps {
   params: {
@@ -28,10 +29,16 @@ export default function ChatPage({ params }: ChatPageProps) {
     sendMessage,
     loadMoreMessages,
     hasMore,
-    error
+    error,
+    refreshMessages
   } = useLeagueChatSSE(params.leagueId)
 
   const { markChatAsRead } = useActivityTracking()
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    await refreshMessages()
+  }, [refreshMessages])
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -74,7 +81,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   }
 
   return (
-    <>
+    <DocumentPullToRefresh onRefresh={handleRefresh}>
       {/* Messages Container - scrollable area */}
       <div className="pb-24 md:pb-4">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
@@ -130,6 +137,6 @@ export default function ChatPage({ params }: ChatPageProps) {
           />
         </div>
       </div>
-    </>
+    </DocumentPullToRefresh>
   )
 }
