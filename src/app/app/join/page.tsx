@@ -93,6 +93,19 @@ export default function JoinLeaguePage() {
   return (
     <div className="min-h-screen bg-app-bg px-4 pt-8 pb-20 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
+        {/* Back button at top */}
+        <div className="mb-6">
+          <Link
+            href="/app"
+            className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-app-text mb-2">
@@ -144,7 +157,7 @@ export default function JoinLeaguePage() {
 
                   <p className="text-app-text-secondary text-sm mb-4">{league.description}</p>
 
-                  <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center text-sm text-app-text-muted mb-4 gap-1">
+                  <div className="flex justify-between items-center text-sm text-app-text-muted mb-4">
                     <span>by {league.owner.username}</span>
                     <span>{league.memberCount} members</span>
                   </div>
@@ -172,7 +185,7 @@ export default function JoinLeaguePage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to My Leagues
+            Back
           </Link>
         </div>
       </div>

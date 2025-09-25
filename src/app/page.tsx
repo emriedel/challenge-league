@@ -58,7 +58,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
                 <PWAInstallButton />
                 <Link
-                  href="/app"
+                  href="/app/auth/signup"
                   className="w-full sm:w-auto px-8 py-4 bg-[#3a8e8c] hover:bg-[#2d726f] text-white text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 text-center"
                 >
                   Get Started

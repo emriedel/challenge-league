@@ -1,6 +1,6 @@
 {
   "name": "Challenge League",
-  "short_name": "Challenge",
+  "short_name": "Challenge League",
   "description": "Creative competition leagues for friends and communities",
   "start_url": "/app",
   "display": "standalone",

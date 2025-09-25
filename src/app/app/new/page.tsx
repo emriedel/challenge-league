@@ -110,24 +110,28 @@ export default function NewLeaguePage() {
               </div>
             )}
 
-            <div className="space-y-4">
-              <button
-                type="submit"
-                disabled={createMutation.isPending || !name.trim() || !description.trim()}
-                data-testid="create-league-button"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#3a8e8c] hover:bg-[#347a78] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3a8e8c] transition-all duration-200 font-semibold disabled:opacity-50"
-              >
-                {createMutation.isPending ? 'Creating...' : 'Create League'}
-              </button>
-              
-              <Link
-                href="/app"
-                className="w-full flex justify-center py-3 px-4 text-app-text-secondary bg-app-surface-dark rounded-xl hover:bg-app-surface-light transition-all duration-200 font-medium"
-              >
-                Back to Leagues
-              </Link>
-            </div>
+            <button
+              type="submit"
+              disabled={createMutation.isPending || !name.trim() || !description.trim()}
+              data-testid="create-league-button"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#3a8e8c] hover:bg-[#347a78] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3a8e8c] transition-all duration-200 font-semibold disabled:opacity-50"
+            >
+              {createMutation.isPending ? 'Creating...' : 'Create League'}
+            </button>
           </form>
+        </div>
+
+        {/* Back Link */}
+        <div className="text-center mt-8">
+          <Link
+            href="/app"
+            className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </Link>
         </div>
       </div>
     </div>
