@@ -17,10 +17,12 @@ export const invalidationPatterns = {
       queryKeys.leaguePrompt(leagueId),     // Update challenge page
       queryKeys.votingData(leagueId),       // May enable voting phase
       queryKeys.league(leagueId),           // Update league stats
+      queryKeys.submissionStats(leagueId),  // Update submission counts
       queryKeys.userLeagues(),              // Update action status (home page)
     ],
     update: (leagueId: string) => [
       queryKeys.leaguePrompt(leagueId),     // Update challenge page
+      queryKeys.submissionStats(leagueId),  // Update submission counts
       queryKeys.userLeagues(),              // Update action status (home page)
     ],
   },

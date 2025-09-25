@@ -277,8 +277,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
           )}
 
 
-          {/* Submission Status - Show above submission form or above submitted photo */}
-          {(showSubmission || showSubmitted) && (
+          {/* Submission Status - Show above submission form only */}
+          {showSubmission && (
             <div className="mb-6">
               <SubmissionStatus leagueId={params.leagueId} />
             </div>
@@ -363,6 +363,13 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 isUpdating={isSubmittingResponse}
                 message={submissionMessage}
               />
+            </div>
+          )}
+
+          {/* Submission Status - Show after submitted photo */}
+          {showSubmitted && (
+            <div className="mb-6 mt-6">
+              <SubmissionStatus leagueId={params.leagueId} />
             </div>
           )}
 
