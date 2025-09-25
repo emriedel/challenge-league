@@ -42,6 +42,9 @@ export const queryKeys = {
   
   // Voting queries
   votingData: (leagueId: string) => ['voting', leagueId],
+
+  // Submission queries
+  submissionStats: (leagueId: string) => ['submissions', leagueId, 'stats'],
 } as const;
 
 /**

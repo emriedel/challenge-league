@@ -7,7 +7,8 @@ import {
   useLeagueQuery,
   useVotingQuery,
   useLeaguePromptQuery,
-  useSubmitVotesMutation
+  useSubmitVotesMutation,
+  useSubmissionStatsQuery
 } from '@/hooks/queries';
 import { useSubmissionManagement } from '@/hooks/useSubmissionManagement';
 import { useVotingManagement } from '@/hooks/useVotingManagement';
@@ -23,6 +24,7 @@ import VotingInterface from '@/components/VotingInterface';
 import SubmissionForm from '@/components/SubmissionForm';
 import UserSubmissionDisplay from '@/components/UserSubmissionDisplay';
 import WaitingToStartState from '@/components/WaitingToStartState';
+import SubmissionStatus from '@/components/SubmissionStatus';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
 import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
@@ -255,6 +257,13 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             </div>
           )}
 
+          {/* Submission Status - Show above submission form */}
+          {showSubmission && (
+            <div className="mb-6">
+              <SubmissionStatus leagueId={params.leagueId} />
+            </div>
+          )}
+
           {/* Submission Form */}
           {showSubmission && promptData?.prompt && (
             <div className="mb-6">
@@ -333,6 +342,13 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             </div>
           )}
 
+          {/* Submission Status - Show above submitted photo */}
+          {showSubmitted && (
+            <div className="mb-6">
+              <SubmissionStatus leagueId={params.leagueId} />
+            </div>
+          )}
+
           {/* User's Current Submission (when already submitted) */}
           {showSubmitted && promptData?.userResponse && session?.user && (
             <div className="-mx-4">
@@ -358,6 +374,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
               />
             </div>
           )}
+
         </div>
       </DocumentPullToRefresh>
 

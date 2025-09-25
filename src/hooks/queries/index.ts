@@ -50,3 +50,8 @@ export {
 export {
   useChatInitialQuery,
 } from './useChatQuery';
+
+// Submission hooks
+export {
+  useSubmissionStatsQuery,
+} from './useSubmissionStatsQuery';

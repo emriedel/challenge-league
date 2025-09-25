@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { NoChallengeEmptyState } from './EmptyState';
+import CountdownTimer from './CountdownTimer';
 import type { CurrentChallengeProps } from '@/types/components';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 import { VOTING_CONFIG } from '@/constants/phases';
@@ -101,29 +102,49 @@ export default function CurrentChallenge({
   }
 
   if ((showSubmission || showSubmitted) && promptData?.prompt) {
-    const submissionDeadline = (() => {
-      const endTime = getRealisticPhaseEndTime({
-        id: promptData.prompt.id,
-        status: promptData.prompt.status,
-        phaseStartedAt: promptData.prompt.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null,
-      }, leagueSettings);
-      return endTime ? formatDate(endTime) : null;
-    })();
+    const promptForTimer = {
+      id: promptData.prompt.id,
+      status: promptData.prompt.status,
+      phaseStartedAt: promptData.prompt.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null,
+    };
 
     return (
       <div className="">
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <div>
             <ChallengeBadge challengeNumber={challengeNumber} />
             <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
           </div>
-          <div className="flex items-center justify-center space-x-2 text-sm text-app-text-secondary">
-            <DeadlineInfo
-              label="Deadline"
-              date={submissionDeadline}
-              isActive={showSubmitted}
+          {showSubmission && (
+            <CountdownTimer
+              prompt={promptForTimer}
+              leagueSettings={leagueSettings}
+              showDeadlineDate={true}
             />
-          </div>
+          )}
+          {showSubmitted && (
+            <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
+              <div className="text-app-text-secondary text-sm font-medium mb-2 tracking-wider uppercase">
+                SUBMITTED
+              </div>
+              <div className="text-[#3a8e8c] text-2xl font-bold mb-2">
+                ✓ Response submitted
+              </div>
+              <div className="text-app-text-secondary text-sm">
+                {(() => {
+                  const endTime = getRealisticPhaseEndTime(promptForTimer, leagueSettings);
+                  return endTime ? endTime.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    timeZoneName: 'short',
+                  }) : 'TBD';
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
