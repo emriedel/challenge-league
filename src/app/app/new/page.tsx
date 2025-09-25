@@ -122,7 +122,7 @@ export default function NewLeaguePage() {
         </div>
 
         {/* Back Link */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-4">
           <Link
             href="/app"
             className="inline-flex items-center gap-2 px-3 py-2 text-sm text-app-text-secondary hover:text-app-text transition-colors"
