@@ -55,7 +55,7 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
 
   return (
     <div className={`bg-app-surface border border-app-border rounded-lg p-4 ${className}`}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3">
         <div className="flex -space-x-2">
           {stats.submitters.map((submitter) => (
             <div key={submitter.id} className="relative">

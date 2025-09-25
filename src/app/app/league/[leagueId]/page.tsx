@@ -236,6 +236,25 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                   votingDays: league.votingDays,
                   votesPerPlayer: league.votesPerPlayer
                 } : undefined}
+                submissionFormSlot={showSubmission && promptData?.prompt ? (
+                  <>
+                    {submissionMessage && submissionMessage.type === 'error' && (
+                      <div className="mb-4 p-3 rounded-md text-sm bg-app-error-bg border border-app-error text-app-error">
+                        {submissionMessage.text}
+                      </div>
+                    )}
+                    <SubmissionForm
+                      prompt={{
+                        id: promptData.prompt.id,
+                        text: promptData.prompt.text,
+                        phaseStartedAt: promptData.prompt.phaseStartedAt,
+                        status: promptData.prompt.status
+                      }}
+                      onSubmit={handleSubmitResponse}
+                      isSubmitting={isSubmittingResponse}
+                    />
+                  </>
+                ) : undefined}
               />
             </div>
           )}
@@ -257,32 +276,11 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
             </div>
           )}
 
-          {/* Submission Status - Show above submission form */}
-          {showSubmission && (
+
+          {/* Submission Status - Show above submission form or above submitted photo */}
+          {(showSubmission || showSubmitted) && (
             <div className="mb-6">
               <SubmissionStatus leagueId={params.leagueId} />
-            </div>
-          )}
-
-          {/* Submission Form */}
-          {showSubmission && promptData?.prompt && (
-            <div className="mb-6">
-              {submissionMessage && submissionMessage.type === 'error' && (
-                <div className="mb-4 p-3 rounded-md text-sm bg-app-error-bg border border-app-error text-app-error">
-                  {submissionMessage.text}
-                </div>
-              )}
-
-              <SubmissionForm
-                prompt={{
-                  id: promptData.prompt.id,
-                  text: promptData.prompt.text,
-                  phaseStartedAt: promptData.prompt.phaseStartedAt,
-                  status: promptData.prompt.status
-                }}
-                onSubmit={handleSubmitResponse}
-                isSubmitting={isSubmittingResponse}
-              />
             </div>
           )}
 
@@ -339,13 +337,6 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                   No one submitted a response to this challenge.
                 </p>
               </div>
-            </div>
-          )}
-
-          {/* Submission Status - Show above submitted photo */}
-          {showSubmitted && (
-            <div className="mb-6">
-              <SubmissionStatus leagueId={params.leagueId} />
             </div>
           )}
 

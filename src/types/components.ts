@@ -48,6 +48,7 @@ export interface CurrentChallengeProps {
     votingDays: number;
     votesPerPlayer: number;
   };
+  submissionFormSlot?: React.ReactNode;
 }
 
 

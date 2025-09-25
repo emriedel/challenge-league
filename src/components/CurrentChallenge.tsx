@@ -66,7 +66,8 @@ export default function CurrentChallenge({
   showVoting,
   showSubmission,
   showSubmitted,
-  leagueSettings
+  leagueSettings,
+  submissionFormSlot
 }: CurrentChallengeProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -115,6 +116,11 @@ export default function CurrentChallenge({
             <ChallengeBadge challengeNumber={challengeNumber} />
             <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
           </div>
+          {showSubmission && submissionFormSlot && (
+            <div className="mb-6">
+              {submissionFormSlot}
+            </div>
+          )}
           {showSubmission && (
             <CountdownTimer
               prompt={promptForTimer}
@@ -124,17 +130,17 @@ export default function CurrentChallenge({
           )}
           {showSubmitted && (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
-              <div className="text-app-text-secondary text-sm font-medium mb-2 tracking-wider uppercase">
-                SUBMITTED
-              </div>
               <div className="text-[#3a8e8c] text-2xl font-bold mb-2">
                 ✓ Response submitted
+              </div>
+              <div className="text-app-text-secondary text-sm font-medium mb-1">
+                Submissions close:
               </div>
               <div className="text-app-text-secondary text-sm">
                 {(() => {
                   const endTime = getRealisticPhaseEndTime(promptForTimer, leagueSettings);
                   return endTime ? endTime.toLocaleDateString('en-US', {
-                    weekday: 'short',
+                    weekday: 'long',
                     month: 'short',
                     day: 'numeric',
                     hour: 'numeric',

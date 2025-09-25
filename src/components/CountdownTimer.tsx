@@ -91,7 +91,7 @@ export default function CountdownTimer({
     if (!endTime) return 'TBD';
 
     return endTime.toLocaleDateString('en-US', {
-      weekday: 'short',
+      weekday: 'long',
       month: 'short',
       day: 'numeric',
       hour: 'numeric',

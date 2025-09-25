@@ -47,6 +47,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
     phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null,
   });
 
+
   if (isExpired) {
     return (
       <div className="bg-app-surface-dark border border-app-border rounded-lg p-8 text-center">
@@ -65,7 +66,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit}>
         {/* Photo Upload */}
         <div>
           <PhotoUpload
@@ -84,10 +85,10 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
 
         {/* Caption Input - Only show when photo is selected */}
         {selectedPhoto && (
-          <div>
+          <div className="mt-4">
             <textarea
               id="caption"
-              rows={6}
+              rows={4}
               className="w-full px-3 py-2 border border-app-border bg-app-surface-dark text-app-text rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 disabled:bg-app-surface-light disabled:cursor-not-allowed text-base"
               placeholder="Share the story behind your photo..."
               value={caption}
@@ -95,27 +96,33 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
               maxLength={CONTENT_LIMITS.CAPTION_MAX_LENGTH}
               disabled={isSubmitting}
             />
-            <div className="mt-1 text-right text-sm text-app-text-muted">
-              <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
-            </div>
+            {caption.length >= 400 && (
+              <div className="mt-1 text-right text-sm text-app-text-muted">
+                <span>{caption.length}/{CONTENT_LIMITS.CAPTION_MAX_LENGTH}</span>
+              </div>
+            )}
           </div>
         )}
 
         {/* Submit Button - Only show when photo is selected */}
         {selectedPhoto && (
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmissionDisabled}
-              className={`px-8 py-3 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors ${
-                isSubmissionDisabled
-                  ? 'bg-gray-800 text-gray-400 opacity-50'
-                  : 'bg-[#3a8e8c] text-white hover:bg-[#2f7574] focus:ring-[#3a8e8c]'
-              }`}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </button>
-          </div>
+          <>
+            <div className="flex justify-center mt-2">
+              <button
+                type="submit"
+                disabled={isSubmissionDisabled}
+                className={`px-16 py-3 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors min-w-[200px] ${
+                  isSubmissionDisabled
+                    ? 'bg-gray-800 text-gray-400 opacity-50'
+                    : 'bg-[#3a8e8c] text-white hover:bg-[#2f7574] focus:ring-[#3a8e8c]'
+                }`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            </div>
+            {/* Horizontal rule for visual separation */}
+            <div className="border-t border-app-border mt-6"></div>
+          </>
         )}
       </form>
 
