@@ -7,9 +7,7 @@ import { useLeagueChatSSE } from '../../../../../hooks/useLeagueChatSSE'
 import { useChatInitialQuery } from '../../../../../hooks/queries/useChatQuery'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
-import ProfileAvatar from '../../../../../components/ProfileAvatar'
 import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
-import DocumentPullToRefresh from '../../../../../components/DocumentPullToRefresh'
 
 interface ChatPageProps {
   params: {
@@ -40,10 +38,6 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   const { markChatAsRead } = useActivityTracking()
 
-  // Handle pull-to-refresh
-  const handleRefresh = useCallback(async () => {
-    await refreshMessages()
-  }, [refreshMessages])
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -95,70 +89,68 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   return (
     <>
-      <DocumentPullToRefresh onRefresh={handleRefresh}>
-        {/* Messages Container - scrollable area */}
-        <div className={`pb-20 md:pb-4 transition-opacity duration-200 ${isInitialScrollComplete ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-            {/* Load More Button */}
-            {hasMore && (
-              <div className="text-center">
-                <button
-                  onClick={loadMoreMessages}
-                  disabled={isLoading}
-                  className="px-4 py-2 text-sm bg-app-surface text-app-text border border-app-border rounded-lg hover:bg-app-surface-light transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? 'Loading...' : 'Load older messages'}
-                </button>
-              </div>
-            )}
+      {/* Messages Container - scrollable area */}
+      <div className={`pb-20 md:pb-4 transition-opacity duration-200 ${isInitialScrollComplete ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="text-center">
+              <button
+                onClick={loadMoreMessages}
+                disabled={isLoading}
+                className="px-4 py-2 text-sm bg-app-surface text-app-text border border-app-border rounded-lg hover:bg-app-surface-light transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Loading...' : 'Load older messages'}
+              </button>
+            </div>
+          )}
 
 
-            {/* Messages */}
-            {messages.length === 0 && !isLoading && !isInitialLoad && (
-              <div className="text-center text-app-text-muted py-8">
-                <p>No messages yet. Be the first to start the conversation!</p>
-              </div>
-            )}
+          {/* Messages */}
+          {messages.length === 0 && !isLoading && !isInitialLoad && (
+            <div className="text-center text-app-text-muted py-8">
+              <p>No messages yet. Be the first to start the conversation!</p>
+            </div>
+          )}
 
-            {messages.map((message, index) => {
-              const isOwnMessage = message.author.id === session.user.id
-              const previousMessage = index > 0 ? messages[index - 1] : null
-              const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id
+          {messages.map((message, index) => {
+            const isOwnMessage = message.author.id === session.user.id
+            const previousMessage = index > 0 ? messages[index - 1] : null
+            const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id
 
-              // Check if we need a date separator
-              const currentDate = new Date(message.createdAt).toDateString()
-              const previousDate = previousMessage ? new Date(previousMessage.createdAt).toDateString() : null
-              const showDateSeparator = currentDate !== previousDate
+            // Check if we need a date separator
+            const currentDate = new Date(message.createdAt).toDateString()
+            const previousDate = previousMessage ? new Date(previousMessage.createdAt).toDateString() : null
+            const showDateSeparator = currentDate !== previousDate
 
-              return (
-                <div key={message.id}>
-                  {showDateSeparator && (
-                    <div className="flex items-center justify-center my-2">
-                      <div className="bg-app-surface-dark px-3 py-1 rounded-full">
-                        <span className="text-xs text-app-text-muted font-medium">
-                          {new Date(message.createdAt).toLocaleDateString([], {
-                            weekday: 'long',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
+            return (
+              <div key={message.id}>
+                {showDateSeparator && (
+                  <div className="flex items-center justify-center my-2">
+                    <div className="bg-app-surface-dark px-3 py-1 rounded-full">
+                      <span className="text-xs text-app-text-muted font-medium">
+                        {new Date(message.createdAt).toLocaleDateString([], {
+                          weekday: 'long',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
                     </div>
-                  )}
-                  <MessageBubble
-                    message={message}
-                    isOwnMessage={isOwnMessage}
-                    showAvatar={showAvatar}
-                  />
-                </div>
-              )
-            })}
+                  </div>
+                )}
+                <MessageBubble
+                  message={message}
+                  isOwnMessage={isOwnMessage}
+                  showAvatar={showAvatar}
+                />
+              </div>
+            )
+          })}
 
-            {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
-          </div>
+          {/* Scroll anchor */}
+          <div ref={messagesEndRef} />
         </div>
-      </DocumentPullToRefresh>
+      </div>
 
       {/* Message Input - fixed position on mobile, regular on desktop */}
       <div className="fixed bottom-20 left-0 right-0 md:relative md:bottom-auto bg-app-bg z-10">

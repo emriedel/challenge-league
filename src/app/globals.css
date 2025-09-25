@@ -15,25 +15,52 @@
 
 /* Mobile-specific improvements */
 @layer base {
+  /* Prevent pull-to-refresh and overscroll effects globally */
+  html, body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* Ensure minimum touch target size on mobile */
   @media (max-width: 640px) {
     .mobile-touch-target {
       min-height: 44px;
     }
-    
+
     /* Prevent text size adjustment on iOS */
     html {
       -webkit-text-size-adjust: 100%;
     }
-    
+
     /* Improve tap highlighting */
     * {
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
     }
-    
+
     /* Prevent zoom on input focus for PWA behavior */
     input, textarea, select {
       font-size: 16px !important;
+    }
+  }
+}
+
+/* Navigation-specific mobile fixes */
+@layer components {
+  .nav-fixed-mobile {
+    /* Prevent the navigation from being affected by pull gestures */
+    touch-action: none;
+    /* Ensure it stays truly fixed on mobile */
+    position: fixed;
+    /* Add backdrop blur for better visual separation */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  @media (max-width: 768px) {
+    .nav-fixed-mobile {
+      /* On mobile, ensure the header can't be pulled down */
+      overscroll-behavior: none;
+      -webkit-overscroll-behavior: none;
     }
   }
 }

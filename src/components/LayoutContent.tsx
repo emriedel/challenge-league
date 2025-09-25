@@ -23,7 +23,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   return (
     <div className="min-h-screen bg-app-bg">
       {!isAuthFlow && <Navigation />}
-      <main className={hideBottomNav ? '' : 'pb-20 md:pb-0'}>
+      <main className={`${hideBottomNav ? '' : 'pb-20 md:pb-0'} ${!isAuthFlow ? 'pt-16 md:pt-0' : ''}`}>
         <ErrorBoundary>
           <LeagueRedirectHandler>
             {children}

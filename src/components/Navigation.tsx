@@ -106,7 +106,7 @@ export default function Navigation() {
   return (
     <>
     <header
-      className={`sticky top-0 z-40 transition-transform duration-300 bg-app-bg border-b border-app-border ${
+      className={`md:sticky fixed top-0 z-40 transition-transform duration-300 bg-app-bg/90 md:bg-app-bg border-b border-app-border nav-fixed-mobile w-full ${
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >

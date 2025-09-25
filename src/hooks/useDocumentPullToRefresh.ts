@@ -47,12 +47,13 @@ export function useDocumentPullToRefresh({
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (disabled || !isAtDocumentTop()) return;
 
-    // Check if the touch target is part of the bottom navigation
+    // Check if the touch target is part of any navigation
     const target = e.target as HTMLElement;
     const isBottomNavTouch = target.closest('nav') && target.closest('[class*="bottom"]');
+    const isTopNavTouch = target.closest('header') || target.closest('.nav-fixed-mobile');
 
     // Don't track touches that start on navigation elements
-    if (isBottomNavTouch) return;
+    if (isBottomNavTouch || isTopNavTouch) return;
 
     touchStartY.current = e.touches[0].clientY;
     scrollTopOnStart.current = window.scrollY;
@@ -71,12 +72,13 @@ export function useDocumentPullToRefresh({
     // Double-check we're still at the top before preventing default
     if (!isAtDocumentTop()) return;
 
-    // Check if the touch target is part of the bottom navigation
+    // Check if the touch target is part of any navigation
     const target = e.target as HTMLElement;
     const isBottomNavTouch = target.closest('nav') && target.closest('[class*="bottom"]');
+    const isTopNavTouch = target.closest('header') || target.closest('.nav-fixed-mobile');
 
     // Don't interfere with navigation touches
-    if (isBottomNavTouch) return;
+    if (isBottomNavTouch || isTopNavTouch) return;
 
     // Only prevent default if we have a significant pull to avoid interfering with taps
     if (deltaY > 10) {
