@@ -37,6 +37,7 @@ export default function DocumentPullToRefresh({
       {/* Fixed overlay spinner positioned below navigation */}
       <div
         className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
+        data-scroll-ignore
         style={{
           top: '65px', // Position below navigation bar
           transform: isPulling ? `translateY(${Math.max(0, pullProgress * 60 - 60)}px)` : isRefreshing ? 'translateY(0px)' : 'translateY(-60px)',

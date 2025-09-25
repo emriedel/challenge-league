@@ -21,6 +21,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const router = useRouter()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [isInitialScrollComplete, setIsInitialScrollComplete] = useState(false)
 
   const {
     messages,
@@ -56,21 +57,25 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   // Auto-scroll to bottom on new messages and initial load
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && messages.length > 0) {
       if (isInitialLoad) {
-        // Use setTimeout to ensure DOM is settled, then scroll only within the container
-        setTimeout(() => {
-          if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'instant', block: 'end' })
-          }
-        }, 100)
-        setIsInitialLoad(false)
+        // Immediate scroll to bottom without animation to avoid visible scroll
+        messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
+        setIsInitialLoad(false);
+        setIsInitialScrollComplete(true);
       } else {
-        // Smooth scroll for new messages, but only within container
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        // Smooth scroll for new messages
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [messages, isInitialLoad])
+
+  // Handle case where messages are empty initially
+  useEffect(() => {
+    if (messages.length === 0 && !isLoading && !isInitialLoad) {
+      setIsInitialScrollComplete(true);
+    }
+  }, [messages.length, isLoading, isInitialLoad])
 
   if (status === 'loading') {
     return (
@@ -88,7 +93,7 @@ export default function ChatPage({ params }: ChatPageProps) {
     <>
       <DocumentPullToRefresh onRefresh={handleRefresh}>
         {/* Messages Container - scrollable area */}
-        <div className="pb-24 md:pb-4">
+        <div className={`pb-20 md:pb-4 transition-opacity duration-200 ${isInitialScrollComplete ? 'opacity-100' : 'opacity-0'}`}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
             {/* Load More Button */}
             {hasMore && (
@@ -153,7 +158,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
       {/* Message Input - fixed position on mobile, regular on desktop */}
       <div className="fixed bottom-20 left-0 right-0 md:relative md:bottom-auto bg-app-bg z-10">
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-3">
           <MessageInput
             onSendMessage={sendMessage}
             disabled={!isConnected}

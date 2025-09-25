@@ -59,16 +59,24 @@ export default function Navigation() {
 
   // Smart header visibility based on scroll direction
   useEffect(() => {
+    // Disable scroll-to-hide behavior on chat pages
+    const isChatPage = pathname?.includes('/chat');
+
+    if (isChatPage) {
+      setIsHeaderVisible(true);
+      return;
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Don't hide header if at the very top of the page
       if (currentScrollY < scrollThreshold) {
         setIsHeaderVisible(true);
         lastScrollY.current = currentScrollY;
         return;
       }
-      
+
       // Show header when scrolling up, hide when scrolling down
       if (Math.abs(currentScrollY - lastScrollY.current) > scrollThreshold) {
         if (currentScrollY > lastScrollY.current && currentScrollY > scrollThreshold) {
@@ -84,11 +92,11 @@ export default function Navigation() {
 
     // Add scroll event listener
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [scrollThreshold]);
+  }, [scrollThreshold, pathname]);
 
   // Don't show navigation on auth pages
   if (pathname?.startsWith('/auth/')) {
