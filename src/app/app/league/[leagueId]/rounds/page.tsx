@@ -250,9 +250,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                 })}
               </div>
             ) : (
-              <div className="bg-app-bg min-h-[50vh] flex items-center justify-center">
-                <div className="text-center py-8 text-app-text-muted">
-                  <p>No submissions for this challenge</p>
+              <div className="bg-app-bg py-8">
+                <div className="text-center text-app-text-secondary">
+                  <p className="text-lg">No submissions for this challenge</p>
                 </div>
               </div>
             )}

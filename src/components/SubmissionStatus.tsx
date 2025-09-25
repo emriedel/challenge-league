@@ -13,7 +13,7 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
 
   if (isLoading) {
     return (
-      <div className={`bg-app-surface border border-app-border rounded-lg p-4 ${className}`}>
+      <div className={className}>
         <div className="animate-pulse">
           <div className="h-4 bg-app-surface-light rounded w-32 mb-2"></div>
           <div className="flex items-center gap-3">
@@ -35,12 +35,12 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
 
   if (stats.submissionCount === 0) {
     return (
-      <div className={`bg-app-surface border border-app-border rounded-lg p-4 ${className}`}>
+      <div className={className}>
         <div className="text-center">
           <div className="text-sm text-app-text-secondary">
-            <span className="font-medium text-app-text">0</span>
+            <span className="text-app-text-secondary">0</span>
             {' of '}
-            <span className="text-app-text-muted">{stats.totalMembers}</span>
+            <span className="text-app-text-secondary">{stats.totalMembers}</span>
             {' submitted'}
           </div>
           <div className="text-xs text-app-text-muted mt-1">
@@ -54,7 +54,7 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
   const remainingCount = Math.max(0, stats.submissionCount - stats.submitters.length);
 
   return (
-    <div className={`bg-app-surface border border-app-border rounded-lg p-4 ${className}`}>
+    <div className={className}>
       <div className="flex items-center justify-center gap-3">
         <div className="flex -space-x-2">
           {stats.submitters.map((submitter) => (
@@ -76,9 +76,9 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
           )}
         </div>
         <div className="text-sm text-app-text-secondary">
-          <span className="font-medium text-app-text">{stats.submissionCount}</span>
+          <span className="text-app-text-secondary">{stats.submissionCount}</span>
           {' of '}
-          <span className="text-app-text-muted">{stats.totalMembers}</span>
+          <span className="text-app-text-secondary">{stats.totalMembers}</span>
           {' submitted'}
         </div>
       </div>
