@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { memo } from 'react';
+import { usePrefetchNavigationTargets } from '@/hooks/useBackgroundPrefetch';
 import type { LeagueNavigationProps } from '@/types/components';
 
 
 const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, isOwner }: LeagueNavigationProps) {
   const pathname = usePathname();
+
+  // Enable background prefetching for smoother navigation
+  usePrefetchNavigationTargets(leagueId, pathname || undefined);
 
   const tabs = [
     { id: 'home', name: 'Current Challenge', href: `/app/league/${leagueId}` },

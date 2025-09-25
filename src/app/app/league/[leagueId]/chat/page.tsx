@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLeagueChatSSE } from '../../../../../hooks/useLeagueChatSSE'
+import { useChatInitialQuery } from '../../../../../hooks/queries/useChatQuery'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
 import ProfileAvatar from '../../../../../components/ProfileAvatar'
@@ -22,6 +23,9 @@ export default function ChatPage({ params }: ChatPageProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isInitialScrollComplete, setIsInitialScrollComplete] = useState(false)
+
+  // Try to use prefetched data for faster initial load
+  const { data: prefetchedData } = useChatInitialQuery(params.leagueId)
 
   const {
     messages,

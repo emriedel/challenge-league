@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryClient';
 import { navigationRefreshManager } from '@/lib/navigationRefresh';
 import { useNavigationNotifications } from '@/hooks/useNavigationNotifications';
+import { usePrefetchNavigationTargets } from '@/hooks/useBackgroundPrefetch';
 import NotificationDot from '@/components/NotificationDot';
 
 const BottomNavigation = memo(function BottomNavigation() {
@@ -22,6 +23,9 @@ const BottomNavigation = memo(function BottomNavigation() {
     resultsNotification,
     chatNotification
   } = useNavigationNotifications(currentLeagueId || undefined);
+
+  // Enable background prefetching for smoother navigation
+  usePrefetchNavigationTargets(currentLeagueId || '', pathname || undefined);
 
   // Extract league ID from current path
   useEffect(() => {

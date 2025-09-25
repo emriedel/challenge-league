@@ -45,3 +45,8 @@ export {
   useLeaveLeagueMutation,
   useDeleteLeagueMutation,
 } from './useLeagueSettingsQuery';
+
+// Chat hooks
+export {
+  useChatInitialQuery,
+} from './useChatQuery';
