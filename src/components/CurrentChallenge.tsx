@@ -100,24 +100,43 @@ export default function CurrentChallenge({
               <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
                 ✓ Votes submitted
               </div>
-              <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
-                <span className="text-app-text-secondary text-xs font-medium">
-                  Voting closes
-                </span>
-              </div>
-              <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12,6 12,12 16,14"/>
-                </svg>
-                {votingDeadline ? votingDeadline.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/, match => {
-                  const dayMap: { [key: string]: string } = {
-                    'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
-                    'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
-                  };
-                  return dayMap[match] || match;
-                }) : 'TBD'}
-              </div>
+              {(() => {
+                const voteEndTime = votingData?.voteEnd ? new Date(votingData.voteEnd) : null;
+                const isVotingExpired = voteEndTime && new Date() > voteEndTime;
+
+                if (isVotingExpired) {
+                  return (
+                    <div className="text-center">
+                      <div className="text-app-text text-lg font-medium">
+                        Processing votes...
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <>
+                      <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
+                        <span className="text-app-text-secondary text-xs font-medium">
+                          Voting closes
+                        </span>
+                      </div>
+                      <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10"/>
+                          <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        {votingDeadline ? votingDeadline.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/, match => {
+                          const dayMap: { [key: string]: string } = {
+                            'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
+                            'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
+                          };
+                          return dayMap[match] || match;
+                        }) : 'TBD'}
+                      </div>
+                    </>
+                  );
+                }
+              })()}
             </div>
           ) : (
             votingPromptForTimer && votingData?.voteEnd && (
@@ -168,28 +187,44 @@ export default function CurrentChallenge({
               <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
                 ✓ Response submitted
               </div>
-              <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
-                <span className="text-app-text-secondary text-xs font-medium">
-                  Submissions close
-                </span>
-              </div>
-              <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12,6 12,12 16,14"/>
-                </svg>
-                {(() => {
-                  const endTime = getRealisticPhaseEndTime(promptForTimer, leagueSettings);
-                  return endTime ? endTime.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    timeZoneName: 'short',
-                  }) : 'TBD';
-                })()}
-              </div>
+              {(() => {
+                const endTime = getRealisticPhaseEndTime(promptForTimer, leagueSettings);
+                const isExpired = endTime && new Date() > endTime;
+
+                if (isExpired) {
+                  return (
+                    <div className="text-center">
+                      <div className="text-app-text text-lg font-medium">
+                        Processing submissions...
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <>
+                      <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
+                        <span className="text-app-text-secondary text-xs font-medium">
+                          Submissions close
+                        </span>
+                      </div>
+                      <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10"/>
+                          <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        {endTime ? endTime.toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          timeZoneName: 'short',
+                        }) : 'TBD'}
+                      </div>
+                    </>
+                  );
+                }
+              })()}
             </div>
           )}
         </div>

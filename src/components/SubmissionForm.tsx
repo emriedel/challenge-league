@@ -40,12 +40,13 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
     });
   };
 
-  const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting;
-  const isExpired = !isSubmissionWindowOpen({
+  const promptForTimer = {
     id: prompt.id,
     status: prompt.status,
     phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null,
-  });
+  };
+  const isExpired = !isSubmissionWindowOpen(promptForTimer);
+  const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting || isExpired;
 
 
   if (isExpired) {

@@ -90,8 +90,11 @@ export default function VotingInterface({
 
 
   const handleVoteToggle = (responseId: string) => {
-    // Prevent vote changes if user has already submitted
-    if (hasSubmittedVotes) {
+    // Prevent vote changes if user has already submitted or voting has expired
+    const voteEndTime = votingData.voteEnd ? new Date(votingData.voteEnd) : null;
+    const isVotingExpired = voteEndTime && new Date() > voteEndTime;
+
+    if (hasSubmittedVotes || isVotingExpired) {
       return;
     }
 
@@ -160,7 +163,10 @@ export default function VotingInterface({
 
   const handleSubmitVotes = async () => {
     const totalVotes = getTotalVotes();
-    if (totalVotes !== requiredVotes || hasSubmittedVotes) {
+    const voteEndTime = votingData.voteEnd ? new Date(votingData.voteEnd) : null;
+    const isVotingExpired = voteEndTime && new Date() > voteEndTime;
+
+    if (totalVotes !== requiredVotes || hasSubmittedVotes || isVotingExpired) {
       return;
     }
 
@@ -307,7 +313,10 @@ export default function VotingInterface({
             <div className="space-y-3">
               <button
                 onClick={handleSubmitVotes}
-                disabled={getTotalVotes() !== requiredVotes || isSubmitting}
+                disabled={getTotalVotes() !== requiredVotes || isSubmitting || (() => {
+                  const voteEndTime = votingData.voteEnd ? new Date(votingData.voteEnd) : null;
+                  return Boolean(voteEndTime && new Date() > voteEndTime);
+                })()}
                 className={`${getTotalVotes() === requiredVotes ? 'bg-[#3a8e8c] hover:bg-[#2d6b6a]' : 'bg-gray-800 hover:bg-gray-900'} text-white px-8 py-3 rounded-lg font-medium disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors`}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Votes'}

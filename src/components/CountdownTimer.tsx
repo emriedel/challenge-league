@@ -121,19 +121,18 @@ export default function CountdownTimer({
   };
 
   if (timeLeft.isExpired) {
+    // Determine processing message based on deadline type
+    const isVotingDeadline = deadlineLabel.includes('VOTING');
+    const processingMessage = isVotingDeadline ? 'Processing votes...' : 'Processing submissions...';
+
     return (
       <div className={`bg-app-surface border border-app-border rounded-lg p-6 text-center ${className}`}>
         <div className="text-app-text-secondary text-sm font-medium mb-2 tracking-wider uppercase">
           {deadlineLabel}
         </div>
-        <div className="text-red-500 text-3xl font-bold mb-2">
-          Deadline passed
+        <div className="text-app-text text-2xl font-medium">
+          {processingMessage}
         </div>
-        {showDeadlineDate && (
-          <div className="text-app-text-secondary text-sm">
-            {formatDeadlineDate()}
-          </div>
-        )}
       </div>
     );
   }
