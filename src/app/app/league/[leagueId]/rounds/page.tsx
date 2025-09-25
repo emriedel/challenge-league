@@ -178,17 +178,20 @@ export default function ResultsPage({ params }: ResultsPageProps) {
 
               {/* Challenge Details */}
               {selectedRound && (
-                  <div className="text-center space-y-4">
+                  <div className="text-center space-y-3">
                     <div>
-                      <p className="text-[1.4rem] text-app-text font-medium my-6">{selectedRound.text}</p>
+                      <p className="text-[1.4rem] text-app-text font-medium mb-3">{selectedRound.text}</p>
                     </div>
-                    <div className="flex items-center justify-center space-x-2 text-sm text-app-text-muted">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12,6 12,12 16,14"/>
-                      </svg>
-                      <span>
-                        Ended: {selectedRound.weekEnd
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="inline-flex items-center space-x-2 text-sm text-app-text-secondary bg-app-surface border border-app-border rounded-full px-3 py-1">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10"/>
+                          <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        <span>Ended</span>
+                      </div>
+                      <div className="text-sm text-app-text-secondary">
+                        {selectedRound.weekEnd
                           ? new Date(selectedRound.weekEnd).toLocaleDateString('en-US', {
                               month: 'long',
                               day: 'numeric',
@@ -196,7 +199,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                             })
                           : 'Date not available'
                         }
-                      </span>
+                      </div>
                     </div>
 
                   </div>
