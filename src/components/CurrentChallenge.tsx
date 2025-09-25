@@ -97,13 +97,19 @@ export default function CurrentChallenge({
 
           {hasVoted ? (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
-              <div className="text-[#3a8e8c] text-2xl font-bold mb-2">
+              <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
                 ✓ Votes submitted
               </div>
-              <div className="text-app-text-secondary text-sm font-medium mb-1">
-                Voting closes:
+              <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
+                <span className="text-app-text-secondary text-xs font-medium">
+                  Voting closes
+                </span>
               </div>
-              <div className="text-app-text-secondary text-sm">
+              <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
                 {votingDeadline ? votingDeadline.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/, match => {
                   const dayMap: { [key: string]: string } = {
                     'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
@@ -159,13 +165,19 @@ export default function CurrentChallenge({
           )}
           {showSubmitted && (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
-              <div className="text-[#3a8e8c] text-2xl font-bold mb-2">
+              <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
                 ✓ Response submitted
               </div>
-              <div className="text-app-text-secondary text-sm font-medium mb-1">
-                Submissions close:
+              <div className="inline-flex items-center bg-app-surface-light border border-app-border-light rounded-full px-3 py-1 mb-2">
+                <span className="text-app-text-secondary text-xs font-medium">
+                  Submissions close
+                </span>
               </div>
-              <div className="text-app-text-secondary text-sm">
+              <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
                 {(() => {
                   const endTime = getRealisticPhaseEndTime(promptForTimer, leagueSettings);
                   return endTime ? endTime.toLocaleDateString('en-US', {
