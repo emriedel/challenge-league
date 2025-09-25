@@ -119,8 +119,6 @@ export default function CommentSection({
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Are you sure you want to delete this comment?')) return;
-
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE'
@@ -240,9 +238,6 @@ export default function CommentSection({
                 <div className="flex items-center space-x-2 mb-1">
                   <span className="font-semibold text-sm text-app-text">{comment.author.username}</span>
                   <span className="text-xs text-app-text-muted">{formatCommentTime(comment.createdAt)}</span>
-                  {comment.updatedAt !== comment.createdAt && (
-                    <span className="text-xs text-app-text-muted">(edited)</span>
-                  )}
                 </div>
                 
                 {editingCommentId === comment.id ? (
@@ -312,15 +307,17 @@ export default function CommentSection({
       {showInput && canComment && comments.length === 0 && (
         <div>
           {!showCommentForm ? (
-            <button
-              onClick={() => setShowCommentForm(true)}
-              className="flex items-center space-x-2 text-sm text-app-text-muted hover:text-app-text mt-2"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A3.969 3.969 0 006 21c.085 0 .18-.011.304-.030a7.484 7.484 0 001.765-.575c.621-.335 1.338-.532 2.092-.532.9 0 1.788.166 2.652.477C13.456 20.12 14.744 20.25 16 20.25h-4z" />
-              </svg>
-              <span>Add a comment...</span>
-            </button>
+            <div className="mt-2">
+              <button
+                onClick={() => setShowCommentForm(true)}
+                className="flex items-center space-x-2 text-sm text-app-text-muted hover:text-app-text"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A3.969 3.969 0 006 21c.085 0 .18-.011.304-.030a7.484 7.484 0 001.765-.575c.621-.335 1.338-.532 2.092-.532.9 0 1.788.166 2.652.477C13.456 20.12 14.744 20.25 16 20.25h-4z" />
+                </svg>
+                <span>Add a comment...</span>
+              </button>
+            </div>
           ) : (
             <form onSubmit={handleSubmitComment} className="space-y-2 mt-2">
               <div className="flex space-x-3">

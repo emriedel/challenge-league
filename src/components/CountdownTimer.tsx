@@ -9,13 +9,15 @@ interface CountdownTimerProps {
   leagueSettings?: LeagueSettings;
   className?: string;
   showDeadlineDate?: boolean;
+  deadlineLabel?: string;
 }
 
 export default function CountdownTimer({
   prompt,
   leagueSettings,
   className = '',
-  showDeadlineDate = false
+  showDeadlineDate = false,
+  deadlineLabel = 'SUBMISSION DEADLINE'
 }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState(() => {
     const endTime = getRealisticPhaseEndTime(prompt, leagueSettings);
@@ -122,7 +124,7 @@ export default function CountdownTimer({
     return (
       <div className={`bg-app-surface border border-app-border rounded-lg p-6 text-center ${className}`}>
         <div className="text-app-text-secondary text-sm font-medium mb-2 tracking-wider uppercase">
-          DEADLINE
+          {deadlineLabel}
         </div>
         <div className="text-red-500 text-3xl font-bold mb-2">
           Deadline passed
@@ -139,9 +141,13 @@ export default function CountdownTimer({
   return (
     <div className={`bg-app-surface border border-app-border rounded-lg p-6 text-center ${className}`}>
       <div className="text-app-text-secondary text-sm font-medium mb-2 tracking-wider uppercase">
-        DEADLINE
+        {deadlineLabel}
       </div>
-      <div className={`text-3xl font-bold mb-2 ${getUrgencyStyle()}`}>
+      <div className={`text-3xl font-bold mb-2 flex items-center justify-center gap-3 ${getUrgencyStyle()}`}>
+        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
         {formatTime()}
       </div>
       {showDeadlineDate && (

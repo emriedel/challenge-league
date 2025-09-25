@@ -80,23 +80,52 @@ export default function CurrentChallenge({
     const hasVoted = Boolean(votingData && votingData.existingVotes && votingData.existingVotes.length > 0);
     const maxVotes = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
 
+    // Create a prompt object for the countdown timer
+    const votingPromptForTimer = votingData?.voteEnd ? {
+      id: 'voting',
+      status: 'VOTING' as const,
+      phaseStartedAt: new Date(Date.now() - (leagueSettings?.votingDays || 1) * 24 * 60 * 60 * 1000) // Approximate start time
+    } : null;
+
     return (
       <div className="">
-        <div className="text-center space-y-4 mb-4">
+        <div className="text-center space-y-6">
           <div>
             <ChallengeBadge challengeNumber={challengeNumber} />
             <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
           </div>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <div className="text-center">
-            <p className="text-app-text-secondary text-sm mb-3">Vote for your {maxVotes} favorites now!</p>
-            <DeadlineInfo
-              label="Deadline"
-              date={votingDeadline}
-              isActive={hasVoted}
-            />
-          </div>
+
+          {hasVoted ? (
+            <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
+              <div className="text-[#3a8e8c] text-2xl font-bold mb-2">
+                ✓ Votes submitted
+              </div>
+              <div className="text-app-text-secondary text-sm font-medium mb-1">
+                Voting closes:
+              </div>
+              <div className="text-app-text-secondary text-sm">
+                {votingDeadline ? votingDeadline.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/, match => {
+                  const dayMap: { [key: string]: string } = {
+                    'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
+                    'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
+                  };
+                  return dayMap[match] || match;
+                }) : 'TBD'}
+              </div>
+            </div>
+          ) : (
+            votingPromptForTimer && votingData?.voteEnd && (
+              <CountdownTimer
+                prompt={{
+                  ...votingPromptForTimer,
+                  phaseStartedAt: new Date(new Date(votingData.voteEnd).getTime() - (leagueSettings?.votingDays || 1) * 24 * 60 * 60 * 1000)
+                }}
+                leagueSettings={leagueSettings}
+                showDeadlineDate={true}
+                deadlineLabel="VOTING DEADLINE"
+              />
+            )
+          )}
         </div>
       </div>
     );

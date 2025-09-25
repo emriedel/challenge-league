@@ -318,10 +318,9 @@ export default function VotingInterface({
             </div>
           ) : (
             <div className="text-center">
-              <div className="bg-green-900/20 border border-green-500/30 text-green-400 px-6 py-3 rounded-lg font-medium mb-2">
+              <div className="bg-[#3a8e8c]/20 border border-[#3a8e8c]/30 text-[#3a8e8c] px-6 py-3 rounded-lg font-medium mb-2">
                 ✓ Votes Submitted
               </div>
-              <p className="text-app-text-muted text-sm">You can still view all submissions but cannot change your votes.</p>
             </div>
           )}
           {message && message.type === 'error' && (
