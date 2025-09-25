@@ -211,7 +211,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 
         {/* Container for challenge content */}
-        <div className="max-w-2xl mx-auto px-4 py-6 pb-8">
+        <div className="max-w-2xl mx-auto px-4 pb-8">
           {/* Current Challenge - only show when there's an active challenge */}
           {!showNoChallenge && (
             <div className="mb-6">

@@ -149,17 +149,36 @@ export function SkeletonSubmissionFeed({ count = 3 }: { count?: number }) {
 export function SkeletonChallenge() {
   return (
     <div className="space-y-6">
-      {/* Challenge Header */}
-      <div className="text-center">
-        {/* Challenge number badge */}
-        <div className="inline-flex items-center px-4 py-2 rounded-lg mb-6">
-          <Skeleton className="h-6 w-6 mr-2" />
-          <Skeleton className="h-6 w-24" />
-        </div>
+      {/* Challenge Banner - matches new ChallengeBanner design */}
+      <div className="relative -mx-4">
+        {/* Banner container with background */}
+        <div className="relative overflow-hidden">
+          <div className="bg-gradient-to-b from-app-surface via-app-surface via-app-surface/60 via-app-surface/20 to-transparent px-4 py-6 pb-8">
+            <div className="max-w-2xl mx-auto text-center space-y-6">
+              {/* Challenge number badge with icon placeholder */}
+              <div className="inline-flex items-center gap-3">
+                <Skeleton className="w-6 h-6 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+              </div>
 
-        {/* Main challenge text */}
-        <div className="max-w-lg mx-auto">
-          <SkeletonText lines={2} className="text-lg" />
+              {/* Challenge Text */}
+              <div className="max-w-lg mx-auto">
+                <SkeletonText lines={2} className="text-lg" />
+              </div>
+
+              {/* Additional content (countdown timer, etc) */}
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                <div className="space-y-4">
+                  <Skeleton className="h-4 w-40 mx-auto" />
+                  <div className="flex items-center justify-center space-x-2">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-8 w-48" />
+                  </div>
+                  <Skeleton className="h-4 w-56 mx-auto" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

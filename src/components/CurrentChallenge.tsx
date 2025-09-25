@@ -3,22 +3,11 @@
 import { useState } from 'react';
 import { NoChallengeEmptyState } from './EmptyState';
 import CountdownTimer from './CountdownTimer';
+import ChallengeBanner from './ChallengeBanner';
 import type { CurrentChallengeProps } from '@/types/components';
 import { getRealisticPhaseEndTime } from '@/lib/phaseCalculations';
 import { VOTING_CONFIG } from '@/constants/phases';
 
-// Extracted reusable components
-const ChallengeBadge = ({ challengeNumber }: { challengeNumber: number | string }) => (
-  <div className="flex justify-center mb-3">
-    <span className="bg-[#3a8e8c]/20 text-[#3a8e8c] border border-[#3a8e8c]/30 px-5 py-2 rounded-md text-base font-medium flex items-center gap-2">
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-      Challenge #{challengeNumber}
-    </span>
-  </div>
-);
 
 const ClockIcon = () => (
   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -89,12 +78,10 @@ export default function CurrentChallenge({
 
     return (
       <div className="">
-        <div className="text-center space-y-6">
-          <div>
-            <ChallengeBadge challengeNumber={challengeNumber} />
-            <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
-          </div>
-
+        <ChallengeBanner
+          challengeNumber={challengeNumber}
+          challengeText={challengeText}
+        >
           {hasVoted ? (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
               <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
@@ -151,7 +138,7 @@ export default function CurrentChallenge({
               />
             )
           )}
-        </div>
+        </ChallengeBanner>
       </div>
     );
   }
@@ -165,16 +152,10 @@ export default function CurrentChallenge({
 
     return (
       <div className="">
-        <div className="text-center space-y-6">
-          <div>
-            <ChallengeBadge challengeNumber={challengeNumber} />
-            <p className="text-[1.4rem] text-app-text font-medium my-6">{challengeText}</p>
-          </div>
-          {showSubmission && submissionFormSlot && (
-            <div className="mb-6">
-              {submissionFormSlot}
-            </div>
-          )}
+        <ChallengeBanner
+          challengeNumber={challengeNumber}
+          challengeText={challengeText}
+        >
           {showSubmission && (
             <CountdownTimer
               prompt={promptForTimer}
@@ -227,7 +208,14 @@ export default function CurrentChallenge({
               })()}
             </div>
           )}
-        </div>
+        </ChallengeBanner>
+
+        {/* Submission form - outside the banner */}
+        {showSubmission && submissionFormSlot && (
+          <div className="mb-6">
+            {submissionFormSlot}
+          </div>
+        )}
       </div>
     );
   }
