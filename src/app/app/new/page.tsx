@@ -125,7 +125,7 @@ export default function NewLeaguePage() {
         <div className="text-center mt-8">
           <Link
             href="/app"
-            className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm text-app-text-secondary hover:text-app-text transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

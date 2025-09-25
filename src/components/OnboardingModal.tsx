@@ -129,7 +129,7 @@ const ONBOARDING_STEPS = [
               </div>
               <div>
                 <h4 className="text-app-text font-semibold mb-2">Timely Submissions</h4>
-                <p className="text-app-text-secondary text-sm">Photos must be taken during the current challenge period — no digging through old albums.</p>
+                <p className="text-app-text-secondary text-sm">Photos must be taken during the current challenge period</p>
               </div>
             </div>
           </div>

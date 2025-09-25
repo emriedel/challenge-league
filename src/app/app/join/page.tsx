@@ -93,18 +93,6 @@ export default function JoinLeaguePage() {
   return (
     <div className="min-h-screen bg-app-bg px-4 pt-8 pb-20 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Back button at top */}
-        <div className="mb-6">
-          <Link
-            href="/app"
-            className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back
-          </Link>
-        </div>
 
         {/* Header */}
         <div className="text-center mb-8">
@@ -147,7 +135,7 @@ export default function JoinLeaguePage() {
                       <div className="flex flex-col gap-2">
                         <h3 className="font-semibold text-app-text text-lg">{league.name}</h3>
                         {!league.isStarted && (
-                          <span className="text-xs bg-app-surface-light text-app-text-muted border border-app-border px-2 py-1 rounded-full self-start">
+                          <span className="text-xs bg-app-surface-light text-app-text-secondary border border-app-border-light px-2 py-1 rounded-full self-start">
                             Not Started
                           </span>
                         )}
@@ -180,7 +168,7 @@ export default function JoinLeaguePage() {
         <div className="text-center mt-8">
           <Link
             href="/app"
-            className="inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm text-app-text-secondary hover:text-app-text transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
