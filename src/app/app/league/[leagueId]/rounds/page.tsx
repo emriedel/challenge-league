@@ -190,11 +190,9 @@ export default function ResultsPage({ params }: ResultsPageProps) {
                       <span>
                         Ended: {selectedRound.weekEnd
                           ? new Date(selectedRound.weekEnd).toLocaleDateString('en-US', {
-                              month: 'short',
+                              month: 'long',
                               day: 'numeric',
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              timeZoneName: 'short',
+                              year: 'numeric'
                             })
                           : 'Date not available'
                         }
