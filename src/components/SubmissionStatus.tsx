@@ -75,7 +75,7 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
             </div>
           )}
         </div>
-        <div className="text-sm text-app-text-secondary">
+        <div className="text-sm text-app-text-secondary mt-1">
           <span className="text-app-text-secondary">{stats.submissionCount}</span>
           {' of '}
           <span className="text-app-text-secondary">{stats.totalMembers}</span>
