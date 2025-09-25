@@ -109,7 +109,7 @@ export function usePrefetchNavigationTargets(leagueId: string, currentPath?: str
             queryClient.prefetchQuery({
               queryKey: queryKeys.leagueStandings(leagueId),
               queryFn: async () => {
-                const response = await fetch(`/api/leagues/${leagueId}/standings`);
+                const response = await fetch(`/api/leagues/${leagueId}`);
                 if (!response.ok) throw new Error('Failed to prefetch standings');
                 return response.json();
               },
