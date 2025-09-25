@@ -620,8 +620,9 @@ export async function getPromptQueue() {
  * This bypasses the normal timing constraints
  */
 export async function manualPhaseTransition(leagueId: string) {
-  // Always normalize to exact cron hour for consistency
+  // Use actual current time for completion timestamps
   const now = new Date();
+  // Only normalize for starting new phases (to align with cron schedule)
   const normalizedNow = new Date(Date.UTC(
     now.getUTCFullYear(),
     now.getUTCMonth(),
@@ -680,7 +681,7 @@ export async function manualPhaseTransition(leagueId: string) {
         where: { promptId: currentPrompt.id },
         data: {
           isPublished: true,
-          publishedAt: normalizedNow,
+          publishedAt: now, // Use actual time for when responses were published
         },
       });
 
@@ -688,8 +689,8 @@ export async function manualPhaseTransition(leagueId: string) {
         where: { id: currentPrompt.id },
         data: {
           status: 'VOTING',
-          phaseStartedAt: normalizedNow,
-          submissionEndedAt: normalizedNow, // Record when submission phase actually ended
+          phaseStartedAt: normalizedNow, // Use normalized time for voting phase start
+          submissionEndedAt: now, // Record when submission phase actually ended
         },
       });
 
@@ -705,8 +706,8 @@ export async function manualPhaseTransition(leagueId: string) {
         where: { id: currentPrompt.id },
         data: {
           status: 'COMPLETED',
-          votingEndedAt: normalizedNow, // Record when voting phase actually ended
-          completedAt: normalizedNow,   // Record when challenge was completed
+          votingEndedAt: now, // Record when voting phase actually ended
+          completedAt: now,   // Record when challenge was completed
         },
       });
 
