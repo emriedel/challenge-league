@@ -148,21 +148,48 @@ export function SkeletonSubmissionFeed({ count = 3 }: { count?: number }) {
 
 export function SkeletonChallenge() {
   return (
-    <div className="bg-app-surface border border-app-border rounded-lg p-6">
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="bg-app-surface-dark border border-app-border-dark rounded-lg p-4">
-          <SkeletonText lines={2} />
+    <div className="space-y-6">
+      {/* Challenge Header */}
+      <div className="text-center">
+        {/* Challenge number badge */}
+        <div className="inline-flex items-center px-4 py-2 rounded-lg mb-6">
+          <Skeleton className="h-6 w-6 mr-2" />
+          <Skeleton className="h-6 w-24" />
         </div>
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-3 w-40" />
+
+        {/* Main challenge text */}
+        <div className="max-w-lg mx-auto">
+          <SkeletonText lines={2} className="text-lg" />
+        </div>
+      </div>
+
+      {/* Add Photo button */}
+      <div className="flex justify-center">
+        <Skeleton className="h-12 w-40 rounded-lg" />
+      </div>
+
+      {/* Submission deadline section */}
+      <div className="bg-app-surface border border-app-border rounded-lg p-6">
+        <div className="text-center space-y-4">
+          {/* "SUBMISSION DEADLINE" label */}
+          <Skeleton className="h-4 w-40 mx-auto" />
+
+          {/* Countdown timer */}
+          <div className="flex items-center justify-center space-x-2">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-8 w-48" />
           </div>
-          <div className="text-right space-y-1">
-            <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-4 w-32" />
-          </div>
+
+          {/* Date */}
+          <Skeleton className="h-4 w-56 mx-auto" />
+        </div>
+      </div>
+
+      {/* Progress indicator */}
+      <div className="bg-app-surface border border-app-border rounded-lg p-4">
+        <div className="flex items-center space-x-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-5 w-32" />
         </div>
       </div>
     </div>
