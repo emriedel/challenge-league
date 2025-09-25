@@ -162,7 +162,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
       {/* Message Input - fixed position on mobile, regular on desktop */}
       <div className="fixed bottom-20 left-0 right-0 md:relative md:bottom-auto bg-app-bg z-10">
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-3">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 pt-2 pb-4">
           <MessageInput
             onSendMessage={sendMessage}
             disabled={!isConnected}
