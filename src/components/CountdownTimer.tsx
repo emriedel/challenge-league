@@ -17,11 +17,48 @@ export default function CountdownTimer({
   className = '',
   showDeadlineDate = false
 }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState(() => getTimeUntilPhaseEnd(prompt, leagueSettings));
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const endTime = getRealisticPhaseEndTime(prompt, leagueSettings);
+    if (!endTime) {
+      return { days: 0, hours: 0, minutes: 0, isExpired: true };
+    }
+
+    const now = new Date();
+    const diff = endTime.getTime() - now.getTime();
+
+    if (diff <= 0) {
+      return { days: 0, hours: 0, minutes: 0, isExpired: true };
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    return { days, hours, minutes, isExpired: false };
+  });
 
   useEffect(() => {
     const updateTimer = () => {
-      setTimeLeft(getTimeUntilPhaseEnd(prompt, leagueSettings));
+      const endTime = getRealisticPhaseEndTime(prompt, leagueSettings);
+
+      if (!endTime) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, isExpired: true });
+        return;
+      }
+
+      const now = new Date();
+      const diff = endTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, isExpired: true });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      setTimeLeft({ days, hours, minutes, isExpired: false });
     };
 
     // Update immediately
