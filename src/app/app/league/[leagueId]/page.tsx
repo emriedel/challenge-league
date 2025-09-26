@@ -27,6 +27,7 @@ import WaitingToStartState from '@/components/WaitingToStartState';
 import SubmissionStatus from '@/components/SubmissionStatus';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorFallback from '@/components/PageErrorFallback';
+import FixedChallengeBackground from '@/components/FixedChallengeBackground';
 import { SkeletonChallenge, SkeletonSubmissionGrid, SkeletonSubmissionFeed } from '@/components/LoadingSkeleton';
 
 
@@ -207,6 +208,9 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
         </div>
       )}
     >
+      {/* Fixed background that stays at top during pull-to-refresh */}
+      {!showNoChallenge && <FixedChallengeBackground />}
+
       <DocumentPullToRefresh onRefresh={handleRefresh}>
         <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
 

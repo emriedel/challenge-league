@@ -12,17 +12,8 @@ interface ChallengeBannerProps {
 export default function ChallengeBanner({ challengeNumber, challengeText, children, className = '' }: ChallengeBannerProps) {
   return (
     <div className={`relative -mx-4 ${className}`}>
-      {/* Main banner container that blends with top nav and extends behind content */}
+      {/* Main banner container - backgrounds now handled by FixedChallengeBackground */}
       <div className="relative overflow-hidden">
-        {/* Background with gradient and subtle pattern - extended downward */}
-        <div className="absolute inset-0 bg-gradient-to-b from-app-surface via-app-surface via-app-surface/60 via-app-surface/20 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#3a8e8c]/5 to-transparent" />
-        {/* Extended teal background that goes behind the content */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#3a8e8c]/3 via-[#3a8e8c]/2 via-[#3a8e8c]/1 to-transparent" />
-
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#3a8e8c]/3 rounded-full blur-3xl" />
-        <div className="absolute top-0 right-1/3 w-24 h-24 bg-[#3a8e8c]/2 rounded-full blur-2xl" />
 
         {/* Content container */}
         <div className="relative px-4 py-6 pb-8">
