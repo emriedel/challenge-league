@@ -15,8 +15,7 @@ export default function SubmissionStatus({ leagueId, className = '' }: Submissio
     return (
       <div className={className}>
         <div className="animate-pulse">
-          <div className="h-4 bg-app-surface-light rounded w-32 mb-2"></div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             <div className="flex -space-x-2">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="w-8 h-8 bg-app-surface-light rounded-full"></div>

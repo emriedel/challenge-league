@@ -134,6 +134,8 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   if (status === 'loading' || leagueLoading || promptLoading) {
     return (
       <div>
+        {/* Fixed background during loading */}
+        <FixedChallengeBackground />
         <LeagueNavigation leagueId={params.leagueId} leagueName="Loading..." />
         <div className="max-w-2xl mx-auto px-4 py-6">
           <div className="space-y-8">
@@ -283,7 +285,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Submission Status - Show above submission form only */}
           {showSubmission && (
-            <div className="mb-6">
+            <div className="mb-6 mt-8">
               <SubmissionStatus leagueId={params.leagueId} />
             </div>
           )}
@@ -372,7 +374,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
           {/* Submission Status - Show after submitted photo */}
           {showSubmitted && (
-            <div className="mb-6 mt-6">
+            <div className="mb-6 mt-8">
               <SubmissionStatus leagueId={params.leagueId} />
             </div>
           )}
@@ -381,7 +383,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       </DocumentPullToRefresh>
 
       {/* Floating Vote Counter - Shows during voting when bottom not visible */}
-      {showVoting && votingData && !isBottomVisible && (
+      {showVoting && votingData && !isBottomVisible && !(votingData.existingVotes && votingData.existingVotes.length > 0) && (
         <div className="fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100">
           <div className="bg-app-surface-light backdrop-blur-md border border-app-border-light shadow-lg rounded-full px-4 py-2">
             <div className="text-xs font-medium text-app-text whitespace-nowrap text-center">

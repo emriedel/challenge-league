@@ -84,7 +84,7 @@ export default function CurrentChallenge({
         >
           {hasVoted ? (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
-              <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
+              <div className="text-[#3a8e8c] text-xl font-bold mb-4">
                 ✓ Votes submitted
               </div>
               {(() => {
@@ -94,7 +94,7 @@ export default function CurrentChallenge({
                 if (isVotingExpired) {
                   return (
                     <div className="text-center">
-                      <div className="text-app-text text-lg font-medium">
+                      <div className="text-app-text text-base font-medium">
                         Processing votes...
                       </div>
                     </div>
@@ -107,7 +107,7 @@ export default function CurrentChallenge({
                           Voting closes
                         </span>
                       </div>
-                      <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                      <div className="text-app-text-secondary text-xs flex items-center justify-center gap-2">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <circle cx="12" cy="12" r="10"/>
                           <polyline points="12,6 12,12 16,14"/>
@@ -165,7 +165,7 @@ export default function CurrentChallenge({
           )}
           {showSubmitted && (
             <div className="bg-app-surface border border-app-border rounded-lg p-6 text-center">
-              <div className="text-[#3a8e8c] text-2xl font-bold mb-4">
+              <div className="text-[#3a8e8c] text-xl font-bold mb-4">
                 ✓ Response submitted
               </div>
               {(() => {
@@ -175,7 +175,7 @@ export default function CurrentChallenge({
                 if (isExpired) {
                   return (
                     <div className="text-center">
-                      <div className="text-app-text text-lg font-medium">
+                      <div className="text-app-text text-base font-medium">
                         Processing submissions...
                       </div>
                     </div>
@@ -188,7 +188,7 @@ export default function CurrentChallenge({
                           Submissions close
                         </span>
                       </div>
-                      <div className="text-app-text-secondary text-sm flex items-center justify-center gap-2">
+                      <div className="text-app-text-secondary text-xs flex items-center justify-center gap-2">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <circle cx="12" cy="12" r="10"/>
                           <polyline points="12,6 12,12 16,14"/>

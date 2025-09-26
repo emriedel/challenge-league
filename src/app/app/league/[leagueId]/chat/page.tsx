@@ -8,6 +8,7 @@ import { useChatInitialQuery } from '../../../../../hooks/queries/useChatQuery'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
 import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
+import { useNavigationRefreshHandlers } from '../../../../../lib/navigationRefresh'
 
 interface ChatPageProps {
   params: {
@@ -74,6 +75,19 @@ export default function ChatPage({ params }: ChatPageProps) {
       setIsInitialScrollComplete(true);
     }
   }, [messages.length, isLoading, isInitialLoad])
+
+  // Register navigation handlers for bottom nav tap behavior
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [])
+
+  const refreshChat = useCallback(() => {
+    refreshMessages();
+  }, [refreshMessages])
+
+  useNavigationRefreshHandlers('chat', scrollToBottom, refreshChat)
 
   if (status === 'loading') {
     return (

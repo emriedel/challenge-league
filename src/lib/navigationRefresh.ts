@@ -28,6 +28,28 @@ class NavigationRefreshManager {
 
   // Handle navigation tap for a specific page
   async handleNavigationTap(page: string): Promise<'scrolled' | 'refreshed' | 'navigated'> {
+    // Special handling for Chat page - always scroll to bottom
+    if (page === 'chat') {
+      const scrollHandler = this.scrollHandlers.get(page);
+      if (scrollHandler) {
+        scrollHandler(); // This should scroll to bottom for chat
+      } else {
+        // Fallback: scroll to bottom
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+
+      // Trigger haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(30);
+      }
+
+      return 'scrolled';
+    }
+
+    // For all other pages, use the normal top-scroll behavior
     // For pages with pull-to-refresh containers, we need to check their scroll position
     // Otherwise fall back to window scroll position
     let isAtTop = false;
