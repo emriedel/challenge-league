@@ -284,7 +284,7 @@ export function createNotificationData(
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'new-prompt',
-        data: { 
+        data: {
           url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'new-prompt'
         }

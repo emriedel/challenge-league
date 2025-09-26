@@ -132,12 +132,15 @@ export function usePushNotifications(): PushNotificationState & PushNotification
 
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      // Request permission if needed
-      if (state.permission !== 'granted') {
+      // Request permission if needed - check both state and current Notification.permission
+      const currentPermission = Notification.permission;
+      if (currentPermission !== 'granted') {
         const granted = await requestPermission();
         if (!granted) {
           throw new Error('Notification permission was denied');
         }
+        // Update state to reflect the new permission
+        setState(prev => ({ ...prev, permission: 'granted' }));
       }
 
       // Get or register service worker
