@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   },
   other: {
     'mobile-web-app-capable': 'yes',
-    'apple-touch-fullscreen': 'yes',
   },
 };
 
@@ -40,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="apple-touch-fullscreen" content="yes" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
