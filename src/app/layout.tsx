@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Challenge League',
   },
   other: {
@@ -39,6 +39,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* iPhone 15 splash screen */}
+        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+
+        {/* iPhone 15 Pro splash screen */}
+        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+
+        {/* Generic modern iPhone fallback */}
+        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" media="(min-device-width: 375px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
