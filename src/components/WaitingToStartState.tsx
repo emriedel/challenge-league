@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
@@ -23,6 +23,10 @@ interface WaitingToStartStateProps {
 export default function WaitingToStartState({ league, isOwner }: WaitingToStartStateProps) {
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
   const cacheInvalidator = useCacheInvalidator();
@@ -58,6 +62,51 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
     } finally {
       setIsStarting(false);
     }
+  };
+
+  useEffect(() => {
+    // Check if it's iOS
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(iOS);
+
+    // Check if app is already installed
+    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                      (window.navigator as any).standalone ||
+                      document.referrer.includes('android-app://');
+    setIsStandalone(standalone);
+
+    // Listen for the beforeinstallprompt event
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      }
+    }
+  };
+
+  const handleIOSInstall = () => {
+    alert(
+      'To install this app on your iOS device:\n\n' +
+      '1. Tap the Share button\n' +
+      '2. Scroll down and tap "Add to Home Screen"\n' +
+      '3. Tap "Add" to confirm'
+    );
   };
 
   return (
@@ -166,16 +215,28 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
             </div>
 
             <div className="bg-[#3a8e8c]/10 border border-[#3a8e8c]/20 rounded-lg p-4">
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center space-x-2 mb-3">
                 <div className="w-4 h-4 text-[#3a8e8c] flex-shrink-0">
                   <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <p className="text-[#3a8e8c] text-sm">
-                  Tip: Enable notifications to get one when the first challenge goes live!
+                  Make sure you have the app installed and notifications enabled in the Profile menu! You&apos;ll get a notification when the first challenge goes live.
                 </p>
               </div>
+
+              {/* Show install button if PWA is not installed */}
+              {!isStandalone && (isInstallable || isIOS) && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={isIOS ? handleIOSInstall : handleInstallClick}
+                    className="bg-[#3a8e8c] hover:bg-[#2f7370] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Install
+                  </button>
+                </div>
+              )}
             </div>
 
             {league.owner && (
