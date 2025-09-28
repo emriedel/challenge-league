@@ -172,15 +172,32 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
   // Treat undefined, null, or false as "not started"
   if (league && !league.isStarted) {
     return (
-      <WaitingToStartState
-        league={{
-          id: league.id,
-          name: league.name,
-          description: league.description || '',
-          owner: league.owner
-        }}
-        isOwner={league.isOwner}
-      />
+      <ErrorBoundary
+        fallback={({ error, resetError }) => (
+          <div className="flex flex-col h-screen">
+            <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
+            <div className="flex-1 flex items-center justify-center">
+              <PageErrorFallback
+                error={error}
+                resetError={resetError}
+                title="League Page Error"
+                description="This league page encountered an error. Please try again."
+              />
+            </div>
+          </div>
+        )}
+      >
+        <LeagueNavigation leagueId={params.leagueId} leagueName={league?.name || 'League'} isOwner={league?.isOwner} />
+        <WaitingToStartState
+          league={{
+            id: league.id,
+            name: league.name,
+            description: league.description || '',
+            owner: league.owner
+          }}
+          isOwner={league.isOwner}
+        />
+      </ErrorBoundary>
     );
   }
 

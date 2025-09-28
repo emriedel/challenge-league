@@ -110,7 +110,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
   };
 
   return (
-    <div className="min-h-screen bg-app-bg flex justify-center p-6 pt-8">
+    <div className="bg-app-bg flex justify-center p-6 pt-8">
       <div className="max-w-2xl w-full">
         {isOwner ? (
           <div className="bg-app-surface rounded-lg border border-app-border p-6">
