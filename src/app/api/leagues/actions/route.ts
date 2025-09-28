@@ -109,37 +109,40 @@ export const { GET } = createMethodHandlers({
           };
         }
 
-        // Check if user needs to take action on any active/voting prompts
-        for (const prompt of league.prompts) {
-          if (prompt.status === 'ACTIVE') {
-            // User needs to submit if they haven't submitted yet
-            if (prompt.responses.length === 0) {
-              needsAction = true;
-              actionType = 'submission';
-              break;
-            }
-          } else if (prompt.status === 'VOTING') {
-            // Get user's votes for this prompt
-            const userVotes = await db.vote.count({
-              where: {
-                voterId: userId,
-                response: {
-                  promptId: prompt.id
-                }
+        // Only check for actions if the league has been started
+        if (league.isStarted) {
+          // Check if user needs to take action on any active/voting prompts
+          for (const prompt of league.prompts) {
+            if (prompt.status === 'ACTIVE') {
+              // User needs to submit if they haven't submitted yet
+              if (prompt.responses.length === 0) {
+                needsAction = true;
+                actionType = 'submission';
+                break;
               }
-            });
+            } else if (prompt.status === 'VOTING') {
+              // Get user's votes for this prompt
+              const userVotes = await db.vote.count({
+                where: {
+                  voterId: userId,
+                  response: {
+                    promptId: prompt.id
+                  }
+                }
+              });
 
-            // User needs to vote if they haven't cast enough votes
-            // They get votesPerPlayer votes, but can't vote for their own submission
-            const maxVotes = league.votesPerPlayer;
-            const userHasSubmission = prompt.responses.length > 0;
-            const availableSubmissions = prompt._count.responses - (userHasSubmission ? 1 : 0);
-            const expectedVotes = Math.min(maxVotes, availableSubmissions);
+              // User needs to vote if they haven't cast enough votes
+              // They get votesPerPlayer votes, but can't vote for their own submission
+              const maxVotes = league.votesPerPlayer;
+              const userHasSubmission = prompt.responses.length > 0;
+              const availableSubmissions = prompt._count.responses - (userHasSubmission ? 1 : 0);
+              const expectedVotes = Math.min(maxVotes, availableSubmissions);
 
-            if (userVotes < expectedVotes) {
-              needsAction = true;
-              actionType = 'voting';
-              break;
+              if (userVotes < expectedVotes) {
+                needsAction = true;
+                actionType = 'voting';
+                break;
+              }
             }
           }
         }
