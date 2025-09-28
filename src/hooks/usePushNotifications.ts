@@ -32,7 +32,7 @@ export function usePushNotifications(): PushNotificationState & PushNotification
     async function checkSupport() {
       try {
         // Check if service worker and push notifications are supported
-        const isSupported = 
+        const isSupported =
           'serviceWorker' in navigator &&
           'PushManager' in window &&
           'Notification' in window;
@@ -50,17 +50,36 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         // Get current permission state
         const permission = Notification.permission;
 
-        // Check if currently subscribed
-        let isSubscribed = false;
+        // Check browser subscription status
+        let browserHasSubscription = false;
         if (permission === 'granted') {
           try {
             const registration = await navigator.serviceWorker.ready;
             const subscription = await registration.pushManager.getSubscription();
-            isSubscribed = subscription !== null;
+            browserHasSubscription = subscription !== null;
           } catch (error) {
-            console.error('Error checking subscription status:', error);
+            console.error('Error checking browser subscription status:', error);
           }
         }
+
+        // Check database subscription status (only if user is logged in)
+        let databaseHasSubscription = false;
+        if (session?.user) {
+          try {
+            const response = await fetch('/api/push/status');
+            if (response.ok) {
+              const { isSubscribed } = await response.json();
+              databaseHasSubscription = isSubscribed;
+            }
+          } catch (error) {
+            console.error('Error checking database subscription status:', error);
+          }
+        }
+
+        // Determine final subscription state
+        // User is considered subscribed if EITHER browser OR database has subscription
+        // This handles cases where system permission was granted but states got out of sync
+        const isSubscribed = browserHasSubscription || databaseHasSubscription;
 
         setState(prev => ({
           ...prev,
@@ -83,7 +102,7 @@ export function usePushNotifications(): PushNotificationState & PushNotification
     }
 
     checkSupport();
-  }, []);
+  }, [session]);
 
   // Request notification permission
   const requestPermission = async (): Promise<boolean> => {
