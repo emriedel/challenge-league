@@ -84,7 +84,14 @@ export function usePrefetchNavigationTargets(leagueId: string, currentPath?: str
               queryKey: queryKeys.leaguePrompt(leagueId),
               queryFn: async () => {
                 const response = await fetch(`/api/leagues/${leagueId}/prompt`);
-                if (!response.ok) throw new Error('Failed to prefetch challenge');
+                if (!response.ok) {
+                  // Don't throw errors for 404s (league not started or no active prompt)
+                  // This prevents unnecessary error logging during prefetch
+                  if (response.status === 404) {
+                    return { prompt: null, userResponse: null };
+                  }
+                  throw new Error('Failed to prefetch challenge');
+                }
                 return response.json();
               },
             })

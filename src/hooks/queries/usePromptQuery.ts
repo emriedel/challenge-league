@@ -39,6 +39,13 @@ export function useLeaguePromptQuery(leagueId?: string) {
         if (response.status === 401) {
           throw new Error('Please sign in to view prompt data');
         }
+        // Don't retry for 404 errors - league likely not started yet
+        if (response.status === 404) {
+          const errorData = await response.json().catch(() => ({}));
+          const error = new Error(errorData.error || 'No active prompt found');
+          (error as any).retry = false; // Tell React Query not to retry
+          throw error;
+        }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch prompt data');
       }
@@ -46,6 +53,16 @@ export function useLeaguePromptQuery(leagueId?: string) {
       return response.json();
     },
     enabled: !!leagueId,
+    retry: (failureCount, error) => {
+      // Don't retry 404 errors (league not started or no active prompt)
+      if (error?.message?.includes('League has not been started yet') ||
+          error?.message?.includes('No active prompt found') ||
+          (error as any)?.retry === false) {
+        return false;
+      }
+      // Use default retry logic for other errors
+      return failureCount < 2;
+    },
     ...cacheConfig.user, // Prompt data changes less frequently, use longer cache
   });
 }
