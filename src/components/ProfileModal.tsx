@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import NotificationSettings from '@/components/NotificationSettings';
 import { useMessages } from '@/hooks/useMessages';
+import { compressImage, formatFileSize } from '@/lib/imageCompression';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -37,62 +38,20 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     };
   }, [isOpen, onClose]);
 
-  // Helper function to compress image
-  const compressImage = (file: File, maxSizeKB = 800, quality = 0.8): Promise<File> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
-
-      img.onload = () => {
-        // Calculate new dimensions while maintaining aspect ratio
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 1200;
-
-        let { width, height } = img;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height = (height * MAX_WIDTH) / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width = (width * MAX_HEIGHT) / height;
-            height = MAX_HEIGHT;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and compress
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          } else {
-            resolve(file); // Fallback to original
-          }
-        }, 'image/jpeg', quality);
-      };
-
-      img.src = URL.createObjectURL(file);
-    });
-  };
 
   const handlePhotoUpload = async (file: File) => {
     setIsUploading(true);
 
     try {
-      // Compress image before upload
-      const compressedFile = await compressImage(file);
-      console.log(`Original size: ${file.size} bytes, Compressed size: ${compressedFile.size} bytes`);
+      // Compress image before upload (smaller for profile photos)
+      const compressedFile = await compressImage(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.8,
+        maxSizeBytes: 500 * 1024, // 500KB target for profile photos
+      });
+
+      console.log(`Profile photo: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
 
       // First upload the file using the main upload endpoint
       const formData = new FormData();

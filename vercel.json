@@ -1,10 +1,5 @@
 {
   "buildCommand": "npm run build:prod",
-  "functions": {
-    "src/app/api/upload/route.ts": {
-      "maxDuration": 60
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/prompt-cycle",
