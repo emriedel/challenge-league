@@ -15,7 +15,7 @@ export default function FixedChallengeBackground() {
   }, []);
 
   // Hide the background when scrolled down more than the banner height
-  const isVisible = scrollY < 200;
+  const isVisible = scrollY < 100;
 
   return (
     <div
