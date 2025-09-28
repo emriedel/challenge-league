@@ -9,10 +9,19 @@ import { FILE_LIMITS } from '@/constants/app';
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
 
+// Configure route for file uploads
+export const maxDuration = 60; // 60 seconds timeout
+export const runtime = 'nodejs';
+
+
 export const { POST } = createMethodHandlers({
   POST: async ({ session, req }) => {
     console.log('Upload API called');
     console.log('User authenticated:', session.user.id);
+
+    // Log content length header for debugging
+    const contentLength = req.headers.get('content-length');
+    console.log('Content-Length header:', contentLength);
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
