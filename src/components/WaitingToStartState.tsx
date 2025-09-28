@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 import { queryKeys } from '@/lib/queryClient';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 
@@ -123,14 +124,14 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
             <div className="space-y-3">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-[#3a8e8c] rounded-full flex items-center justify-center">
-                  <img src="/logo.png" alt="Challenge League" className="w-8 h-8" />
+                  <Image src="/logo.png" alt="Challenge League" width={32} height={32} className="w-8 h-8" />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-app-text">
                 Welcome to {league.name}!
               </h3>
               <p className="text-app-text-secondary text-base">
-                You're all set! The league admin is preparing the first challenge.
+                You&apos;re all set! The league admin is preparing the first challenge.
               </p>
             </div>
 
@@ -147,7 +148,7 @@ export default function WaitingToStartState({ league, isOwner }: WaitingToStartS
                   </div>
                   <div>
                     <p className="text-app-text text-sm font-medium">Weekly Challenges</p>
-                    <p className="text-app-text-secondary text-xs">Submit photos to create the best response to the week's prompt</p>
+                    <p className="text-app-text-secondary text-xs">Submit photos to create the best response to the week&apos;s prompt</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
