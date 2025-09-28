@@ -214,24 +214,24 @@ export default function Navigation() {
                         <hr className="mt-1 border-app-border" />
                         <div className="flex">
                           <Link
-                            href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create League
-                          </Link>
-                          <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
                             Join League
+                          </Link>
+                          <Link
+                            href="/app/new"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            onClick={() => setIsLeaguesOpen(false)}
+                          >
+                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create League
                           </Link>
                         </div>
                       </>
@@ -243,24 +243,24 @@ export default function Navigation() {
                         <hr className="mt-1 border-app-border" />
                         <div className="flex">
                           <Link
-                            href="/app/new"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
-                            onClick={() => setIsLeaguesOpen(false)}
-                          >
-                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create League
-                          </Link>
-                          <Link
                             href="/app/join"
-                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                             onClick={() => setIsLeaguesOpen(false)}
                           >
                             <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
                             Join League
+                          </Link>
+                          <Link
+                            href="/app/new"
+                            className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                            onClick={() => setIsLeaguesOpen(false)}
+                          >
+                            <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create League
                           </Link>
                         </div>
                       </>
@@ -373,24 +373,24 @@ export default function Navigation() {
                       <hr className="mt-1 border-app-border" />
                       <div className="flex">
                         <Link
-                          href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
-                          onClick={() => setIsLeaguesOpen(false)}
-                        >
-                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                          Create League
-                        </Link>
-                        <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                           </svg>
                           Join League
+                        </Link>
+                        <Link
+                          href="/app/new"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Create League
                         </Link>
                       </div>
                     </>
@@ -402,24 +402,24 @@ export default function Navigation() {
                       <hr className="mt-1 border-app-border" />
                       <div className="flex">
                         <Link
-                          href="/app/new"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
-                          onClick={() => setIsLeaguesOpen(false)}
-                        >
-                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                          Create League
-                        </Link>
-                        <Link
                           href="/app/join"
-                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border-r border-app-border select-none touch-manipulation transition-colors rounded-bl-md"
                           onClick={() => setIsLeaguesOpen(false)}
                         >
                           <svg className="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                           </svg>
                           Join League
+                        </Link>
+                        <Link
+                          href="/app/new"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-3 text-sm font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light select-none touch-manipulation transition-colors rounded-br-md"
+                          onClick={() => setIsLeaguesOpen(false)}
+                        >
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Create League
                         </Link>
                       </div>
                     </>

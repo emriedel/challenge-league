@@ -321,16 +321,6 @@ export default function AppHomeClient() {
               {/* Bottom Action Buttons */}
               <div className="flex gap-3 justify-center">
                 <Link
-                  href="/app/new"
-                  data-testid="create-league-button-dashboard"
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
-                >
-                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Create League
-                </Link>
-                <Link
                   href="/app/join"
                   data-testid="join-league-button-dashboard"
                   className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
@@ -339,6 +329,16 @@ export default function AppHomeClient() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
                   Join League
+                </Link>
+                <Link
+                  href="/app/new"
+                  data-testid="create-league-button-dashboard"
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-base font-medium text-app-text-secondary bg-app-surface hover:bg-app-surface-light border border-app-border rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create League
                 </Link>
               </div>
             </div>
