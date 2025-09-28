@@ -45,8 +45,7 @@ export function sanitizeUsername(username: string): string {
 
   return username
     .replace(/[^a-zA-Z0-9_-]/g, '') // Only allow alphanumeric, underscore, hyphen
-    .slice(0, 30) // Enforce max length
-    .toLowerCase();
+    .slice(0, 30); // Enforce max length - preserve original capitalization
 }
 
 export function sanitizeLeagueName(name: string): string {

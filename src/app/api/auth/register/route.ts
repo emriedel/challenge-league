@@ -40,7 +40,7 @@ export const { POST } = createPublicMethodHandlers({
       where: {
         OR: [
           { email: sanitizedEmail },
-          { username: sanitizedUsername },
+          { username: { equals: sanitizedUsername, mode: 'insensitive' } },
         ],
       },
     });
