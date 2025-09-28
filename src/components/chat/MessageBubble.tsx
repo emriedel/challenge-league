@@ -47,7 +47,7 @@ export function MessageBubble({ message, isOwnMessage, showAvatar }: MessageBubb
 
   // Other users' messages aligned to the left with avatar
   return (
-    <div className="flex items-end space-x-3">
+    <div className="flex items-start space-x-3">
       {/* Avatar (only show for first message in sequence) */}
       <div className="w-8 h-8 flex-shrink-0">
         {showAvatar ? (
