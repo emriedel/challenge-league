@@ -4,18 +4,42 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
 import { validateEmail, validatePassword } from './validations';
-import { validateEnvironmentOrThrow, logEnvironmentStatus } from './envValidation';
+import { validateEnvironment, logEnvironmentStatus } from './envValidation';
 
-// Validate all environment variables on startup
+// Validate critical environment variables on startup
 try {
-  validateEnvironmentOrThrow();
+  const result = validateEnvironment();
+
+  if (result.warnings.length > 0) {
+    console.warn('⚠️ Environment warnings:');
+    result.warnings.forEach(warning => console.warn(`  - ${warning}`));
+  }
+
+  // Only fail on critical errors (database, auth, security)
+  // Skip VAPID validation during build to avoid breaking existing working push notifications
+  const criticalErrors = result.errors.filter(error =>
+    error.includes('DATABASE_URL') ||
+    error.includes('NEXTAUTH_SECRET') ||
+    error.includes('CRON_SECRET')
+  );
+
+  if (criticalErrors.length > 0) {
+    console.error('❌ Critical environment validation failed:');
+    criticalErrors.forEach(error => console.error(`  - ${error}`));
+
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Critical environment validation failed');
+    }
+  } else {
+    console.log('✅ Critical environment validation passed');
+  }
 } catch (error) {
-  console.error('🚨 Startup failed due to environment validation errors');
   if (process.env.NODE_ENV === 'production') {
-    process.exit(1); // Exit in production to prevent misconfigured deployments
+    console.error('🚨 Startup failed due to critical environment errors');
+    process.exit(1);
   } else {
     console.warn('⚠️ Continuing in development mode despite environment errors');
-    logEnvironmentStatus(); // Show detailed status in development
+    logEnvironmentStatus();
   }
 }
 

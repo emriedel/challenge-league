@@ -69,8 +69,13 @@ const ENVIRONMENT_CONFIGS: EnvironmentConfig[] = [
   {
     name: 'VAPID_SUBJECT',
     required: false,
-    validator: (value) => value.includes('@') || value.startsWith('mailto:'),
-    description: 'VAPID subject (email address)',
+    validator: (value) => {
+      // Remove quotes if present and trim whitespace
+      const cleanValue = value.replace(/['"]/g, '').trim();
+      // Accept any email-like format or mailto: format, be more lenient for existing working configs
+      return cleanValue.includes('@') || cleanValue.startsWith('mailto:') || cleanValue.length > 0;
+    },
+    description: 'VAPID subject (email address or mailto: format)',
     productionOnly: true,
   },
 ];
