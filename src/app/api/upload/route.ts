@@ -9,15 +9,6 @@ import { FILE_LIMITS } from '@/constants/app';
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
 
-// Configure the API route to handle larger request bodies for file uploads
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '20mb',
-    },
-  },
-};
-
 export const { POST } = createMethodHandlers({
   POST: async ({ session, req }) => {
     console.log('Upload API called');
