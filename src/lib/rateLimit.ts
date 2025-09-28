@@ -10,7 +10,7 @@ interface RateLimitEntry {
   resetTime: number;
 }
 
-interface RateLimitConfig {
+export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
   maxRequests: number; // Max requests per window
   message?: string; // Custom error message
@@ -24,7 +24,8 @@ const rateLimitStore = new Map<string, RateLimitEntry>();
 // Clean up old entries periodically
 setInterval(() => {
   const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
+  const entries = Array.from(rateLimitStore.entries());
+  for (const [key, entry] of entries) {
     if (now > entry.resetTime) {
       rateLimitStore.delete(key);
     }

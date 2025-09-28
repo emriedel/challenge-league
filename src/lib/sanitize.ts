@@ -88,19 +88,13 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
-// React component for safely displaying user content
-export function SafeText({ children, className }: { children: string; className?: string }) {
-  const sanitized = sanitizeHtml(children);
-
-  return (
-    <span
-      className={className}
-      dangerouslySetInnerHTML={{ __html: sanitized }}
-    />
-  );
+// Helper for safely displaying user content in React components
+// Note: Use this in a .tsx file, not here
+export function createSafeHTML(children: string): string {
+  return sanitizeHtml(children);
 }
 
-export default {
+const sanitizeModule = {
   sanitizeText,
   sanitizeHtml,
   sanitizeUsername,
@@ -109,5 +103,7 @@ export default {
   sanitizeDescription,
   isValidEmail,
   isValidUrl,
-  SafeText,
+  createSafeHTML,
 };
+
+export default sanitizeModule;

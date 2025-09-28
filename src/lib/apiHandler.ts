@@ -51,7 +51,7 @@ export function createApiHandler(
 
     if (typeof rateLimit === 'string') {
       // Use preset configuration
-      rateLimitConfig = RateLimitPresets[rateLimit];
+      rateLimitConfig = RateLimitPresets[rateLimit as keyof typeof RateLimitPresets];
     } else {
       // Use custom configuration
       rateLimitConfig = rateLimit;
