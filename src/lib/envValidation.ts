@@ -51,24 +51,27 @@ const ENVIRONMENT_CONFIGS: EnvironmentConfig[] = [
     description: 'CRON job authentication secret (minimum 32 characters)',
   },
 
-  // Push Notifications
+  // Push Notifications (Optional in development)
   {
     name: 'VAPID_PUBLIC_KEY',
-    required: true,
+    required: false,
     validator: (value) => value.length > 80, // VAPID keys are base64 encoded and quite long
     description: 'VAPID public key for web push notifications',
+    productionOnly: true,
   },
   {
     name: 'VAPID_PRIVATE_KEY',
-    required: true,
+    required: false,
     validator: (value) => value.length > 40,
     description: 'VAPID private key for web push notifications',
+    productionOnly: true,
   },
   {
     name: 'VAPID_SUBJECT',
-    required: true,
+    required: false,
     validator: (value) => value.includes('@') || value.startsWith('mailto:'),
     description: 'VAPID subject (email address)',
+    productionOnly: true,
   },
 ];
 
@@ -179,8 +182,10 @@ export function logEnvironmentStatus(): void {
   }
 }
 
-export default {
+const envValidationModule = {
   validateEnvironment,
   validateEnvironmentOrThrow,
   logEnvironmentStatus,
 };
+
+export default envValidationModule;

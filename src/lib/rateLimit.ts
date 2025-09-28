@@ -184,7 +184,7 @@ export const withQueryRateLimit = withRateLimit(RateLimitPresets.queries);
 export const withExpensiveRateLimit = withRateLimit(RateLimitPresets.expensive);
 export const withUploadRateLimit = withRateLimit(RateLimitPresets.uploads);
 
-export default {
+const rateLimitModule = {
   createRateLimiter,
   RateLimitPresets,
   withRateLimit,
@@ -194,3 +194,5 @@ export default {
   withExpensiveRateLimit,
   withUploadRateLimit,
 };
+
+export default rateLimitModule;

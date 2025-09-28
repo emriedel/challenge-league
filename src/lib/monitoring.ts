@@ -243,7 +243,7 @@ export function logAuthEvent(event: 'login' | 'logout' | 'register' | 'failed_lo
   });
 }
 
-export default {
+const monitoringModule = {
   logger,
   withPerformanceMonitoring,
   captureError,
@@ -252,3 +252,5 @@ export default {
   logDatabaseOperation,
   logAuthEvent,
 };
+
+export default monitoringModule;
