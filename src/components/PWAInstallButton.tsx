@@ -9,11 +9,23 @@ interface PWAInstallButtonProps {
 export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButtonProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
+
+    // Check if it's iOS
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(iOS);
+
+    // Check if app is already installed
+    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                      (window.navigator as any).standalone ||
+                      document.referrer.includes('android-app://');
+    setIsStandalone(standalone);
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -26,18 +38,33 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-      setIsInstallable(false);
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      }
     }
   };
 
-  if (!mounted || !isInstallable) {
+  const handleIOSInstall = () => {
+    alert(
+      'To install this app on your iOS device:\n\n' +
+      '1. Tap the Share button\n' +
+      '2. Scroll down and tap "Add to Home Screen"\n' +
+      '3. Tap "Add" to confirm'
+    );
+  };
+
+  // Don't show if already installed
+  if (!mounted || isStandalone) {
+    return null;
+  }
+
+  // Don't show if neither installable nor iOS
+  if (!isInstallable && !isIOS) {
     return null;
   }
 
@@ -47,7 +74,7 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
 
   return (
     <button
-      onClick={handleInstallClick}
+      onClick={isIOS ? handleIOSInstall : handleInstallClick}
       className={`${baseClasses} ${variant === 'primary' ? primaryClasses : secondaryClasses}`}
     >Install the App
     </button>
