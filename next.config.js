@@ -2,7 +2,7 @@
 const nextConfig = {
   // Temporary fix for hot-reload API route issues
   reactStrictMode: false,
-  swcMinify: false,
+  swcMinify: true,
   images: {
     remotePatterns: [
       {
@@ -53,6 +53,15 @@ const nextConfig = {
           {
             key: 'Service-Worker-Allowed',
             value: '/',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
