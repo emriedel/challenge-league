@@ -378,7 +378,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       </DocumentPullToRefresh>
 
       {/* Floating Vote Counter - Shows during voting when bottom not visible */}
-      {showVoting && votingData && !isBottomVisible && !(votingData.existingVotes && votingData.existingVotes.length > 0) && (
+      {showVoting && votingData && !isBottomVisible && !(votingData.existingVotes && Object.keys(votingData.existingVotes).length > 0) && (
         <div className="fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100">
           <div className="bg-app-surface-light backdrop-blur-md border border-app-border-light shadow-lg rounded-full px-4 py-2">
             <div className="text-xs font-medium text-app-text whitespace-nowrap text-center">
