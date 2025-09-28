@@ -74,7 +74,7 @@ const getComments = async ({ req, session }: AuthenticatedApiContext) => {
 
   // Only show comments if the prompt is in VOTING phase or completed
   const canViewComments = response.prompt.status === 'VOTING' || response.prompt.status === 'COMPLETED';
-  
+
   if (!canViewComments) {
     return NextResponse.json({
       comments: [],
@@ -88,8 +88,16 @@ const getComments = async ({ req, session }: AuthenticatedApiContext) => {
                      !isPhaseExpired(response.prompt, leagueSettings) &&
                      response.userId !== session.user.id; // Can't comment on own submission
 
+  // Filter comments based on prompt status:
+  // - During VOTING: only show user's own comments
+  // - During COMPLETED: show all comments
+  let visibleComments = response.comments;
+  if (response.prompt.status === 'VOTING') {
+    visibleComments = response.comments.filter(comment => comment.authorId === session.user.id);
+  }
+
   return NextResponse.json({
-    comments: response.comments.map(comment => ({
+    comments: visibleComments.map(comment => ({
       id: comment.id,
       text: comment.text,
       createdAt: comment.createdAt,
