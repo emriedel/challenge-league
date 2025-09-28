@@ -124,7 +124,7 @@ export default function JoinLeaguePage() {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {availableLeagues.map((league) => (
-                <div key={league.id} className="bg-app-surface rounded-xl border border-app-border p-6 hover:border-app-border-light transition-all">
+                <div key={league.id} className="bg-app-surface rounded-xl border border-app-border p-6 hover:border-app-border-light transition-all flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
                     <LeagueAvatar
                       leagueName={league.name}
@@ -149,11 +149,11 @@ export default function JoinLeaguePage() {
                     <span>by {league.owner.username}</span>
                     <span>{league.memberCount} members</span>
                   </div>
-                  
+
                   <button
                     onClick={() => handleOneClickJoin(league.id)}
                     disabled={joinMutation.isPending}
-                    className="w-full bg-[#3a8e8c] hover:bg-[#347a78] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50"
+                    className="w-full bg-[#3a8e8c] hover:bg-[#347a78] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 mt-auto"
                   >
                     {joinMutation.isPending ? 'Joining...' : 'Join League'}
                   </button>

@@ -5,8 +5,10 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useLeagueChatSSE } from '../../../../../hooks/useLeagueChatSSE'
 import { useChatInitialQuery } from '../../../../../hooks/queries/useChatQuery'
+import { useLeagueQuery } from '../../../../../hooks/queries'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
+import LeagueNavigation from '../../../../../components/LeagueNavigation'
 import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
 import { useNavigationRefreshHandlers } from '../../../../../lib/navigationRefresh'
 
@@ -25,6 +27,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   // Try to use prefetched data for faster initial load
   const { data: prefetchedData } = useChatInitialQuery(params.leagueId)
+  const { data: leagueData } = useLeagueQuery(params.leagueId)
 
   const {
     messages,
@@ -103,6 +106,15 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   return (
     <>
+      {/* Desktop Navigation - hidden on mobile for full-screen chat */}
+      <div className="hidden md:block">
+        <LeagueNavigation
+          leagueId={params.leagueId}
+          leagueName={leagueData?.league?.name || 'League'}
+          isOwner={leagueData?.league?.isOwner}
+        />
+      </div>
+
       {/* Messages Container - scrollable area */}
       <div className={`pb-20 md:pb-4 transition-opacity duration-200 ${isInitialScrollComplete ? 'opacity-100' : 'opacity-0'}`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">

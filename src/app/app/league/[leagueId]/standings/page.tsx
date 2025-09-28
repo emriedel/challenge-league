@@ -137,6 +137,25 @@ export default function StandingPage({ params }: StandingPageProps) {
           {standings.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full">
+                <thead className="bg-app-surface-dark hidden md:table-header-group">
+                  <tr>
+                    <th className="px-2 py-3 text-left text-xs font-medium text-app-text-secondary uppercase tracking-wider text-center">
+                      Rank
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-app-text-secondary uppercase tracking-wider">
+                      Player
+                    </th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
+                      Total Points
+                    </th>
+                    <th className="hidden md:table-cell px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
+                      Wins
+                    </th>
+                    <th className="hidden lg:table-cell px-3 py-3 text-center text-xs font-medium text-app-text-secondary uppercase tracking-wider">
+                      Participation
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="bg-app-surface divide-y divide-app-border">
                   {standings.map((entry, index) => {
                     const isCurrentUser = entry.user.username === session.user.username;
@@ -184,9 +203,6 @@ export default function StandingPage({ params }: StandingPageProps) {
                       </td>
                       <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
                         {entry.stats.wins}
-                      </td>
-                      <td className="hidden md:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
-                        {entry.stats.totalSubmissions}
                       </td>
                         <td className="hidden lg:table-cell px-3 py-4 whitespace-nowrap text-sm text-app-text text-center">
                           {entry.stats.votingParticipation}/{entry.stats.totalCompletedRounds}

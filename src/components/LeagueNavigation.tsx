@@ -18,7 +18,7 @@ const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, 
     { id: 'rounds', name: 'Challenge Results', href: `/app/league/${leagueId}/rounds` },
     { id: 'standings', name: 'Standings', href: `/app/league/${leagueId}/standings` },
     { id: 'chat', name: 'Chat', href: `/app/league/${leagueId}/chat` },
-    ...(isOwner ? [{ id: 'league-settings', name: 'League Settings', href: `/app/league/${leagueId}/league-settings` }] : []),
+    { id: 'league-settings', name: 'League Settings', href: `/app/league/${leagueId}/league-settings` },
   ];
 
   return (
@@ -34,7 +34,7 @@ const LeagueNavigation = memo(function LeagueNavigation({ leagueId, leagueName, 
               prefetch={true}
               className={`${
                 pathname === tab.href
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-white text-white'
                   : 'border-transparent text-app-text-secondary hover:text-app-text hover:border-app-border-light'
               } whitespace-nowrap py-2 px-1 md:px-2 border-b-2 font-medium text-sm transition-colors min-w-0 flex-shrink-0`}
             >
