@@ -4,6 +4,8 @@ import { createPublicMethodHandlers } from '@/lib/apiMethods';
 import { db } from '@/lib/db';
 import { validateEmail, validatePassword, validateUsername } from '@/lib/validations';
 import { ValidationError, ConflictError } from '@/lib/apiErrors';
+import { sanitizeText, sanitizeUsername } from '@/lib/sanitize';
+import { withAuthRateLimit } from '@/lib/rateLimit';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -12,50 +14,55 @@ export const { POST } = createPublicMethodHandlers({
   POST: async ({ req }) => {
     const { email, password, username } = await req.json();
 
+    // Sanitize inputs first
+    const sanitizedEmail = sanitizeText(email).toLowerCase();
+    const sanitizedUsername = sanitizeUsername(username);
+    const sanitizedPassword = typeof password === 'string' ? password : '';
+
     // Validate input
-    const emailValidation = validateEmail(email);
+    const emailValidation = validateEmail(sanitizedEmail);
     if (!emailValidation.valid) {
       throw new ValidationError(emailValidation.error || 'Invalid email');
     }
 
-    const passwordValidation = validatePassword(password);
+    const passwordValidation = validatePassword(sanitizedPassword);
     if (!passwordValidation.valid) {
       throw new ValidationError(passwordValidation.error || 'Invalid password');
     }
 
-    const usernameValidation = validateUsername(username);
+    const usernameValidation = validateUsername(sanitizedUsername);
     if (!usernameValidation.valid) {
       throw new ValidationError(usernameValidation.error || 'Invalid username');
     }
 
-    // Check if user already exists
+    // Check if user already exists (using sanitized values)
     const existingUser = await db.user.findFirst({
       where: {
         OR: [
-          { email: email },
-          { username: username },
+          { email: sanitizedEmail },
+          { username: sanitizedUsername },
         ],
       },
     });
 
     if (existingUser) {
-      if (existingUser.email === email) {
+      if (existingUser.email === sanitizedEmail) {
         throw new ConflictError('User with this email already exists');
       }
-      if (existingUser.username === username) {
+      if (existingUser.username === sanitizedUsername) {
         throw new ConflictError('Username is already taken');
       }
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(sanitizedPassword, 12);
 
-    // Create user
+    // Create user (using sanitized values)
     const user = await db.user.create({
       data: {
-        email,
+        email: sanitizedEmail,
         password: hashedPassword,
-        username,
+        username: sanitizedUsername,
       },
     });
 
@@ -68,4 +75,4 @@ export const { POST } = createPublicMethodHandlers({
       },
     });
   }
-});
+}, 'auth'); // Apply strict rate limiting for authentication endpoints

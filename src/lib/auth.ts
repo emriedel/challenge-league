@@ -4,10 +4,19 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
 import { validateEmail, validatePassword } from './validations';
+import { validateEnvironmentOrThrow, logEnvironmentStatus } from './envValidation';
 
-// Ensure NEXTAUTH_SECRET is set in production
-if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('NEXTAUTH_SECRET must be set in production environment');
+// Validate all environment variables on startup
+try {
+  validateEnvironmentOrThrow();
+} catch (error) {
+  console.error('🚨 Startup failed due to environment validation errors');
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1); // Exit in production to prevent misconfigured deployments
+  } else {
+    console.warn('⚠️ Continuing in development mode despite environment errors');
+    logEnvironmentStatus(); // Show detailed status in development
+  }
 }
 
 export const authOptions: NextAuthOptions = {

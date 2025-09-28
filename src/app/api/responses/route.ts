@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { ValidationError, NotFoundError, ForbiddenError, validateRequired, validateLeagueMembership } from '@/lib/apiErrors';
 import { calculatePhaseEndTime } from '@/lib/phaseCalculations';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
+import { sanitizeCaption, sanitizeText } from '@/lib/sanitize';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -145,25 +146,31 @@ const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
 const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
   const { promptId, photoUrl, caption, leagueId } = await req.json();
 
-  // Validate required fields
+  // Sanitize user inputs
+  const sanitizedCaption = sanitizeCaption(caption || '');
+  const sanitizedPhotoUrl = sanitizeText(photoUrl || '');
+  const sanitizedPromptId = sanitizeText(promptId || '');
+  const sanitizedLeagueId = sanitizeText(leagueId || '');
+
+  // Validate required fields (using sanitized values)
   validateRequired(
-    { promptId, photoUrl, caption: caption?.trim(), leagueId },
+    { promptId: sanitizedPromptId, photoUrl: sanitizedPhotoUrl, caption: sanitizedCaption, leagueId: sanitizedLeagueId },
     ['promptId', 'photoUrl', 'caption', 'leagueId']
   );
 
-  // Validate league membership
-  await validateLeagueMembership(db, session.user.id, leagueId);
+  // Validate league membership (using sanitized leagueId)
+  await validateLeagueMembership(db, session.user.id, sanitizedLeagueId);
 
   // Verify prompt exists, is active, and belongs to this league
   const prompt = await db.prompt.findUnique({
-    where: { id: promptId }
+    where: { id: sanitizedPromptId }
   });
 
   if (!prompt) {
     throw new NotFoundError('Prompt');
   }
 
-  if (prompt.leagueId !== leagueId) {
+  if (prompt.leagueId !== sanitizedLeagueId) {
     throw new ForbiddenError('This prompt does not belong to the specified league');
   }
 
@@ -181,19 +188,19 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
   const existingResponse = await db.response.findFirst({
     where: {
       userId: session.user.id,
-      promptId: promptId
+      promptId: sanitizedPromptId
     }
   });
 
   // Create or update the response
   let response;
   if (existingResponse) {
-    // Update existing response
+    // Update existing response (using sanitized values)
     response = await db.response.update({
       where: { id: existingResponse.id },
       data: {
-        imageUrl: photoUrl,
-        caption: caption.trim(),
+        imageUrl: sanitizedPhotoUrl,
+        caption: sanitizedCaption,
         submittedAt: new Date(), // Update submission time
       },
       include: {
@@ -213,13 +220,13 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
       }
     });
   } else {
-    // Create new response
+    // Create new response (using sanitized values)
     response = await db.response.create({
       data: {
         userId: session.user.id,
-        promptId: promptId,
-        imageUrl: photoUrl,
-        caption: caption.trim(),
+        promptId: sanitizedPromptId,
+        imageUrl: sanitizedPhotoUrl,
+        caption: sanitizedCaption,
         isPublished: false // Will be published when prompt ends
       },
       include: {

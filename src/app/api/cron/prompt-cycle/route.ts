@@ -10,10 +10,35 @@ export { dynamic } from '@/lib/apiMethods';
 const processCronJob = async ({ req }: ApiContext) => {
   // Verify this is a legitimate cron request
   const authHeader = req.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET || 'dev-cron-secret';
-  
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    const error = new Error('Unauthorized');
+
+  // Enforce strong CRON_SECRET requirement in production
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (!cronSecret) {
+    console.error('CRON_SECRET environment variable is not set');
+    const error = new Error('Server configuration error');
+    (error as any).status = 500;
+    throw error;
+  }
+
+  // In production, require a strong secret (at least 32 characters)
+  if (process.env.NODE_ENV === 'production' && cronSecret.length < 32) {
+    console.error('CRON_SECRET is too weak for production (must be at least 32 characters)');
+    const error = new Error('Server configuration error');
+    (error as any).status = 500;
+    throw error;
+  }
+
+  // Check authorization header format and secret
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const error = new Error('Missing or invalid authorization header');
+    (error as any).status = 401;
+    throw error;
+  }
+
+  const providedSecret = authHeader.replace('Bearer ', '');
+  if (providedSecret !== cronSecret) {
+    const error = new Error('Invalid CRON secret');
     (error as any).status = 401;
     throw error;
   }

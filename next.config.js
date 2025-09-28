@@ -30,6 +30,56 @@ const nextConfig = {
   // Ensure all API routes are treated as dynamic
   async headers() {
     return [
+      // Security headers for all pages
+      {
+        source: '/(.*)',
+        headers: [
+          // Content Security Policy - Allow necessary sources while preventing XSS
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' va.vercel-scripts.com", // Allow Vercel Analytics and inline scripts for PWA
+              "style-src 'self' 'unsafe-inline'", // Allow inline styles for Tailwind
+              "img-src 'self' data: blob: https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://picsum.photos",
+              "font-src 'self' data:",
+              "connect-src 'self' https://vitals.vercel-insights.com wss:", // Allow Vercel Analytics and WebSocket connections
+              "worker-src 'self'", // Allow service workers
+              "manifest-src 'self'", // Allow PWA manifest
+              "form-action 'self'", // Only allow forms to submit to same origin
+              "base-uri 'self'", // Prevent base tag injection
+              "object-src 'none'", // Disable plugins
+              "frame-ancestors 'none'", // Prevent framing (clickjacking protection)
+            ].join('; '),
+          },
+          // Additional security headers
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY', // Prevent framing
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff', // Prevent MIME sniffing
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin', // Control referrer information
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()', // Disable unnecessary permissions
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload', // Enforce HTTPS (production only)
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block', // Enable XSS filtering
+          },
+        ],
+      },
+      // API-specific headers
       {
         source: '/api/:path*',
         headers: [
@@ -37,8 +87,17 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'no-cache, no-store, must-revalidate',
           },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
         ],
       },
+      // Service Worker headers
       {
         source: '/sw.js',
         headers: [
@@ -56,6 +115,7 @@ const nextConfig = {
           },
         ],
       },
+      // Static asset caching
       {
         source: '/_next/static/:path*',
         headers: [

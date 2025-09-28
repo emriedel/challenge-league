@@ -43,22 +43,22 @@ export const createMethodHandlers = (handlers: {
   PUT?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
   PATCH?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
   DELETE?: (context: AuthenticatedApiContext) => Promise<NextResponse> | NextResponse;
-}, requireAuth = true) => {
+}, requireAuth = true, rateLimit?: 'auth' | 'mutations' | 'queries' | 'expensive' | 'uploads') => {
 
   const methods = Object.keys(handlers);
   const baseHandler = createApiHandler(
     async (context) => {
       const method = context.req.method;
       const handler = handlers[method as keyof typeof handlers];
-      
+
       if (!handler) {
         throw new MethodNotAllowedError(method);
       }
-      
+
       // Cast context to AuthenticatedApiContext since requireAuth=true ensures session exists
       return await handler(context as AuthenticatedApiContext);
     },
-    { requireAuth, allowedMethods: methods }
+    { requireAuth, allowedMethods: methods, rateLimit }
   );
 
   // Return an object with method names as keys
@@ -79,21 +79,21 @@ export const createPublicMethodHandlers = (handlers: {
   PUT?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
   PATCH?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
   DELETE?: (context: ApiContext) => Promise<NextResponse> | NextResponse;
-}) => {
+}, rateLimit?: 'auth' | 'mutations' | 'queries' | 'expensive' | 'uploads') => {
 
   const methods = Object.keys(handlers);
   const baseHandler = createApiHandler(
     async (context) => {
       const method = context.req.method;
       const handler = handlers[method as keyof typeof handlers];
-      
+
       if (!handler) {
         throw new MethodNotAllowedError(method);
       }
-      
+
       return await handler(context);
     },
-    { requireAuth: false, allowedMethods: methods }
+    { requireAuth: false, allowedMethods: methods, rateLimit }
   );
 
   // Return an object with method names as keys

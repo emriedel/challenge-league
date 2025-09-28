@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from './monitoring';
 
 /**
  * Standard API error response format
@@ -95,14 +96,21 @@ export function createErrorResponse(error: unknown): NextResponse {
     timestamp: new Date().toISOString(),
   };
 
-  // Log error for debugging (exclude sensitive details in production)
-  const logLevel = apiError.status >= 500 ? 'error' : 'warn';
-  console[logLevel]('API Error:', {
-    message: apiError.message,
-    status: apiError.status,
-    code: apiError.code,
-    stack: apiError.stack,
-  });
+  // Use structured logging instead of console
+  if (apiError.status >= 500) {
+    logger.error('API Error (Server)', apiError, {
+      status: apiError.status,
+      code: apiError.code,
+      category: 'api_error',
+    });
+  } else if (apiError.status >= 400) {
+    logger.warn('API Error (Client)', {
+      message: apiError.message,
+      status: apiError.status,
+      code: apiError.code,
+      category: 'api_error',
+    });
+  }
 
   return NextResponse.json(response, { status: apiError.status });
 }

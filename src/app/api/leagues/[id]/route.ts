@@ -24,91 +24,95 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { session, league } = accessResult.context;
 
-    // Get league standings - calculate total votes across all completed prompts in this league
-    // Only count votes from rounds where the user participated in voting (no vote, no points rule)
-    const leaderboard = await Promise.all(
-      (league.memberships || []).map(async (membership) => {
-        const userResponses = await db.response.findMany({
-          where: {
-            userId: membership.userId,
-            isPublished: true,
-            prompt: {
-              status: 'COMPLETED',
-              leagueId: league.id // Only prompts from this league
-            }
-          },
+    // OPTIMIZED: Get league standings with batched queries to fix N+1 performance issue
+    const memberUserIds = (league.memberships || []).map(m => m.userId);
+
+    // Batch query 1: Get all completed prompts for this league (single query instead of N)
+    const completedPrompts = await db.prompt.findMany({
+      where: {
+        status: 'COMPLETED',
+        leagueId: league.id
+      },
+      select: {
+        id: true,
+        text: true
+      }
+    });
+
+    const completedPromptIds = completedPrompts.map(p => p.id);
+
+    // Batch query 2: Get all responses from league members for completed prompts (single query)
+    const allResponses = await db.response.findMany({
+      where: {
+        userId: { in: memberUserIds },
+        isPublished: true,
+        promptId: { in: completedPromptIds }
+      },
+      select: {
+        userId: true,
+        totalVotes: true,
+        finalRank: true,
+        promptId: true
+      }
+    });
+
+    // Batch query 3: Get all votes from league members for completed prompts (single query)
+    const allVotes = await db.vote.findMany({
+      where: {
+        voterId: { in: memberUserIds },
+        response: {
+          promptId: { in: completedPromptIds }
+        }
+      },
+      select: {
+        voterId: true,
+        response: {
           select: {
-            totalVotes: true,
-            finalRank: true,
-            promptId: true,
-            prompt: {
-              select: {
-                id: true,
-                text: true
-              }
-            }
+            promptId: true
           }
-        });
+        }
+      }
+    });
 
-        // Get all completed prompts for this league to check which ones the user voted in
-        const completedPrompts = await db.prompt.findMany({
-          where: {
-            status: 'COMPLETED',
-            leagueId: league.id
-          },
-          select: {
-            id: true
-          }
-        });
+    // Process data in memory to calculate leaderboard stats
+    const leaderboard = (league.memberships || []).map((membership) => {
+      const userId = membership.userId;
 
-        // Check which prompts the user cast votes in
-        const userVotedPrompts = await db.vote.findMany({
-          where: {
-            voterId: membership.userId,
-            response: {
-              promptId: {
-                in: completedPrompts.map(p => p.id)
-              }
-            }
-          },
-          select: {
-            response: {
-              select: {
-                promptId: true
-              }
-            }
-          }
-        });
+      // Get user's responses
+      const userResponses = allResponses.filter(r => r.userId === userId);
 
-        const votedPromptIds = new Set(userVotedPrompts.map(v => v.response.promptId));
+      // Get prompts where user voted
+      const userVotedPromptIds = new Set(
+        allVotes
+          .filter(v => v.voterId === userId)
+          .map(v => v.response.promptId)
+      );
 
-        // Only count votes from responses in rounds where the user voted
-        const eligibleResponses = userResponses.filter(response =>
-          votedPromptIds.has(response.promptId)
-        );
+      // Only count votes from responses in rounds where the user voted
+      const eligibleResponses = userResponses.filter(response =>
+        userVotedPromptIds.has(response.promptId)
+      );
 
-        const totalVotes = eligibleResponses.reduce((sum, response) => sum + response.totalVotes, 0);
-        const totalSubmissions = userResponses.length; // Total submissions (not filtered by voting)
-        const wins = eligibleResponses.filter(r => r.finalRank === 1).length;
-        const podiumFinishes = eligibleResponses.filter(r => r.finalRank && r.finalRank <= 3).length;
+      const totalVotes = eligibleResponses.reduce((sum, response) => sum + response.totalVotes, 0);
+      const totalSubmissions = userResponses.length;
+      const wins = eligibleResponses.filter(r => r.finalRank === 1).length;
+      const podiumFinishes = eligibleResponses.filter(r => r.finalRank && r.finalRank <= 3).length;
 
-        return {
-          user: membership.user,
-          stats: {
-            totalVotes,
-            totalSubmissions,
-            wins,
-            podiumFinishes,
-            averageRank: eligibleResponses.length > 0
-              ? eligibleResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / eligibleResponses.length
-              : 0,
-            // Add additional stats to help users understand the no-vote rule
-            votingParticipation: votedPromptIds.size,
-            totalCompletedRounds: completedPrompts.length
-          }
-        };
-      })
-    );
+      return {
+        user: membership.user,
+        stats: {
+          totalVotes,
+          totalSubmissions,
+          wins,
+          podiumFinishes,
+          averageRank: eligibleResponses.length > 0
+            ? eligibleResponses.reduce((sum, r) => sum + (r.finalRank || 0), 0) / eligibleResponses.length
+            : 0,
+          votingParticipation: userVotedPromptIds.size,
+          totalCompletedRounds: completedPrompts.length
+        }
+      };
+    });
 
     // Sort by total votes descending
     leaderboard.sort((a, b) => b.stats.totalVotes - a.stats.totalVotes);

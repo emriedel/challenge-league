@@ -86,4 +86,4 @@ export const { POST } = createMethodHandlers({
       throw new ApiError('File storage error. Please try again.', 500, 'STORAGE_ERROR');
     }
   }
-});
+}, true, 'uploads'); // Apply upload rate limiting
