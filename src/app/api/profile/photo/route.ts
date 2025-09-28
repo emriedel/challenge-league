@@ -8,6 +8,15 @@ import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
 
+// Configure the API route to handle larger request bodies for file uploads
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb',
+    },
+  },
+};
+
 const uploadProfilePhoto = async ({ req, session }: AuthenticatedApiContext) => {
   const formData = await req.formData();
     const file = formData.get('photo') as File;

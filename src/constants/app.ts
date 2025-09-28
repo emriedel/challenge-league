@@ -10,10 +10,10 @@
 // =============================================================================
 
 export const FILE_LIMITS = {
-  /** Maximum size for photo uploads in submissions (10MB) */
-  PHOTO_MAX_SIZE: 10 * 1024 * 1024,
-  /** Maximum size for profile photo uploads (5MB) */
-  PROFILE_PHOTO_MAX_SIZE: 5 * 1024 * 1024,
+  /** Maximum size for photo uploads in submissions (15MB - generous since we compress) */
+  PHOTO_MAX_SIZE: 15 * 1024 * 1024,
+  /** Maximum size for profile photo uploads (15MB - generous since we compress) */
+  PROFILE_PHOTO_MAX_SIZE: 15 * 1024 * 1024,
 } as const;
 
 // =============================================================================

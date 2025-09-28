@@ -20,11 +20,25 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
 
-    // Check if app is already installed
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
-                      (window.navigator as any).standalone ||
-                      document.referrer.includes('android-app://');
+    // Check if app is already installed (more careful detection)
+    // For iOS, only check navigator.standalone (not display-mode)
+    // For Android, check display-mode and document.referrer
+    const standalone = iOS
+      ? (window.navigator as any).standalone === true
+      : window.matchMedia('(display-mode: standalone)').matches ||
+        document.referrer.includes('android-app://');
     setIsStandalone(standalone);
+
+    // Debug logging for iOS
+    if (iOS) {
+      console.log('PWAInstallButton Debug:', {
+        iOS,
+        standalone,
+        userAgent: navigator.userAgent,
+        navigatorStandalone: (window.navigator as any).standalone,
+        displayMode: window.matchMedia('(display-mode: standalone)').matches
+      });
+    }
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -57,6 +71,17 @@ export default function PWAInstallButton({ variant = 'primary' }: PWAInstallButt
       '3. Tap "Add" to confirm'
     );
   };
+
+  // Debug logging for render decision
+  if (mounted && isIOS) {
+    console.log('PWAInstallButton Render Decision:', {
+      mounted,
+      isStandalone,
+      isInstallable,
+      isIOS,
+      shouldShow: mounted && !isStandalone && (isInstallable || isIOS)
+    });
+  }
 
   // Don't show if already installed
   if (!mounted || isStandalone) {
