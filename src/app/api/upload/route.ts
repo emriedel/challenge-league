@@ -29,10 +29,19 @@ export const { POST } = createMethodHandlers({
     }
 
     // Validate file type (accept common image types)
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',     // Common animated format
+      'image/heic',    // iPhone photos
+      'image/heif',    // Modern image format
+    ];
+
     if (!allowedTypes.includes(file.type)) {
-      console.log(`Invalid file type: ${file.type}`);
-      throw new ValidationError('Invalid file type. Please upload an image file.');
+      console.log(`Invalid file type: ${file.type} (allowed: ${allowedTypes.join(', ')})`);
+      throw new ValidationError('Invalid file type. Please upload a supported image file (JPEG, PNG, WebP, GIF, HEIC).');
     }
 
     console.log(`File received: ${file.name}, ${file.size} bytes, ${file.type}`);
@@ -45,9 +54,25 @@ export const { POST } = createMethodHandlers({
       
       if (hasValidBlobToken) {
         console.log('Using Vercel Blob for storage');
-        
+
+        // Normalize filename to avoid Vercel Blob pattern errors
+        const extensionMap: Record<string, string> = {
+          'image/jpeg': 'jpg',
+          'image/jpg': 'jpg',
+          'image/png': 'png',
+          'image/webp': 'webp',
+          'image/gif': 'gif',
+          'image/heic': 'heic',
+          'image/heif': 'heif',
+        };
+
+        const normalizedExtension = extensionMap[file.type] || 'jpg';
+        const sanitizedFilename = `upload-${Date.now()}.${normalizedExtension}`;
+
+        console.log(`Uploading to Vercel Blob: ${sanitizedFilename}, Original: ${file.name}, MIME: ${file.type}`);
+
         // Upload to Vercel Blob
-        const { url } = await put(file.name, file, {
+        const { url } = await put(sanitizedFilename, file, {
           access: 'public',
           token: blobToken,
         });

@@ -35,12 +35,32 @@ const uploadProfilePhoto = async ({ req, session }: AuthenticatedApiContext) => 
 
   if (hasValidBlobToken) {
     // Use Vercel Blob for production
-    const filename = `profile-photos/${session.user.id}-${Date.now()}.${file.type.split('/')[1]}`;
-    const blob = await put(filename, file, {
-      access: 'public',
-      token: blobToken,
-    });
-    photoUrl = blob.url;
+    // Normalize file extension to avoid Vercel Blob pattern errors
+    const extensionMap: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+      'image/heic': 'heic',
+      'image/heif': 'heif',
+    };
+
+    const normalizedExtension = extensionMap[file.type] || 'jpg'; // fallback to jpg
+    const filename = `profile-photos/${session.user.id}-${Date.now()}.${normalizedExtension}`;
+
+    console.log(`Uploading to Vercel Blob: ${filename}, MIME: ${file.type}, Size: ${file.size}`);
+
+    try {
+      const blob = await put(filename, file, {
+        access: 'public',
+        token: blobToken,
+      });
+      photoUrl = blob.url;
+    } catch (error) {
+      console.error('Vercel Blob upload error:', error);
+      throw new Error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   } else {
     // Use local storage for development or when no valid blob token
     const filename = `profile-${session.user.id}-${Date.now()}.${file.type.split('/')[1]}`;
