@@ -141,7 +141,7 @@ export default function LandingPage() {
       <footer className="bg-black py-12">
           <div className="text-center">
             <p className="text-gray-400 text-sm">
-              © 2025 Challenge League
+              © 2025 Challenge League. Made by Eric Riedel.
             </p>
           </div>
       </footer>
