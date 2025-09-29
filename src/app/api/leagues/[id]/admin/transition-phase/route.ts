@@ -22,10 +22,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id } = params;
 
-    // Check if user is the league owner
+    // Check if user is the league owner and league is started
     const league = await db.league.findUnique({
       where: { id },
-      select: { ownerId: true, name: true },
+      select: { ownerId: true, name: true, isStarted: true },
     });
 
     if (!league) {
@@ -34,6 +34,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     if (league.ownerId !== session.user.id) {
       return NextResponse.json({ error: 'Only league owners can transition phases' }, { status: 403 });
+    }
+
+    if (!league.isStarted) {
+      return NextResponse.json({ error: 'League must be started before transitioning phases' }, { status: 400 });
     }
 
     // Perform the manual phase transition

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     if (prompts.length !== promptIds.length) {
       return NextResponse.json({
-        error: 'Some prompts not found or not schedulable (only queued prompts can be reordered)'
+        error: 'Cannot reorder: some challenges have already started, are voting, or completed. Only scheduled challenges can be reordered.'
       }, { status: 400 });
     }
 

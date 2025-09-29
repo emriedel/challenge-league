@@ -244,6 +244,16 @@ export default function LeagueSettingsPage({ params }: LeagueSettingsPageProps) 
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (newIndex < 0 || newIndex >= allPrompts.length) return;
 
+    // Validate that all prompts are still scheduled before reordering
+    const nonScheduledPrompts = allPrompts.filter(p => p.status !== 'SCHEDULED');
+    if (nonScheduledPrompts.length > 0) {
+      setMessage({
+        type: 'error',
+        text: 'Cannot reorder: some challenges have already started or completed. Please refresh the page.'
+      });
+      return;
+    }
+
     const newOrder = [...allPrompts];
     [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
 

@@ -125,24 +125,8 @@ export const { GET, POST } = createMethodHandlers({
       data: promptCreationData,
     });
 
-    // Immediately activate the first prompt for the new league
-    const firstPrompt = await db.prompt.findFirst({
-      where: {
-        leagueId: league.id,
-        status: 'SCHEDULED',
-      },
-      orderBy: { queueOrder: 'asc' },
-    });
-
-    if (firstPrompt) {
-      await db.prompt.update({
-        where: { id: firstPrompt.id },
-        data: {
-          status: 'ACTIVE',
-          phaseStartedAt: new Date(),
-        },
-      });
-    }
+    // All prompts remain SCHEDULED until league is manually started
+    // The league owner must click "Start League" to begin competitions
 
     return NextResponse.json({ 
       league: {
