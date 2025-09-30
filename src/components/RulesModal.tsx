@@ -17,35 +17,26 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
       }
     };
 
-    // Prevent touch move on document when modal is open (stops pull-to-refresh)
-    const preventTouchMove = (e: TouchEvent) => {
-      // Allow scrolling within the modal content
-      const target = e.target as HTMLElement;
-      const modalContent = document.querySelector('[data-modal-content]');
-      if (modalContent && modalContent.contains(target)) {
-        return;
-      }
-      e.preventDefault();
-    };
-
     if (isOpen) {
       document.addEventListener('keydown', handleEscapeKey);
-      document.addEventListener('touchmove', preventTouchMove, { passive: false });
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
-      // Prevent pull-to-refresh on mobile
-      document.body.style.overscrollBehavior = 'none';
+      document.body.style.top = `-${window.scrollY}px`;
+      // Signal to pull-to-refresh that a modal is open
+      document.body.setAttribute('data-modal-open', 'true');
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
-      document.removeEventListener('touchmove', preventTouchMove);
-      document.body.style.overflow = 'unset';
-      document.body.style.position = 'static';
-      document.body.style.width = 'auto';
-      document.body.style.overscrollBehavior = 'auto';
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      document.body.removeAttribute('data-modal-open');
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     };
   }, [isOpen, onClose]);
 
@@ -60,7 +51,7 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div className="fixed z-[70] flex items-center justify-center p-4" style={{ top: '20px', bottom: '80px', left: 0, right: 0 }}>
         <div className="bg-app-surface border border-app-border rounded-2xl shadow-2xl w-full max-w-xl max-h-[70vh] sm:max-h-[60vh] flex flex-col overflow-hidden">
 
           {/* Header */}
@@ -81,7 +72,11 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto min-h-0 p-4" data-modal-content>
+          <div
+            className="flex-1 overflow-y-auto min-h-0 p-4"
+            data-modal-content
+            style={{ overscrollBehavior: 'contain' }}
+          >
             <div className="space-y-4">
               <div className="bg-app-surface-dark rounded-lg p-5 border border-app-border">
                 <div className="flex items-center space-x-3">
