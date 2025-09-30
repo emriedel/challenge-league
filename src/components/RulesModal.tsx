@@ -17,17 +17,34 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
       }
     };
 
+    // Prevent touch move on document when modal is open (stops pull-to-refresh)
+    const preventTouchMove = (e: TouchEvent) => {
+      // Allow scrolling within the modal content
+      const target = e.target as HTMLElement;
+      const modalContent = document.querySelector('[data-modal-content]');
+      if (modalContent && modalContent.contains(target)) {
+        return;
+      }
+      e.preventDefault();
+    };
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener('touchmove', preventTouchMove, { passive: false });
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
       // Prevent pull-to-refresh on mobile
       document.body.style.overscrollBehavior = 'none';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener('touchmove', preventTouchMove);
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'static';
+      document.body.style.width = 'auto';
       document.body.style.overscrollBehavior = 'auto';
     };
   }, [isOpen, onClose]);
@@ -64,7 +81,7 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto min-h-0 p-4">
+          <div className="flex-1 overflow-y-auto min-h-0 p-4" data-modal-content>
             <div className="space-y-4">
               <div className="bg-app-surface-dark rounded-lg p-5 border border-app-border">
                 <div className="flex items-center space-x-3">
