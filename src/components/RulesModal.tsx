@@ -51,7 +51,7 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
       />
 
       {/* Modal */}
-      <div className="fixed z-[70] flex items-center justify-center p-4" style={{ top: '20px', bottom: '80px', left: 0, right: 0 }}>
+      <div className="fixed z-[70] flex items-center justify-center p-4" style={{ top: '30px', bottom: '75px', left: 0, right: 0 }}>
         <div className="bg-app-surface border border-app-border rounded-2xl shadow-2xl w-full max-w-xl max-h-[70vh] sm:max-h-[60vh] flex flex-col overflow-hidden">
 
           {/* Header */}
