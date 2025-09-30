@@ -9,7 +9,7 @@ interface RulesModalProps {
 }
 
 export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
-  // Close modal on ESC key
+  // Close modal on ESC key and prevent scrolling/pull-to-refresh
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -21,11 +21,14 @@ export default function RulesModal({ isOpen, onClose }: RulesModalProps) {
       document.addEventListener('keydown', handleEscapeKey);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
+      // Prevent pull-to-refresh on mobile
+      document.body.style.overscrollBehavior = 'none';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
       document.body.style.overflow = 'unset';
+      document.body.style.overscrollBehavior = 'auto';
     };
   }, [isOpen, onClose]);
 
