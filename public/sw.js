@@ -195,6 +195,7 @@ async function staleWhileRevalidate(request) {
 }
 
 // Helper function to refresh PWA badge
+// Badge logic: Count leagues where needsAction=true AND isStarted=true
 async function refreshPWABadge() {
   if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
     try {
@@ -202,7 +203,8 @@ async function refreshPWABadge() {
       const data = await response.json();
 
       if (response.ok && data.leagues) {
-        const actionCount = data.leagues.filter(league => league.needsAction).length;
+        // Only count leagues that need action AND have been started
+        const actionCount = data.leagues.filter(league => league.needsAction && league.isStarted).length;
         if (actionCount > 0) {
           navigator.setAppBadge(actionCount);
         } else {

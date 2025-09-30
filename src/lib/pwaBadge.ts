@@ -1,6 +1,11 @@
 /**
- * Utility functions for managing PWA badge notifications
+ * Centralized PWA badge management utilities
+ *
+ * Badge logic: Count leagues where the user needs to take action (submit or vote)
+ * and the league has been started. This matches the dropdown notification indicator.
  */
+
+import type { League } from '@/types/league';
 
 declare global {
   interface Navigator {
@@ -11,10 +16,25 @@ declare global {
 
 // Check if PWA badge API is supported
 export function isPWABadgeSupported(): boolean {
-  return 'setAppBadge' in navigator && 'clearAppBadge' in navigator;
+  return typeof navigator !== 'undefined' &&
+         'setAppBadge' in navigator &&
+         'clearAppBadge' in navigator;
 }
 
-// Set PWA badge with count
+/**
+ * Calculate badge count from leagues data
+ * Only count leagues where:
+ * - needsAction is true (user needs to submit or vote)
+ * - isStarted is true (league has been officially started)
+ */
+export function calculateBadgeCount(leagues: League[]): number {
+  return leagues.filter(league => league.needsAction && league.isStarted).length;
+}
+
+/**
+ * Set PWA badge with count
+ * Automatically clears badge if count is 0
+ */
 export function setPWABadge(count: number): void {
   if (!isPWABadgeSupported()) return;
 
@@ -29,7 +49,20 @@ export function setPWABadge(count: number): void {
   }
 }
 
-// Clear PWA badge
+/**
+ * Update PWA badge from leagues data
+ * This is the primary function to use when you have league data
+ */
+export function updatePWABadgeFromLeagues(leagues: League[]): void {
+  if (!isPWABadgeSupported()) return;
+
+  const count = calculateBadgeCount(leagues);
+  setPWABadge(count);
+}
+
+/**
+ * Clear PWA badge
+ */
 export function clearPWABadge(): void {
   if (!isPWABadgeSupported()) return;
 
@@ -40,7 +73,10 @@ export function clearPWABadge(): void {
   }
 }
 
-// Refresh PWA badge by fetching current action count
+/**
+ * Refresh PWA badge by fetching current action count from API
+ * Use this when you don't have league data already loaded
+ */
 export async function refreshPWABadge(): Promise<void> {
   if (!isPWABadgeSupported()) return;
 
@@ -49,8 +85,7 @@ export async function refreshPWABadge(): Promise<void> {
     const data = await response.json();
 
     if (response.ok && data.leagues) {
-      const actionCount = data.leagues.filter((league: any) => league.needsAction).length;
-      setPWABadge(actionCount);
+      updatePWABadgeFromLeagues(data.leagues);
     }
   } catch (error) {
     console.warn('Failed to refresh PWA badge:', error);

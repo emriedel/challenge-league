@@ -10,7 +10,7 @@ import ProfileAvatar from './ProfileAvatar';
 import ProfileModal from './ProfileModal';
 import OnboardingModal from './OnboardingModal';
 import NotificationDot from './NotificationDot';
-import { useLeagueActions } from '@/hooks/useLeagueActions';
+import { useLeagueActionsQuery } from '@/hooks/queries';
 import { rubik } from '@/lib/fonts';
 import LeagueAvatar from './LeagueAvatar';
 
@@ -28,8 +28,8 @@ export default function Navigation() {
   const lastScrollY = useRef(0);
   const scrollThreshold = 10; // minimum scroll distance to trigger hide/show
 
-  // Use new hook to fetch leagues with action status
-  const { leagues, loading: loadingLeagues, hasAnyActions, refetch: refetchLeagueActions } = useLeagueActions();
+  // Use cached query hook to fetch leagues with action status
+  const { leagues, loading: loadingLeagues, hasAnyActions, refetch: refetchLeagueActions } = useLeagueActionsQuery();
 
   // Detect current league from pathname
   useEffect(() => {

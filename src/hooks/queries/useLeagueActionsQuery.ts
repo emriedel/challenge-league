@@ -4,14 +4,8 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { queryKeys, cacheConfig } from '@/lib/queryClient';
+import { updatePWABadgeFromLeagues, clearPWABadge } from '@/lib/pwaBadge';
 import type { League } from '@/types/league';
-
-declare global {
-  interface Navigator {
-    setAppBadge?: (count?: number) => Promise<void>;
-    clearAppBadge?: () => Promise<void>;
-  }
-}
 
 interface LeagueActionsData {
   leagues: League[];
@@ -60,32 +54,15 @@ export function useLeagueActionsQuery(): UseLeagueActionsReturn {
   // Memoize leagues array to prevent unnecessary re-renders
   const leagues = React.useMemo(() => data?.leagues || [], [data?.leagues]);
 
-  // Use effect to update PWA badge
+  // Update PWA badge whenever leagues data changes
   React.useEffect(() => {
-    if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
-      try {
-        const actionCount = leagues.filter(league => league.needsAction).length;
-        if (actionCount > 0) {
-          navigator.setAppBadge?.(actionCount);
-        } else {
-          navigator.clearAppBadge?.();
-        }
-      } catch (error) {
-        console.warn('Failed to update PWA badge:', error);
-      }
-    }
+    updatePWABadgeFromLeagues(leagues);
   }, [leagues]);
 
   // Clear badge when user signs out
   React.useEffect(() => {
     if (status === 'unauthenticated') {
-      if ('clearAppBadge' in navigator) {
-        try {
-          navigator.clearAppBadge?.();
-        } catch (error) {
-          console.warn('Failed to clear PWA badge:', error);
-        }
-      }
+      clearPWABadge();
     }
   }, [status]);
 
