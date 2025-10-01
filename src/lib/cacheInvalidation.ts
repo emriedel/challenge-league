@@ -140,6 +140,7 @@ export class CacheInvalidator {
         queryKeys.leagueSettings(leagueId),
         queryKeys.votingData(leagueId),
         queryKeys.userLeagues(),
+        queryKeys.userActivity(leagueId), // Include user activity for notification updates
       ];
 
       await Promise.all(
@@ -308,6 +309,7 @@ export class CacheInvalidator {
       queryKeys.leagueSettings(leagueId),
       queryKeys.votingData(leagueId),
       queryKeys.userLeagues(),
+      queryKeys.userActivity(leagueId), // Include user activity for notification updates
     ];
 
     await this.invalidateByPattern(allLeaguePatterns, {

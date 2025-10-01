@@ -6,6 +6,7 @@ import { queryKeys, cacheConfig } from '@/lib/queryClient';
 import { useLeaguePromptQuery } from '@/hooks/queries/usePromptQuery';
 import { useVotingQuery } from '@/hooks/queries/useVotingQuery';
 import { useRoundsQuery } from '@/hooks/queries/useRoundsQuery';
+import { useLocalActivityTracking } from '@/hooks/useLocalActivityTracking';
 
 interface NavigationNotifications {
   challengeNotification: boolean;
@@ -14,9 +15,7 @@ interface NavigationNotifications {
   isLoading: boolean;
 }
 
-interface UserActivityData {
-  lastViewedResults?: string;
-  lastReadChatMessage?: string;
+interface UnreadCountData {
   unreadChatCount: number;
 }
 
@@ -26,6 +25,7 @@ interface UserActivityData {
  */
 export function useNavigationNotifications(leagueId?: string): NavigationNotifications {
   const { data: session } = useSession();
+  const { getActivityTimestamps } = useLocalActivityTracking();
 
   // Get current prompt/challenge data
   const { data: promptData } = useLeaguePromptQuery(leagueId);
@@ -36,22 +36,22 @@ export function useNavigationNotifications(leagueId?: string): NavigationNotific
   // Get rounds/results data
   const { data: roundsData } = useRoundsQuery(leagueId);
 
-  // Get user activity data
-  const { data: activityData, isLoading: activityLoading } = useQuery({
+  // Get unread chat count from API
+  const { data: unreadCountData, isLoading: activityLoading } = useQuery({
     queryKey: queryKeys.userActivity(leagueId!),
-    queryFn: async (): Promise<UserActivityData> => {
+    queryFn: async (): Promise<UnreadCountData> => {
       if (!leagueId || !session?.user?.id) {
         return { unreadChatCount: 0 };
       }
 
-      const response = await fetch(`/api/user/activity/${leagueId}`);
+      // Read fresh from localStorage on each query execution
+      const freshActivity = getActivityTimestamps(leagueId);
+      const lastRead = freshActivity.lastReadChatMessage || new Date(0).toISOString();
+      const url = `/api/user/activity/${leagueId}?lastReadChatMessage=${encodeURIComponent(lastRead)}`;
+      const response = await fetch(url);
 
       if (!response.ok) {
-        if (response.status === 404) {
-          // No activity record exists yet
-          return { unreadChatCount: 0 };
-        }
-        throw new Error('Failed to fetch user activity');
+        throw new Error('Failed to fetch unread count');
       }
 
       return response.json();
@@ -79,28 +79,31 @@ export function useNavigationNotifications(leagueId?: string): NavigationNotific
     return false;
   })();
 
-  // Calculate results notification
+  // Calculate results notification using localStorage (read fresh each render)
   const resultsNotification = (() => {
     if (!roundsData?.rounds || roundsData.rounds.length === 0) return false;
-    if (!activityData) return false;
+    if (!leagueId) return false;
+
+    // Read fresh from localStorage on each calculation
+    const freshActivity = getActivityTimestamps(leagueId);
 
     // Get the most recent completed round
     const latestRound = roundsData.rounds[0]; // Rounds are sorted by newest first
 
     // If user has never viewed results, show notification for any completed round
-    if (!activityData.lastViewedResults) {
+    if (!freshActivity.lastViewedResults) {
       return true;
     }
 
     // Show notification if latest round is newer than last viewed
     const latestRoundDate = new Date(latestRound.weekEnd);
-    const lastViewedDate = new Date(activityData.lastViewedResults);
+    const lastViewedDate = new Date(freshActivity.lastViewedResults);
 
     return latestRoundDate > lastViewedDate;
   })();
 
-  // Calculate chat notification
-  const chatNotification = (activityData?.unreadChatCount || 0) > 0;
+  // Calculate chat notification from API unread count
+  const chatNotification = (unreadCountData?.unreadChatCount || 0) > 0;
 
   return {
     challengeNotification,

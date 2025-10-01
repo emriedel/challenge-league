@@ -7,7 +7,7 @@ import { useRoundsQuery, useLeagueQuery } from '@/hooks/queries';
 import { useResultsCacheListener } from '@/hooks/useCacheEventListener';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { useNavigationRefreshHandlers } from '@/lib/navigationRefresh';
-import { useActivityTracking } from '@/hooks/useActivityTracking';
+import { useLocalActivityTracking } from '@/hooks/useLocalActivityTracking';
 import DocumentPullToRefresh from '@/components/DocumentPullToRefresh';
 import LeagueNavigation from '@/components/LeagueNavigation';
 import PhotoFeedItem from '@/components/PhotoFeedItem';
@@ -24,7 +24,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const { data: leagueData, isLoading: leagueLoading } = useLeagueQuery(params.leagueId);
   const { data: galleryData, isLoading: galleryLoading, error: galleryError } = useRoundsQuery(params.leagueId);
   const cacheInvalidator = useCacheInvalidator();
-  const { markResultsAsViewed } = useActivityTracking();
+  const { markResultsAsViewed } = useLocalActivityTracking();
 
   // Listen for cache events to keep results synchronized
   useResultsCacheListener(params.leagueId);

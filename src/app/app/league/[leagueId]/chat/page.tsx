@@ -9,7 +9,7 @@ import { useLeagueQuery } from '../../../../../hooks/queries'
 import { MessageBubble } from '../../../../../components/chat/MessageBubble'
 import { MessageInput } from '../../../../../components/chat/MessageInput'
 import LeagueNavigation from '../../../../../components/LeagueNavigation'
-import { useActivityTracking } from '../../../../../hooks/useActivityTracking'
+import { useLocalActivityTracking } from '../../../../../hooks/useLocalActivityTracking'
 import { useNavigationRefreshHandlers } from '../../../../../lib/navigationRefresh'
 
 interface ChatPageProps {
@@ -40,7 +40,7 @@ export default function ChatPage({ params }: ChatPageProps) {
     refreshMessages
   } = useLeagueChatSSE(params.leagueId)
 
-  const { markChatAsRead } = useActivityTracking()
+  const { markChatAsRead } = useLocalActivityTracking()
 
 
   // Redirect if not authenticated
