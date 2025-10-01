@@ -42,12 +42,19 @@ export async function GET(
         message: 'Connected to chat'
       })}\n\n`)
 
-      console.log(`SSE connection established for user ${session.user.username} in league ${leagueId}`)
+      // Only log in development to reduce production noise
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`SSE connection established for user ${session.user.username} in league ${leagueId}`)
+      }
     },
     cancel() {
       // Clean up when client disconnects
       removeConnection(connectionKey)
-      console.log(`SSE connection closed for user ${session.user.username} in league ${leagueId}`)
+
+      // Only log in development to reduce production noise
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`SSE connection closed for user ${session.user.username} in league ${leagueId}`)
+      }
     }
   })
 

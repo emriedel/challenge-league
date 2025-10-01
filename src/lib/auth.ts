@@ -6,40 +6,42 @@ import { db } from './db';
 import { validateEmail, validatePassword } from './validations';
 import { validateEnvironment, logEnvironmentStatus } from './envValidation';
 
-// Validate critical environment variables on startup
-try {
-  const result = validateEnvironment();
+// Validate critical environment variables on startup (only log once per process)
+let hasValidated = false;
+if (!hasValidated) {
+  try {
+    const result = validateEnvironment();
 
-  if (result.warnings.length > 0) {
-    console.warn('⚠️ Environment warnings:');
-    result.warnings.forEach(warning => console.warn(`  - ${warning}`));
-  }
-
-  // Only fail on critical errors (database, auth, security)
-  // Skip VAPID validation during build to avoid breaking existing working push notifications
-  const criticalErrors = result.errors.filter(error =>
-    error.includes('DATABASE_URL') ||
-    error.includes('NEXTAUTH_SECRET') ||
-    error.includes('CRON_SECRET')
-  );
-
-  if (criticalErrors.length > 0) {
-    console.error('❌ Critical environment validation failed:');
-    criticalErrors.forEach(error => console.error(`  - ${error}`));
-
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Critical environment validation failed');
+    if (result.warnings.length > 0 && process.env.NODE_ENV !== 'production') {
+      console.warn('⚠️ Environment warnings:');
+      result.warnings.forEach(warning => console.warn(`  - ${warning}`));
     }
-  } else {
-    console.log('✅ Critical environment validation passed');
-  }
-} catch (error) {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('🚨 Startup failed due to critical environment errors');
-    process.exit(1);
-  } else {
-    console.warn('⚠️ Continuing in development mode despite environment errors');
-    logEnvironmentStatus();
+
+    // Only fail on critical errors (database, auth, security)
+    const criticalErrors = result.errors.filter(error =>
+      error.includes('DATABASE_URL') ||
+      error.includes('NEXTAUTH_SECRET') ||
+      error.includes('CRON_SECRET')
+    );
+
+    if (criticalErrors.length > 0) {
+      console.error('❌ Critical environment validation failed:');
+      criticalErrors.forEach(error => console.error(`  - ${error}`));
+
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Critical environment validation failed');
+      }
+    }
+
+    hasValidated = true;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('🚨 Startup failed due to critical environment errors');
+      process.exit(1);
+    } else {
+      console.warn('⚠️ Continuing in development mode despite environment errors');
+      logEnvironmentStatus();
+    }
   }
 }
 
