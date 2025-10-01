@@ -79,7 +79,7 @@ export default function VotingInterface({
         observer.unobserve(currentBottomSection);
       }
     };
-  }, []);
+  }, [onVisibilityChange]);
   
   // Calculate required votes based on votable responses (excluding user's own)
   const maxVotesAllowed = leagueSettings?.votesPerPlayer ?? VOTING_CONFIG.VOTES_PER_PLAYER;
@@ -154,12 +154,17 @@ export default function VotingInterface({
     return Object.values(selectedVotes).reduce((sum, votes) => sum + votes, 0);
   };
 
+  // Memoize total votes calculation
+  const totalVotesCount = useMemo(() => {
+    return Object.values(selectedVotes).reduce((sum, votes) => sum + votes, 0);
+  }, [selectedVotes]);
+
   // Notify parent component of vote count changes
   useEffect(() => {
     if (onVoteCountChange) {
-      onVoteCountChange(getTotalVotes());
+      onVoteCountChange(totalVotesCount);
     }
-  }, [selectedVotes, onVoteCountChange]);
+  }, [totalVotesCount, onVoteCountChange]);
 
   const handleSubmitVotes = async () => {
     const totalVotes = getTotalVotes();
