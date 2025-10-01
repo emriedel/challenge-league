@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 
 export interface PushNotificationState {
@@ -7,6 +7,7 @@ export interface PushNotificationState {
   isSubscribed: boolean;
   isLoading: boolean;
   error: string | null;
+  wasResetBySystem: boolean; // Indicates if iOS/system reset the permission
 }
 
 export interface PushNotificationActions {
@@ -24,8 +25,12 @@ export function usePushNotifications(): PushNotificationState & PushNotification
     permission: 'default',
     isSubscribed: false,
     isLoading: true,
-    error: null
+    error: null,
+    wasResetBySystem: false
   });
+
+  // Track if we've already checked for permission desync this session
+  const hasCheckedDesyncRef = useRef(false);
 
   // Check browser support and current state on mount
   useEffect(() => {
@@ -81,13 +86,50 @@ export function usePushNotifications(): PushNotificationState & PushNotification
         // This handles cases where system permission was granted but states got out of sync
         const isSubscribed = browserHasSubscription || databaseHasSubscription;
 
+        // Detect iOS/system permission reset
+        // If permission is 'default' but database shows user was subscribed, iOS likely reset it
+        let wasResetBySystem = false;
+        if (!hasCheckedDesyncRef.current && session?.user) {
+          if (permission === 'default' && databaseHasSubscription) {
+            console.warn('🔔 iOS/system appears to have reset notification permission');
+            wasResetBySystem = true;
+            hasCheckedDesyncRef.current = true; // Only detect once per session
+          } else if (permission === 'granted' && !browserHasSubscription && databaseHasSubscription) {
+            // Permission granted but no browser subscription - try to auto-recover
+            console.log('🔄 Permission granted but no subscription - attempting auto-recovery');
+            hasCheckedDesyncRef.current = true;
+
+            // Will attempt auto-resubscribe after state update
+            setState(prev => ({
+              ...prev,
+              isSupported: true,
+              permission,
+              isSubscribed,
+              isLoading: false,
+              error: null,
+              wasResetBySystem: false
+            }));
+
+            // Attempt silent re-subscription
+            try {
+              await attemptSilentResubscribe();
+            } catch (error) {
+              console.error('Auto-recovery failed:', error);
+            }
+            return;
+          } else {
+            hasCheckedDesyncRef.current = true;
+          }
+        }
+
         setState(prev => ({
           ...prev,
           isSupported: true,
           permission,
           isSubscribed,
           isLoading: false,
-          error: null
+          error: null,
+          wasResetBySystem
         }));
 
       } catch (error) {
@@ -98,6 +140,36 @@ export function usePushNotifications(): PushNotificationState & PushNotification
           isLoading: false,
           error: 'Failed to check push notification support'
         }));
+      }
+    }
+
+    // Helper function for silent re-subscription attempt
+    async function attemptSilentResubscribe() {
+      if (!session?.user || !VAPID_PUBLIC_KEY) return;
+
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+
+        // Send subscription to server
+        const response = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: subscription.toJSON(),
+            userAgent: navigator.userAgent
+          })
+        });
+
+        if (response.ok) {
+          console.log('✅ Auto-recovery successful - subscription restored');
+          setState(prev => ({ ...prev, isSubscribed: true }));
+        }
+      } catch (error) {
+        console.error('Silent resubscribe failed:', error);
       }
     }
 

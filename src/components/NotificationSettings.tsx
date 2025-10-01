@@ -11,6 +11,7 @@ export default function NotificationSettings() {
     permission,
     isSubscribed,
     isLoading,
+    wasResetBySystem,
     requestPermission,
     subscribe,
     unsubscribe
@@ -173,6 +174,13 @@ export default function NotificationSettings() {
           <div className="text-app-text-muted text-xs bg-app-surface rounded p-3">
             <p className="font-medium text-app-error mb-1">Notifications are blocked</p>
             <p>Enable notifications for this app in your system settings, then refresh this page.</p>
+          </div>
+        )}
+
+        {wasResetBySystem && permission === 'default' && (
+          <div className="text-app-text-muted text-xs bg-amber-950/30 border border-amber-900/50 rounded p-3">
+            <p className="font-medium text-amber-400 mb-1">Notification settings were reset</p>
+            <p>iOS may have reset your notification permissions. Toggle notifications back on to re-enable them.</p>
           </div>
         )}
 
