@@ -29,7 +29,11 @@ export async function GET(
     return new Response('Not a member of this league', { status: 403 })
   }
 
-  const connectionKey = `${leagueId}:${session.user.id}`
+  // Use a unique connection key that includes a timestamp to support multiple windows
+  const connectionKey = `${leagueId}:${session.user.id}:${Date.now()}`
+
+  // Keep-alive interval to prevent connection timeout
+  let keepAliveInterval: NodeJS.Timeout | null = null
 
   const stream = new ReadableStream({
     start(controller) {
@@ -42,6 +46,19 @@ export async function GET(
         message: 'Connected to chat'
       })}\n\n`)
 
+      // Send keep-alive pings every 15 seconds to prevent timeout
+      keepAliveInterval = setInterval(() => {
+        try {
+          controller.enqueue(`: keep-alive\n\n`)
+        } catch (error) {
+          // Connection closed, clear interval
+          if (keepAliveInterval) {
+            clearInterval(keepAliveInterval)
+            keepAliveInterval = null
+          }
+        }
+      }, 15000)
+
       // Only log in development to reduce production noise
       if (process.env.NODE_ENV === 'development') {
         console.log(`SSE connection established for user ${session.user.username} in league ${leagueId}`)
@@ -50,6 +67,12 @@ export async function GET(
     cancel() {
       // Clean up when client disconnects
       removeConnection(connectionKey)
+
+      // Clear keep-alive interval
+      if (keepAliveInterval) {
+        clearInterval(keepAliveInterval)
+        keepAliveInterval = null
+      }
 
       // Only log in development to reduce production noise
       if (process.env.NODE_ENV === 'development') {

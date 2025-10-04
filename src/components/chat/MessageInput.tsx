@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, KeyboardEvent } from 'react'
+import { useState, useRef, KeyboardEvent } from 'react'
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void
@@ -18,12 +18,17 @@ const SendIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 
 export function MessageInput({ onSendMessage, disabled = false, placeholder = "Type a message...", error }: MessageInputProps) {
   const [message, setMessage] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSend = () => {
     const trimmedMessage = message.trim()
     if (trimmedMessage && !disabled) {
       onSendMessage(trimmedMessage)
       setMessage('')
+      // Reset textarea height to single line
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+      }
     }
   }
 
@@ -46,6 +51,7 @@ export function MessageInput({ onSendMessage, disabled = false, placeholder = "T
       {/* Input container */}
       <div className="flex items-center space-x-3 bg-app-surface border border-app-border rounded-lg p-3">
         <textarea
+          ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}

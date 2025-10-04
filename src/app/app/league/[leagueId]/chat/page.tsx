@@ -40,7 +40,16 @@ export default function ChatPage({ params }: ChatPageProps) {
     refreshMessages
   } = useLeagueChatSSE(params.leagueId)
 
-  const { markChatAsRead } = useLocalActivityTracking()
+  const { markChatAsRead, getActivityTimestamps } = useLocalActivityTracking()
+
+  // Get the last read message timestamp - capture it ONCE on mount and don't update it
+  // This ensures the "new messages" line stays visible even after we mark messages as read
+  const [lastReadTimestamp] = useState(() => {
+    const activityTimestamps = getActivityTimestamps(params.leagueId)
+    return activityTimestamps.lastReadChatMessage
+      ? new Date(activityTimestamps.lastReadChatMessage).getTime()
+      : null
+  })
 
 
   // Redirect if not authenticated
@@ -50,12 +59,21 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   }, [status, router])
 
-  // Mark chat as read when user visits this page and when new messages arrive
+  // Mark chat as read after a short delay while viewing messages
+  // This ensures the timestamp updates even if user closes app without navigating away
   useEffect(() => {
-    if (session?.user?.id && messages.length > 0) {
+    if (!session?.user?.id || messages.length === 0) return
+
+    // Debounce the read marking - wait 2 seconds of viewing before marking as read
+    // Only trigger on messages.length change to avoid excessive re-renders
+    const timer = setTimeout(() => {
       markChatAsRead(params.leagueId)
-    }
-  }, [session?.user?.id, messages.length, markChatAsRead, params.leagueId])
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  // Only depend on message count, not the entire messages array
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id, messages.length, params.leagueId])
 
   // Auto-scroll to bottom on new messages and initial load
   useEffect(() => {
@@ -149,6 +167,14 @@ export default function ChatPage({ params }: ChatPageProps) {
             const previousDate = previousMessage ? new Date(previousMessage.createdAt).toDateString() : null
             const showDateSeparator = currentDate !== previousDate
 
+            // Check if we need an unread separator (only for other people's messages)
+            const messageTimestamp = new Date(message.createdAt).getTime()
+            const previousMessageTimestamp = previousMessage ? new Date(previousMessage.createdAt).getTime() : null
+            const showUnreadSeparator = !isOwnMessage &&
+              lastReadTimestamp &&
+              messageTimestamp > lastReadTimestamp &&
+              (!previousMessageTimestamp || previousMessageTimestamp <= lastReadTimestamp)
+
             return (
               <div key={message.id}>
                 {showDateSeparator && (
@@ -162,6 +188,13 @@ export default function ChatPage({ params }: ChatPageProps) {
                         })}
                       </span>
                     </div>
+                  </div>
+                )}
+                {showUnreadSeparator && (
+                  <div className="flex items-center gap-3 my-4 px-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-blue-500/30" />
+                    <span className="text-xs text-blue-400/70 font-medium whitespace-nowrap">New Messages</span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-blue-500/30 via-blue-500/30 to-transparent" />
                   </div>
                 )}
                 <MessageBubble

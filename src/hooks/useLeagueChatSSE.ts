@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queryClient'
 
 interface Author {
   id: string
@@ -33,6 +35,7 @@ const hasMoreCache = new Map<string, boolean>()
 
 export function useLeagueChatSSE(leagueId: string): UseChatReturn {
   const { data: session } = useSession()
+  const queryClient = useQueryClient()
   const [messages, setMessages] = useState<ChatMessage[]>(() => messagesCache.get(leagueId) || [])
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -54,7 +57,7 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     hasMoreCache.set(leagueId, hasMore)
   }, [hasMore, leagueId])
 
-  // Load initial messages
+  // Load initial messages - use ref to avoid dependency issues
   const loadInitialMessages = useCallback(async () => {
     if (!session?.user?.id) return
 
@@ -80,7 +83,8 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [session?.user?.id, leagueId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leagueId]) // Intentionally minimal dependencies
 
   // Initialize SSE connection with retry logic
   const connectSSE = useCallback(() => {
@@ -125,6 +129,11 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
               return prev
             }
 
+            // Invalidate notification query to update badge
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.userActivity(leagueId)
+            })
+
             return [...prev, data.message]
           })
         } else if (data.type === 'connected') {
@@ -139,6 +148,13 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       console.error('SSE connection error:', error)
       setIsConnected(false)
       eventSource.close()
+
+      // Don't retry excessively - max 5 attempts
+      if (retryCountRef.current >= 5) {
+        console.error('Max SSE retry attempts reached. Please refresh the page.')
+        setError('Connection lost. Please refresh the page.')
+        return
+      }
 
       // Implement exponential backoff retry
       retryCountRef.current += 1
@@ -160,7 +176,8 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
         retryTimeoutRef.current = null
       }
     }
-  }, [session?.user?.id, leagueId, loadInitialMessages])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leagueId]) // Intentionally minimal dependencies to prevent reconnection loops
 
   useEffect(() => {
     const cleanup = connectSSE()

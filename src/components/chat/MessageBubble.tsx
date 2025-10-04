@@ -31,7 +31,7 @@ export function MessageBubble({ message, isOwnMessage, showAvatar }: MessageBubb
     // Own messages aligned to the right
     return (
       <div className="flex justify-end">
-        <div className="max-w-[70%] space-y-1">
+        <div className="max-w-[70%] space-y-1 select-none">
           <div className="bg-blue-700 text-white rounded-2xl rounded-tr-md px-4 py-2">
             <p className="text-sm leading-relaxed break-words">{message.content}</p>
           </div>
@@ -47,7 +47,7 @@ export function MessageBubble({ message, isOwnMessage, showAvatar }: MessageBubb
 
   // Other users' messages aligned to the left with avatar
   return (
-    <div className="flex items-start space-x-3">
+    <div className="flex items-start space-x-3 select-none">
       {/* Avatar (only show for first message in sequence) */}
       <div className="w-8 h-8 flex-shrink-0">
         {showAvatar ? (
