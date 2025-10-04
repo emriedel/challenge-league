@@ -45,8 +45,8 @@ export function useDocumentPullToRefresh({
 
   // Handle touch start
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    // Don't start pull-to-refresh if modal is open
-    if (disabled || !isAtDocumentTop() || document.body.hasAttribute('data-modal-open')) return;
+    // Don't start pull-to-refresh if modal is open or pinch-zoom is active
+    if (disabled || !isAtDocumentTop() || document.body.hasAttribute('data-modal-open') || document.body.hasAttribute('data-pinch-zoom-active')) return;
 
     // Check if the touch target is part of any navigation
     const target = e.target as HTMLElement;
@@ -62,8 +62,8 @@ export function useDocumentPullToRefresh({
 
   // Handle touch move
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    // Don't handle touch move if modal is open
-    if (disabled || touchStartY.current === null || document.body.hasAttribute('data-modal-open')) return;
+    // Don't handle touch move if modal is open or pinch-zoom is active
+    if (disabled || touchStartY.current === null || document.body.hasAttribute('data-modal-open') || document.body.hasAttribute('data-pinch-zoom-active')) return;
 
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - touchStartY.current;

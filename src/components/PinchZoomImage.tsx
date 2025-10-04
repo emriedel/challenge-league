@@ -72,6 +72,9 @@ export default function PinchZoomImage({
       document.body.style.width = '100%';
       document.body.dataset.scrollY = scrollY.toString();
 
+      // Signal to pull-to-refresh that pinch-zoom is active
+      document.body.setAttribute('data-pinch-zoom-active', 'true');
+
       initialDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
       initialScaleRef.current = scale;
       initialCenterRef.current = getCenter(e.touches[0], e.touches[1]);
@@ -115,6 +118,9 @@ export default function PinchZoomImage({
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
+
+      // Remove pinch-zoom signal
+      document.body.removeAttribute('data-pinch-zoom-active');
 
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY));
