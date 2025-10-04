@@ -64,13 +64,9 @@ export default function PinchZoomImage({
       e.stopPropagation(); // Stop event from bubbling
       setIsZooming(true);
 
-      // Freeze the page scroll and prevent pull-to-refresh
-      const scrollY = window.scrollY;
+      // Freeze scrolling without changing position (prevents nav jump)
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.dataset.scrollY = scrollY.toString();
+      document.body.style.touchAction = 'none';
 
       // Signal to pull-to-refresh that pinch-zoom is active
       document.body.setAttribute('data-pinch-zoom-active', 'true');
@@ -112,20 +108,12 @@ export default function PinchZoomImage({
     if (e.touches.length < 2) {
       setIsZooming(false);
 
-      // Unfreeze the page scroll and restore scroll position
-      const scrollY = document.body.dataset.scrollY;
+      // Unfreeze scrolling
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      document.body.style.touchAction = '';
 
       // Remove pinch-zoom signal
       document.body.removeAttribute('data-pinch-zoom-active');
-
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY));
-        delete document.body.dataset.scrollY;
-      }
 
       // Smooth transition back to original size and position
       setScale(1);
@@ -144,7 +132,7 @@ export default function PinchZoomImage({
     initialScaleRef.current = 1;
   }, [src]);
 
-  const zoomedContent = isZooming && scale > 1 && mounted ? (
+  const zoomedContent = (isZooming || scale > 1) && mounted ? (
     createPortal(
       <>
         {/* Backdrop overlay */}
@@ -152,7 +140,8 @@ export default function PinchZoomImage({
           className="fixed inset-0 bg-black/40 pointer-events-none"
           style={{
             zIndex: 9998,
-            transition: 'opacity 0.2s ease-out'
+            opacity: isZooming && scale > 1 ? 1 : 0,
+            transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         />
 
@@ -165,7 +154,7 @@ export default function PinchZoomImage({
             style={{
               transform: `scale(${scale}) translate(${translateX / scale}px, ${translateY / scale}px)`,
               transformOrigin: 'center center',
-              transition: 'none',
+              transition: isZooming ? 'none' : 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
               willChange: 'transform',
               width: containerRef.current?.offsetWidth || width,
               maxWidth: '100vw'
@@ -202,7 +191,7 @@ export default function PinchZoomImage({
           touchAction: isZooming ? 'none' : 'pan-y', // Allow scrolling unless actively zooming
           userSelect: 'none',
           opacity: isZooming && scale > 1 ? 0 : 1,
-          transition: isZooming ? 'none' : 'opacity 0.2s ease-out',
+          transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
           WebkitOverflowScrolling: 'touch'
         }}
       >
