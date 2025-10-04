@@ -37,11 +37,30 @@ export default function PinchZoomImage({
   const initialScaleRef = useRef<number>(1);
   const initialCenterRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const initialTranslateRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const scrollY = useRef<number>(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Prevent all scrolling when pinch-zoom is active
+  useEffect(() => {
+    if (!isZooming) return;
+
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+
+    // Prevent scroll on window and document during pinch
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener('scroll', preventScroll, { passive: false });
+    window.addEventListener('scroll', preventScroll, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('scroll', preventScroll);
+      window.removeEventListener('scroll', preventScroll);
+    };
+  }, [isZooming]);
 
   // Calculate distance between two touch points
   const getDistance = (touch1: React.Touch, touch2: React.Touch): number => {
@@ -64,16 +83,6 @@ export default function PinchZoomImage({
       e.preventDefault(); // Prevent default zoom behavior
       e.stopPropagation(); // Stop event from bubbling
       setIsZooming(true);
-
-      // Save current scroll position
-      scrollY.current = window.scrollY;
-
-      // Freeze scrolling by fixing body position at current scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY.current}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.overflow = 'hidden';
 
       // Signal to pull-to-refresh that pinch-zoom is active
       document.body.setAttribute('data-pinch-zoom-active', 'true');
@@ -114,16 +123,6 @@ export default function PinchZoomImage({
     // Reset zoom when user lifts fingers
     if (e.touches.length < 2) {
       setIsZooming(false);
-
-      // Unfreeze scrolling and restore scroll position
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = '';
-
-      // Restore scroll position without animation
-      window.scrollTo(0, scrollY.current);
 
       // Remove pinch-zoom signal
       document.body.removeAttribute('data-pinch-zoom-active');
