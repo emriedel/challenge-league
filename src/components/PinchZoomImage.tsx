@@ -63,6 +63,12 @@ export default function PinchZoomImage({
       e.preventDefault(); // Prevent default zoom behavior
       e.stopPropagation(); // Stop event from bubbling
       setIsZooming(true);
+
+      // Freeze the page scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+
       initialDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
       initialScaleRef.current = scale;
       initialCenterRef.current = getCenter(e.touches[0], e.touches[1]);
@@ -99,6 +105,11 @@ export default function PinchZoomImage({
     // Reset zoom when user lifts fingers
     if (e.touches.length < 2) {
       setIsZooming(false);
+
+      // Unfreeze the page scroll
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
 
       // Smooth transition back to original size and position
       setScale(1);
@@ -164,7 +175,7 @@ export default function PinchZoomImage({
     <>
       <div
         ref={containerRef}
-        className="relative w-full"
+        className="relative w-full overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -175,7 +186,8 @@ export default function PinchZoomImage({
           touchAction: isZooming ? 'none' : 'pan-y', // Allow scrolling unless actively zooming
           userSelect: 'none',
           opacity: isZooming && scale > 1 ? 0 : 1,
-          transition: isZooming ? 'none' : 'opacity 0.2s ease-out'
+          transition: isZooming ? 'none' : 'opacity 0.2s ease-out',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <Image
