@@ -202,8 +202,8 @@ export default function StandingPage({ params }: StandingPageProps) {
                                 strokeWidth="2"
                                 viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg"
-                                title={entry.hasVotedCurrent ? "Submitted and voted" : "Submitted for current challenge"}
                               >
+                                <title>{entry.hasVotedCurrent ? "Submitted and voted" : "Submitted for current challenge"}</title>
                                 <circle
                                   cx="12"
                                   cy="12"
