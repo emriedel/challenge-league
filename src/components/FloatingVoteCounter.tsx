@@ -6,22 +6,27 @@ interface FloatingVoteCounterProps {
   maxVotes: number;
   isVisible: boolean;
   hasSubmittedVotes?: boolean;
+  onScrollToBottom?: () => void;
 }
 
 export default function FloatingVoteCounter({
   votesCount,
   maxVotes,
   isVisible,
-  hasSubmittedVotes = false
+  hasSubmittedVotes = false,
+  onScrollToBottom
 }: FloatingVoteCounterProps) {
   const hasMaxVotes = votesCount === maxVotes;
 
   return (
     <div className="fixed bottom-20 z-50"
          style={{ left: 'min(calc(50% + 320px), calc(100vw - 240px))' }}>
-      <div className={`bg-app-surface/85 backdrop-blur-md border border-app-border/50 shadow-lg ${
-        hasMaxVotes ? 'rounded-lg px-3 py-2' : 'rounded-full px-3 py-1.5'
-      }`}>
+      <button
+        onClick={onScrollToBottom}
+        className={`bg-app-surface/85 backdrop-blur-md border border-app-border/50 shadow-lg hover:bg-app-surface/95 transition-all cursor-pointer ${
+          hasMaxVotes ? 'rounded-lg px-3 py-2' : 'rounded-full px-3 py-1.5'
+        }`}
+      >
         <div className="text-xs font-medium text-app-text whitespace-nowrap text-center">
           <div>
             {votesCount}/{maxVotes} votes cast
@@ -32,7 +37,7 @@ export default function FloatingVoteCounter({
             </div>
           )}
         </div>
-      </div>
+      </button>
     </div>
   );
 }

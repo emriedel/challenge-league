@@ -68,6 +68,14 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
     });
   }, []);
 
+  // Handle scroll-to-bottom (for voting submit button)
+  const handleScrollToBottom = useCallback(() => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  }, []);
+
   // Handle navigation refresh trigger
   const handleNavigationRefresh = useCallback(async () => {
     await handleRefresh();
@@ -396,8 +404,15 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
 
       {/* Floating Vote Counter - Shows during voting when bottom not visible */}
       {showVoting && votingData && !isBottomVisible && !(votingData.existingVotes && Object.keys(votingData.existingVotes).length > 0) && (
-        <div className="fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100">
-          <div className="bg-app-surface-light backdrop-blur-md border border-app-border-light shadow-lg rounded-full px-4 py-2">
+        <div
+          onClick={liveVoteCount === (league?.votesPerPlayer || 3) ? handleScrollToBottom : undefined}
+          className={`fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100 ${
+            liveVoteCount === (league?.votesPerPlayer || 3) ? 'cursor-pointer' : ''
+          }`}
+        >
+          <div className={`bg-app-surface-light backdrop-blur-md border border-app-border-light shadow-lg rounded-full px-4 py-2 transition-colors ${
+            liveVoteCount === (league?.votesPerPlayer || 3) ? 'hover:bg-app-surface hover:border-app-border' : ''
+          }`}>
             <div className="text-xs font-medium text-app-text whitespace-nowrap text-center">
               <div>
                 {liveVoteCount}/{league?.votesPerPlayer || 3} votes cast

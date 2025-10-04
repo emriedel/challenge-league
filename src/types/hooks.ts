@@ -28,6 +28,7 @@ export interface VotingData {
   existingVotes: VoteMap;
   votableResponseIds?: string[]; // IDs of responses that can be voted on
   currentUserId?: string; // Current user's ID for frontend logic
+  selfVote?: { responseId: string } | null; // User's self-vote (free vote for own submission)
 }
 
 export interface UseVotingReturn extends UseAsyncReturn<VotingData> {

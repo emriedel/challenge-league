@@ -81,10 +81,29 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
   // Trust database state - if prompt status is VOTING, allow voting
   const realisticVoteEndTime = getRealisticPhaseEndTime(votingPrompt, leagueSettings);
 
-  // Get user's existing votes for this prompt
+  // Get user's existing votes for this prompt (excluding self-votes)
   const existingVotes = await db.vote.findMany({
     where: {
       voterId: session.user.id,
+      isSelfVote: false, // Exclude self-votes from user's votable votes
+      response: {
+        promptId: votingPrompt.id
+      }
+    },
+    include: {
+      response: {
+        select: {
+          id: true
+        }
+      }
+    }
+  });
+
+  // Get self-vote separately (for UI display)
+  const selfVote = await db.vote.findFirst({
+    where: {
+      voterId: session.user.id,
+      isSelfVote: true,
       response: {
         promptId: votingPrompt.id
       }
@@ -109,6 +128,7 @@ const getVotingData = async ({ req, session }: AuthenticatedApiContext) => {
     responses: allResponses, // Include all responses
     votableResponseIds: votableResponses.map(r => r.id), // Track which ones can be voted on
     existingVotes: existingVotes,
+    selfVote: selfVote ? { responseId: selfVote.response.id } : null, // Include self-vote info
     canVote: true,
     voteEnd: realisticVoteEndTime?.toISOString(),
     currentUserId: session.user.id // Include current user ID for frontend logic
@@ -204,10 +224,11 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
     }
   }
 
-  // Remove existing votes for this prompt
+  // Remove existing votes for this prompt (excluding self-votes which are permanent)
   await db.vote.deleteMany({
     where: {
       voterId: session.user.id,
+      isSelfVote: false, // Don't delete self-votes
       response: {
         promptId: votingPrompt.id
       }
@@ -227,6 +248,18 @@ const submitVotes = async ({ req, session }: AuthenticatedApiContext) => {
       });
       createdVotes.push(vote);
     }
+  }
+
+  // Create self-vote if user has a submission for this prompt
+  const userSubmission = votingPrompt.responses.find(r => r.userId === session.user.id);
+  if (userSubmission) {
+    await db.vote.create({
+      data: {
+        voterId: session.user.id,
+        responseId: userSubmission.id,
+        isSelfVote: true
+      }
+    });
   }
 
   // Refresh PWA badge since user action completed

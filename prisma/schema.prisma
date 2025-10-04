@@ -168,8 +168,9 @@ model LeagueMembership {
 }
 
 model Vote {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  isSelfVote Boolean  @default(false) // True if this is a free vote for user's own submission
 
   voterId    String
   voter      User     @relation(fields: [voterId], references: [id], onDelete: Cascade)

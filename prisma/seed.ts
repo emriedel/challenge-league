@@ -294,6 +294,18 @@ async function main() {
             },
           });
         }
+
+        // Create self-vote if voter has a submission (free vote for their own submission)
+        const voterSubmission = createdResponses.find(r => r.userId === voter.id);
+        if (voterSubmission) {
+          await prisma.vote.create({
+            data: {
+              voterId: voter.id,
+              responseId: voterSubmission.id,
+              isSelfVote: true,
+            },
+          });
+        }
       }
 
       // Create comments from some league members on responses (1-4 comments per response)
@@ -371,7 +383,7 @@ async function main() {
     // Create some partial submissions for current round (30-50% of members)
     const currentParticipationRate = 0.3 + Math.random() * 0.2;
     const currentParticipants = Math.floor(leagueMembers.length * currentParticipationRate);
-    
+
     for (let i = 0; i < currentParticipants; i++) {
       await prisma.response.create({
         data: {
