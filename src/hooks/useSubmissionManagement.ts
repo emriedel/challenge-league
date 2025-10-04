@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { compressImage } from '@/lib/imageCompression';
 
 interface SubmissionData {
   photo: File;
@@ -93,8 +94,16 @@ export function useSubmissionManagement({
 
       // Upload new photo if one was selected
       if (data.photo) {
+        // Compress the image before upload
+        const compressedFile = await compressImage(data.photo, {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          maxSizeBytes: 1 * 1024 * 1024, // 1MB target
+        });
+
         const formData = new FormData();
-        formData.append('file', data.photo);
+        formData.append('file', compressedFile);
 
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
