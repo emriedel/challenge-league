@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import PinchZoomImage from './PinchZoomImage';
 import ProfileAvatar from './ProfileAvatar';
 
 interface PhotoFeedItemProps {
@@ -100,12 +100,8 @@ export default function PhotoFeedItem({
       </div>
       
       {/* Full-width Image */}
-      <div 
-        className={`relative w-full max-w-2xl mx-auto ${onImageClick ? 'cursor-pointer select-none' : ''}`}
-        onClick={onImageClick}
-        style={onImageClick ? { WebkitTapHighlightColor: 'transparent' } : undefined}
-      >
-        <Image
+      <div className="relative w-full max-w-2xl mx-auto">
+        <PinchZoomImage
           src={imageUrl}
           alt={caption}
           width={800}
@@ -113,8 +109,9 @@ export default function PhotoFeedItem({
           className={`w-full h-auto object-contain bg-app-surface-dark ${imageClassName}`}
           style={{ maxHeight: '80vh' }}
           priority={priority}
+          overlay={imageOverlay}
+          onClick={onImageClick}
         />
-        {imageOverlay}
       </div>
       
       {/* Caption */}
