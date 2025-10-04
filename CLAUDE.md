@@ -13,8 +13,10 @@ Challenge League is a web application inspired by Taskmaster, where players join
 - **Database**: PostgreSQL with Prisma ORM (Docker for development)
 - **Authentication**: NextAuth.js with email/password
 - **File Storage**: Vercel Blob for photo uploads
+- **Email**: Resend with React Email templates
 - **Deployment**: Vercel with automated CI/CD
 - **Testing**: Vitest (unit) + Playwright (integration)
+- **App Domain**: challenge-league.app
 - **Future**: React Native app using same backend
 
 ## Development Guidelines
@@ -32,6 +34,7 @@ Challenge League is a web application inspired by Taskmaster, where players join
 src/
 ├── app/                 # Next.js app directory (pages and layouts)
 ├── components/          # Reusable UI components
+├── emails/              # React Email templates
 ├── lib/                 # Database, auth, and utility functions
 ├── hooks/               # Custom React hooks
 ├── types/               # TypeScript type definitions (centralized)
@@ -438,12 +441,150 @@ The app includes a comprehensive web push notification system that automatically
 ```bash
 # Server-side VAPID keys (keep secret!)
 VAPID_PUBLIC_KEY=your-public-key
-VAPID_PRIVATE_KEY=your-private-key  
-VAPID_SUBJECT=mailto:admin@challengeleague.com
+VAPID_PRIVATE_KEY=your-private-key
+VAPID_SUBJECT=mailto:admin@challenge-league.app
 
 # Client-side VAPID key (public, safe to expose)
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 ```
+
+## Email System
+
+### 🚧 Current Status: INFRASTRUCTURE READY, SENDING DISABLED
+
+The email system infrastructure is fully implemented and tested, but **all email sending is currently disabled** until ready for production launch. The code is ready to be enabled with simple uncomments.
+
+### Overview
+The app uses Resend for transactional emails with beautiful React Email templates. Email notifications keep users engaged and provide critical account functionality.
+
+### Features
+- **Password Reset**: Secure token-based password recovery flow
+- **Email Verification**: Optional verification to validate user email addresses (not required to use app)
+- **Challenge Notifications**: Automatic emails when new challenges start
+- **User Preferences**: Granular control over notification types
+
+### Email Types
+
+#### Transactional (Always Sent)
+- **Password Reset**: One-hour expiring magic link to reset forgotten passwords
+- **Email Verification**: 24-hour expiring link to verify email address
+
+#### Notification Emails (User Preferences)
+- **Challenge Started**: Sent when new challenge activates (default: ON)
+- **Voting Started**: Sent when voting phase begins (default: ON)
+- **Results Ready**: Sent when challenge results are available (default: ON)
+- **Weekly Digest**: Summary of league activity (default: OFF)
+
+### Technical Implementation
+
+**Email Templates** (`/src/emails/`)
+- Built with React Email for beautiful, responsive emails
+- Dark theme matching app aesthetic
+- Components: `PasswordReset.tsx`, `VerifyEmail.tsx`, `ChallengeStarted.tsx`
+
+**Email Utilities** (`/src/lib/email.ts`)
+- `sendEmail()`: Core sending function using Resend API
+- `generateToken()`: Secure random token generation
+- `getPasswordResetUrl()`, `getEmailVerificationUrl()`: Link generators
+
+**Email Notifications** (`/src/lib/emailNotifications.ts`)
+- `sendChallengeStartedEmails()`: Batch email sending to league members
+- Respects user email preferences
+- Integrated into cron job for automatic sending
+
+**Database Models**
+```prisma
+model User {
+  // Email verification
+  emailVerified      DateTime?
+  verificationToken  String?
+  verificationExpiry DateTime?
+
+  // Password reset
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  emailPreferences EmailPreferences?
+}
+
+model EmailPreferences {
+  challengeStarted Boolean @default(true)
+  votingStarted    Boolean @default(true)
+  resultsReady     Boolean @default(true)
+  weeklyDigest     Boolean @default(false)
+}
+```
+
+### Environment Variables Required
+```bash
+# Resend API (required for email functionality)
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+
+# Email configuration
+FROM_EMAIL=noreply@challenge-league.app
+NEXT_PUBLIC_APP_URL=https://challenge-league.app
+```
+
+### User Flows
+
+**Password Reset Flow**
+1. User clicks "Forgot Password?" on sign-in page
+2. Enters email address
+3. Receives email with reset link (1-hour expiration)
+4. Clicks link, enters new password
+5. Redirected to sign-in page
+
+**Email Verification Flow** (Optional)
+1. User signs up for account
+2. Receives verification email (24-hour expiration)
+3. Clicks link to verify
+4. Email marked as verified in database
+5. Can now receive notification emails
+
+**Challenge Notification Flow** (Automated)
+1. Cron job activates new challenge
+2. System checks each league member's email preferences
+3. Sends email to opted-in users with verified emails
+4. Email includes challenge text, deadline, and direct link
+
+### Email Preference Management
+Users can control their email notifications through:
+- Profile settings (future implementation)
+- Default preferences set during account creation
+- Unsubscribe links in emails (future implementation)
+
+### What's Disabled (To Enable When Ready)
+
+All email sending is currently commented out with `// TODO: Re-enable when email system is launched`:
+
+1. **Forgot Password Link** (`src/app/app/auth/signin/page.tsx:100-106`)
+   - Commented out in UI - users won't see the link
+   - To enable: Uncomment the Link component
+
+2. **Password Reset Email** (`src/app/api/auth/forgot-password/route.ts:54-68`)
+   - Token is still generated and saved to database
+   - Email sending is disabled
+   - To enable: Uncomment the `sendEmail()` call
+
+3. **Challenge Notification Emails** (`src/lib/promptQueue.ts:552-563`)
+   - Cron job still runs and activates challenges
+   - Push notifications still work
+   - Email sending is disabled
+   - To enable: Uncomment the `sendChallengeStartedEmails()` call
+
+### Email Launch Checklist
+
+Before enabling emails in production:
+
+- [ ] **Test Email Templates** - Send test emails to review formatting and content
+- [ ] **Verify Domain in Resend** - Ensure challenge-league.app is fully verified
+- [ ] **Review Email Copy** - Audit all email text for tone and clarity
+- [ ] **Test Password Reset Flow** - Complete end-to-end test
+- [ ] **Test Challenge Notifications** - Verify timing and content
+- [ ] **Add Email Preferences UI** - Let users control their notifications
+- [ ] **Add Email Verification on Signup** - Optional but recommended
+- [ ] **Uncomment Email Sending Code** - Re-enable all three disabled sections
+- [ ] **Deploy to Production** - Push changes with email system enabled
 
 ## Current Status Summary
 
@@ -453,15 +594,31 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-public-key
 - Automated competition cycle management
 - Multiple league support with configurable settings
 - Push notification system for phase transitions
+- Email system infrastructure (Resend + React Email templates)
 - Dark theme with semantic color system
 - PostgreSQL database with automated migrations
+
+**🚧 Ready But Disabled (Awaiting Launch):**
+- Password reset emails
+- Challenge notification emails
+- Email verification system
+- Email preference management
 
 **🔄 In Progress:**
 - Enhanced UI/UX polish and animations
 - Integration testing
 
+**📋 Next Steps for Email Launch:**
+1. Send test emails for review and approval
+2. Enable email sending (uncomment code)
+3. Add email preferences UI in user profile
+4. Add email verification on signup (optional)
+5. Deploy to production
+
 **📋 Future Enhancements:**
 - Mobile app development
+- Voting/results notification emails
+- Weekly digest emails
 
 ## Cache Invalidation System
 

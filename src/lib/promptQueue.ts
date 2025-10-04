@@ -4,6 +4,7 @@ import { del } from '@vercel/blob';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { sendNotificationToLeague, sendNotificationToUser, createNotificationData } from './pushNotifications';
+import { sendChallengeStartedEmails } from './emailNotifications';
 
 async function cleanupOldPhotos() {
   try {
@@ -533,19 +534,33 @@ export async function processPromptQueue() {
           console.log(`   🎉 Successfully activated: "${nextScheduledPrompt.text}"`);
           console.log(`      Phase started at: ${normalizedNow.toISOString()}`);
 
-          // Send notification to league members about the new prompt
+          // Send push notification to league members about the new prompt
           try {
             const notificationData = createNotificationData('new-prompt-available', {
               promptText: nextScheduledPrompt.text,
               leagueName: league.name,
               leagueId: league.id
             });
-            
+
             await sendNotificationToLeague(league.id, notificationData);
-            console.log(`   📱 Sent new prompt notification: "${nextScheduledPrompt.text}"`);
+            console.log(`   📱 Sent new prompt push notification: "${nextScheduledPrompt.text}"`);
           } catch (notificationError) {
-            console.error(`   ❌ Failed to send new prompt notification: ${notificationError}`);
+            console.error(`   ❌ Failed to send new prompt push notification: ${notificationError}`);
           }
+
+          // Send email notifications to league members
+          // TODO: Re-enable when email system is launched
+          // try {
+          //   const emailResult = await sendChallengeStartedEmails(
+          //     league.id,
+          //     nextScheduledPrompt.text,
+          //     league.name
+          //   );
+          //   console.log(`   📧 Sent challenge started emails: ${emailResult.sent} sent, ${emailResult.failed} failed`);
+          // } catch (emailError) {
+          //   console.error(`   ❌ Failed to send challenge started emails: ${emailError}`);
+          // }
+          console.log(`   📧 Email notifications disabled - will be enabled when email system launches`);
         } catch (updateError) {
           console.error(`   ❌ Failed to activate prompt "${nextScheduledPrompt.text}":`);
           console.error(`      Error: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);

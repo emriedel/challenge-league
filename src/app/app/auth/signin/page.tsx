@@ -97,6 +97,13 @@ export default function SignIn() {
                 <label htmlFor="password" className="block text-sm font-medium text-app-text-secondary mb-1.5">
                   Password
                 </label>
+                {/* TODO: Re-enable forgot password link when email system is launched */}
+                {/* <Link
+                  href="/app/auth/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
+                >
+                  Forgot password?
+                </Link> */}
                 <input
                   id="password"
                   name="password"

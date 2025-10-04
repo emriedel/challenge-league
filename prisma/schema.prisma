@@ -47,6 +47,15 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Email verification
+  emailVerified      DateTime? // When email was verified
+  verificationToken  String?   // Token for email verification
+  verificationExpiry DateTime? // Verification token expiration
+
+  // Password reset
+  resetToken       String?   // Password reset token
+  resetTokenExpiry DateTime? // Reset token expiration (1 hour)
+
   accounts Account[]
   sessions Session[]
   responses Response[]
@@ -57,6 +66,7 @@ model User {
   pushSubscriptions PushSubscription[]
   chatMessages ChatMessage[]
   activities UserActivity[]
+  emailPreferences EmailPreferences?
 
   @@map("users")
 }
@@ -236,4 +246,21 @@ model UserActivity {
 
   @@unique([userId, leagueId]) // One activity record per user per league
   @@map("user_activities")
+}
+
+model EmailPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Email notification preferences
+  challengeStarted Boolean @default(true)  // New challenge has started
+  votingStarted    Boolean @default(true)  // Voting phase has begun
+  resultsReady     Boolean @default(true)  // Challenge results are available
+  weeklyDigest     Boolean @default(false) // Weekly league summary
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_preferences")
 }
