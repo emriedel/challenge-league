@@ -26,6 +26,8 @@ interface LeagueStats {
 interface LeaderboardEntry {
   user: LeagueUser;
   stats: LeagueStats;
+  hasSubmittedCurrent?: boolean;
+  hasVotedCurrent?: boolean;
 }
 
 interface RecentActivity {

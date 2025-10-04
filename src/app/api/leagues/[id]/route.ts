@@ -74,6 +74,48 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     });
 
+    // Get current active or voting prompt to check who has submitted
+    const currentPrompt = await db.prompt.findFirst({
+      where: {
+        leagueId: league.id,
+        status: { in: ['ACTIVE', 'VOTING'] }
+      },
+      select: {
+        id: true,
+        responses: {
+          where: {
+            userId: { in: memberUserIds }
+            // Don't filter by isPublished - we want to show icon for users who submitted
+            // even during ACTIVE phase (before responses are published)
+          },
+          select: {
+            userId: true
+          }
+        }
+      }
+    });
+
+    // Create a set of user IDs who have submitted to the current prompt
+    const currentSubmitters = new Set(
+      currentPrompt?.responses.map(r => r.userId) || []
+    );
+
+    // Get votes for the current prompt to check who has voted
+    const currentVoters = currentPrompt ? await db.vote.findMany({
+      where: {
+        voterId: { in: memberUserIds },
+        response: {
+          promptId: currentPrompt.id
+        }
+      },
+      select: {
+        voterId: true
+      },
+      distinct: ['voterId']
+    }) : [];
+
+    const currentVoterIds = new Set(currentVoters.map(v => v.voterId));
+
     // Process data in memory to calculate leaderboard stats
     const leaderboard = (league.memberships || []).map((membership) => {
       const userId = membership.userId;
@@ -110,7 +152,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             : 0,
           votingParticipation: userVotedPromptIds.size,
           totalCompletedRounds: completedPrompts.length
-        }
+        },
+        hasSubmittedCurrent: currentSubmitters.has(userId),
+        hasVotedCurrent: currentVoterIds.has(userId)
       };
     });
 

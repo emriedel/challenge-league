@@ -194,6 +194,33 @@ export default function StandingPage({ params }: StandingPageProps) {
                             >
                               {entry.user.username}
                             </span>
+                            {entry.hasSubmittedCurrent && (
+                              <svg
+                                className="w-4 h-4 text-app-text-secondary flex-shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                                title={entry.hasVotedCurrent ? "Submitted and voted" : "Submitted for current challenge"}
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  fill={entry.hasVotedCurrent ? "currentColor" : "none"}
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                />
+                                <path
+                                  d="M9 12l2 2 4-4"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  stroke={entry.hasVotedCurrent ? "#000000" : "currentColor"}
+                                  strokeWidth="2"
+                                />
+                              </svg>
+                            )}
                           </div>
                         </td>
                       <td className={`px-3 py-4 whitespace-nowrap text-sm text-app-text font-medium text-center ${
