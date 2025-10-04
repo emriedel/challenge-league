@@ -64,10 +64,13 @@ export default function PinchZoomImage({
       e.stopPropagation(); // Stop event from bubbling
       setIsZooming(true);
 
-      // Freeze the page scroll
+      // Freeze the page scroll and prevent pull-to-refresh
+      const scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
+      document.body.dataset.scrollY = scrollY.toString();
 
       initialDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
       initialScaleRef.current = scale;
@@ -106,10 +109,17 @@ export default function PinchZoomImage({
     if (e.touches.length < 2) {
       setIsZooming(false);
 
-      // Unfreeze the page scroll
+      // Unfreeze the page scroll and restore scroll position
+      const scrollY = document.body.dataset.scrollY;
       document.body.style.overflow = '';
       document.body.style.position = '';
+      document.body.style.top = '';
       document.body.style.width = '';
+
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY));
+        delete document.body.dataset.scrollY;
+      }
 
       // Smooth transition back to original size and position
       setScale(1);
