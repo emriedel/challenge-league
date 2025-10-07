@@ -98,7 +98,7 @@ export function useSubmissionManagement({
         const compressedFile = await compressImage(data.photo, {
           maxWidth: 1920,
           maxHeight: 1080,
-          quality: 0.85,
+          quality: 0.90,
           maxSizeBytes: 1 * 1024 * 1024, // 1MB target
         });
 

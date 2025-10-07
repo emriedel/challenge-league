@@ -16,7 +16,7 @@ export interface CompressionOptions {
 const DEFAULT_OPTIONS: Required<CompressionOptions> = {
   maxWidth: 1920,
   maxHeight: 1080,
-  quality: 0.85,
+  quality: 0.90,
   maxSizeBytes: 1 * 1024 * 1024, // 1MB
 };
 
@@ -66,7 +66,7 @@ export async function compressImage(
           // Check if compression was successful
           if (blob.size > opts.maxSizeBytes) {
             // If still too large, try with lower quality
-            const lowerQuality = Math.max(0.5, opts.quality - 0.2);
+            const lowerQuality = Math.max(0.75, opts.quality - 0.15);
             canvas.toBlob(
               (retryBlob) => {
                 if (!retryBlob) {

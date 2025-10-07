@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
+import { compressImage, formatFileSize } from '@/lib/imageCompression';
 
 export default function ProfileSetup() {
   const { data: session, update: updateSession } = useSession();
@@ -43,8 +44,18 @@ export default function ProfileSetup() {
 
     setIsUploading(true);
     try {
+      // Compress image before upload (smaller for profile photos)
+      const compressedFile = await compressImage(profilePhoto, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.8,
+        maxSizeBytes: 500 * 1024, // 500KB target for profile photos
+      });
+
+      console.log(`Profile photo: ${formatFileSize(profilePhoto.size)} → ${formatFileSize(compressedFile.size)}`);
+
       const formData = new FormData();
-      formData.append('photo', profilePhoto);
+      formData.append('photo', compressedFile);
 
       const response = await fetch('/api/profile/photo', {
         method: 'POST',
@@ -59,7 +70,7 @@ export default function ProfileSetup() {
 
       // Update the session with new profile photo
       await updateSession();
-      
+
       return data.photoUrl;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to upload photo');
