@@ -30,6 +30,16 @@ const nextConfig = {
   // Ensure all API routes are treated as dynamic
   async headers() {
     return [
+      // Root page - no caching due to dynamic auth check
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
       // Security headers for all pages
       {
         source: '/(.*)',

@@ -1,10 +1,10 @@
-const CACHE_NAME = 'challenge-league-v2';
-const STATIC_CACHE_NAME = 'challenge-league-static-v2';
-const DYNAMIC_CACHE_NAME = 'challenge-league-dynamic-v2';
+const CACHE_NAME = 'challenge-league-v3';
+const STATIC_CACHE_NAME = 'challenge-league-static-v3';
+const DYNAMIC_CACHE_NAME = 'challenge-league-dynamic-v3';
 
 // Files to cache on install
+// Note: '/' is excluded because it's a dynamic page that checks auth status
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
   '/logo.png',
   '/favicon.png',

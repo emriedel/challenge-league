@@ -2,8 +2,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
 import PWAInstallButton from '@/components/PWAInstallButton';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-export default function LandingPage() {
+// Force dynamic rendering to prevent static caching issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function LandingPage() {
+  // Check if user is already signed in
+  const session = await getServerSession(authOptions);
+  const signInHref = session?.user?.id ? '/app' : '/app/auth/signin';
   return (
     <div className="min-h-screen bg-app-bg">
       {/* Header */}
@@ -24,7 +33,7 @@ export default function LandingPage() {
             </div>
             <div className="flex space-x-4">
               <Link
-                href="/app/auth/signin"
+                href={signInHref}
                 className="px-4 py-2 text-app-text hover:text-app-text-secondary transition-colors text-center"
               >
                 Sign in

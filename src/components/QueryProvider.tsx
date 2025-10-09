@@ -1,8 +1,15 @@
 'use client';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { lazy, Suspense } from 'react';
 import { queryClient } from '@/lib/queryClient';
+
+// Lazy load devtools to prevent chunk loading issues
+const ReactQueryDevtools = lazy(() =>
+  import('@tanstack/react-query-devtools').then((mod) => ({
+    default: mod.ReactQueryDevtools,
+  }))
+);
 
 interface QueryProviderProps {
   children: React.ReactNode;
@@ -18,10 +25,12 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       {children}
       {/* Show dev tools in development */}
       {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools 
-          initialIsOpen={false}
-          buttonPosition="top-left"
-        />
+        <Suspense fallback={null}>
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            buttonPosition="top-left"
+          />
+        </Suspense>
       )}
     </QueryClientProvider>
   );
