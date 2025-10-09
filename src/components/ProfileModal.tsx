@@ -15,6 +15,9 @@ interface ProfileModalProps {
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { data: session, update } = useSession();
   const [isUploading, setIsUploading] = useState(false);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
   const { addMessage, messages } = useMessages();
   const message = messages.profile;
 
@@ -98,6 +101,59 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     await signOut({ callbackUrl: '/app/auth/signin' });
   };
 
+  const handleEditUsername = () => {
+    setNewUsername(session?.user.username || '');
+    setIsEditingUsername(true);
+  };
+
+  const handleCancelEditUsername = () => {
+    setIsEditingUsername(false);
+    setNewUsername('');
+  };
+
+  const handleUpdateUsername = async () => {
+    if (!newUsername.trim() || newUsername === session?.user.username) {
+      setIsEditingUsername(false);
+      return;
+    }
+
+    setIsUpdatingUsername(true);
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: newUsername }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update username');
+      }
+
+      const { user } = await response.json();
+
+      // Update the session with the new username
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          username: user.username,
+        },
+      });
+
+      addMessage('profile', { type: 'success', text: 'Username updated successfully!' });
+      setIsEditingUsername(false);
+    } catch (error: any) {
+      console.error('Error updating username:', error);
+      addMessage('profile', { type: 'error', text: error.message || 'Failed to update username' });
+    } finally {
+      setIsUpdatingUsername(false);
+    }
+  };
+
   if (!session) return null;
 
   return (
@@ -167,7 +223,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <button
                   onClick={() => document.getElementById('profile-photo-input')?.click()}
                   disabled={isUploading}
-                  className="absolute -bottom-2 -right-2 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-[#3a8e8c] text-white hover:bg-[#2f7371] w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] flex items-center justify-center p-0"
+                  className="absolute -bottom-2 -right-2 rounded-full shadow-lg transition-colors disabled:opacity-50 bg-[#3a8e8c] text-white hover:bg-[#2f7371] w-8 h-8 flex items-center justify-center p-0"
                 >
                   {isUploading ? (
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -191,7 +247,55 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-app-text-muted mb-1">Username</label>
-                <p className="text-app-text font-medium">@{session.user.username}</p>
+                {isEditingUsername ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      disabled={isUpdatingUsername}
+                      className="w-full px-3 py-2 bg-app-surface border border-app-border rounded-lg text-app-text focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:border-transparent disabled:opacity-50"
+                      placeholder="Enter new username"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleUpdateUsername}
+                        disabled={isUpdatingUsername || !newUsername.trim()}
+                        className="flex-1 px-3 py-2 bg-[#3a8e8c] text-white rounded-lg hover:bg-[#2f7371] focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                      >
+                        {isUpdatingUsername ? (
+                          <span className="flex items-center justify-center">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Saving...
+                          </span>
+                        ) : (
+                          'Save'
+                        )}
+                      </button>
+                      <button
+                        onClick={handleCancelEditUsername}
+                        disabled={isUpdatingUsername}
+                        className="flex-1 px-3 py-2 border border-app-border text-app-text-secondary hover:text-app-text hover:border-app-border-light rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <p className="text-app-text font-medium">@{session.user.username}</p>
+                    <button
+                      onClick={handleEditUsername}
+                      className="text-[#3a8e8c] hover:text-[#2f7371] text-sm font-medium transition-colors"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-app-text-muted mb-1">Email</label>
