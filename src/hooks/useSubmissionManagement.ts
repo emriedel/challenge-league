@@ -39,9 +39,12 @@ export function useSubmissionManagement({
     setIsSubmitting(true);
 
     try {
-      // First upload the photo
+      // First upload the photo with context for organized storage
       const formData = new FormData();
       formData.append('file', data.photo);
+      formData.append('type', 'challenge');
+      formData.append('leagueId', leagueId);
+      formData.append('promptId', promptId);
 
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
@@ -97,13 +100,20 @@ export function useSubmissionManagement({
         // Compress the image before upload
         const compressedFile = await compressImage(data.photo, {
           maxWidth: 1920,
-          maxHeight: 1080,
+          maxHeight: 1920, // Allow vertical photos up to 1920px tall
           quality: 0.90,
           maxSizeBytes: 1 * 1024 * 1024, // 1MB target
         });
 
+        // Log compression results for debugging
+        const { formatFileSize } = await import('@/lib/imageCompression');
+        console.log(`Challenge photo: ${formatFileSize(data.photo.size)} → ${formatFileSize(compressedFile.size)}`);
+
         const formData = new FormData();
         formData.append('file', compressedFile);
+        formData.append('type', 'challenge');
+        formData.append('leagueId', leagueId);
+        formData.append('promptId', promptId);
 
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',

@@ -53,35 +53,21 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
       console.log(`Profile photo: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
 
-      // First upload the file using the main upload endpoint
+      // Upload and update profile photo in one request
       const formData = new FormData();
-      formData.append('file', compressedFile);
+      formData.append('photo', compressedFile);
 
-      const uploadResponse = await fetch('/api/upload', {
+      const response = await fetch('/api/profile/photo', {
         method: 'POST',
         body: formData,
       });
 
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
+      if (!response.ok) {
+        const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to upload photo');
       }
 
-      const { url: photoUrl } = await uploadResponse.json();
-
-      // Then update the user's profile photo URL
-      const updateResponse = await fetch('/api/profile/photo', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ photoUrl }),
-      });
-
-      if (!updateResponse.ok) {
-        const errorData = await updateResponse.json();
-        throw new Error(errorData.error || 'Failed to update profile photo');
-      }
+      const { photoUrl } = await response.json();
 
       // Update the session with the new photo
       await update({

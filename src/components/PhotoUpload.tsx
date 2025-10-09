@@ -38,7 +38,7 @@ export default function PhotoUpload({
       // Compress the image
       const compressedFile = await compressImage(file, {
         maxWidth: 1920,
-        maxHeight: 1080,
+        maxHeight: 1920, // Allow vertical photos up to 1920px tall
         quality: 0.90,
         maxSizeBytes: 1 * 1024 * 1024, // 1MB target
       });

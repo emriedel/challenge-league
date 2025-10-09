@@ -13,18 +13,30 @@ export { dynamic } from '@/lib/apiMethods';
 export const maxDuration = 60; // 60 seconds timeout
 export const runtime = 'nodejs';
 
-
+/**
+ * Unified upload endpoint with organized folder structure
+ * Supports both profile photos and challenge submissions
+ */
 export const { POST } = createMethodHandlers({
   POST: async ({ session, req }) => {
     const formData = await req.formData();
     const file = formData.get('file') as File;
 
+    // Optional context for organizing uploads
+    const uploadType = formData.get('type') as string | null; // 'profile' or 'challenge'
+    const leagueId = formData.get('leagueId') as string | null;
+    const promptId = formData.get('promptId') as string | null;
+
     if (!file) {
       throw new ValidationError('No file provided');
     }
 
-    // Validate file size
-    if (file.size > FILE_LIMITS.PHOTO_MAX_SIZE) {
+    // Validate file size based on upload type
+    const maxSize = uploadType === 'profile'
+      ? FILE_LIMITS.PROFILE_PHOTO_MAX_SIZE
+      : FILE_LIMITS.PHOTO_MAX_SIZE;
+
+    if (file.size > maxSize) {
       throw new ValidationError('File size is too large. Please choose a smaller file.');
     }
 
@@ -49,30 +61,43 @@ export const { POST } = createMethodHandlers({
       const isDevelopment = process.env.NODE_ENV === 'development';
       const hasValidBlobToken = blobToken && blobToken.startsWith('vercel_blob_rw_') && !isDevelopment;
 
+      // Normalize file extension
+      const extensionMap: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/jpg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/gif': 'gif',
+        'image/heic': 'heic',
+        'image/heif': 'heif',
+      };
+
+      const normalizedExtension = extensionMap[file.type] || 'jpg';
+      const timestamp = Date.now();
+
+      // Determine storage path based on upload type
+      let storagePath: string;
+
+      if (uploadType === 'profile') {
+        // Profile photos: profile-photos/{userId}-{timestamp}.{ext}
+        storagePath = `profile-photos/${session.user.id}-${timestamp}.${normalizedExtension}`;
+      } else if (uploadType === 'challenge' && leagueId && promptId) {
+        // Challenge submissions: challenges/{leagueId}/{promptId}/{userId}-{timestamp}.{ext}
+        storagePath = `challenges/${leagueId}/${promptId}/${session.user.id}-${timestamp}.${normalizedExtension}`;
+      } else {
+        // Fallback for generic uploads
+        storagePath = `uploads/${timestamp}.${normalizedExtension}`;
+      }
+
       if (hasValidBlobToken) {
-        // Normalize filename to avoid Vercel Blob pattern errors
-        const extensionMap: Record<string, string> = {
-          'image/jpeg': 'jpg',
-          'image/jpg': 'jpg',
-          'image/png': 'png',
-          'image/webp': 'webp',
-          'image/gif': 'gif',
-          'image/heic': 'heic',
-          'image/heif': 'heif',
-        };
-
-        const normalizedExtension = extensionMap[file.type] || 'jpg';
-        const sanitizedFilename = `upload-${Date.now()}.${normalizedExtension}`;
-
-        // Upload to Vercel Blob
-        const { url } = await put(sanitizedFilename, file, {
+        // Upload to Vercel Blob with organized path
+        const { url } = await put(storagePath, file, {
           access: 'public',
           token: blobToken,
         });
 
-        return NextResponse.json({ url });
+        return NextResponse.json({ url, storagePath });
       } else {
-        
         // Fallback: store locally in public/uploads
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
@@ -85,8 +110,7 @@ export const { POST } = createMethodHandlers({
           // Directory might already exist, that's fine
         }
 
-        // Generate unique filename
-        const timestamp = Date.now();
+        // Generate unique filename for local storage
         const filename = `${timestamp}-${file.name}`;
         const filepath = join(uploadsDir, filename);
 
@@ -94,7 +118,7 @@ export const { POST } = createMethodHandlers({
         await writeFile(filepath, buffer);
 
         const url = `/uploads/${filename}`;
-        return NextResponse.json({ url });
+        return NextResponse.json({ url, storagePath: filename });
       }
     } catch (error) {
       console.error('Upload error:', error);

@@ -5,9 +5,40 @@ import { ValidationError, NotFoundError, ForbiddenError, validateRequired, valid
 import { calculatePhaseEndTime } from '@/lib/phaseCalculations';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
 import { sanitizeCaption, sanitizeText } from '@/lib/sanitize';
+import { del } from '@vercel/blob';
+import { unlink } from 'node:fs/promises';
+import { join } from 'node:path';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
+
+/**
+ * Helper function to safely delete old photo from storage
+ */
+async function deleteOldPhoto(photoUrl: string) {
+  if (!photoUrl) return;
+
+  try {
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const hasValidBlobToken = blobToken && blobToken.startsWith('vercel_blob_rw_') && !isDevelopment;
+
+    if (hasValidBlobToken && photoUrl.includes('vercel-storage.com')) {
+      // Delete from Vercel Blob
+      await del(photoUrl, { token: blobToken });
+      console.log(`Deleted old challenge photo blob: ${photoUrl}`);
+    } else if (photoUrl.startsWith('/uploads/')) {
+      // Delete from local storage
+      const filename = photoUrl.replace('/uploads/', '');
+      const filepath = join(process.cwd(), 'public', 'uploads', filename);
+      await unlink(filepath);
+      console.log(`Deleted old challenge photo local file: ${filepath}`);
+    }
+  } catch (error) {
+    // Log but don't fail - orphaned files are acceptable
+    console.error('Failed to delete old challenge photo (non-critical):', error);
+  }
+}
 
 const getResponses = async ({ req, session }: AuthenticatedApiContext) => {
   // Get league ID from query params
@@ -195,6 +226,9 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
   // Create or update the response
   let response;
   if (existingResponse) {
+    // Store old image URL for cleanup
+    const oldImageUrl = existingResponse.imageUrl;
+
     // Update existing response (using sanitized values)
     response = await db.response.update({
       where: { id: existingResponse.id },
@@ -219,6 +253,11 @@ const createResponse = async ({ req, session }: AuthenticatedApiContext) => {
         }
       }
     });
+
+    // Delete old photo only after successful DB update and if URL changed
+    if (oldImageUrl && oldImageUrl !== sanitizedPhotoUrl) {
+      await deleteOldPhoto(oldImageUrl);
+    }
   } else {
     // Create new response (using sanitized values)
     response = await db.response.create({
