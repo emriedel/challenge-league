@@ -59,6 +59,7 @@ export interface UserSubmissionDisplayProps {
   onUpdate: (data: { photo?: File; caption: string }) => Promise<void>;
   isUpdating: boolean;
   message?: Message | null;
+  challengeStartDate?: Date | null;
 }
 
 
@@ -84,6 +85,8 @@ export interface PhotoUploadProps {
   selectedPhoto?: File | null;
   previewUrl?: string | null;
   disabled?: boolean;
+  challengeStartDate?: Date | null;
+  onPhotoAgeWarning?: (warning: string | null) => void;
 }
 
 // Submission Form component props

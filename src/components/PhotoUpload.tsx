@@ -4,22 +4,25 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
 import { compressImage, formatFileSize } from '@/lib/imageCompression';
+import { checkPhotoAge } from '@/lib/photoMetadata';
 import type { PhotoUploadProps } from '@/types/components';
 
 
-export default function PhotoUpload({ 
-  onPhotoSelected, 
+export default function PhotoUpload({
+  onPhotoSelected,
   onError,
-  selectedPhoto, 
-  previewUrl, 
-  disabled = false 
+  selectedPhoto,
+  previewUrl,
+  disabled = false,
+  challengeStartDate,
+  onPhotoAgeWarning,
 }: PhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
   const handleFileSelect = async (file: File) => {
     if (disabled || isCompressing) return;
-    
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
       onError?.('Please select an image file');
@@ -35,6 +38,15 @@ export default function PhotoUpload({
     setIsCompressing(true);
 
     try {
+      // Check photo age metadata before compression
+      const ageWarning = await checkPhotoAge(file, challengeStartDate);
+      if (ageWarning && onPhotoAgeWarning) {
+        onPhotoAgeWarning(ageWarning);
+      } else if (!ageWarning && onPhotoAgeWarning) {
+        // Clear any existing warning
+        onPhotoAgeWarning(null);
+      }
+
       // Compress the image
       const compressedFile = await compressImage(file, {
         maxWidth: 1920,
@@ -46,7 +58,7 @@ export default function PhotoUpload({
       // Create preview URL from compressed file
       const preview = URL.createObjectURL(compressedFile);
       onPhotoSelected(compressedFile, preview);
-      
+
       // Log compression results for debugging
       console.log(`Compressed ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
     } catch (error) {
@@ -72,12 +84,17 @@ export default function PhotoUpload({
 
   const removePhoto = () => {
     if (disabled || isCompressing) return;
-    
+
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
     onPhotoSelected(null, '');
-    
+
+    // Clear any photo age warning
+    if (onPhotoAgeWarning) {
+      onPhotoAgeWarning(null);
+    }
+
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
