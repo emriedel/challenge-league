@@ -406,7 +406,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
       {/* Floating Vote Counter - Shows during voting when bottom not visible */}
       {showVoting && votingData && !isBottomVisible && !(votingData.existingVotes && Object.keys(votingData.existingVotes).length > 0) && (
         <div
-          onClick={liveVoteCount === (league?.votesPerPlayer || 3) ? handleScrollToBottom : undefined}
+          onClick={liveVoteCount === (league?.votesPerPlayer || 3) ? handleScrollToTop : undefined}
           className={`fixed bottom-24 right-4 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100 ${
             liveVoteCount === (league?.votesPerPlayer || 3) ? 'cursor-pointer' : ''
           }`}

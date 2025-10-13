@@ -13,6 +13,31 @@
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Styled scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a; /* app-surface color */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #525252; /* app-text-subtle color - light gray */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #737373; /* app-text-muted color - slightly lighter */
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #525252 #1a1a1a; /* thumb track */
+}
+
 /* Mobile-specific improvements */
 @layer base {
   /* Prevent pull-to-refresh and overscroll effects globally */

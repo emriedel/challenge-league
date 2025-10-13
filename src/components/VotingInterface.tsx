@@ -199,7 +199,30 @@ export default function VotingInterface({
           }
         }
       `}</style>
-      
+
+      {/* Top Submit Button Section */}
+      {!hasSubmittedVotes && (
+        <div className="bg-app-bg -pt-4 pb-6">
+          <div className="max-w-2xl mx-auto px-4">
+            <div className="flex items-center justify-center gap-4">
+              <span className="text-lg font-medium text-app-text">
+                Votes cast: {getTotalVotes()}/{requiredVotes}
+              </span>
+              <button
+                onClick={handleSubmitVotes}
+                disabled={getTotalVotes() !== requiredVotes || isSubmitting || (() => {
+                  const voteEndTime = votingData.voteEnd ? new Date(votingData.voteEnd) : null;
+                  return Boolean(voteEndTime && new Date() > voteEndTime);
+                })()}
+                className={`${getTotalVotes() === requiredVotes ? 'bg-[#3a8e8c] hover:bg-[#2d6b6a]' : 'bg-gray-800 hover:bg-gray-900'} text-white px-8 py-3 rounded-lg font-medium disabled:bg-app-surface-light disabled:cursor-not-allowed transition-colors`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Votes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Full-width Voting Feed */}
       {orderedResponses.length > 0 ? (
         <div className="space-y-4">

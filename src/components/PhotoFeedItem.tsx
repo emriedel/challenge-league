@@ -116,7 +116,7 @@ export default function PhotoFeedItem({
       
       {/* Caption */}
       <div className="px-4 pt-3 pb-2 max-w-2xl mx-auto">
-        <p className="text-app-text">
+        <p className="text-app-text" style={{ lineHeight: '1.3' }}>
           <span className="font-semibold">{user.username}</span>&nbsp;&nbsp;
           <span>{caption}</span>
         </p>
