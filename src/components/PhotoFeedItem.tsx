@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import PinchZoomImage from './PinchZoomImage';
 import ProfileAvatar from './ProfileAvatar';
 
@@ -33,7 +34,7 @@ interface PhotoFeedItemProps {
   priority?: boolean;
 }
 
-export default function PhotoFeedItem({
+function PhotoFeedItem({
   user,
   imageUrl,
   caption,
@@ -127,3 +128,6 @@ export default function PhotoFeedItem({
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders when footer content (CommentSection) updates
+export default memo(PhotoFeedItem);

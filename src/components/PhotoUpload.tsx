@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, memo } from 'react';
 import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
 import { compressImage, formatFileSize } from '@/lib/imageCompression';
@@ -8,7 +8,7 @@ import { checkPhotoAge } from '@/lib/photoMetadata';
 import type { PhotoUploadProps } from '@/types/components';
 
 
-export default function PhotoUpload({
+function PhotoUpload({
   onPhotoSelected,
   onError,
   selectedPhoto,
@@ -169,3 +169,6 @@ export default function PhotoUpload({
     </div>
   );
 }
+
+// Memoize the component to prevent re-renders when parent re-renders but props haven't changed
+export default memo(PhotoUpload);

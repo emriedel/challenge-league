@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import PhotoUpload from './PhotoUpload';
 import { CONTENT_LIMITS } from '@/constants/app';
 import type { SubmissionFormProps } from '@/types/components';
@@ -13,7 +13,9 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
   const [caption, setCaption] = useState('');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [photoAgeWarning, setPhotoAgeWarning] = useState<string | null>(null);
-  const handlePhotoSelected = (file: File | null, preview: string) => {
+
+  // Memoize callbacks to prevent PhotoUpload from re-rendering
+  const handlePhotoSelected = useCallback((file: File | null, preview: string) => {
     if (file && preview) {
       setSelectedPhoto(file);
       setPreviewUrl(preview);
@@ -22,11 +24,11 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
       setSelectedPhoto(null);
       setPreviewUrl(null);
     }
-  };
+  }, []);
 
-  const handleUploadError = (error: string) => {
+  const handleUploadError = useCallback((error: string) => {
     setUploadError(error);
-  };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +43,18 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
     });
   };
 
-  const promptForTimer = {
+  // Memoize challenge start date to prevent new Date creation on every render
+  const challengeStartDate = useMemo(
+    () => prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null,
+    [prompt.phaseStartedAt]
+  );
+
+  const promptForTimer = useMemo(() => ({
     id: prompt.id,
     status: prompt.status,
-    phaseStartedAt: prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null,
-  };
+    phaseStartedAt: challengeStartDate,
+  }), [prompt.id, prompt.status, challengeStartDate]);
+
   const isExpired = !isSubmissionWindowOpen(promptForTimer);
   const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting || isExpired;
 
@@ -77,7 +86,7 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
             selectedPhoto={selectedPhoto}
             previewUrl={previewUrl}
             disabled={isSubmitting}
-            challengeStartDate={prompt.phaseStartedAt ? new Date(prompt.phaseStartedAt) : null}
+            challengeStartDate={challengeStartDate}
             onPhotoAgeWarning={setPhotoAgeWarning}
           />
           {uploadError && (
