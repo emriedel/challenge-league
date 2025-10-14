@@ -202,8 +202,15 @@ export default function VotingInterface({
 
       {/* Top Submit Button Section */}
       {!hasSubmittedVotes && (
-        <div className="bg-app-bg -pt-4 pb-6">
+        <div className="bg-app-bg -pt-6 pb-6">
           <div className="max-w-2xl mx-auto px-4">
+            {/* Submission count */}
+            <div className="text-center mb-3">
+              <span className="text-app-text-secondary text-sm">
+                {orderedResponses.length} {orderedResponses.length === 1 ? 'submission' : 'submissions'}
+              </span>
+            </div>
+
             <div className="flex items-center justify-center gap-4">
               <span className="text-lg font-medium text-app-text">
                 Votes cast: {getTotalVotes()}/{requiredVotes}
@@ -272,7 +279,7 @@ export default function VotingInterface({
                           />
                         </svg>
                         <span>
-                          {hasVoted ? 'Voted' : 'Vote'}
+                          {hasVoted ? (hasSubmittedVotes ? 'Voted' : 'Vote Pending') : 'Vote'}
                         </span>
                       </div>
                     </button>
