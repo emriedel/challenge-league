@@ -3,8 +3,9 @@
 import { useRef, useState, memo } from 'react';
 import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
-import { compressImage, formatFileSize } from '@/lib/imageCompression';
+import { compressImage, formatFileSize, CompressionError, CompressionErrorType } from '@/lib/imageCompression';
 import { checkPhotoAge } from '@/lib/photoMetadata';
+import { logImageProcessingError } from '@/lib/clientErrorLogger';
 import type { PhotoUploadProps } from '@/types/components';
 
 
@@ -39,18 +40,28 @@ function PhotoUpload({
 
     try {
       // Check photo age metadata before compression
-      const ageWarning = await checkPhotoAge(file, challengeStartDate);
-      if (ageWarning && onPhotoAgeWarning) {
-        onPhotoAgeWarning(ageWarning);
-      } else if (!ageWarning && onPhotoAgeWarning) {
+      // This should NEVER throw - it returns null on any error
+      try {
+        const ageWarning = await checkPhotoAge(file, challengeStartDate);
+        if (ageWarning && onPhotoAgeWarning) {
+          onPhotoAgeWarning(ageWarning);
+        } else if (!ageWarning && onPhotoAgeWarning) {
+          // Clear any existing warning
+          onPhotoAgeWarning(null);
+        }
+      } catch (metadataError) {
+        // Metadata extraction failed - log but continue
+        console.warn('Photo metadata extraction failed (non-critical):', metadataError);
         // Clear any existing warning
-        onPhotoAgeWarning(null);
+        if (onPhotoAgeWarning) {
+          onPhotoAgeWarning(null);
+        }
       }
 
-      // Compress the image
+      // Compress the image with multiple fallback strategies
       const compressedFile = await compressImage(file, {
-        maxWidth: 1920,
-        maxHeight: 1920, // Allow vertical photos up to 1920px tall
+        maxWidth: 2560,
+        maxHeight: 2560, // Allow large portrait photos
         quality: 0.90,
         maxSizeBytes: 1 * 1024 * 1024, // 1MB target
       });
@@ -60,10 +71,42 @@ function PhotoUpload({
       onPhotoSelected(compressedFile, preview);
 
       // Log compression results for debugging
-      console.log(`Compressed ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      console.log(`✓ Compressed ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
     } catch (error) {
-      console.error('Compression failed:', error);
-      onError?.('Failed to process image. Please try a different photo.');
+      console.error('Image processing failed:', error);
+
+      // Log error to backend for monitoring
+      await logImageProcessingError(
+        'Photo upload processing failed',
+        file,
+        error as Error,
+        {
+          category: 'photo_upload',
+          compressionAttempted: true,
+        }
+      );
+
+      // Provide specific, helpful error messages based on error type
+      let userMessage = 'Failed to process image. Please try a different photo.';
+
+      if (error instanceof CompressionError) {
+        switch (error.type) {
+          case CompressionErrorType.IMAGE_LOAD_FAILED:
+            userMessage = 'Unable to load image. The file may be corrupted or in an unsupported format.';
+            break;
+          case CompressionErrorType.MEMORY_EXCEEDED:
+            userMessage = 'Image is too large to process. Please try a smaller photo.';
+            break;
+          case CompressionErrorType.COMPRESSION_FAILED:
+            userMessage = 'Image compression failed. Please try a different photo or reduce the file size.';
+            break;
+          case CompressionErrorType.CONTEXT_NOT_SUPPORTED:
+            userMessage = 'Your browser doesn\'t support image processing. Please try a different browser.';
+            break;
+        }
+      }
+
+      onError?.(userMessage);
     } finally {
       setIsCompressing(false);
     }

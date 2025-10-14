@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createMethodHandlers } from '@/lib/apiMethods';
 import type { AuthenticatedApiContext } from '@/lib/apiHandler';
+import { logger } from '@/lib/monitoring';
 
 interface DebugLogRequest {
   level: 'info' | 'error' | 'warn';
@@ -8,23 +9,42 @@ interface DebugLogRequest {
   userAgent: string;
   url: string;
   timestamp: string;
+  context?: Record<string, any>;
 }
 
 const logDebugInfo = async ({ req, session }: AuthenticatedApiContext) => {
-  const { level, message, userAgent, url, timestamp } = await req.json() as DebugLogRequest;
+  const { level, message, userAgent, url, timestamp, context } = await req.json() as DebugLogRequest;
 
-  // Log to server console with user context
-  const logMessage = `[${timestamp}] [${level.toUpperCase()}] User: ${session.user.username} (${session.user.id}) - ${url} - ${userAgent} - ${message}`;
-  
+  // Prepare structured log context
+  const logContext = {
+    userId: session.user.id,
+    username: session.user.username,
+    userAgent,
+    url,
+    clientTimestamp: timestamp,
+    category: 'client_error',
+    ...context, // Include any additional context from client
+  };
+
+  // Use the centralized monitoring logger for consistency
+  const logMessage = `Client: ${message}`;
+
   switch (level) {
     case 'error':
-      console.error(`🐛 CLIENT ERROR: ${logMessage}`);
+      // Create error object if we have error details in context
+      const error = context?.errorMessage
+        ? new Error(context.errorMessage)
+        : undefined;
+      if (error && context?.errorStack) {
+        error.stack = context.errorStack;
+      }
+      logger.error(logMessage, error, logContext);
       break;
     case 'warn':
-      console.warn(`⚠️  CLIENT WARNING: ${logMessage}`);
+      logger.warn(logMessage, logContext);
       break;
     default:
-      console.log(`ℹ️  CLIENT INFO: ${logMessage}`);
+      logger.info(logMessage, logContext);
   }
 
   return NextResponse.json({ success: true });
