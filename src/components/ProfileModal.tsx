@@ -47,18 +47,21 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
     try {
       // Compress image before upload (smaller for profile photos)
-      const compressedFile = await compressImage(file, {
+      const result = await compressImage(file, {
         maxWidth: 800,
         maxHeight: 800,
         quality: 0.8,
         maxSizeBytes: 500 * 1024, // 500KB target for profile photos
       });
 
-      console.log(`Profile photo: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      console.log(`Profile photo: ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
 
       // Upload and update profile photo in one request
       const formData = new FormData();
-      formData.append('photo', compressedFile);
+      formData.append('photo', result.file);
+
+      // Clean up blob URL (we don't need preview for profile uploads)
+      URL.revokeObjectURL(result.blobUrl);
 
       const response = await fetch('/api/profile/photo', {
         method: 'POST',

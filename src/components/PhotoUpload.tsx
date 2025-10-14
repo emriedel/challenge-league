@@ -58,19 +58,20 @@ function PhotoUpload({
       }
 
       // Compress the image with multiple fallback strategies
-      const compressedFile = await compressImage(file, {
+      // Returns both File object and blob URL for efficient preview
+      const result = await compressImage(file, {
         maxWidth: 2560,
         maxHeight: 2560, // Allow large portrait photos
         quality: 0.90,
         maxSizeBytes: 1 * 1024 * 1024, // 1MB target
       });
 
-      // Create preview URL from compressed file
-      const preview = URL.createObjectURL(compressedFile);
-      onPhotoSelected(compressedFile, preview);
+      // Use the blob URL directly from compression result
+      // This is more reliable than creating a new blob URL, especially on older devices
+      onPhotoSelected(result.file, result.blobUrl);
 
       // Log compression results for debugging
-      console.log(`✓ Compressed ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      console.log(`✓ Compressed ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
     } catch (error) {
       console.error('Image processing failed:', error);
 

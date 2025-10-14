@@ -116,7 +116,7 @@ export function useSubmissionManagement({
       // Upload new photo if one was selected
       if (data.photo) {
         // Compress the image before upload
-        const compressedFile = await compressImage(data.photo, {
+        const result = await compressImage(data.photo, {
           maxWidth: 1920,
           maxHeight: 1920, // Allow vertical photos up to 1920px tall
           quality: 0.90,
@@ -125,10 +125,13 @@ export function useSubmissionManagement({
 
         // Log compression results for debugging
         const { formatFileSize } = await import('@/lib/imageCompression');
-        console.log(`Challenge photo: ${formatFileSize(data.photo.size)} → ${formatFileSize(compressedFile.size)}`);
+        console.log(`Challenge photo: ${formatFileSize(data.photo.size)} → ${formatFileSize(result.file.size)}`);
 
         const formData = new FormData();
-        formData.append('file', compressedFile);
+        formData.append('file', result.file);
+
+        // Clean up blob URL (we don't need preview for direct uploads)
+        URL.revokeObjectURL(result.blobUrl);
         formData.append('type', 'challenge');
         formData.append('leagueId', leagueId);
         formData.append('promptId', promptId);

@@ -13,9 +13,55 @@ export interface CompressionOptions {
   maxSizeBytes?: number;
 }
 
+export interface CompressionResult {
+  /** The compressed image as a File object (for upload) */
+  file: File;
+  /** Blob URL for preview (must be revoked by caller) */
+  blobUrl: string;
+  /** Original blob (for reference) */
+  blob: Blob;
+}
+
+/**
+ * Detect device capabilities and return appropriate dimension limits
+ * Older/lower-end devices get smaller dimensions to avoid memory issues
+ */
+function getDeviceCapableDimensions(): { maxWidth: number; maxHeight: number } {
+  if (typeof window === 'undefined') {
+    // Server-side: return conservative defaults
+    return { maxWidth: 1920, maxHeight: 1920 };
+  }
+
+  // Check available memory (Chrome/Edge only)
+  const memory = (performance as any).memory;
+  if (memory && memory.jsHeapSizeLimit) {
+    const availableMemoryMB = memory.jsHeapSizeLimit / (1024 * 1024);
+    // If less than 512MB available, use smaller dimensions
+    if (availableMemoryMB < 512) {
+      console.log(`Low memory detected (${Math.round(availableMemoryMB)}MB), using smaller dimensions`);
+      return { maxWidth: 1280, maxHeight: 1280 };
+    }
+  }
+
+  // Check device pixel ratio and screen size
+  const dpr = window.devicePixelRatio || 1;
+  const screenWidth = window.screen.width * dpr;
+  const screenHeight = window.screen.height * dpr;
+
+  // If screen is small (< 1080p equivalent), use smaller dimensions
+  if (screenWidth < 1920 && screenHeight < 1920) {
+    console.log(`Small screen detected (${Math.round(screenWidth)}x${Math.round(screenHeight)}), using moderate dimensions`);
+    return { maxWidth: 1920, maxHeight: 1920 };
+  }
+
+  // High-end devices get full quality
+  console.log('High-end device detected, using maximum dimensions');
+  return { maxWidth: 2560, maxHeight: 2560 };
+}
+
 const DEFAULT_OPTIONS: Required<CompressionOptions> = {
-  maxWidth: 2560, // Increased for modern phone cameras (4K displays)
-  maxHeight: 1440, // Increased for portrait photos
+  maxWidth: 2560, // Will be overridden by device detection if needed
+  maxHeight: 1440, // Will be overridden by device detection if needed
   quality: 0.90,
   maxSizeBytes: 1 * 1024 * 1024, // 1MB
 };
@@ -43,13 +89,14 @@ export class CompressionError extends Error {
 
 /**
  * Attempt compression with specific options
+ * Returns both File object and blob URL for efficient preview
  */
 async function attemptCompression(
   file: File,
   maxWidth: number,
   maxHeight: number,
   quality: number
-): Promise<File> {
+): Promise<CompressionResult> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -83,7 +130,7 @@ async function attemptCompression(
         // Convert to blob with compression
         canvas.toBlob(
           (blob) => {
-            // Clean up
+            // Clean up source image blob URL
             URL.revokeObjectURL(img.src);
 
             if (!blob) {
@@ -94,7 +141,11 @@ async function attemptCompression(
               return;
             }
 
-            // Convert blob to file
+            // Create blob URL for preview BEFORE converting to File
+            // This is more efficient and works better on older devices
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Convert blob to file for upload
             const compressedFile = new File(
               [blob],
               file.name.replace(/\.[^/.]+$/, '.jpg'), // Ensure .jpg extension
@@ -104,7 +155,11 @@ async function attemptCompression(
               }
             );
 
-            resolve(compressedFile);
+            resolve({
+              file: compressedFile,
+              blobUrl,
+              blob,
+            });
           },
           'image/jpeg',
           quality
@@ -135,17 +190,26 @@ async function attemptCompression(
 /**
  * Compress an image file to reduce size while maintaining quality
  * Includes multiple fallback strategies for better reliability
+ * Returns both File object (for upload) and blob URL (for preview)
+ * Automatically adapts dimensions based on device capabilities
  */
 export async function compressImage(
   file: File,
   options: CompressionOptions = {}
-): Promise<File> {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
+): Promise<CompressionResult> {
+  // Apply device-specific dimension limits if not explicitly set
+  const deviceDimensions = getDeviceCapableDimensions();
+  const opts = {
+    ...DEFAULT_OPTIONS,
+    maxWidth: options.maxWidth || deviceDimensions.maxWidth,
+    maxHeight: options.maxHeight || deviceDimensions.maxHeight,
+    ...options,
+  };
 
   // Strategy 1: Try with default quality and dimensions
   try {
     console.log(`Attempting compression: ${opts.maxWidth}x${opts.maxHeight} @ ${opts.quality} quality`);
-    const compressed = await attemptCompression(
+    const result = await attemptCompression(
       file,
       opts.maxWidth,
       opts.maxHeight,
@@ -153,12 +217,14 @@ export async function compressImage(
     );
 
     // Check if size is acceptable
-    if (compressed.size <= opts.maxSizeBytes) {
-      console.log(`✓ Compression successful: ${formatFileSize(file.size)} → ${formatFileSize(compressed.size)}`);
-      return compressed;
+    if (result.file.size <= opts.maxSizeBytes) {
+      console.log(`✓ Compression successful: ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
+      return result;
     }
 
-    console.log(`⚠ Compressed file still too large (${formatFileSize(compressed.size)}), trying lower quality`);
+    // Size not acceptable - revoke this blob URL and try next strategy
+    URL.revokeObjectURL(result.blobUrl);
+    console.log(`⚠ Compressed file still too large (${formatFileSize(result.file.size)}), trying lower quality`);
   } catch (error) {
     console.warn('Initial compression attempt failed:', error);
   }
@@ -167,18 +233,19 @@ export async function compressImage(
   try {
     const lowerQuality = Math.max(0.70, opts.quality - 0.20);
     console.log(`Attempting compression with lower quality: ${lowerQuality}`);
-    const compressed = await attemptCompression(
+    const result = await attemptCompression(
       file,
       opts.maxWidth,
       opts.maxHeight,
       lowerQuality
     );
 
-    if (compressed.size <= opts.maxSizeBytes) {
-      console.log(`✓ Lower quality compression successful: ${formatFileSize(file.size)} → ${formatFileSize(compressed.size)}`);
-      return compressed;
+    if (result.file.size <= opts.maxSizeBytes) {
+      console.log(`✓ Lower quality compression successful: ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
+      return result;
     }
 
+    URL.revokeObjectURL(result.blobUrl);
     console.log(`⚠ Still too large, trying smaller dimensions`);
   } catch (error) {
     console.warn('Lower quality compression failed:', error);
@@ -189,18 +256,19 @@ export async function compressImage(
     const smallerWidth = Math.floor(opts.maxWidth * 0.75);
     const smallerHeight = Math.floor(opts.maxHeight * 0.75);
     console.log(`Attempting compression with smaller dimensions: ${smallerWidth}x${smallerHeight}`);
-    const compressed = await attemptCompression(
+    const result = await attemptCompression(
       file,
       smallerWidth,
       smallerHeight,
       0.85
     );
 
-    if (compressed.size <= opts.maxSizeBytes) {
-      console.log(`✓ Smaller dimensions compression successful: ${formatFileSize(file.size)} → ${formatFileSize(compressed.size)}`);
-      return compressed;
+    if (result.file.size <= opts.maxSizeBytes) {
+      console.log(`✓ Smaller dimensions compression successful: ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
+      return result;
     }
 
+    URL.revokeObjectURL(result.blobUrl);
     console.log(`⚠ Still too large, trying aggressive compression`);
   } catch (error) {
     console.warn('Smaller dimensions compression failed:', error);
@@ -211,15 +279,15 @@ export async function compressImage(
     const aggressiveWidth = Math.floor(opts.maxWidth * 0.5);
     const aggressiveHeight = Math.floor(opts.maxHeight * 0.5);
     console.log(`Attempting aggressive compression: ${aggressiveWidth}x${aggressiveHeight} @ 0.70 quality`);
-    const compressed = await attemptCompression(
+    const result = await attemptCompression(
       file,
       aggressiveWidth,
       aggressiveHeight,
       0.70
     );
 
-    console.log(`✓ Aggressive compression successful: ${formatFileSize(file.size)} → ${formatFileSize(compressed.size)}`);
-    return compressed;
+    console.log(`✓ Aggressive compression successful: ${formatFileSize(file.size)} → ${formatFileSize(result.file.size)}`);
+    return result;
   } catch (error) {
     console.warn('Aggressive compression failed:', error);
   }
@@ -228,7 +296,13 @@ export async function compressImage(
   const PRE_UPLOAD_LIMIT = 5 * 1024 * 1024; // 5MB
   if (file.size <= PRE_UPLOAD_LIMIT) {
     console.warn(`⚠ All compression strategies failed, using original file (${formatFileSize(file.size)})`);
-    return file;
+    // Create blob URL for the original file
+    const blobUrl = URL.createObjectURL(file);
+    return {
+      file,
+      blobUrl,
+      blob: file, // Original file is already a Blob
+    };
   }
 
   // All strategies failed
