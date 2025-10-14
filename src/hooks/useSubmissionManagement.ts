@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
+import { invalidateSubmissionImage } from '@/lib/imageCacheInvalidation';
 import { compressImage } from '@/lib/imageCompression';
 import { logClientError } from '@/lib/clientErrorLogger';
 
@@ -115,6 +116,11 @@ export function useSubmissionManagement({
 
       // Upload new photo if one was selected
       if (data.photo) {
+        // Invalidate the old cached image since we're replacing it
+        if (currentImageUrl) {
+          await invalidateSubmissionImage(currentImageUrl);
+        }
+
         let result;
         try {
           // Compress the image before upload

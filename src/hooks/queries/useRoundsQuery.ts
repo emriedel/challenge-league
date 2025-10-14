@@ -54,7 +54,7 @@ interface RoundsData {
 
 /**
  * Cached hook for completed rounds/gallery data
- * Uses static cache config since completed rounds don't change
+ * Uses permanent caching since completed rounds never change
  */
 export function useRoundsQuery(leagueId?: string) {
   return useQuery({
@@ -65,7 +65,7 @@ export function useRoundsQuery(leagueId?: string) {
       }
 
       const response = await fetch(`/api/responses?id=${encodeURIComponent(leagueId)}`);
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Please sign in to view the gallery');
@@ -75,7 +75,7 @@ export function useRoundsQuery(leagueId?: string) {
       }
 
       const galleryData = await response.json();
-      
+
       // Handle new rounds format with backwards compatibility
       if (galleryData.rounds) {
         return {
@@ -95,7 +95,8 @@ export function useRoundsQuery(leagueId?: string) {
       }
     },
     enabled: !!leagueId,
-    ...cacheConfig.static, // Completed rounds don't change
+    staleTime: Infinity, // Completed rounds never change - cache forever
+    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours when unused
   });
 }
 

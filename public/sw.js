@@ -1,6 +1,12 @@
 const CACHE_NAME = 'challenge-league-v3';
 const STATIC_CACHE_NAME = 'challenge-league-static-v3';
 const DYNAMIC_CACHE_NAME = 'challenge-league-dynamic-v3';
+const IMAGE_CACHE_NAME = 'challenge-league-images-v1'; // Challenge photos (immutable)
+const PROFILE_CACHE_NAME = 'challenge-league-profiles-v1'; // Profile photos (may change)
+
+// Cache size limits
+const MAX_IMAGE_CACHE_SIZE = 500; // 500 challenge photos
+const MAX_PROFILE_CACHE_SIZE = 100; // 100 profile photos
 
 // Files to cache on install
 // Note: '/' is excluded because it's a dynamic page that checks auth status
@@ -43,11 +49,18 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  const validCaches = [
+    STATIC_CACHE_NAME,
+    DYNAMIC_CACHE_NAME,
+    IMAGE_CACHE_NAME,
+    PROFILE_CACHE_NAME
+  ];
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE_NAME && cacheName !== DYNAMIC_CACHE_NAME) {
+          if (!validCaches.includes(cacheName)) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -85,9 +98,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Images - stale while revalidate
-  if (request.destination === 'image') {
-    event.respondWith(staleWhileRevalidate(request));
+  // Images - enhanced caching strategy
+  if (request.destination === 'image' ||
+      url.hostname.includes('blob.vercel-storage.com') ||
+      url.pathname.includes('/_next/image')) {
+
+    // Profile photos - stale while revalidate (may change)
+    if (url.searchParams.get('url')?.includes('profile') ||
+        url.href.includes('/profile/') ||
+        url.pathname.includes('/profile/')) {
+      event.respondWith(cacheProfilePhoto(request));
+      return;
+    }
+
+    // Challenge photos - cache first (immutable once voting starts)
+    event.respondWith(cacheChallengePhoto(request));
     return;
   }
 
@@ -100,6 +125,76 @@ self.addEventListener('fetch', (event) => {
   // Default to network first
   event.respondWith(networkFirst(request));
 });
+
+// Cache challenge photos aggressively (immutable after voting starts)
+async function cacheChallengePhoto(request) {
+  try {
+    const cache = await caches.open(IMAGE_CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+
+    // Return cached version immediately if available
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    // Fetch from network and cache
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      // Limit cache size before adding new entry
+      await limitCacheSize(IMAGE_CACHE_NAME, MAX_IMAGE_CACHE_SIZE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.error('Challenge photo cache failed:', error);
+    // Try to return cached version if network failed
+    const cache = await caches.open(IMAGE_CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    return new Response('', { status: 503, statusText: 'Offline' });
+  }
+}
+
+// Cache profile photos with stale-while-revalidate (may change)
+async function cacheProfilePhoto(request) {
+  try {
+    const cache = await caches.open(PROFILE_CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+
+    // Use stale while revalidate for profile photos
+    const networkResponsePromise = fetch(request).then(async (networkResponse) => {
+      if (networkResponse.ok) {
+        await limitCacheSize(PROFILE_CACHE_NAME, MAX_PROFILE_CACHE_SIZE);
+        cache.put(request, networkResponse.clone());
+      }
+      return networkResponse;
+    }).catch(() => cachedResponse);
+
+    return cachedResponse || networkResponsePromise;
+  } catch (error) {
+    console.error('Profile photo cache failed:', error);
+    return new Response('', { status: 503, statusText: 'Offline' });
+  }
+}
+
+// Limit cache size by removing oldest entries (FIFO)
+async function limitCacheSize(cacheName, maxSize) {
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+
+    if (keys.length > maxSize) {
+      // Remove oldest entries (FIFO)
+      const keysToDelete = keys.slice(0, keys.length - maxSize);
+      await Promise.all(keysToDelete.map(key => cache.delete(key)));
+      console.log(`🗑️ Cleaned up ${keysToDelete.length} old entries from ${cacheName}`);
+    }
+  } catch (error) {
+    console.error('Cache size limit failed:', error);
+  }
+}
 
 // Cache first strategy
 async function cacheFirst(request) {
@@ -251,6 +346,30 @@ async function invalidateLeagueCache(leagueId) {
   }
 }
 
+// Helper function to invalidate user's submission image from cache
+async function invalidateSubmissionImage(imageUrl) {
+  try {
+    const imageCache = await caches.open(IMAGE_CACHE_NAME);
+    const keys = await imageCache.keys();
+
+    // Find and delete cached entries for this image URL
+    const imagesToDelete = keys.filter(request => {
+      const url = new URL(request.url);
+      // Match by image URL parameter in Next.js image optimization
+      const cachedImageUrl = url.searchParams.get('url');
+      return cachedImageUrl === imageUrl || request.url === imageUrl;
+    });
+
+    await Promise.all(imagesToDelete.map(request => imageCache.delete(request)));
+
+    if (imagesToDelete.length > 0) {
+      console.log(`🗑️ Invalidated ${imagesToDelete.length} cached submission image(s)`);
+    }
+  } catch (error) {
+    console.error('Failed to invalidate submission image:', error);
+  }
+}
+
 // Push notification event handler
 self.addEventListener('push', (event) => {
   let notificationData = {
@@ -290,6 +409,12 @@ self.addEventListener('push', (event) => {
     event.waitUntil(cacheInvalidationPromise);
   }
 
+  // Handle submission image invalidation (when user updates their photo during ACTIVE phase)
+  if (notificationData.data?.invalidateImage && notificationData.data?.imageUrl) {
+    const imageInvalidationPromise = invalidateSubmissionImage(notificationData.data.imageUrl);
+    event.waitUntil(imageInvalidationPromise);
+  }
+
   const notificationOptions = {
     body: notificationData.body,
     icon: notificationData.icon,
@@ -309,6 +434,35 @@ self.addEventListener('push', (event) => {
     });
 
   event.waitUntil(showNotificationPromise);
+});
+
+// Message event handler - for direct communication from the app
+self.addEventListener('message', (event) => {
+  const { type, data } = event.data || {};
+
+  switch (type) {
+    case 'INVALIDATE_SUBMISSION_IMAGE':
+      // When user updates their submission during ACTIVE phase
+      if (data?.imageUrl) {
+        event.waitUntil(invalidateSubmissionImage(data.imageUrl));
+      }
+      break;
+
+    case 'INVALIDATE_LEAGUE_CACHE':
+      // When league state changes
+      if (data?.leagueId) {
+        event.waitUntil(invalidateLeagueCache(data.leagueId));
+      }
+      break;
+
+    case 'SKIP_WAITING':
+      // Force service worker to activate immediately
+      self.skipWaiting();
+      break;
+
+    default:
+      console.log('Unknown message type:', type);
+  }
 });
 
 // Notification click event handler

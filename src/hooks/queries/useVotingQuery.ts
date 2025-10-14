@@ -43,7 +43,7 @@ interface VotingData {
 
 /**
  * Cached hook for voting data
- * Uses dynamic cache for better performance while still keeping data reasonably fresh
+ * Uses aggressive caching since voting submissions are immutable once voting phase starts
  */
 export function useVotingQuery(leagueId?: string) {
   return useQuery({
@@ -54,7 +54,7 @@ export function useVotingQuery(leagueId?: string) {
       }
 
       const response = await fetch(`/api/votes?id=${encodeURIComponent(leagueId)}`);
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Please sign in to vote');
@@ -66,7 +66,8 @@ export function useVotingQuery(leagueId?: string) {
       return response.json();
     },
     enabled: !!leagueId,
-    ...cacheConfig.dynamic, // Use dynamic cache (30s) instead of realTime (10s) for better performance
+    staleTime: 15 * 60 * 1000, // 15 minutes - submissions don't change during voting
+    gcTime: 30 * 60 * 1000,    // 30 minutes - keep in cache while unused
   });
 }
 
