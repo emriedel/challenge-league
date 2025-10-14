@@ -22,7 +22,7 @@ jobs:
             -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
-            https://challenge-league.app/api/cron/two-hour-reminder)
+            https://www.challenge-league.app/api/cron/two-hour-reminder)
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
