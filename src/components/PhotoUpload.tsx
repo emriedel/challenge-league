@@ -1,11 +1,10 @@
 'use client';
 
 import { useRef, useState, memo } from 'react';
-import Image from 'next/image';
 import { FILE_LIMITS } from '@/constants/app';
 import { compressImage, formatFileSize, CompressionError, CompressionErrorType } from '@/lib/imageCompression';
 import { checkPhotoAge } from '@/lib/photoMetadata';
-import { logImageProcessingError } from '@/lib/clientErrorLogger';
+import { logImageProcessingError, logClientError } from '@/lib/clientErrorLogger';
 import type { PhotoUploadProps } from '@/types/components';
 
 
@@ -148,12 +147,26 @@ function PhotoUpload({
     return (
       <div className="relative">
         <div className="relative rounded-lg overflow-hidden bg-app-surface-dark">
-          <Image
+          {/* Use standard img tag for blob URLs - Next.js Image can't handle them */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={previewUrl}
             alt="Preview"
-            width={800}
-            height={600}
-            className="w-full h-auto object-contain bg-app-surface-dark max-h-[400px]"
+            className="w-full h-auto object-contain bg-app-surface-dark max-h-[400px] rounded-lg"
+            onError={(e) => {
+              console.error('Failed to load photo preview:', e);
+              // Log to backend for monitoring
+              logClientError(
+                'Photo preview failed to display',
+                undefined,
+                {
+                  category: 'photo_preview',
+                  previewUrl: previewUrl.substring(0, 50), // First 50 chars only
+                }
+              );
+              // Show error to user
+              onError?.('Failed to display photo preview. Please try selecting the photo again.');
+            }}
           />
           {!disabled && !isCompressing && (
             <button

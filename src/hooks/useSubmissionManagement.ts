@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { UseSubmissionManagementReturn, Message } from '@/types/hooks';
 import { useCacheInvalidator } from '@/lib/cacheInvalidation';
 import { compressImage } from '@/lib/imageCompression';
+import { logClientError } from '@/lib/clientErrorLogger';
 
 interface SubmissionData {
   photo: File;
@@ -52,6 +53,23 @@ export function useSubmissionManagement({
       });
 
       if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('Photo upload to /api/upload failed:', errorText, 'Status:', uploadResponse.status);
+
+        // Log to backend for monitoring
+        await logClientError(
+          'Photo upload to /api/upload failed',
+          new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`),
+          {
+            category: 'photo_upload_api',
+            statusCode: uploadResponse.status,
+            promptId,
+            leagueId,
+            fileSize: data.photo.size,
+            fileType: data.photo.type,
+          }
+        );
+
         throw new Error('Failed to upload photo');
       }
 
@@ -121,6 +139,24 @@ export function useSubmissionManagement({
         });
 
         if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          console.error('Photo upload to /api/upload failed during update:', errorText, 'Status:', uploadResponse.status);
+
+          // Log to backend for monitoring
+          await logClientError(
+            'Photo upload to /api/upload failed during update',
+            new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`),
+            {
+              category: 'photo_upload_api',
+              statusCode: uploadResponse.status,
+              promptId,
+              leagueId,
+              fileSize: data.photo.size,
+              fileType: data.photo.type,
+              isUpdate: true,
+            }
+          );
+
           throw new Error('Failed to upload photo');
         }
 

@@ -5,6 +5,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ValidationError, ApiError } from '@/lib/apiErrors';
 import { FILE_LIMITS } from '@/constants/app';
+import { logger } from '@/lib/monitoring';
 
 // Dynamic export is handled by the API handler
 export { dynamic } from '@/lib/apiMethods';
@@ -28,6 +29,11 @@ export const { POST } = createMethodHandlers({
     const promptId = formData.get('promptId') as string | null;
 
     if (!file) {
+      logger.warn('Upload attempt with no file', {
+        userId: session.user.id,
+        uploadType,
+        category: 'upload_validation',
+      });
       throw new ValidationError('No file provided');
     }
 
@@ -37,6 +43,15 @@ export const { POST } = createMethodHandlers({
       : FILE_LIMITS.PHOTO_MAX_SIZE;
 
     if (file.size > maxSize) {
+      logger.warn('File size exceeded', {
+        userId: session.user.id,
+        fileSize: file.size,
+        maxSize,
+        uploadType,
+        fileName: file.name,
+        fileType: file.type,
+        category: 'upload_validation',
+      });
       throw new ValidationError('File size is too large. Please choose a smaller file.');
     }
 
@@ -52,6 +67,14 @@ export const { POST } = createMethodHandlers({
     ];
 
     if (!allowedTypes.includes(file.type)) {
+      logger.warn('Invalid file type upload attempt', {
+        userId: session.user.id,
+        fileType: file.type,
+        fileName: file.name,
+        fileSize: file.size,
+        uploadType,
+        category: 'upload_validation',
+      });
       throw new ValidationError('Invalid file type. Please upload a supported image file (JPEG, PNG, WebP, GIF, HEIC).');
     }
 
@@ -91,12 +114,38 @@ export const { POST } = createMethodHandlers({
 
       if (hasValidBlobToken) {
         // Upload to Vercel Blob with organized path
-        const { url } = await put(storagePath, file, {
-          access: 'public',
-          token: blobToken,
-        });
+        try {
+          const { url } = await put(storagePath, file, {
+            access: 'public',
+            token: blobToken,
+          });
 
-        return NextResponse.json({ url, storagePath });
+          logger.info('File uploaded successfully to Vercel Blob', {
+            userId: session.user.id,
+            uploadType: uploadType || undefined,
+            leagueId: leagueId || undefined,
+            promptId: promptId || undefined,
+            fileSize: file.size,
+            fileType: file.type,
+            storagePath,
+            category: 'upload_success',
+          });
+
+          return NextResponse.json({ url, storagePath });
+        } catch (blobError) {
+          logger.error('Vercel Blob upload failed', blobError as Error, {
+            userId: session.user.id,
+            uploadType: uploadType || undefined,
+            leagueId: leagueId || undefined,
+            promptId: promptId || undefined,
+            fileSize: file.size,
+            fileType: file.type,
+            fileName: file.name,
+            storagePath,
+            category: 'upload_blob_error',
+          });
+          throw blobError;
+        }
       } else {
         // Fallback: store locally in public/uploads
         const bytes = await file.arrayBuffer();
@@ -106,7 +155,12 @@ export const { POST } = createMethodHandlers({
         const uploadsDir = join(process.cwd(), 'public', 'uploads');
         try {
           await mkdir(uploadsDir, { recursive: true });
-        } catch (error) {
+        } catch (mkdirError) {
+          logger.warn('Failed to create uploads directory', {
+            error: mkdirError instanceof Error ? mkdirError.message : 'Unknown error',
+            uploadsDir,
+            category: 'upload_filesystem',
+          });
           // Directory might already exist, that's fine
         }
 
@@ -115,13 +169,44 @@ export const { POST } = createMethodHandlers({
         const filepath = join(uploadsDir, filename);
 
         // Write file
-        await writeFile(filepath, buffer);
+        try {
+          await writeFile(filepath, buffer);
 
-        const url = `/uploads/${filename}`;
-        return NextResponse.json({ url, storagePath: filename });
+          logger.info('File uploaded successfully to local storage', {
+            userId: session.user.id,
+            uploadType,
+            fileSize: file.size,
+            fileType: file.type,
+            filename,
+            category: 'upload_success',
+          });
+
+          const url = `/uploads/${filename}`;
+          return NextResponse.json({ url, storagePath: filename });
+        } catch (writeError) {
+          logger.error('Local file write failed', writeError as Error, {
+            userId: session.user.id,
+            uploadType,
+            fileSize: file.size,
+            fileType: file.type,
+            fileName: file.name,
+            filepath,
+            category: 'upload_filesystem_error',
+          });
+          throw writeError;
+        }
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload failed with unexpected error', error as Error, {
+        userId: session.user.id,
+        uploadType: uploadType || undefined,
+        leagueId: leagueId || undefined,
+        promptId: promptId || undefined,
+        fileSize: file.size,
+        fileType: file.type,
+        fileName: file.name,
+        category: 'upload_error',
+      });
       throw new ApiError('File storage error. Please try again.', 500, 'STORAGE_ERROR');
     }
   }
