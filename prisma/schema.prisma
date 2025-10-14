@@ -89,6 +89,10 @@ model Prompt {
   submissionWarningNotificationSent Boolean @default(false)
   votingWarningNotificationSent     Boolean @default(false)
 
+  // 2-hour warning notification tracking (sent 2 hours before deadline)
+  submission2HourWarningNotificationSent Boolean @default(false)
+  voting2HourWarningNotificationSent     Boolean @default(false)
+
   leagueId    String
   league      League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   responses   Response[]

@@ -33,8 +33,10 @@ export interface NotificationData {
 export type NotificationType =
   | 'new-prompt-available'
   | 'submission-deadline-24h'
+  | 'submission-deadline-2h'
   | 'voting-available'
   | 'voting-deadline-24h'
+  | 'voting-deadline-2h'
   | 'league-started'
   | 'badge-refresh';
 
@@ -323,6 +325,32 @@ export function createNotificationData(
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         tag: 'voting-reminder',
+        data: {
+          url: leagueId ? `/app/league/${leagueId}` : '/',
+          type: 'voting-reminder'
+        }
+      };
+
+    case 'submission-deadline-2h':
+      return {
+        title: 'Less Than 2 Hours Left to Submit!',
+        body: promptText || '',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: 'submission-reminder-urgent',
+        data: {
+          url: leagueId ? `/app/league/${leagueId}` : '/',
+          type: 'submission-reminder'
+        }
+      };
+
+    case 'voting-deadline-2h':
+      return {
+        title: 'Less Than 2 Hours Left to Vote!',
+        body: promptText || '',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: 'voting-reminder-urgent',
         data: {
           url: leagueId ? `/app/league/${leagueId}` : '/',
           type: 'voting-reminder'
