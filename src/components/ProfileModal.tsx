@@ -6,6 +6,7 @@ import ProfileAvatar from '@/components/ProfileAvatar';
 import NotificationSettings from '@/components/NotificationSettings';
 import { useMessages } from '@/hooks/useMessages';
 import { compressImage, formatFileSize } from '@/lib/imageCompression';
+import { logClientError, logImageProcessingError } from '@/lib/clientErrorLogger';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -69,8 +70,30 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload photo');
+        const errorText = await response.text();
+        console.error('Profile photo upload failed:', errorText, 'Status:', response.status);
+
+        // Log upload failure to backend
+        await logClientError(
+          'Profile photo upload to /api/profile/photo failed',
+          new Error(`Upload failed with status ${response.status}: ${errorText}`),
+          {
+            category: 'profile_photo_upload',
+            statusCode: response.status,
+            fileSize: result.file.size,
+            fileType: result.file.type,
+          }
+        );
+
+        // Try to parse error message
+        let errorMessage = 'Failed to upload photo';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Not JSON, use default message
+        }
+        throw new Error(errorMessage);
       }
 
       const { photoUrl } = await response.json();
@@ -87,6 +110,19 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       addMessage('profile', { type: 'success', text: 'Profile photo updated successfully!' });
     } catch (error: any) {
       console.error('Error updating profile photo:', error);
+
+      // Log compression errors separately
+      if (error.name === 'CompressionError') {
+        await logImageProcessingError(
+          'Profile photo compression failed',
+          file,
+          error,
+          {
+            category: 'profile_photo_compression',
+          }
+        );
+      }
+
       addMessage('profile', { type: 'error', text: error.message || 'Failed to update profile photo' });
     } finally {
       setIsUploading(false);

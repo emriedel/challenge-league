@@ -115,17 +115,38 @@ export function useSubmissionManagement({
 
       // Upload new photo if one was selected
       if (data.photo) {
-        // Compress the image before upload
-        const result = await compressImage(data.photo, {
-          maxWidth: 1920,
-          maxHeight: 1920, // Allow vertical photos up to 1920px tall
-          quality: 0.90,
-          maxSizeBytes: 1 * 1024 * 1024, // 1MB target
-        });
+        let result;
+        try {
+          // Compress the image before upload
+          result = await compressImage(data.photo, {
+            maxWidth: 1920,
+            maxHeight: 1920, // Allow vertical photos up to 1920px tall
+            quality: 0.90,
+            maxSizeBytes: 1 * 1024 * 1024, // 1MB target
+          });
 
-        // Log compression results for debugging
-        const { formatFileSize } = await import('@/lib/imageCompression');
-        console.log(`Challenge photo: ${formatFileSize(data.photo.size)} → ${formatFileSize(result.file.size)}`);
+          // Log compression results for debugging
+          const { formatFileSize } = await import('@/lib/imageCompression');
+          console.log(`Challenge photo: ${formatFileSize(data.photo.size)} → ${formatFileSize(result.file.size)}`);
+        } catch (compressionError) {
+          console.error('Challenge photo compression failed:', compressionError);
+
+          // Log compression error to backend
+          const { logImageProcessingError } = await import('@/lib/clientErrorLogger');
+          await logImageProcessingError(
+            'Challenge photo compression failed during update',
+            data.photo,
+            compressionError as Error,
+            {
+              category: 'challenge_photo_compression',
+              promptId,
+              leagueId,
+              isUpdate: true,
+            }
+          );
+
+          throw new Error('Failed to compress photo. Please try a different photo.');
+        }
 
         const formData = new FormData();
         formData.append('file', result.file);

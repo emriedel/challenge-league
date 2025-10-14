@@ -25,12 +25,35 @@ function PhotoUpload({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
+      // Log validation failure
+      await logClientError(
+        'Invalid file type selected',
+        undefined,
+        {
+          category: 'photo_upload_validation',
+          fileType: file.type,
+          fileName: file.name,
+          fileSize: file.size,
+        }
+      );
       onError?.('Please select an image file');
       return;
     }
 
     // Validate file size (allow larger files since we'll compress them)
     if (file.size > FILE_LIMITS.PHOTO_MAX_SIZE) {
+      // Log validation failure
+      await logClientError(
+        'File size exceeds limit',
+        undefined,
+        {
+          category: 'photo_upload_validation',
+          fileSize: file.size,
+          maxSize: FILE_LIMITS.PHOTO_MAX_SIZE,
+          fileName: file.name,
+          fileType: file.type,
+        }
+      );
       onError?.(`File size must be less than ${FILE_LIMITS.PHOTO_MAX_SIZE / (1024 * 1024)}MB`);
       return;
     }

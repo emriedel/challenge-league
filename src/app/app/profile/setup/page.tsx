@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { rubik } from '@/lib/fonts';
 import { compressImage, formatFileSize } from '@/lib/imageCompression';
+import { logClientError, logImageProcessingError } from '@/lib/clientErrorLogger';
 
 export default function ProfileSetup() {
   const { data: session, update: updateSession } = useSession();
@@ -45,14 +46,31 @@ export default function ProfileSetup() {
     setIsUploading(true);
     try {
       // Compress image before upload (smaller for profile photos)
-      const result = await compressImage(profilePhoto, {
-        maxWidth: 800,
-        maxHeight: 800,
-        quality: 0.8,
-        maxSizeBytes: 500 * 1024, // 500KB target for profile photos
-      });
+      let result;
+      try {
+        result = await compressImage(profilePhoto, {
+          maxWidth: 800,
+          maxHeight: 800,
+          quality: 0.8,
+          maxSizeBytes: 500 * 1024, // 500KB target for profile photos
+        });
 
-      console.log(`Profile photo: ${formatFileSize(profilePhoto.size)} → ${formatFileSize(result.file.size)}`);
+        console.log(`Profile photo: ${formatFileSize(profilePhoto.size)} → ${formatFileSize(result.file.size)}`);
+      } catch (compressionError) {
+        console.error('Profile photo compression failed during setup:', compressionError);
+
+        // Log compression error to backend
+        await logImageProcessingError(
+          'Profile photo compression failed during setup',
+          profilePhoto,
+          compressionError as Error,
+          {
+            category: 'profile_setup_compression',
+          }
+        );
+
+        throw new Error('Failed to compress photo. Please try a different photo.');
+      }
 
       const formData = new FormData();
       formData.append('photo', result.file);
@@ -65,11 +83,34 @@ export default function ProfileSetup() {
         body: formData,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to upload photo');
+        const errorText = await response.text();
+        console.error('Profile photo upload failed during setup:', errorText, 'Status:', response.status);
+
+        // Log upload failure to backend
+        await logClientError(
+          'Profile photo upload to /api/profile/photo failed during setup',
+          new Error(`Upload failed with status ${response.status}: ${errorText}`),
+          {
+            category: 'profile_setup_upload',
+            statusCode: response.status,
+            fileSize: result.file.size,
+            fileType: result.file.type,
+          }
+        );
+
+        // Try to parse error message
+        let errorMessage = 'Failed to upload photo';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Not JSON, use default message
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
 
       // Update the session with new profile photo
       await updateSession();
