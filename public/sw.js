@@ -1,6 +1,6 @@
-const CACHE_NAME = 'challenge-league-v3';
-const STATIC_CACHE_NAME = 'challenge-league-static-v3';
-const DYNAMIC_CACHE_NAME = 'challenge-league-dynamic-v3';
+const CACHE_NAME = 'challenge-league-v4';
+const STATIC_CACHE_NAME = 'challenge-league-static-v4';
+const DYNAMIC_CACHE_NAME = 'challenge-league-dynamic-v4';
 const IMAGE_CACHE_NAME = 'challenge-league-images-v1'; // Challenge photos (immutable)
 const PROFILE_CACHE_NAME = 'challenge-league-profiles-v1'; // Profile photos (may change)
 
@@ -78,6 +78,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // CRITICAL: Skip blob URLs - these are client-side only and must not be intercepted
+  // Blob URLs are used for image previews before upload
+  if (url.protocol === 'blob:') {
     return;
   }
 

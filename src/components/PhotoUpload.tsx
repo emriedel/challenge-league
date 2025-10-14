@@ -89,6 +89,16 @@ function PhotoUpload({
         maxSizeBytes: 1 * 1024 * 1024, // 1MB target
       });
 
+      // PWA/Android Fix: Verify blob URL is valid before using it
+      // Sometimes blob URLs can be created but immediately become invalid
+      if (!result.blobUrl || !result.blobUrl.startsWith('blob:')) {
+        console.error('Invalid blob URL received:', result.blobUrl);
+        throw new Error('Failed to create valid preview URL');
+      }
+
+      // Log blob URL for debugging PWA issues
+      console.log('Created blob URL:', result.blobUrl.substring(0, 60));
+
       // Use the blob URL directly from compression result
       // This is more reliable than creating a new blob URL, especially on older devices
       onPhotoSelected(result.file, result.blobUrl);
@@ -177,15 +187,29 @@ function PhotoUpload({
             src={previewUrl}
             alt="Preview"
             className="w-full h-auto object-contain bg-app-surface-dark max-h-[400px] rounded-lg"
+            // Add loading attribute to improve PWA compatibility
+            loading="eager"
+            // Add crossOrigin for PWA blob URL handling
+            crossOrigin="anonymous"
+            onLoad={() => {
+              // Successfully loaded - log for debugging PWA issues
+              console.log('Photo preview loaded successfully');
+            }}
             onError={(e) => {
               console.error('Failed to load photo preview:', e);
-              // Log to backend for monitoring
+              console.error('Preview URL:', previewUrl);
+              console.error('URL validity:', previewUrl.startsWith('blob:'));
+
+              // Log to backend for monitoring with more details
               logClientError(
                 'Photo preview failed to display',
                 undefined,
                 {
                   category: 'photo_preview',
-                  previewUrl: previewUrl.substring(0, 50), // First 50 chars only
+                  previewUrl: previewUrl.substring(0, 100), // More chars for debugging
+                  urlLength: previewUrl.length,
+                  isBlob: previewUrl.startsWith('blob:'),
+                  hasSelectedPhoto: !!selectedPhoto,
                 }
               );
               // Show error to user
