@@ -303,6 +303,38 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     }
   }, [session?.user?.id, leagueId])
 
+  // Handle app resume from background (iOS PWA fix)
+  useEffect(() => {
+    if (!session?.user?.id) return
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('App resumed from background, refreshing messages and reconnecting SSE...')
+
+        // Force refresh messages when app comes back to foreground
+        refreshMessages()
+
+        // Reconnect SSE if disconnected
+        if (!isConnected && eventSourceRef.current) {
+          console.log('Reconnecting SSE after app resume...')
+          eventSourceRef.current.close()
+          connectSSE()
+        }
+
+        // Also invalidate notification query to update badge
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.userActivity(leagueId)
+        })
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [session?.user?.id, leagueId, refreshMessages, queryClient, isConnected, connectSSE])
+
   return {
     messages,
     isConnected,
