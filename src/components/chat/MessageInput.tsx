@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, KeyboardEvent } from 'react'
+import { useState, useRef } from 'react'
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void
@@ -32,12 +32,7 @@ export function MessageInput({ onSendMessage, disabled = false, placeholder = "T
     }
   }
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
+  // Removed handleKeyPress - Enter key now creates newlines instead of sending
 
   return (
     <div className="space-y-2">
@@ -54,7 +49,6 @@ export function MessageInput({ onSendMessage, disabled = false, placeholder = "T
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
           placeholder={placeholder}
           disabled={disabled}
           rows={1}

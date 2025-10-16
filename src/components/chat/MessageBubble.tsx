@@ -33,7 +33,7 @@ export function MessageBubble({ message, isOwnMessage, showAvatar }: MessageBubb
       <div className="flex justify-end">
         <div className="max-w-[70%] space-y-1 select-none">
           <div className="bg-blue-700 text-white rounded-2xl rounded-tr-md px-4 py-2">
-            <p className="text-sm leading-relaxed break-words">{message.content}</p>
+            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{message.content}</p>
           </div>
           <div className="flex justify-end">
             <span className="text-xs text-app-text-muted">
@@ -72,7 +72,7 @@ export function MessageBubble({ message, isOwnMessage, showAvatar }: MessageBubb
 
         {/* Message bubble */}
         <div className="bg-app-surface border border-app-border rounded-2xl rounded-tl-md px-4 py-2">
-          <p className="text-sm text-app-text leading-relaxed break-words">
+          <p className="text-sm text-app-text leading-relaxed break-words whitespace-pre-wrap">
             {message.content}
           </p>
         </div>
