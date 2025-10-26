@@ -82,7 +82,7 @@ export async function sendChallengeStartedEmails(
 
     // Count total completed challenges to determine challenge number
     let challengeNumber = 0;
-    if (previousChallenge) {
+    if (previousChallenge && previousChallenge.completedAt) {
       challengeNumber = await db.prompt.count({
         where: {
           leagueId,
