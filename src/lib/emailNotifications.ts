@@ -1,5 +1,5 @@
 import { db } from './db';
-import { sendEmail } from './email';
+import { sendEmail, generateToken } from './email';
 import { ChallengeStartedEmail } from '@/emails/ChallengeStarted';
 
 /**
@@ -50,6 +50,79 @@ export async function sendChallengeStartedEmails(
       return { sent: 0, failed: 0 };
     }
 
+    // Get the most recent completed challenge to show top 3 results
+    const previousChallenge = await db.prompt.findFirst({
+      where: {
+        leagueId,
+        status: 'COMPLETED',
+      },
+      orderBy: {
+        completedAt: 'desc',
+      },
+      include: {
+        responses: {
+          where: {
+            finalRank: {
+              in: [1, 2, 3], // Get top 3 finishers
+            },
+          },
+          orderBy: {
+            finalRank: 'asc',
+          },
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Count total completed challenges to determine challenge number
+    let challengeNumber = 0;
+    if (previousChallenge) {
+      challengeNumber = await db.prompt.count({
+        where: {
+          leagueId,
+          status: 'COMPLETED',
+          completedAt: {
+            lte: previousChallenge.completedAt,
+          },
+        },
+      });
+    }
+
+    // Format previous challenge data if available
+    let previousChallengeData:
+      | {
+          text: string;
+          challengeNumber: number;
+          topSubmissions: Array<{
+            rank: number;
+            username: string;
+            caption: string;
+            imageUrl: string;
+            votes: number;
+          }>;
+        }
+      | undefined;
+
+    if (previousChallenge && previousChallenge.responses.length > 0) {
+      previousChallengeData = {
+        text: previousChallenge.text,
+        challengeNumber,
+        topSubmissions: previousChallenge.responses.map((response) => ({
+          rank: response.finalRank!,
+          username: response.user.username,
+          caption: response.caption,
+          imageUrl: response.imageUrl,
+          votes: response.totalVotes,
+        })),
+      };
+    }
+
     // Calculate submission deadline
     const deadline = new Date(prompt.phaseStartedAt);
     deadline.setDate(deadline.getDate() + prompt.league.submissionDays);
@@ -83,17 +156,30 @@ export async function sendChallengeStartedEmails(
           continue;
         }
 
+        // Generate unsubscribe token if user doesn't have one
+        let unsubscribeToken = member.user.unsubscribeToken;
+        if (!unsubscribeToken) {
+          unsubscribeToken = generateToken();
+          await db.user.update({
+            where: { id: member.user.id },
+            data: { unsubscribeToken },
+          });
+        }
+
         // Only send to verified emails (or all emails if verification not implemented yet)
         // For now, we'll send to all users since verification is optional
         await sendEmail({
           to: member.user.email,
-          subject: `New Challenge in ${leagueName}!`,
+          subject: `🏆 New Challenge in ${leagueName}`,
           react: ChallengeStartedEmail({
             username: member.user.username,
             leagueName,
             challengeText: promptText,
             challengeUrl,
             submissionDeadline,
+            appUrl,
+            unsubscribeToken,
+            previousChallenge: previousChallengeData,
           }),
         });
 

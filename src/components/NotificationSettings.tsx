@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useSession } from 'next-auth/react';
 
+interface EmailPreferences {
+  challengeStarted: boolean;
+}
+
 export default function NotificationSettings() {
   const { data: session } = useSession();
   const {
@@ -21,11 +25,70 @@ export default function NotificationSettings() {
   const [optimisticSubscribed, setOptimisticSubscribed] = useState<boolean | null>(null);
   const [hasError, setHasError] = useState(false);
 
+  // Email preferences state
+  const [emailPreferences, setEmailPreferences] = useState<EmailPreferences | null>(null);
+  const [isLoadingEmailPrefs, setIsLoadingEmailPrefs] = useState(true);
+  const [emailPrefsError, setEmailPrefsError] = useState(false);
+
   // Reset optimistic state when actual state changes
   useEffect(() => {
     setOptimisticSubscribed(null);
     setHasError(false);
   }, [isSubscribed]);
+
+  // Fetch email preferences on mount
+  useEffect(() => {
+    const fetchEmailPreferences = async () => {
+      try {
+        setIsLoadingEmailPrefs(true);
+        const response = await fetch('/api/user/email-preferences');
+        if (!response.ok) {
+          throw new Error('Failed to fetch email preferences');
+        }
+        const data = await response.json();
+        setEmailPreferences(data);
+      } catch (error) {
+        console.error('Error fetching email preferences:', error);
+        // Default to ON if we can't fetch preferences
+        setEmailPreferences({ challengeStarted: true });
+      } finally {
+        setIsLoadingEmailPrefs(false);
+      }
+    };
+
+    if (session?.user) {
+      fetchEmailPreferences();
+    }
+  }, [session]);
+
+  const handleToggleEmailNotifications = async () => {
+    if (!emailPreferences) return;
+
+    const newValue = !emailPreferences.challengeStarted;
+
+    // Optimistic update
+    setEmailPreferences({ challengeStarted: newValue });
+    setEmailPrefsError(false);
+
+    try {
+      const response = await fetch('/api/user/email-preferences', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ challengeStarted: newValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update email preferences');
+      }
+    } catch (error) {
+      console.error('Error updating email preferences:', error);
+      // Revert on error
+      setEmailPreferences({ challengeStarted: !newValue });
+      setEmailPrefsError(true);
+    }
+  };
 
   if (!session?.user) {
     return null;
@@ -92,6 +155,7 @@ export default function NotificationSettings() {
   }
 
   return (
+    <>
     <div className="bg-app-surface-dark rounded-lg p-6 shadow-sm border border-app-border">
       <h3 className="text-lg font-medium text-app-text mb-2">Push Notifications</h3>
       
@@ -186,5 +250,60 @@ export default function NotificationSettings() {
 
       </div>
     </div>
+
+    {/* Email Notifications Section */}
+    <div className="bg-app-surface-dark rounded-lg p-6 shadow-sm border border-app-border mt-6">
+      <h3 className="text-lg font-medium text-app-text mb-2">Email Notifications</h3>
+
+      <div className="space-y-4">
+        <p className="text-app-text-muted text-sm">
+          Receive email notifications when new challenges start.
+        </p>
+
+        <div className="flex items-center justify-between">
+          <span className="text-app-text text-sm font-medium">Challenge Notifications</span>
+
+          <div className="flex items-center space-x-3">
+            {isLoadingEmailPrefs ? (
+              <div className="w-4 h-4 border-2 border-app-border border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <span className={`text-sm ${
+                  emailPreferences?.challengeStarted ? 'text-app-text-muted' : 'text-app-text'
+                }`}>Off</span>
+
+                <div className="relative">
+                  <button
+                    onClick={handleToggleEmailNotifications}
+                    disabled={!emailPreferences}
+                    className={`toggle-button relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#3a8e8c] focus:ring-offset-2 disabled:opacity-50 ${
+                      emailPreferences?.challengeStarted ? 'bg-[#3a8e8c]' : 'bg-app-border'
+                    } ${emailPrefsError ? 'ring-2 ring-app-error' : ''}`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 shrink-0 transform rounded-full bg-white transition-transform ${
+                        emailPreferences?.challengeStarted ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <span className={`text-sm ${
+                  emailPreferences?.challengeStarted ? 'text-app-text' : 'text-app-text-muted'
+                }`}>On</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Error message if update failed */}
+        {emailPrefsError && (
+          <p className="text-app-error text-xs bg-app-surface rounded p-2">
+            Failed to update email preferences. Please try again.
+          </p>
+        )}
+      </div>
+    </div>
+    </>
   );
 }

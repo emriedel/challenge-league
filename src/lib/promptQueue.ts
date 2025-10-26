@@ -549,18 +549,16 @@ export async function processPromptQueue() {
           }
 
           // Send email notifications to league members
-          // TODO: Re-enable when email system is launched
-          // try {
-          //   const emailResult = await sendChallengeStartedEmails(
-          //     league.id,
-          //     nextScheduledPrompt.text,
-          //     league.name
-          //   );
-          //   console.log(`   📧 Sent challenge started emails: ${emailResult.sent} sent, ${emailResult.failed} failed`);
-          // } catch (emailError) {
-          //   console.error(`   ❌ Failed to send challenge started emails: ${emailError}`);
-          // }
-          console.log(`   📧 Email notifications disabled - will be enabled when email system launches`);
+          try {
+            const emailResult = await sendChallengeStartedEmails(
+              league.id,
+              nextScheduledPrompt.text,
+              league.name
+            );
+            console.log(`   📧 Sent challenge started emails: ${emailResult.sent} sent, ${emailResult.failed} failed`);
+          } catch (emailError) {
+            console.error(`   ❌ Failed to send challenge started emails: ${emailError}`);
+          }
         } catch (updateError) {
           console.error(`   ❌ Failed to activate prompt "${nextScheduledPrompt.text}":`);
           console.error(`      Error: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);

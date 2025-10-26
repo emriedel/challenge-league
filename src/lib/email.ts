@@ -3,8 +3,10 @@ import { Resend } from 'resend';
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Email configuration
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@challenge-league.app';
+// Email configuration - ensure display name is always included
+const FROM_EMAIL = process.env.FROM_EMAIL?.includes('<')
+  ? process.env.FROM_EMAIL
+  : `Challenge League <${process.env.FROM_EMAIL || 'noreply@challenge-league.app'}>`;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://challenge-league.app';
 
 export interface EmailOptions {
