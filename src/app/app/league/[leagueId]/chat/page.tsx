@@ -24,6 +24,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isInitialScrollComplete, setIsInitialScrollComplete] = useState(false)
+  const prevMessageCountRef = useRef(0)
 
   // Try to use prefetched data for faster initial load
   const { data: prefetchedData } = useChatInitialQuery(params.leagueId)
@@ -80,14 +81,19 @@ export default function ChatPage({ params }: ChatPageProps) {
   // Auto-scroll to bottom on new messages and initial load
   useEffect(() => {
     if (messagesEndRef.current && messages.length > 0) {
+      const currentMessageCount = messages.length
+      const hasNewMessages = currentMessageCount > prevMessageCountRef.current
+
       if (isInitialLoad) {
         // Immediate scroll to bottom without animation to avoid visible scroll
         messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
         setIsInitialLoad(false);
         setIsInitialScrollComplete(true);
-      } else {
-        // Smooth scroll for new messages
+        prevMessageCountRef.current = currentMessageCount
+      } else if (hasNewMessages) {
+        // Only smooth scroll when new messages are added (not for reactions/edits)
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        prevMessageCountRef.current = currentMessageCount
       }
     }
   }, [messages, isInitialLoad])
