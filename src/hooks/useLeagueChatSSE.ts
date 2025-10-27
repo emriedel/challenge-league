@@ -4,19 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryClient'
-
-interface Author {
-  id: string
-  username: string
-  profilePhoto?: string | null
-}
-
-interface ChatMessage {
-  id: string
-  content: string
-  createdAt: string
-  author: Author
-}
+import { ChatMessage, MessageReaction } from '@/types/chat'
 
 interface UseChatReturn {
   messages: ChatMessage[]
@@ -27,6 +15,8 @@ interface UseChatReturn {
   hasMore: boolean
   error: string | null
   refreshMessages: () => Promise<void>
+  toggleReaction: (messageId: string, emoji: string) => Promise<void>
+  deleteMessage: (messageId: string) => Promise<void>
 }
 
 // Global cache for messages to persist across component mounts
@@ -95,9 +85,32 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     const eventSource = new EventSource(`/api/leagues/${leagueId}/chat/sse`)
     eventSourceRef.current = eventSource
 
+    // Set a timeout to detect if connection hangs
+    const connectionTimeout = setTimeout(() => {
+      if (!eventSource || eventSource.readyState !== EventSource.OPEN) {
+        console.warn('SSE connection timeout - closing and retrying')
+        eventSource.close()
+        setIsConnected(false)
+
+        // Retry if under max attempts
+        if (retryCountRef.current < 5) {
+          retryCountRef.current += 1
+          const retryDelay = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000)
+          console.log(`Retrying SSE connection in ${retryDelay}ms (attempt ${retryCountRef.current})`)
+          retryTimeoutRef.current = setTimeout(() => {
+            connectSSE()
+          }, retryDelay)
+        } else {
+          setError('Connection failed. Please refresh the page.')
+        }
+      }
+    }, 10000) // 10 second timeout
+
     eventSource.onopen = () => {
       console.log('SSE connection opened')
+      clearTimeout(connectionTimeout)
       setIsConnected(true)
+      setError(null)
       retryCountRef.current = 0 // Reset retry count on successful connection
       // Load initial messages when connection is established
       loadInitialMessages()
@@ -136,6 +149,59 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
 
             return [...prev, data.message]
           })
+        } else if (data.type === 'reaction_added') {
+          // Handle reaction added event
+          setMessages(prev => prev.map(msg => {
+            if (msg.id === data.messageId) {
+              // Check if reaction already exists
+              const existingReaction = msg.reactions.find(
+                r => r.emoji === data.reaction.emoji && r.user.id === data.reaction.userId
+              )
+              if (existingReaction) return msg
+
+              // Add new reaction
+              return {
+                ...msg,
+                reactions: [
+                  ...msg.reactions,
+                  {
+                    emoji: data.reaction.emoji,
+                    user: {
+                      id: data.reaction.userId,
+                      username: data.reaction.username,
+                      profilePhoto: null
+                    }
+                  }
+                ]
+              }
+            }
+            return msg
+          }))
+        } else if (data.type === 'reaction_removed') {
+          // Handle reaction removed event
+          setMessages(prev => prev.map(msg => {
+            if (msg.id === data.messageId) {
+              return {
+                ...msg,
+                reactions: msg.reactions.filter(
+                  r => !(r.emoji === data.reaction.emoji && r.user.id === data.reaction.userId)
+                )
+              }
+            }
+            return msg
+          }))
+        } else if (data.type === 'message_deleted') {
+          // Handle message deleted event
+          setMessages(prev => prev.map(msg => {
+            if (msg.id === data.messageId) {
+              return {
+                ...msg,
+                isDeleted: true,
+                deletedAt: new Date().toISOString()
+              }
+            }
+            return msg
+          }))
         } else if (data.type === 'connected') {
           console.log('Connected to chat server')
         }
@@ -230,11 +296,13 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       id: `temp-${Date.now()}`, // Temporary ID
       content: content.trim(),
       createdAt: new Date().toISOString(),
+      isDeleted: false,
       author: {
         id: session.user.id,
         username: session.user.username,
         profilePhoto: session.user.profilePhoto
-      }
+      },
+      reactions: []
     }
 
     // Optimistically add message to UI
@@ -264,12 +332,7 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       // Replace optimistic message with real message from server
       setMessages(prev => prev.map(msg =>
         msg.id === optimisticMessage.id
-          ? {
-              id: realMessage.id,
-              content: realMessage.content,
-              createdAt: realMessage.createdAt,
-              author: realMessage.author
-            }
+          ? realMessage
           : msg
       ))
 
@@ -280,6 +343,154 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id))
     }
   }, [session?.user?.id, session?.user?.username, session?.user?.profilePhoto, leagueId])
+
+  // Toggle reaction (add or remove)
+  const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
+    if (!session?.user?.id) return
+
+    // Check if user already reacted with this emoji
+    const message = messagesRef.current.find(m => m.id === messageId)
+    if (!message) return
+
+    const existingReaction = message.reactions.find(
+      r => r.emoji === emoji && r.user.id === session.user.id
+    )
+
+    if (existingReaction) {
+      // Remove reaction
+      // Optimistically update UI
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === messageId) {
+          return {
+            ...msg,
+            reactions: msg.reactions.filter(
+              r => !(r.emoji === emoji && r.user.id === session.user.id)
+            )
+          }
+        }
+        return msg
+      }))
+
+      try {
+        const response = await fetch(
+          `/api/leagues/${leagueId}/chat/messages/${messageId}/reactions?emoji=${encodeURIComponent(emoji)}`,
+          { method: 'DELETE' }
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to remove reaction')
+        }
+      } catch (err) {
+        console.error('Error removing reaction:', err)
+        // Revert optimistic update
+        setMessages(prev => prev.map(msg => {
+          if (msg.id === messageId) {
+            return {
+              ...msg,
+              reactions: [...msg.reactions, {
+                emoji,
+                user: {
+                  id: session.user.id,
+                  username: session.user.username,
+                  profilePhoto: session.user.profilePhoto
+                }
+              }]
+            }
+          }
+          return msg
+        }))
+      }
+    } else {
+      // Add reaction
+      // Optimistically update UI
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === messageId) {
+          return {
+            ...msg,
+            reactions: [...msg.reactions, {
+              emoji,
+              user: {
+                id: session.user.id,
+                username: session.user.username,
+                profilePhoto: session.user.profilePhoto
+              }
+            }]
+          }
+        }
+        return msg
+      }))
+
+      try {
+        const response = await fetch(
+          `/api/leagues/${leagueId}/chat/messages/${messageId}/reactions`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ emoji })
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to add reaction')
+        }
+      } catch (err) {
+        console.error('Error adding reaction:', err)
+        // Revert optimistic update
+        setMessages(prev => prev.map(msg => {
+          if (msg.id === messageId) {
+            return {
+              ...msg,
+              reactions: msg.reactions.filter(
+                r => !(r.emoji === emoji && r.user.id === session.user.id)
+              )
+            }
+          }
+          return msg
+        }))
+      }
+    }
+  }, [session?.user?.id, session?.user?.username, session?.user?.profilePhoto, leagueId])
+
+  // Delete message
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!session?.user?.id) return
+
+    // Optimistically mark as deleted
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        return {
+          ...msg,
+          isDeleted: true,
+          deletedAt: new Date().toISOString()
+        }
+      }
+      return msg
+    }))
+
+    try {
+      const response = await fetch(
+        `/api/leagues/${leagueId}/chat/messages/${messageId}`,
+        { method: 'DELETE' }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to delete message')
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err)
+      // Revert optimistic update
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === messageId) {
+          return {
+            ...msg,
+            isDeleted: false,
+            deletedAt: undefined
+          }
+        }
+        return msg
+      }))
+    }
+  }, [session?.user?.id, leagueId])
 
   // Refresh messages function for pull-to-refresh
   const refreshMessages = useCallback(async () => {
@@ -343,6 +554,8 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     loadMoreMessages,
     hasMore,
     error,
-    refreshMessages
+    refreshMessages,
+    toggleReaction,
+    deleteMessage
   }
 }

@@ -37,7 +37,9 @@ export default function ChatPage({ params }: ChatPageProps) {
     loadMoreMessages,
     hasMore,
     error,
-    refreshMessages
+    refreshMessages,
+    toggleReaction,
+    deleteMessage
   } = useLeagueChatSSE(params.leagueId)
 
   const { markChatAsRead, getActivityTimestamps } = useLocalActivityTracking()
@@ -201,6 +203,10 @@ export default function ChatPage({ params }: ChatPageProps) {
                   message={message}
                   isOwnMessage={isOwnMessage}
                   showAvatar={showAvatar}
+                  currentUserId={session.user.id}
+                  isLeagueOwner={leagueData?.league?.isOwner || false}
+                  onReactionToggle={toggleReaction}
+                  onDeleteMessage={deleteMessage}
                 />
               </div>
             )

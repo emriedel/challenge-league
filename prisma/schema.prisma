@@ -68,6 +68,7 @@ model User {
   ownedLeagues League[] @relation("LeagueOwner")
   pushSubscriptions PushSubscription[]
   chatMessages ChatMessage[]
+  messageReactions MessageReaction[]
   activities UserActivity[]
   emailPreferences EmailPreferences?
 
@@ -231,13 +232,30 @@ model ChatMessage {
   id        String   @id @default(cuid())
   content   String
   createdAt DateTime @default(now())
+  isDeleted Boolean  @default(false) // Soft delete
+  deletedAt DateTime?
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   leagueId String
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  reactions MessageReaction[]
 
   @@map("chat_messages")
+}
+
+model MessageReaction {
+  id        String   @id @default(cuid())
+  emoji     String   // The emoji character (e.g., "👍", "❤️")
+  createdAt DateTime @default(now())
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messageId String
+  message ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId, emoji]) // One reaction per user per message per emoji
+  @@map("message_reactions")
 }
 
 model UserActivity {

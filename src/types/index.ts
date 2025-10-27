@@ -66,6 +66,22 @@ export type {
   CommentWithResponse,
 } from './comment';
 
+// Chat types
+export type {
+  ChatMessage,
+  ChatMessageAuthor,
+  MessageReaction,
+  MessageReactionUser,
+  ChatSSEEvent,
+  ChatSSENewMessageEvent,
+  ChatSSEReactionAddedEvent,
+  ChatSSEReactionRemovedEvent,
+  ChatSSEMessageDeletedEvent,
+  ValidEmoji,
+} from './chat';
+
+export { VALID_EMOJIS } from './chat';
+
 // Note: API types are defined locally in route files as needed
 
 // Hook types

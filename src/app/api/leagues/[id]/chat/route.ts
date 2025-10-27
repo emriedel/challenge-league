@@ -51,6 +51,20 @@ export async function GET(
             username: true,
             profilePhoto: true
           }
+        },
+        reactions: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profilePhoto: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
         }
       },
       orderBy: {
@@ -120,6 +134,17 @@ export async function POST(
             username: true,
             profilePhoto: true
           }
+        },
+        reactions: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profilePhoto: true
+              }
+            }
+          }
         }
       }
     })
@@ -131,11 +156,21 @@ export async function POST(
         id: message.id,
         content: message.content,
         createdAt: message.createdAt.toISOString(),
+        isDeleted: message.isDeleted,
+        deletedAt: message.deletedAt?.toISOString() || null,
         author: {
           id: message.author.id,
           username: message.author.username,
           profilePhoto: message.author.profilePhoto
-        }
+        },
+        reactions: message.reactions.map(r => ({
+          emoji: r.emoji,
+          user: {
+            id: r.user.id,
+            username: r.user.username,
+            profilePhoto: r.user.profilePhoto
+          }
+        }))
       }
     })
 
