@@ -122,9 +122,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML pages - network first
+  // HTML pages - cache first for offline support
   if (request.destination === 'document') {
-    event.respondWith(networkFirst(request));
+    event.respondWith(cacheFirstWithOfflineFallback(request));
     return;
   }
 
@@ -222,7 +222,94 @@ async function cacheFirst(request) {
   }
 }
 
-// Network first strategy
+// Cache first for HTML pages with offline fallback
+async function cacheFirstWithOfflineFallback(request) {
+  try {
+    // Check cache first
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      // Return cached page and update in background
+      fetch(request).then((networkResponse) => {
+        if (networkResponse.ok) {
+          const cache = caches.open(DYNAMIC_CACHE_NAME);
+          cache.then(c => c.put(request, networkResponse.clone()));
+        }
+      }).catch(() => {
+        // Silently fail network update
+      });
+      return cachedResponse;
+    }
+
+    // No cache, try network
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE_NAME);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    // Network failed and no cache - show offline page
+    return new Response(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Challenge League - Offline</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              margin: 0;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              background: #000000;
+              color: #ffffff;
+            }
+            .offline {
+              text-align: center;
+              max-width: 400px;
+              padding: 48px 32px;
+              background: #1a1a1a;
+              border: 1px solid #404040;
+              border-radius: 12px;
+            }
+            h1 {
+              margin: 0 0 16px 0;
+              font-size: 24px;
+              font-weight: 600;
+              color: #ffffff;
+            }
+            p {
+              margin: 12px 0;
+              font-size: 16px;
+              line-height: 1.5;
+              color: #a3a3a3;
+            }
+            .icon {
+              font-size: 48px;
+              margin-bottom: 24px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="offline">
+            <div class="icon">📡</div>
+            <h1>Page not cached</h1>
+            <p>This page hasn't been loaded yet while online.</p>
+            <p>Please connect to the internet to view this content.</p>
+          </div>
+        </body>
+      </html>
+    `, {
+      status: 503,
+      headers: { 'Content-Type': 'text/html' }
+    });
+  }
+}
+
+// Network first strategy (for API requests)
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
@@ -236,68 +323,7 @@ async function networkFirst(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
-    // Return offline page for HTML requests
-    if (request.destination === 'document') {
-      return new Response(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Challenge League - Offline</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                margin: 0;
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                background: #000000;
-                color: #ffffff;
-              }
-              .offline {
-                text-align: center;
-                max-width: 400px;
-                padding: 48px 32px;
-                background: #1a1a1a;
-                border: 1px solid #404040;
-                border-radius: 12px;
-              }
-              h1 {
-                margin: 0 0 16px 0;
-                font-size: 24px;
-                font-weight: 600;
-                color: #ffffff;
-              }
-              p {
-                margin: 12px 0;
-                font-size: 16px;
-                line-height: 1.5;
-                color: #a3a3a3;
-              }
-              .icon {
-                font-size: 48px;
-                margin-bottom: 24px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="offline">
-              <div class="icon">📡</div>
-              <h1>You're offline</h1>
-              <p>Challenge League needs an internet connection to work properly.</p>
-              <p>Please check your connection and try again.</p>
-            </div>
-          </body>
-        </html>
-      `, {
-        status: 503,
-        headers: { 'Content-Type': 'text/html' }
-      });
-    }
-    
+
     return new Response('Offline', { status: 503 });
   }
 }
