@@ -95,8 +95,9 @@ export default function ChatPage({ params }: ChatPageProps) {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         prevMessageCountRef.current = currentMessageCount
       }
+      // If no new messages, do nothing - don't interfere with manual scrolling
     }
-  }, [messages, isInitialLoad])
+  }, [messages.length, isInitialLoad]) // Only depend on message count, not entire messages array
 
   // Handle case where messages are empty initially
   useEffect(() => {
