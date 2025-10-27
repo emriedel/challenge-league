@@ -249,7 +249,6 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
   // Load initial messages when connection is established
   useEffect(() => {
     if (isConnected && session?.user?.id) {
-      console.log('[CHAT] Connection established, loading initial messages')
       loadInitialMessages()
     }
   }, [isConnected, session?.user?.id, loadInitialMessages])
