@@ -83,39 +83,22 @@ export function MessageBubble({
     }
   }
 
-  // Add non-passive touch listeners to properly prevent default behaviors
+  // Add context menu prevention only (allow scrolling)
   useEffect(() => {
     const messageElement = messageRef.current
     if (!messageElement) return
 
-    let touchStartTime = 0
-
-    const touchStartHandler = (e: TouchEvent) => {
+    const contextMenuHandler = (e: Event) => {
+      // Prevent browser context menu on long-press
       if (message.isDeleted) return
-      touchStartTime = Date.now()
-
-      // Always prevent default to stop browser context menu
-      if (e.cancelable) {
-        e.preventDefault()
-      }
+      e.preventDefault()
     }
 
-    const touchEndHandler = (e: TouchEvent) => {
-      const touchDuration = Date.now() - touchStartTime
-
-      // Always prevent default to stop browser context menu
-      if (e.cancelable) {
-        e.preventDefault()
-      }
-    }
-
-    // Add with { passive: false } to allow preventDefault when needed
-    messageElement.addEventListener('touchstart', touchStartHandler, { passive: false })
-    messageElement.addEventListener('touchend', touchEndHandler, { passive: false })
+    // Only prevent context menu, don't interfere with touch scrolling
+    messageElement.addEventListener('contextmenu', contextMenuHandler)
 
     return () => {
-      messageElement.removeEventListener('touchstart', touchStartHandler)
-      messageElement.removeEventListener('touchend', touchEndHandler)
+      messageElement.removeEventListener('contextmenu', contextMenuHandler)
     }
   }, [message.isDeleted])
 
