@@ -83,10 +83,13 @@ const getComments = async ({ req, session }: AuthenticatedApiContext) => {
     });
   }
 
-  // Check if user can still comment (only during VOTING phase and not on own submission)
-  const canComment = response.prompt.status === 'VOTING' &&
-                     !isPhaseExpired(response.prompt, leagueSettings) &&
-                     response.userId !== session.user.id; // Can't comment on own submission
+  // Check if user can still comment
+  // During VOTING: can comment on others' submissions (not own)
+  // During COMPLETED: can comment on any submission (including own)
+  const canComment = response.prompt.status === 'COMPLETED' ||
+    (response.prompt.status === 'VOTING' &&
+     !isPhaseExpired(response.prompt, leagueSettings) &&
+     response.userId !== session.user.id);
 
   // Filter comments based on prompt status:
   // - During VOTING: only show user's own comments
@@ -147,18 +150,18 @@ const createOrUpdateComment = async ({ req, session }: AuthenticatedApiContext) 
   // Validate league membership
   await validateLeagueMembership(db, session.user.id, response.prompt.leagueId);
 
-  // Only allow comments during VOTING phase
-  if (response.prompt.status !== 'VOTING') {
-    throw new ForbiddenError('Comments can only be made during the voting phase');
+  // Allow comments during VOTING or COMPLETED phase
+  if (response.prompt.status !== 'VOTING' && response.prompt.status !== 'COMPLETED') {
+    throw new ForbiddenError('Comments can only be made during the voting phase or after completion');
   }
 
-  // Get league settings to check if voting window is still open
+  // Get league settings to check if voting window is still open (for VOTING phase only)
   const league = await db.league.findUnique({
     where: { id: response.prompt.leagueId },
-    select: { 
-      submissionDays: true, 
-      votingDays: true, 
-      votesPerPlayer: true 
+    select: {
+      submissionDays: true,
+      votingDays: true,
+      votesPerPlayer: true
     }
   });
 
@@ -172,8 +175,8 @@ const createOrUpdateComment = async ({ req, session }: AuthenticatedApiContext) 
     votesPerPlayer: league.votesPerPlayer
   };
 
-  // Check if voting window is still open
-  if (isPhaseExpired(response.prompt, leagueSettings)) {
+  // Check if voting window is still open (only for VOTING phase, COMPLETED is always open)
+  if (response.prompt.status === 'VOTING' && isPhaseExpired(response.prompt, leagueSettings)) {
     throw new ForbiddenError('Commenting window has closed');
   }
 

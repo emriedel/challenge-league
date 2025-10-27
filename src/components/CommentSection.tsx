@@ -161,7 +161,76 @@ export default function CommentSection({
   }
 
   // Show collapsed view for results page
-  if (collapsed && comments.length > 0) {
+  if (collapsed) {
+    // Handle case when there are no comments yet
+    if (comments.length === 0) {
+      return (
+        <div className="px-4 pt-3 pb-8">
+          {canComment && !showCommentForm && (
+            <button
+              onClick={() => setShowCommentForm(true)}
+              className="flex items-center space-x-2 text-sm text-app-text-muted hover:text-app-text"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A3.969 3.969 0 006 21c.085 0 .18-.011.304-.030a7.484 7.484 0 001.765-.575c.621-.335 1.338-.532 2.092-.532.9 0 1.788.166 2.652.477C13.456 20.12 14.744 20.25 16 20.25h-4z" />
+              </svg>
+              <span>Add a comment...</span>
+            </button>
+          )}
+          {showCommentForm && canComment && (
+            <form onSubmit={handleSubmitComment} className="space-y-2 mt-2">
+              <div className="flex space-x-3">
+                <ProfileAvatar
+                  username={session?.user?.username || ''}
+                  profilePhoto={session?.user?.profilePhoto}
+                  size="xs"
+                />
+                <div className="flex-1">
+                  <textarea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="w-full px-3 py-2 text-sm bg-app-surface border border-app-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
+                    rows={2}
+                    maxLength={500}
+                    autoFocus
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    {commentText.length > 450 && (
+                      <span className="text-xs text-app-text-muted">
+                        {500 - commentText.length} characters remaining
+                      </span>
+                    )}
+                    <div className="flex space-x-2 ml-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCommentForm(false);
+                          setCommentText('');
+                        }}
+                        className="px-3 py-1 text-xs text-app-text-muted hover:text-app-text"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={!commentText.trim() || submitting}
+                        className="px-3 py-1 text-xs bg-[#3a8e8c] text-white rounded hover:bg-[#2d6b6a] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {submitting ? 'Posting...' : 'Post'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          )}
+        </div>
+      );
+    }
+
+    // Handle case when there are existing comments
+    if (comments.length > 0) {
     const previewComment = comments[0];
     return (
       <div className="px-4 pt-3 pb-8">
@@ -179,17 +248,134 @@ export default function CommentSection({
                     <span className="font-semibold text-sm text-app-text">{comment.author.username}</span>
                     <span className="text-xs text-app-text-muted">{formatCommentTime(comment.createdAt)}</span>
                   </div>
-                  <p className="text-sm text-app-text">{comment.text}</p>
+                  {editingCommentId === comment.id ? (
+                    /* Inline editing form */
+                    <form onSubmit={handleSubmitComment} className="space-y-2">
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-app-surface border border-app-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
+                        rows={2}
+                        maxLength={500}
+                        autoFocus
+                      />
+                      <div className="flex justify-between items-center">
+                        {editingText.length > 450 && (
+                          <span className="text-xs text-app-text-muted">
+                            {500 - editingText.length} characters remaining
+                          </span>
+                        )}
+                        <div className="flex space-x-2 ml-auto">
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="px-3 py-1 text-xs text-app-text-muted hover:text-app-text"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={!editingText.trim() || submitting}
+                            className="px-3 py-1 text-xs bg-[#3a8e8c] text-white rounded hover:bg-[#2d6b6a] disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {submitting ? 'Updating...' : 'Update'}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-app-text mb-1">{comment.text}</p>
+                      {comment.canEdit && (
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => handleEditComment(comment)}
+                            className="text-xs text-app-text-muted hover:text-app-text"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="text-xs text-app-text-muted hover:text-red-400"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
-            {comments.length > 1 && (
-              <button
-                onClick={() => setShowAll(false)}
-                className="text-sm text-app-text-muted hover:text-app-text mt-1"
-              >
-                Show less
-              </button>
+            <div className="flex items-center justify-between mt-2">
+              {comments.length > 1 && (
+                <button
+                  onClick={() => setShowAll(false)}
+                  className="text-sm text-app-text-muted hover:text-app-text"
+                >
+                  Show less
+                </button>
+              )}
+              {canComment && (
+                <button
+                  onClick={() => setShowCommentForm(true)}
+                  className="flex items-center space-x-1 text-sm text-app-text-muted hover:text-app-text ml-auto"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A3.969 3.969 0 006 21c.085 0 .18-.011.304-.030a7.484 7.484 0 001.765-.575c.621-.335 1.338-.532 2.092-.532.9 0 1.788.166 2.652.477C13.456 20.12 14.744 20.25 16 20.25h-4z" />
+                  </svg>
+                  <span>Add comment</span>
+                </button>
+              )}
+            </div>
+            {/* Comment form when showCommentForm is true */}
+            {showCommentForm && canComment && (
+              <form onSubmit={handleSubmitComment} className="space-y-2 mt-3">
+                <div className="flex space-x-3">
+                  <ProfileAvatar
+                    username={session?.user?.username || ''}
+                    profilePhoto={session?.user?.profilePhoto}
+                    size="xs"
+                  />
+                  <div className="flex-1">
+                    <textarea
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="w-full px-3 py-2 text-sm bg-app-surface border border-app-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-app-text placeholder-app-text-muted"
+                      rows={2}
+                      maxLength={500}
+                      autoFocus
+                    />
+                    <div className="flex justify-between items-center mt-2">
+                      {commentText.length > 450 && (
+                        <span className="text-xs text-app-text-muted">
+                          {500 - commentText.length} characters remaining
+                        </span>
+                      )}
+                      <div className="flex space-x-2 ml-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCommentForm(false);
+                            setCommentText('');
+                          }}
+                          className="px-3 py-1 text-xs text-app-text-muted hover:text-app-text"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={!commentText.trim() || submitting}
+                          className="px-3 py-1 text-xs bg-[#3a8e8c] text-white rounded hover:bg-[#2d6b6a] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? 'Posting...' : 'Post'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
             )}
           </div>
         ) : (
@@ -220,6 +406,7 @@ export default function CommentSection({
         )}
       </div>
     );
+    }
   }
 
   return (
