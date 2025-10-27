@@ -73,8 +73,7 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
     } finally {
       setIsLoading(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagueId]) // Intentionally minimal dependencies
+  }, [session?.user?.id, leagueId])
 
   // Initialize SSE connection with retry logic
   const connectSSE = useCallback(() => {
@@ -112,8 +111,6 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
       setIsConnected(true)
       setError(null)
       retryCountRef.current = 0 // Reset retry count on successful connection
-      // Load initial messages when connection is established
-      loadInitialMessages()
     }
 
     eventSource.onmessage = (event) => {
@@ -242,13 +239,20 @@ export function useLeagueChatSSE(leagueId: string): UseChatReturn {
         retryTimeoutRef.current = null
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagueId]) // Intentionally minimal dependencies to prevent reconnection loops
+  }, [leagueId, session?.user?.id, loadInitialMessages])
 
   useEffect(() => {
     const cleanup = connectSSE()
     return cleanup
   }, [connectSSE])
+
+  // Load initial messages when connection is established
+  useEffect(() => {
+    if (isConnected && session?.user?.id) {
+      console.log('[CHAT] Connection established, loading initial messages')
+      loadInitialMessages()
+    }
+  }, [isConnected, session?.user?.id, loadInitialMessages])
 
   // Load more messages (pagination)
   const loadMoreMessages = useCallback(async () => {
