@@ -389,6 +389,7 @@ export default function LeagueHomePage({ params }: LeagueHomePageProps) {
                 isUpdating={isSubmittingResponse}
                 message={submissionMessage}
                 challengeStartDate={promptData.prompt?.phaseStartedAt ? new Date(promptData.prompt.phaseStartedAt) : null}
+                promptStatus={promptData.prompt?.status}
               />
             </div>
           )}

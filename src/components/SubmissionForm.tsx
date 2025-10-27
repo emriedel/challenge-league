@@ -55,11 +55,11 @@ export default function SubmissionForm({ prompt, onSubmit, isSubmitting = false 
     phaseStartedAt: challengeStartDate,
   }), [prompt.id, prompt.status, challengeStartDate]);
 
-  const isExpired = !isSubmissionWindowOpen(promptForTimer);
-  const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting || isExpired;
+  const isWindowClosed = !isSubmissionWindowOpen(promptForTimer);
+  const isSubmissionDisabled = !selectedPhoto || !caption.trim() || isSubmitting || isWindowClosed;
 
 
-  if (isExpired) {
+  if (isWindowClosed) {
     return (
       <div className="bg-app-surface-dark border border-app-border rounded-lg p-8 text-center">
         <div className="text-app-text-muted mb-4">

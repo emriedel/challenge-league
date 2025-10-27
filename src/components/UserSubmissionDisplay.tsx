@@ -6,6 +6,7 @@ import PhotoFeedItem from './PhotoFeedItem';
 import ProfileAvatar from './ProfileAvatar';
 import { CONTENT_LIMITS } from '@/constants/app';
 import { checkPhotoAge } from '@/lib/photoMetadata';
+import { isSubmissionWindowOpen } from '@/lib/phaseCalculations';
 import type { UserSubmissionDisplayProps } from '@/types/components';
 
 
@@ -16,11 +17,22 @@ export default function UserSubmissionDisplay({
   isUpdating,
   message,
   challengeStartDate,
+  promptStatus,
 }: UserSubmissionDisplayProps) {
   const [isEditingInline, setIsEditingInline] = useState(false);
   const [editedCaption, setEditedCaption] = useState(userResponse.caption);
   const [editedPhoto, setEditedPhoto] = useState<File | null>(null);
   const [photoAgeWarning, setPhotoAgeWarning] = useState<string | null>(null);
+
+  // Check if editing is allowed based on submission window
+  const canEdit = useMemo(() => {
+    if (!promptStatus || !challengeStartDate) return false;
+    return isSubmissionWindowOpen({
+      id: 'temp', // Not needed for this check
+      status: promptStatus,
+      phaseStartedAt: challengeStartDate
+    });
+  }, [promptStatus, challengeStartDate]);
 
   const handleStartInlineEdit = () => {
     setEditedCaption(userResponse.caption);
@@ -168,13 +180,15 @@ export default function UserSubmissionDisplay({
             caption={userResponse.caption}
             submittedAt={userResponse.submittedAt}
             headerActions={
-              <button
-                onClick={handleStartInlineEdit}
-                className="px-3 py-1.5 text-sm font-medium text-white bg-[#3a8e8c] hover:bg-[#2d6b6a] focus:outline-none rounded-lg transition-colors"
-                title="Edit submission"
-              >
-                Edit
-              </button>
+              canEdit ? (
+                <button
+                  onClick={handleStartInlineEdit}
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-[#3a8e8c] hover:bg-[#2d6b6a] focus:outline-none rounded-lg transition-colors"
+                  title="Edit submission"
+                >
+                  Edit
+                </button>
+              ) : undefined
             }
           />
         </div>

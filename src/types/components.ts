@@ -60,6 +60,7 @@ export interface UserSubmissionDisplayProps {
   isUpdating: boolean;
   message?: Message | null;
   challengeStartDate?: Date | null;
+  promptStatus?: 'SCHEDULED' | 'ACTIVE' | 'VOTING' | 'COMPLETED';
 }
 
 
