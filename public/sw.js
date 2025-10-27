@@ -246,24 +246,46 @@ async function networkFirst(request) {
             <title>Challenge League - Offline</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-              body { 
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-                padding: 20px; 
-                text-align: center; 
-                color: #374151;
-                background: #f9fafb;
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                margin: 0;
+                padding: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                background: #000000;
+                color: #ffffff;
               }
-              .offline { 
-                margin-top: 50px; 
+              .offline {
+                text-align: center;
                 max-width: 400px;
-                margin-left: auto;
-                margin-right: auto;
+                padding: 48px 32px;
+                background: #1a1a1a;
+                border: 1px solid #404040;
+                border-radius: 12px;
               }
-              h1 { color: #1f2937; }
+              h1 {
+                margin: 0 0 16px 0;
+                font-size: 24px;
+                font-weight: 600;
+                color: #ffffff;
+              }
+              p {
+                margin: 12px 0;
+                font-size: 16px;
+                line-height: 1.5;
+                color: #a3a3a3;
+              }
+              .icon {
+                font-size: 48px;
+                margin-bottom: 24px;
+              }
             </style>
           </head>
           <body>
             <div class="offline">
+              <div class="icon">📡</div>
               <h1>You're offline</h1>
               <p>Challenge League needs an internet connection to work properly.</p>
               <p>Please check your connection and try again.</p>
