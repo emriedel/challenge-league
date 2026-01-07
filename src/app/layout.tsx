@@ -4,6 +4,7 @@ import { inter } from '@/lib/fonts';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/react';
 
+import { FastPrAnalytics } from '@/components/fast-pr-analytics';
 export const metadata: Metadata = {
   title: 'Challenge League',
   description: 'Creative competition leagues for friends and communities',
@@ -85,7 +86,8 @@ export default function RootLayout({
           {children}
         </ErrorBoundary>
         <Analytics />
-      </body>
+            <FastPrAnalytics />
+</body>
     </html>
   );
 }
