@@ -1,70 +1,7 @@
 import { db } from './db';
 import { isPhaseExpired, getNextPhase, willPhaseExpireInNextCronRun, getPhaseEndTime } from './phaseCalculations';
-import { del } from '@vercel/blob';
-import { unlink } from 'node:fs/promises';
-import { join } from 'node:path';
 import { sendNotificationToLeague, sendNotificationToUser, createNotificationData } from './pushNotifications';
 import { sendChallengeStartedEmails } from './emailNotifications';
-
-async function cleanupOldPhotos() {
-  try {
-    // Find prompts that were completed more than 1 week ago (past cleanup threshold)
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 7); // 1 week ago
-
-    const oldPrompts = await db.prompt.findMany({
-      where: {
-        status: 'COMPLETED',
-        updatedAt: { lt: cutoffDate }, // Use updatedAt as proxy for completion time
-      },
-      include: {
-        responses: true,
-      },
-    });
-
-    let cleanedCount = 0;
-
-    for (const prompt of oldPrompts) {
-      for (const response of prompt.responses) {
-        try {
-          if (response.imageUrl.startsWith('/uploads/')) {
-            // Local development file
-            const filename = response.imageUrl.replace('/uploads/', '');
-            const filepath = join(process.cwd(), 'public', 'uploads', filename);
-            
-            try {
-              await unlink(filepath);
-              console.log(`🗑️ Deleted local file: ${filename}`);
-            } catch (err) {
-              // File might already be deleted, continue
-              console.log(`⚠️ Could not delete local file: ${filename}`);
-            }
-          } else if (response.imageUrl.includes('blob.vercel-storage.com')) {
-            // Vercel Blob file
-            try {
-              await del(response.imageUrl);
-              console.log(`🗑️ Deleted blob file: ${response.imageUrl}`);
-            } catch (err) {
-              console.log(`⚠️ Could not delete blob file: ${response.imageUrl}`);
-            }
-          }
-          cleanedCount++;
-        } catch (error) {
-          console.error(`❌ Error cleaning photo for response ${response.id}:`, error);
-        }
-      }
-    }
-
-    if (cleanedCount > 0) {
-      console.log(`🧹 Cleaned up ${cleanedCount} old photos`);
-    }
-
-    return { success: true, cleanedCount };
-  } catch (error) {
-    console.error('❌ Error during photo cleanup:', error);
-    return { success: false, error };
-  }
-}
 
 async function calculateVoteResults(promptId: string) {
   try {
@@ -576,9 +513,6 @@ export async function processPromptQueue() {
         console.log(`   ℹ️ No scheduled prompts available for activation`);
       }
     }
-
-    // Run photo cleanup periodically
-    await cleanupOldPhotos();
 
     const endTime = new Date();
     const processingTime = endTime.getTime() - now.getTime();
